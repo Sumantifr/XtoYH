@@ -84,7 +84,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.load('CommonTools.UtilAlgos.TFileService_cfi')
 
 process.TFileService = cms.Service("TFileService",
-fileName = cms.string('hist.root')             #largest data till April5,2016 
+fileName = cms.string('hist_jerc_l5.root')             #largest data till April5,2016 
 )
 
 process.patJets.addTagInfos = True
@@ -126,12 +126,21 @@ deep_discriminators = ["pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:TvsQC
                        
 ]
 
-from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
-deep_discriminators += pfParticleNetJetTagsAll
+from jetToolbox_cff import jetToolbox
 
+process.p = cms.Path()
+
+from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
+#deep_discriminators += pfParticleNetJetTagsAll
+
+jetToolbox( process, 'ak8', 'dummySeqAK8', 'noOutput', PUMethod='Puppi', dataTier="miniAOD", runOnMC=False, 
+	    #JETCorrPayload = 'AK8PFPuppi', 
+	    addSoftDrop=True, addSoftDropSubjets=True, addNsub=True)
+'''
 updateJetCollection(
    process,
-   jetSource = cms.InputTag('slimmedJetsAK8'),
+   #jetSource = cms.InputTag('slimmedJetsAK8'),
+   jetSource = cms.InputTag('selectedPatJetsAK8PFPuppi'),
    pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
    svSource = cms.InputTag('slimmedSecondaryVertices'),
    rParam = 0.8,
@@ -139,7 +148,20 @@ updateJetCollection(
    jetCorrections = ('AK8PFPuppi', cms.vstring([]), 'None' ),
    btagDiscriminators = deep_discriminators 
 )
-
+'''
+from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll
+updateJetCollection(
+    process,
+    jetSource = cms.InputTag('slimmedJetsAK8'),
+    pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+    svSource = cms.InputTag('slimmedSecondaryVertices'),
+    rParam = 0.8,
+    jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual']), 'None'),
+    btagDiscriminators = _pfDeepBoostedJetTagsAll,
+    postfix='AK8WithDeepTags',
+    printWarning = False
+)
 # For prefire correction #
 
 from PhysicsTools.PatUtils.l1PrefiringWeightProducer_cfi import l1PrefiringWeightProducer
@@ -165,7 +187,7 @@ process.mcjets =  cms.EDAnalyzer('Leptop',
 	 SoftDrop_ON =  cms.untracked.bool(True),
 	 add_prefireweights =  cms.untracked.bool(False),
 
- 	 RootFileName = cms.untracked.string('rootuple.root'),  #largest data till April5,2016
+ 	 RootFileName = cms.untracked.string('rootuple_jerc_l5.root'),  #largest data till April5,2016
 	
 #	 PFJetsAK8 = cms.InputTag("slimmedJetsAK8"),
 #        PFJetsAK8 = cms.InputTag("selectedPatJetsAK8PFPuppiSoftDropPacked","SubJets","Combined"),
@@ -320,7 +342,7 @@ process.p = cms.Path(process.egmPhotonIDSequence*
 		     process.allMetFilterPaths*
 #		     process.egmGsfElectronIDSequence*
 		     process.rerunMvaIsolationSequence*getattr(process,updatedTauName)* #process.slimmedTausUpdated*  # this also works
-		     process.jetSeq *
+#		     process.jetSeq *
 		     process.prefiringweight *
 		     process.mcjets)
 

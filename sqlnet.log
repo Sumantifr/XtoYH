@@ -1,0 +1,133 @@
+
+
+***********************************************************************
+Fatal NI connect error 12545, connecting to:
+ (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=cmsonr-rac51-scan.cern.ch)(PORT=10121))(ENABLE=BROKEN)(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=cms_orcon_adg.cern.ch)(CID=(PROGRAM=python)(HOST=lxplus793.cern.ch)(USER=chatterj))))
+
+  VERSION INFORMATION:
+	TNS for Linux: Version 12.1.0.2.0 - Production
+	TCP/IP NT Protocol Adapter for Linux: Version 12.1.0.2.0 - Production
+  Time: 11-OCT-2021 10:11:52
+  Tracing not turned on.
+  Tns error struct:
+    ns main err code: 12545
+    TNS-12545: Message 12545 not found; No message file for product=network, facility=TNS
+    ns secondary err code: 12560
+    nt main err code: 515
+    TNS-00515: Message 515 not found; No message file for product=network, facility=TNS
+    nt secondary err code: 0
+    nt OS err code: 0
+
+
+***********************************************************************
+Fatal NI connect error 12545, connecting to:
+ (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=cmsonr-rac51-scan.cern.ch)(PORT=10121))(ENABLE=BROKEN)(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=cms_orcon_adg.cern.ch)(CID=(PROGRAM=python)(HOST=lxplus793.cern.ch)(USER=chatterj))))
+
+  VERSION INFORMATION:
+	TNS for Linux: Version 12.1.0.2.0 - Production
+	TCP/IP NT Protocol Adapter for Linux: Version 12.1.0.2.0 - Production
+  Time: 11-OCT-2021 10:12:15
+  Tracing not turned on.
+  Tns error struct:
+    ns main err code: 12545
+    TNS-12545: Message 12545 not found; No message file for product=network, facility=TNS
+    ns secondary err code: 12560
+    nt main err code: 515
+    TNS-00515: Message 515 not found; No message file for product=network, facility=TNS
+    nt secondary err code: 0
+    nt OS err code: 0
+
+
+***********************************************************************
+Fatal NI connect error 12545, connecting to:
+ (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=cmsonr-rac51-scan.cern.ch)(PORT=10121))(ENABLE=BROKEN)(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=cms_orcon_adg.cern.ch)(CID=(PROGRAM=python)(HOST=lxplus793.cern.ch)(USER=chatterj))))
+
+  VERSION INFORMATION:
+	TNS for Linux: Version 12.1.0.2.0 - Production
+	TCP/IP NT Protocol Adapter for Linux: Version 12.1.0.2.0 - Production
+  Time: 11-OCT-2021 10:12:53
+  Tracing not turned on.
+  Tns error struct:
+    ns main err code: 12545
+    TNS-12545: Message 12545 not found; No message file for product=network, facility=TNS
+    ns secondary err code: 12560
+    nt main err code: 515
+    TNS-00515: Message 515 not found; No message file for product=network, facility=TNS
+    nt secondary err code: 0
+    nt OS err code: 0
+
+
+***********************************************************************
+Fatal NI connect error 12545, connecting to:
+ (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=cmsonr-rac51-scan.cern.ch)(PORT=10121))(ENABLE=BROKEN)(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=cms_orcon_adg.cern.ch)(CID=(PROGRAM=python)(HOST=lxplus793.cern.ch)(USER=chatterj))))
+
+  VERSION INFORMATION:
+	TNS for Linux: Version 12.1.0.2.0 - Production
+	TCP/IP NT Protocol Adapter for Linux: Version 12.1.0.2.0 - Production
+  Time: 11-OCT-2021 10:13:22
+  Tracing not turned on.
+  Tns error struct:
+    ns main err code: 12545
+    TNS-12545: Message 12545 not found; No message file for product=network, facility=TNS
+    ns secondary err code: 12560
+    nt main err code: 515
+    TNS-00515: Message 515 not found; No message file for product=network, facility=TNS
+    nt secondary err code: 0
+    nt OS err code: 0
+
+
+***********************************************************************
+Fatal NI connect error 12545, connecting to:
+ (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=cmsonr-rac51-scan.cern.ch)(PORT=10121))(ENABLE=BROKEN)(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=cms_orcon_adg.cern.ch)(CID=(PROGRAM=python)(HOST=lxplus793.cern.ch)(USER=chatterj))))
+
+  VERSION INFORMATION:
+	TNS for Linux: Version 12.1.0.2.0 - Production
+	TCP/IP NT Protocol Adapter for Linux: Version 12.1.0.2.0 - Production
+  Time: 11-OCT-2021 10:17:38
+  Tracing not turned on.
+  Tns error struct:
+    ns main err code: 12545
+    TNS-12545: Message 12545 not found; No message file for product=network, facility=TNS
+    ns secondary err code: 12560
+    nt main err code: 515
+    TNS-00515: Message 515 not found; No message file for product=network, facility=TNS
+    nt secondary err code: 0
+    nt OS err code: 0
+
+
+***********************************************************************
+Fatal NI connect error 12545, connecting to:
+ (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=cmsonr-rac51-scan.cern.ch)(PORT=10121))(ENABLE=BROKEN)(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=cms_orcon_adg.cern.ch)(CID=(PROGRAM=python)(HOST=lxplus793.cern.ch)(USER=chatterj))))
+
+  VERSION INFORMATION:
+	TNS for Linux: Version 12.1.0.2.0 - Production
+	TCP/IP NT Protocol Adapter for Linux: Version 12.1.0.2.0 - Production
+  Time: 11-OCT-2021 10:19:00
+  Tracing not turned on.
+  Tns error struct:
+    ns main err code: 12545
+    TNS-12545: Message 12545 not found; No message file for product=network, facility=TNS
+    ns secondary err code: 12560
+    nt main err code: 515
+    TNS-00515: Message 515 not found; No message file for product=network, facility=TNS
+    nt secondary err code: 0
+    nt OS err code: 0
+
+
+***********************************************************************
+Fatal NI connect error 12545, connecting to:
+ (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=cmsonr-rac51-scan.cern.ch)(PORT=10121))(ENABLE=BROKEN)(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=cms_orcon_adg.cern.ch)(CID=(PROGRAM=python)(HOST=lxplus761.cern.ch)(USER=chatterj))))
+
+  VERSION INFORMATION:
+	TNS for Linux: Version 12.1.0.2.0 - Production
+	TCP/IP NT Protocol Adapter for Linux: Version 12.1.0.2.0 - Production
+  Time: 11-OCT-2021 10:21:46
+  Tracing not turned on.
+  Tns error struct:
+    ns main err code: 12545
+    TNS-12545: Message 12545 not found; No message file for product=network, facility=TNS
+    ns secondary err code: 12560
+    nt main err code: 515
+    TNS-00515: Message 515 not found; No message file for product=network, facility=TNS
+    nt secondary err code: 0
+    nt OS err code: 0
