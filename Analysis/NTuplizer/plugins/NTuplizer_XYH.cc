@@ -21,8 +21,8 @@ Prefiring weights: https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1PrefiringWeigh
 Electron MVA ID: https://twiki.cern.ch/twiki/bin/view/CMS/MultivariateElectronIdentificationRun2
 Photon MVA ID: https://twiki.cern.ch/twiki/bin/view/CMS/MultivariatePhotonIdentificationRun2 
 Main EGamma: https://twiki.cern.ch/twiki/bin/viewauth/CMS/EgammaIDRecipesRun2#MVA_based_electron_Identificatio
-JEC: 
-DeepAKX: 
+JEC: https://twiki.cern.ch/twiki/bin/viewauth/CMS/JECUncertaintySources
+DeepAKX: https://twiki.cern.ch/twiki/bin/viewauth/CMS/DeepAKXTagging
 */
 // system include files-
 #include <memory>
@@ -461,7 +461,8 @@ TLorentzVector LeptonJet_subtraction(vector<auto> leps, pat::Jet jet, TLorentzVe
 void Read_JEC(double &total_JEC,  double &tmprecpt, 
 			  double jeteta, double Rho, bool isData,
 			  pat::Jet jet,
-			  FactorizedJetCorrector *jecL1Fast, FactorizedJetCorrector *jecL2Relative, FactorizedJetCorrector *jecL3Absolute, FactorizedJetCorrector*jecL2L3Residual){
+			  FactorizedJetCorrector *jecL1Fast, FactorizedJetCorrector *jecL2Relative, FactorizedJetCorrector *jecL3Absolute, FactorizedJetCorrector*jecL2L3Residual)
+{
 	
     double total_cor =1;
       
@@ -491,8 +492,7 @@ void Read_JEC(double &total_JEC,  double &tmprecpt,
 	
 	total_JEC = total_cor;
 	
-	return;
-      
+	return;     
 }
 
 void Read_JER(std::string mPtResoFile, std::string mPtSFFile, double tmprecpt, TLorentzVector pfjet4v, double Rho, edm::Handle<reco::GenJetCollection>  genjets, vector<double> &SFs)
@@ -537,6 +537,56 @@ void Read_JER(std::string mPtResoFile, std::string mPtSFFile, double tmprecpt, T
       	
 }
 
+float getEtaForEA(auto obj){
+	float eta;
+	if(abs(obj->pdgId())==11||abs(obj->pdgId())==22) { eta = obj->superCluster()->eta(); }     
+	else { eta = obj->eta(); }
+	return eta;    
+}
+
+std::unique_ptr<EffectiveAreas> ea_mu_miniiso_, ea_el_miniiso_;
+
+void Read_MiniIsolation(auto obj, double Rho, vector<float> &isovalues)
+{
+	pat::PFIsolation iso = obj->miniPFIsolation();                                                                                                                                                                                                   
+	float chg = iso.chargedHadronIso();                                                                                                                     
+	float neu = iso.neutralHadronIso();                                                                                                                     
+	float pho = iso.photonIso();                                                                                       
+	                                                                                   
+	float ea;
+	if(abs(obj->pdgId())==13) { ea = ea_mu_miniiso_->getEffectiveArea(fabs(getEtaForEA(obj))); }
+	else { ea = ea_el_miniiso_->getEffectiveArea(fabs(getEtaForEA(obj))); }  
+	                                                                                    
+	float R = 10.0/std::min(std::max(obj->pt(), 50.0),200.0);                                                                      
+	ea *= std::pow(R / 0.3, 2);                                                                                                                  	
+	float tot = (chg+std::max(0.0,neu+pho-(Rho)*ea));
+	
+	isovalues.push_back(tot);
+	isovalues.push_back(chg);
+	isovalues.push_back(neu);
+	isovalues.push_back(pho);	
+	
+	for(unsigned ij=0; ij<isovalues.size(); ij++){
+		isovalues[ij] *= 1./obj->pt();
+	}
+}
+
+std::unique_ptr<EffectiveAreas> ea_el_pfiso_;
+
+void Read_ElePFIsolation(auto obj, double Rho, vector<float> &isovalues)
+{
+	auto iso = obj->pfIsolationVariables();   
+	auto  ea = ea_el_pfiso_->getEffectiveArea(fabs(getEtaForEA(obj)));                                                    
+    float val = iso.sumChargedHadronPt + max(0., iso.sumNeutralHadronEt + iso.sumPhotonEt - (Rho)*ea); 
+    float val04 = (obj->chargedHadronIso()+std::max(0.0,obj->neutralHadronIso()+obj->photonIso()-(Rho)*ea*16./9.));
+    isovalues.push_back(val);
+    isovalues.push_back(val04);
+    
+    for(unsigned ij=0; ij<isovalues.size(); ij++){
+		isovalues[ij] *= 1./obj->pt();
+	}    
+}
+
 //class declaration
 //
 class Leptop : public edm::EDAnalyzer {
@@ -564,6 +614,7 @@ private:
   int year;
   bool isUltraLegacy;
   bool isSoftDrop;
+  bool add_prefireweights;
   
   uint nPDFsets;
   
@@ -574,11 +625,17 @@ private:
   std::string tau2;
   std::string tau3;
   std::string subjets;
-  std::string toptagger;
-  std::string Wtagger;
-  std::string Ztagger;
-  std::string Htagger;
-  std::string bbtagger;
+  std::string toptagger_DAK8;
+  std::string Wtagger_DAK8;
+  std::string Ztagger_DAK8;
+  std::string Htagger_DAK8;
+  std::string bbtagger_DAK8;
+  std::string toptagger_PNet;
+  std::string Wtagger_PNet;
+  std::string Ztagger_PNet;
+  std::string Xbbtagger_PNet;
+  std::string Xcctagger_PNet;
+  std::string Xqqtagger_PNet;
   
   edm::EDGetTokenT<double> tok_Rho_;
   edm::EDGetTokenT<reco::BeamSpot> tok_beamspot_;
@@ -593,7 +650,7 @@ private:
   edm::EDGetTokenT<edm::View<pat::Photon>>tok_photons_;
   edm::EDGetTokenT<edm::View<pat::Tau>>tok_taus_;
   
-  std::unique_ptr<EffectiveAreas> ea_miniiso_;
+  //std::unique_ptr<EffectiveAreas> ea_miniiso_;
   
   edm::EDGetTokenT<reco::GenMETCollection>tok_genmets_;
   edm::EDGetTokenT<reco::GenJetCollection>tok_genjetAK8s_;
@@ -665,7 +722,8 @@ private:
   bool pfjetAK8jetID_tightlepveto[njetmxAK8], pfjetAK8jetID[njetmxAK8];
   
   float pfjetAK8btag_DeepCSV[njetmxAK8];
-  float pfjetAK8DeepTag_TvsQCD[njetmxAK8], pfjetAK8DeepTag_WvsQCD[njetmxAK8], pfjetAK8DeepTag_ZvsQCD[njetmxAK8], pfjetAK8DeepTag_HvsQCD[njetmxAK8], pfjetAK8DeepTag_bbvsQCD[njetmxAK8]; 
+  float pfjetAK8DeepTag_DAK8_TvsQCD[njetmxAK8], pfjetAK8DeepTag_DAK8_WvsQCD[njetmxAK8], pfjetAK8DeepTag_DAK8_ZvsQCD[njetmxAK8], pfjetAK8DeepTag_DAK8_HvsQCD[njetmxAK8], pfjetAK8DeepTag_DAK8_bbvsQCD[njetmxAK8]; 
+  float pfjetAK8DeepTag_PNet_TvsQCD[njetmxAK8], pfjetAK8DeepTag_PNet_WvsQCD[njetmxAK8], pfjetAK8DeepTag_PNet_ZvsQCD[njetmxAK8], pfjetAK8DeepTag_PNet_XbbvsQCD[njetmxAK8], pfjetAK8DeepTag_PNet_XccvsQCD[njetmxAK8], pfjetAK8DeepTag_PNet_XqqvsQCD[njetmxAK8]; 
   
   float pfjetAK8CHF[njetmxAK8], pfjetAK8NHF[njetmxAK8], pfjetAK8MUF[njetmxAK8], pfjetAK8PHF[njetmxAK8], pfjetAK8CEMF[njetmxAK8], pfjetAK8NEMF[njetmxAK8], pfjetAK8EEF[njetmxAK8], pfjetAK8HFHF[njetmxAK8], /*pfjetAK8HFEMF[njetmxAK8],*/ pfjetAK8HOF[njetmxAK8];
   int pfjetAK8CHM[njetmxAK8], pfjetAK8NHM[njetmxAK8], pfjetAK8MUM[njetmxAK8], pfjetAK8PHM[njetmxAK8], pfjetAK8Neucons[njetmxAK8], pfjetAK8Chcons[njetmxAK8], pfjetAK8EEM[njetmxAK8], pfjetAK8HFHM[njetmxAK8];// pfjetAK8HFEMM[njetmxAK8];
@@ -787,7 +845,7 @@ private:
   
   int nmuons;
   
-  float muonchiso[njetmx], muonnhiso[njetmx], muonphiso[njetmx], muonminisoall[njetmx]; 
+  float muonminchiso[njetmx], muonminnhiso[njetmx], muonminphiso[njetmx], muonminisoall[njetmx]; 
   float muoncharge[njetmx], muonp[njetmx], muonpt[njetmx], muoneta[njetmx], muonphi[njetmx], muondz[njetmx], muonpter[njetmx], muonchi[njetmx], muonecal[njetmx], muonhcal[njetmx]; //muonemiso[njetmx], muonhadiso[njetmx], muontkpt03[njetmx], muontkpt05[njetmx];
   
   float muonposmatch[njetmx], muontrkink[njetmx], muonsegcom[njetmx], muonpfiso[njetmx], muontrkvtx[njetmx], muonhit[njetmx], muonpixhit[njetmx], muonmst[njetmx], muontrklay[njetmx], muonvalfrac[njetmx],mudxy_sv[njetmx];
@@ -803,7 +861,9 @@ private:
   float elcharge[njetmx], elpt[njetmx], eleta[njetmx], elphi[njetmx], ele[njetmx], elp[njetmx], eldxytrk[njetmx], eldxy_sv[njetmx], eldztrk[njetmx],elhovere[njetmx], elqovrper[njetmx], elchi[njetmx]; //elemiso03[njetmx], elhadiso03[njetmx], elemiso04[njetmx], elhadiso04[njetmx];
   float eleoverp[njetmx], elietaieta[njetmx], eletain[njetmx], elphiin[njetmx], elfbrem[njetmx]; 
   float elnohits[njetmx], elmisshits[njetmx];
-  float elpfiso[njetmx];
+  float elpfiso_drcor[njetmx];
+  float elpfiso_eacor[njetmx];
+  float elpfiso04_eacor[njetmx];
   int elndf[njetmx];
   
   float elsupcl_eta[njetmx]; 
@@ -829,6 +889,10 @@ private:
   float elpfisolsumphet[njetmx];
   float elpfisolsumchhadpt[njetmx];
   float elpfsiolsumneuhadet[njetmx];
+  float elminchiso[njetmx];
+  float elminnhiso[njetmx];
+  float elminphiso[njetmx];
+  float elminisoall[njetmx]; 
   
   int nphotons;
   bool phomvaid_Fall17V2_WP90[njetmx];
@@ -907,7 +971,7 @@ private:
   static const int nHLTmx = 13;
   const char *hlt_name[nHLTmx] = {"HLT_IsoMu24_v","HLT_Mu50_v","HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v","HLT_Ele115_CaloIdVT_GsfTrkIdT_v", "HLT_Ele40_WPTight_Gsf_v",  // single-lepton triggers
 								  "HLT_Mu37_Ele27_CaloIdL_MW_v", "HLT_Mu27_Ele37_CaloIdL_MW_v", "HLT_Mu37_TkMu27_v", "HLT_DoubleEle25_CaloIdL_MW_v", // double-lepton triggers
-								  "HLT_AK8PFJet500_v", "HLT_PFJet500_v", "HLT_HT1050_v", "HLT_Photon200_v"}; //reference & backup triggers
+								  "HLT_AK8PFJet500_v", "HLT_PFJet500_v", "HLT_PFHT1050_v", "HLT_Photon200_v"}; //reference & backup triggers
   
   bool hlt_IsoMu24, hlt_Mu50, hlt_Ele50_CaloIdVT_GsfTrkIdT_PFJet165, hlt_Ele115_CaloIdVT_GsfTrkIdT, hlt_Ele40_WPTight_Gsf, 
        hlt_Mu37_Ele27_CaloIdL_MW, hlt_Mu27_Ele37_CaloIdL_MW, hlt_Mu37_TkMu27, hlt_DoubleEle25_CaloIdL_MW, 
@@ -1068,6 +1132,7 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   isSoftDrop      = pset.getUntrackedParameter<bool>("SoftDrop_ON",false);
   theRootFileName = pset.getUntrackedParameter<string>("RootFileName");
   theHLTTag = pset.getUntrackedParameter<string>("HLTTag", "HLT");
+  add_prefireweights = pset.getUntrackedParameter<bool>("add_prefireweights", false);
   
   minjPt = pset.getUntrackedParameter<double>("minjPt",25.);
   minGenPt = pset.getUntrackedParameter<double>("minGenPt",15.);
@@ -1088,13 +1153,21 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   tau2 = pset.getUntrackedParameter<string>("tau2");
   tau3 = pset.getUntrackedParameter<string>("tau3");
   subjets = pset.getUntrackedParameter<string>("subjets");
-  toptagger = pset.getUntrackedParameter<string>("toptagger");
-  Wtagger = pset.getUntrackedParameter<string>("Wtagger");
-  Ztagger = pset.getUntrackedParameter<string>("Ztagger");
-  Htagger = pset.getUntrackedParameter<string>("Htagger");
-  bbtagger = pset.getUntrackedParameter<string>("bbtagger");  
+  toptagger_DAK8 = pset.getUntrackedParameter<string>("toptagger_DAK8");
+  Wtagger_DAK8 = pset.getUntrackedParameter<string>("Wtagger_DAK8");
+  Ztagger_DAK8 = pset.getUntrackedParameter<string>("Ztagger_DAK8");
+  Htagger_DAK8 = pset.getUntrackedParameter<string>("Htagger_DAK8");
+  bbtagger_DAK8 = pset.getUntrackedParameter<string>("bbtagger_DAK8");  
+  toptagger_PNet = pset.getUntrackedParameter<string>("toptagger_PNet");
+  Wtagger_PNet = pset.getUntrackedParameter<string>("Wtagger_PNet");
+  Ztagger_PNet = pset.getUntrackedParameter<string>("Ztagger_PNet");
+  Xbbtagger_PNet = pset.getUntrackedParameter<string>("Xbbtagger_PNet");
+  Xcctagger_PNet = pset.getUntrackedParameter<string>("Xcctagger_PNet");  
+  Xqqtagger_PNet = pset.getUntrackedParameter<string>("Xqqtagger_PNet");  
   
-  ea_miniiso_.reset(new EffectiveAreas((pset.getParameter<edm::FileInPath>("EAFile_MiniIso")).fullPath()));
+  ea_mu_miniiso_.reset(new EffectiveAreas((pset.getParameter<edm::FileInPath>("EAFile_MuonMiniIso")).fullPath()));
+  ea_el_miniiso_.reset(new EffectiveAreas((pset.getParameter<edm::FileInPath>("EAFile_EleMiniIso")).fullPath()));
+  ea_el_pfiso_.reset(new EffectiveAreas((pset.getParameter<edm::FileInPath>("EAFile_ElePFIso")).fullPath()));
  
   tok_beamspot_ = consumes<reco::BeamSpot> (pset.getParameter<edm::InputTag>("Beamspot"));
   tok_primaryVertices_ =consumes<reco::VertexCollection>( pset.getParameter<edm::InputTag>("PrimaryVertices"));
@@ -1164,17 +1237,18 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   triggerBits_ = consumes<edm::TriggerResults> ( pset.getParameter<edm::InputTag>("bits"));
   triggerObjects_ = consumes<pat::TriggerObjectStandAloneCollection>(pset.getParameter<edm::InputTag>("objects"));
   triggerPrescales_ = consumes<pat::PackedTriggerPrescales>(pset.getParameter<edm::InputTag>("prescales"));
-  
-  prefweight_token = consumes< double >(edm::InputTag("prefiringweight:nonPrefiringProb"));
-  prefweightup_token = consumes< double >(edm::InputTag("prefiringweight:nonPrefiringProbUp"));
-  prefweightdown_token = consumes< double >(edm::InputTag("prefiringweight:nonPrefiringProbDown"));
+  if(add_prefireweights){
+	prefweight_token = consumes< double >(edm::InputTag("prefiringweight:nonPrefiringProb"));
+	prefweightup_token = consumes< double >(edm::InputTag("prefiringweight:nonPrefiringProbUp"));
+	prefweightdown_token = consumes< double >(edm::InputTag("prefiringweight:nonPrefiringProbDown"));
+	}
   
   //old end //
   
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   theFile->cd();
   
-  T1 = new TTree("T1", "EMuboosted");
+  T1 = new TTree("Events", "XtoYH");
  
   T1->Branch("irun", &irun, "irun/I");  
   T1->Branch("ilumi", &ilumi, "ilumi/I");  
@@ -1269,11 +1343,17 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("pfjetAK8tau3",pfjetAK8tau3,"pfjetAK8tau3[npfjetAK8]/F");
   
   T1->Branch("pfjetAK8btag_DeepCSV",pfjetAK8btag_DeepCSV,"pfjetAK8btag_DeepCSV[npfjetAK8]/F");
-  T1->Branch("pfjetAK8DeepTag_TvsQCD",pfjetAK8DeepTag_TvsQCD,"pfjetAK8DeepTag_TvsQCD[npfjetAK8]/F");
-  T1->Branch("pfjetAK8DeepTag_WvsQCD",pfjetAK8DeepTag_WvsQCD,"pfjetAK8DeepTag_WvsQCD[npfjetAK8]/F");
-  T1->Branch("pfjetAK8DeepTag_ZvsQCD",pfjetAK8DeepTag_ZvsQCD,"pfjetAK8DeepTag_ZvsQCD[npfjetAK8]/F");
-  T1->Branch("pfjetAK8DeepTag_HvsQCD",pfjetAK8DeepTag_HvsQCD,"pfjetAK8DeepTag_HvsQCD[npfjetAK8]/F");
-  T1->Branch("pfjetAK8DeepTag_bbvsQCD",pfjetAK8DeepTag_bbvsQCD,"pfjetAK8DeepTag_bbvsQCD[npfjetAK8]/F");
+  T1->Branch("pfjetAK8DeepTag_DAK8_TvsQCD",pfjetAK8DeepTag_DAK8_TvsQCD,"pfjetAK8DeepTag_DAK8_TvsQCD[npfjetAK8]/F");
+  T1->Branch("pfjetAK8DeepTag_DAK8_WvsQCD",pfjetAK8DeepTag_DAK8_WvsQCD,"pfjetAK8DeepTag_DAK8_WvsQCD[npfjetAK8]/F");
+  T1->Branch("pfjetAK8DeepTag_DAK8_ZvsQCD",pfjetAK8DeepTag_DAK8_ZvsQCD,"pfjetAK8DeepTag_DAK8_ZvsQCD[npfjetAK8]/F");
+  T1->Branch("pfjetAK8DeepTag_DAK8_HvsQCD",pfjetAK8DeepTag_DAK8_HvsQCD,"pfjetAK8DeepTag_DAK8_HvsQCD[npfjetAK8]/F");
+  T1->Branch("pfjetAK8DeepTag_DAK8_bbvsQCD",pfjetAK8DeepTag_DAK8_bbvsQCD,"pfjetAK8DeepTag_DAK8_bbvsQCD[npfjetAK8]/F");
+  T1->Branch("pfjetAK8DeepTag_PNet_TvsQCD",pfjetAK8DeepTag_PNet_TvsQCD,"pfjetAK8DeepTag_PNet_TvsQCD[npfjetAK8]/F");
+  T1->Branch("pfjetAK8DeepTag_PNet_WvsQCD",pfjetAK8DeepTag_PNet_WvsQCD,"pfjetAK8DeepTag_PNet_WvsQCD[npfjetAK8]/F");
+  T1->Branch("pfjetAK8DeepTag_PNet_ZvsQCD",pfjetAK8DeepTag_PNet_ZvsQCD,"pfjetAK8DeepTag_PNet_ZvsQCD[npfjetAK8]/F");
+  T1->Branch("pfjetAK8DeepTag_PNet_XbbvsQCD",pfjetAK8DeepTag_PNet_XbbvsQCD,"pfjetAK8DeepTag_PNet_XbbvsQCD[npfjetAK8]/F");
+  T1->Branch("pfjetAK8DeepTag_PNet_XccvsQCD",pfjetAK8DeepTag_PNet_XccvsQCD,"pfjetAK8DeepTag_PNet_XccvsQCD[npfjetAK8]/F");
+  T1->Branch("pfjetAK8DeepTag_PNet_XqqvsQCD",pfjetAK8DeepTag_PNet_XqqvsQCD,"pfjetAK8DeepTag_PNet_XqqvsQCD[npfjetAK8]/F");
   
   T1->Branch("pfjetAK8sub1pt",pfjetAK8sub1pt,"pfjetAK8sub1pt[npfjetAK8]/F");
   T1->Branch("pfjetAK8sub1eta",pfjetAK8sub1eta,"pfjetAK8sub1eta[npfjetAK8]/F");
@@ -1443,9 +1523,9 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("muoneta",muoneta,"muoneta[nmuons]/F");
   T1->Branch("muonphi",muonphi,"muonphi[nmuons]/F");
   
-  T1->Branch("muonchiso", muonchiso, "muonchiso[nmuons]/F");
-  T1->Branch("muonnhiso", muonnhiso, "muonnhiso[nmuons]/F");
-  T1->Branch("muonphiso", muonphiso, "muonphiso[nmuons]/F");
+  T1->Branch("muonminchiso", muonminchiso, "muonminchiso[nmuons]/F");
+  T1->Branch("muonminnhiso", muonminnhiso, "muonminnhiso[nmuons]/F");
+  T1->Branch("muonminphiso", muonminphiso, "muonminphiso[nmuons]/F");
   T1->Branch("muonminisoall", muonminisoall, "muonminisoall[nmuons]/F");
   T1->Branch("muontrkvtx",muontrkvtx,"muontrkvtx[nmuons]/F");
   T1->Branch("muondz",muondz,"muondz[nmuons]/F");
@@ -1491,7 +1571,9 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("eleoverp",eleoverp,"eleoverp[nelecs]/F");
   T1->Branch("elietaieta",elietaieta,"elietaieta[nelecs]/F");
   T1->Branch("elmisshits",elmisshits,"elmisshits[nelecs]/F");
-  T1->Branch("elpfiso",elpfiso,"elpfiso[nelecs]/F");
+  T1->Branch("elpfiso_drcor",elpfiso_drcor,"elpfiso_drcor[nelecs]/F");
+  T1->Branch("elpfiso_eacor",elpfiso_eacor,"elpfiso_eacor[nelecs]/F");
+  T1->Branch("elpfiso04_eacor",elpfiso04_eacor,"elpfiso04_eacor[nelecs]/F");
   
   T1->Branch("elsupcl_eta",elsupcl_eta,"elsupcl_eta[nelecs]/F");
   T1->Branch("elsupcl_phi",elsupcl_phi,"elsupcl_phi[nelecs]/F");
@@ -1516,6 +1598,11 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("elpfisolsumphet", elpfisolsumphet, "elpfisolsumphet[nelecs]/F");
   T1->Branch("elpfisolsumchhadpt", elpfisolsumchhadpt, "elpfisolsumchhadpt[nelecs]/F");
   T1->Branch("elpfsiolsumneuhadet", elpfsiolsumneuhadet, "elpfsiolsumneuhadet[nelecs]/F");
+  
+  T1->Branch("elminchiso", elminchiso, "elminchiso[nelecs]/F");
+  T1->Branch("elminnhiso", elminnhiso, "elminnhiso[nelecs]/F");
+  T1->Branch("elminphiso", elminphiso, "elminphiso[nelecs]/F");
+  T1->Branch("elminisoall", elminisoall, "elminisoall[nelecs]/F");
   
   // Photon Info //
   
@@ -1590,10 +1677,12 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("npu_vert_true",&npu_vert_true,"npu_vert_true/I");
 	  
   // GEN MET info //    
+  
   T1->Branch("GENMET",&genmiset,"genmiset/F") ;
   T1->Branch("GENMETPhi",&genmisphi,"genmisphi/F") ;
   
   // GEN AK8 jet info //  
+  
   T1->Branch("ngenjetAK8",&ngenjetAK8, "ngenjetAK8/I");
   T1->Branch("genjetAK8pt",genjetAK8pt,"genjetAK8pt[ngenjetAK8]/F");
   T1->Branch("genjetAK8eta",genjetAK8eta,"genjetAK8eta[ngenjetAK8]/F");
@@ -2130,17 +2219,21 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
   
   // Prefire weights //
   
-  edm::Handle< double > theprefweight;
-  iEvent.getByToken(prefweight_token, theprefweight ) ;	
-  prefiringweight =(*theprefweight);
+  if(add_prefireweights){
+  
+	edm::Handle< double > theprefweight;
+	iEvent.getByToken(prefweight_token, theprefweight ) ;	
+	prefiringweight =(*theprefweight);
 
-  edm::Handle< double > theprefweightup;
-  iEvent.getByToken(prefweightup_token, theprefweightup ) ;
-  prefiringweightup =(*theprefweightup);
+	edm::Handle< double > theprefweightup;
+	iEvent.getByToken(prefweightup_token, theprefweightup ) ;
+	prefiringweightup =(*theprefweightup);
     
-  edm::Handle< double > theprefweightdown;
-  iEvent.getByToken(prefweightdown_token, theprefweightdown ) ;   
-  prefiringweightdown =(*theprefweightdown);
+	edm::Handle< double > theprefweightdown;
+	iEvent.getByToken(prefweightdown_token, theprefweightdown ) ;   
+	prefiringweightdown =(*theprefweightdown);
+  
+  }
   
   // End of prefire weights //
   
@@ -2204,17 +2297,14 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 			muoneta[nmuons] = muon1->eta();                                                                                                              
 			muonphi[nmuons] = muon1->phi();                                                                                                                                                                                                                                
                                                                                                                                                        
-			//Defining MiniIsolation recent version for muon here//                                                                                      
-			pat::PFIsolation muiso = muon1->miniPFIsolation();                                                                                                                                                                                                   
-			muonchiso[nmuons] = muiso.chargedHadronIso();                                                                                                                     
-			muonnhiso[nmuons] = muiso.neutralHadronIso();                                                                                                                     
-			muonphiso[nmuons] = muiso.photonIso();                                                                                                                     
-			float coneta = muon1->eta();                                                                                                                 
-			float ea = ea_miniiso_->getEffectiveArea(fabs(coneta));                                                                                      
-			float R = 10.0 / std::min(std::max(muon1->pt(), 50.0), 200.0);                                                                               
-			ea *= std::pow(R / 0.3, 2);                                                                                                                  
-			muonminisoall[nmuons] = (muonchiso[nmuons] + std::max(0., muonnhiso[nmuons] + muonphiso[nmuons] - (*Rho_PF) * ea));      
-			//end of mini-isolation
+			//MiniIsolation: begin//                                                                                      
+			vector<float> isovalues;
+			Read_MiniIsolation(muon1,Rho,isovalues);
+			muonminisoall[nmuons] = isovalues[0];
+			muonminchiso[nmuons] = isovalues[1];
+			muonminnhiso[nmuons] = isovalues[2];
+			muonminphiso[nmuons] = isovalues[3];
+			//MiniIsolation: end//  
 			                                                              
 			muonisPF[nmuons] = muon1->isPFMuon();                                                                                                        
 			muonisGL[nmuons] = muon1->isGlobalMuon();                                                                                                    
@@ -2273,7 +2363,7 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 			muontrklay[nmuons] = trktrk->hitPattern().trackerLayersWithMeasurement();                                                                    
 			muonvalfrac[nmuons] = trktrk->validFraction();                                                        
 			muonpfiso[nmuons] = (muon1->pfIsolationR04().sumChargedHadronPt + max(0., muon1->pfIsolationR04().sumNeutralHadronEt + muon1->pfIsolationR04().sumPhotonEt - 0.5*muon1->pfIsolationR04().sumPUPt))/muon1->pt();                                               
-
+			
 			TLorentzVector tlmu;
 			bool mu_id = Muon_TightID(muonisGL[nmuons],muonisPF[nmuons],
 				    muonchi[nmuons],muonhit[nmuons],muonmst[nmuons],
@@ -2346,7 +2436,11 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
     elfbrem[nelecs] = electron1.fbrem();   
                                                                                                                 
     const reco::GsfElectron::PflowIsolationVariables& pfIso = electron1.pfIsolationVariables();                                                      
-    elpfiso[nelecs] = pfIso.sumChargedHadronPt + max(0., pfIso.sumNeutralHadronEt + pfIso.sumPhotonEt - 0.5*pfIso.sumPUPt);                                                                                           
+    elpfiso_drcor[nelecs] = (pfIso.sumChargedHadronPt + max(0., pfIso.sumNeutralHadronEt + pfIso.sumPhotonEt - 0.5*pfIso.sumPUPt))*1./electron1.pt();      
+    vector<float> pfisovalues;                                                                                     
+    Read_ElePFIsolation(&electron1,Rho,pfisovalues);
+    elpfiso_eacor[nelecs] = pfisovalues[0];
+    elpfiso04_eacor[nelecs] = pfisovalues[1];
     
     float dzmin = 1000;                                                                                                                              
     float dxymin = 1000;
@@ -2366,6 +2460,15 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
     elchi[nelecs] = gsftrk1->chi2();                                                                                                                 
     elndf[nelecs] = (int)gsftrk1->ndof();                                                                                                            
     elmisshits[nelecs] = (int)gsftrk1->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+    
+    //MiniIsolation: begin//                                                                                      
+	vector<float> isovalues;
+	Read_MiniIsolation(&electron1,Rho,isovalues);
+	elminisoall[nmuons] = isovalues[0];
+	elminchiso[nmuons] = isovalues[1];
+	elminnhiso[nmuons] = isovalues[2];
+	elminphiso[nmuons] = isovalues[3];
+	//MiniIsolation: end//  
 	
 	bool impact_pass = 	((fabs(elsupcl_eta[nelecs])<1.4442 && fabs(eldxytrk[nelecs])<0.05 && fabs(eldztrk[nelecs])<0.1)
 					   ||(fabs(elsupcl_eta[nelecs])>1.5660 && fabs(eldxytrk[nelecs])<(2*0.05) && fabs(eldztrk[nelecs])<(2*0.1)));
@@ -2416,11 +2519,18 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
       pfjetAK8mass[npfjetAK8] = ak8jet.correctedP4("Uncorrected").mass();
       pfjetAK8btag_DeepCSV[npfjetAK8] = ak8jet.bDiscriminator("pfDeepCSVJetTags:probb")+ak8jet.bDiscriminator("pfDeepCSVJetTags:probbb");
       
-      pfjetAK8DeepTag_TvsQCD[npfjetAK8] = ak8jet.bDiscriminator(toptagger);
-      pfjetAK8DeepTag_WvsQCD[npfjetAK8] = ak8jet.bDiscriminator(Wtagger);
-      pfjetAK8DeepTag_ZvsQCD[npfjetAK8] = ak8jet.bDiscriminator(Ztagger);
-      pfjetAK8DeepTag_HvsQCD[npfjetAK8] = ak8jet.bDiscriminator(Htagger);
-      pfjetAK8DeepTag_bbvsQCD[npfjetAK8] = ak8jet.bDiscriminator(bbtagger);
+      pfjetAK8DeepTag_DAK8_TvsQCD[npfjetAK8] = ak8jet.bDiscriminator(toptagger_DAK8);
+      pfjetAK8DeepTag_DAK8_WvsQCD[npfjetAK8] = ak8jet.bDiscriminator(Wtagger_DAK8);
+      pfjetAK8DeepTag_DAK8_ZvsQCD[npfjetAK8] = ak8jet.bDiscriminator(Ztagger_DAK8);
+      pfjetAK8DeepTag_DAK8_HvsQCD[npfjetAK8] = ak8jet.bDiscriminator(Htagger_DAK8);
+      pfjetAK8DeepTag_DAK8_bbvsQCD[npfjetAK8] = ak8jet.bDiscriminator(bbtagger_DAK8);
+      
+      pfjetAK8DeepTag_PNet_TvsQCD[npfjetAK8] = ak8jet.bDiscriminator(toptagger_PNet);
+      pfjetAK8DeepTag_PNet_WvsQCD[npfjetAK8] = ak8jet.bDiscriminator(Wtagger_PNet);
+      pfjetAK8DeepTag_PNet_ZvsQCD[npfjetAK8] = ak8jet.bDiscriminator(Ztagger_PNet);
+      pfjetAK8DeepTag_PNet_XbbvsQCD[npfjetAK8] = ak8jet.bDiscriminator(Xbbtagger_PNet);
+      pfjetAK8DeepTag_PNet_XccvsQCD[npfjetAK8] = ak8jet.bDiscriminator(Xcctagger_PNet);
+      pfjetAK8DeepTag_PNet_XqqvsQCD[npfjetAK8] = ak8jet.bDiscriminator(Xqqtagger_PNet);
        
       if(isMC){
 	
