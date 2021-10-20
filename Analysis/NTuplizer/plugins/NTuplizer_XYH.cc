@@ -141,6 +141,10 @@ DeepAKX: https://twiki.cern.ch/twiki/bin/viewauth/CMS/DeepAKXTagging
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
+#include "CondFormats/BTauObjects/interface/BTagEntry.h"
+#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
+#include "CondTools/BTau/interface/BTagCalibrationReader.h"
 #include "fastjet/Selector.hh"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/JetDefinition.hh"
@@ -691,7 +695,7 @@ private:
   double mintauPt;
   
   double beta ;
-  double z_cut;
+  double z_cut;     
   
   // Root file & tree //
   
@@ -993,6 +997,9 @@ private:
   
   // ---- Jet Corrector Parameter End---- //
 
+  BTagCalibration calib;
+  BTagCalibrationReader reader;
+
   // ---- Jet Resolution Parameter ---- //
   
   std::string mJECL1FastFileAK4, mJECL2RelativeFileAK4, mJECL3AbsoluteFileAK4, mJECL2L3ResidualFileAK4, mJECL1FastFileAK8, mJECL2RelativeFileAK8, mJECL3AbsoluteFileAK8, mJECL2L3ResidualFileAK8;
@@ -1005,6 +1012,8 @@ private:
   std::vector<JetCorrectionUncertainty*> vsrcAK8 ;
   
   // ---- Jet Resolution Parameter End---- //
+  
+  
   
   // Electron MVA ID //
   
@@ -1232,7 +1241,7 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   mPtSFFileAK8  = pset.getParameter<std::string>("PtSFFileAK8");
   
   mJECUncFileAK4 = pset.getParameter<std::string>("JECUncFileAK4");
-  mJECUncFileAK8 = pset.getParameter<std::string>("JECUncFileAK8");
+  mJECUncFileAK8 = pset.getParameter<std::string>("JECUncFileAK8");               
   
   triggerBits_ = consumes<edm::TriggerResults> ( pset.getParameter<edm::InputTag>("bits"));
   triggerObjects_ = consumes<pat::TriggerObjectStandAloneCollection>(pset.getParameter<edm::InputTag>("objects"));
@@ -1242,7 +1251,7 @@ Leptop::Leptop(const edm::ParameterSet& pset):
 	prefweightup_token = consumes< double >(edm::InputTag("prefiringweight:nonPrefiringProbUp"));
 	prefweightdown_token = consumes< double >(edm::InputTag("prefiringweight:nonPrefiringProbDown"));
 	}
-  
+
   //old end //
   
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
@@ -2721,9 +2730,11 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
     pfjetAK4y[npfjetAK4] = pfjetAK44v.Rapidity();
     pfjetAK4phi[npfjetAK4] = pfjetAK44v.Phi();
     pfjetAK4mass[npfjetAK4] = pfjetAK44v.M(); 
-     
+  
     pfjetAK4btag_DeepCSV[npfjetAK4] = ak4jet.bDiscriminator("pfDeepCSVJetTags:probb")+ak4jet.bDiscriminator("pfDeepCSVJetTags:probbb");
     pfjetAK4btag_DeepFlav[npfjetAK4] = ak4jet.bDiscriminator("pfDeepFlavourJetTags:probb") + ak4jet.bDiscriminator("pfDeepFlavourJetTags:probbb")+ak4jet.bDiscriminator("pfDeepFlavourJetTags:problepb");
+    
+    cout<<"Jet pt "<<tmprecpt<<" eta "<<pfjetAK44v.Eta()<<" btag SF "<<reader.eval_auto_bounds("central",BTagEntry::FLAV_B,fabs(pfjetAK44v.Eta()),tmprecpt)<<endl;
      
     if(isMC){
 		
@@ -3009,6 +3020,9 @@ Leptop::beginJob()
     vsrcAK8.push_back(uncAK8);
   }
   
+  calib = BTagCalibration("DeepCSV", "/afs/cern.ch/user/c/chatterj/work/private/XToYH/CMSSW_10_6_26/src/Analysis/NTuplizer/test/BtagRecommendation106XUL18/DeepCSV_106XUL18SF_V1p1.csv");
+  reader= BTagCalibrationReader(BTagEntry::OP_LOOSE, "central", {"up", "down"}); 
+  reader.load(calib, BTagEntry::FLAV_B, "comb");
   
 }
 

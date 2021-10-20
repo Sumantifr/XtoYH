@@ -27,6 +27,8 @@
 <use name="DataFormats/PatCandidates"/>
 <use name="CondFormats/JetMETObjects"/>
 <use name="SimDataFormats/GeneratorProducts"/>
+<use name="CondFormats/BTauObjects"/>
+<use name="CondTools/BTau"/>
 <use name="fastjet"/>
 <use name="fastjet-contrib"/>
 <flags EDM_PLUGIN="1"/>
