@@ -116,6 +116,9 @@ for iModule in pho_id_modules:
 
 	setupAllVIDIdsInModule(process, iModule, setupVIDPhotonSelection)
 
+# E-Gamma scale and smearing corrections 
+from Analysis.NTuplizer.EgammaPostRecoTools import setupEgammaPostRecoSeq
+setupEgammaPostRecoSeq(process,era='2018-Prompt')  
 
 deep_discriminators = ["pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:TvsQCD",
                        "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:WvsQCD",
@@ -124,6 +127,10 @@ deep_discriminators = ["pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:TvsQC
 		       "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:bbvsLight",
 		       "pfMassDecorrelatedParticleNetJetTags:probXbb",
 		       "pfMassDecorrelatedParticleNetJetTags:probQCDbb",
+		       "pfMassDecorrelatedParticleNetJetTags:probQCDcc",
+		       "pfMassDecorrelatedParticleNetJetTags:probQCDb",
+		       "pfMassDecorrelatedParticleNetJetTags:probQCDc",
+		       "pfMassDecorrelatedParticleNetJetTags:probQCDothers",
 		       "pfMassDecorrelatedParticleNetDiscriminatorsJetTags:XbbvsQCD",
 		       "pfMassDecorrelatedParticleNetDiscriminatorsJetTags:XccvsQCD",
                        "pfMassDecorrelatedParticleNetDiscriminatorsJetTags:XqqvsQCD",
@@ -174,6 +181,9 @@ process.mcjets =  cms.EDAnalyzer('Leptop',
  	 ReRECO = cms.untracked.bool(True),
 	 SoftDrop_ON =  cms.untracked.bool(True),
 	 add_prefireweights =  cms.untracked.bool(True),
+	 store_electron_scalnsmear =  cms.untracked.bool(True),
+	 store_electron_addvariab = cms.untracked.bool(False),
+	 Read_btagging_SF = cms.untracked.bool(True),
 
  	 RootFileName = cms.untracked.string('rootuple.root'),  #largest data till April5,2016
 	
@@ -200,6 +210,7 @@ process.mcjets =  cms.EDAnalyzer('Leptop',
 	 Xbbtagger_PNet = cms.untracked.string("pfMassDecorrelatedParticleNetDiscriminatorsJetTags:XbbvsQCD"),
 	 Xcctagger_PNet = cms.untracked.string("pfMassDecorrelatedParticleNetDiscriminatorsJetTags:XccvsQCD"),
 	 Xqqtagger_PNet = cms.untracked.string("pfMassDecorrelatedParticleNetDiscriminatorsJetTags:XqqvsQCD"),
+	 QCDtagger_PNet = cms.untracked.string("pfMassDecorrelatedParticleNetDiscriminatorsJetTags:QCD"),
 
 	 PFJetsAK4 = cms.InputTag("slimmedJets"), 
 	 minjPt = cms.untracked.double(25.),
@@ -273,6 +284,9 @@ process.mcjets =  cms.EDAnalyzer('Leptop',
 
          JECUncFileAK4 = cms.string("Summer19UL18_V5_MC/Summer19UL18_V5_MC_UncertaintySources_AK4PFchs.txt"),
 	 JECUncFileAK8 = cms.string("Summer19UL18_V5_MC/Summer19UL18_V5_MC_UncertaintySources_AK8PFPuppi.txt"),
+
+	 BtagSFFile_DeepCSV = cms.string("BtagRecommendation106XUL18/DeepCSV_106XUL18SF_V1p1.csv"),
+	 BtagSFFile_DeepFlav = cms.string("BtagRecommendation106XUL18/DeepJet_106XUL18SF_V1p1.csv"),
 
 	 bits = cms.InputTag("TriggerResults","","HLT"),
          prescales = cms.InputTag("patTrigger","","RECO"),
@@ -353,13 +367,31 @@ tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = True, updatedTau
 tauIdEmbedder.runTauID()
 
 
+from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+runMetCorAndUncFromMiniAOD(process,
+                           isData=False,
+                           )
+from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
+makePuppiesFromMiniAOD( process, True )
+runMetCorAndUncFromMiniAOD(process,
+                           isData=False,
+                           metType="Puppi",
+                           postfix="Puppi",
+                           jetFlavor="AK4PFPuppi",
+                           )
+process.puppi.useExistingWeights = True
+
 process.p = cms.Path(process.egmPhotonIDSequence 
  		     *process.HBHENoiseFilterResultProducer*process.HBHENoiseFilterResultProducerNoMinZ
 		     *process.allMetFilterPaths
 #		     *process.egmGsfElectronIDSequence*
 		     *process.rerunMvaIsolationSequence*getattr(process,updatedTauName) #process.slimmedTausUpdated*  # this also works
-		     *process.jetSeq 
-		     *process.prefiringweight 
+		     *process.egammaPostRecoSeq
+		     *process.prefiringweight
+		     *process.jetSeq
+		     *process.fullPatMetSequence 
+		     *process.puppiMETSequence
+		     *process.fullPatMetSequencePuppi
 		     *process.mcjets
 		     )
 

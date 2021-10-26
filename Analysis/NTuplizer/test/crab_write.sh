@@ -19,7 +19,7 @@ config.General.transferLogs = True
 
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = '${config}'
-config.JobType.inputFiles = ['Summer19UL18_V5_MC','Summer19UL18_JRV2_MC']
+config.JobType.inputFiles = ['Summer19UL18_V5_MC','Summer19UL18_JRV2_MC','BtagRecommendation106XUL18']
 config.JobType.disableAutomaticOutputCollection = True
 config.JobType.outputFiles = ['hist.root','rootuple.root']
 config.JobType.maxJobRuntimeMin = 2700
@@ -33,6 +33,7 @@ config.Data.unitsPerJob = 5
 config.Data.outLFNDirBase = '/store/user/chatterj/'
 config.Data.publication = $publication
 config.Data.outputDatasetTag = '${production_tag}'
+config.Data.outputPrimaryDataset = config.General.requestName
 config.Data.publishDBS = 'phys03'
 
 config.Site.storageSite = '$site'
