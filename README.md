@@ -10,12 +10,10 @@ cd XtoYH
 
 cmsrel CMSSSW_10_6_26  
 
-#For CMSSW_10_6_X (X<=25), some changes need to be made for ECAL prefiring weights
+#For CMSSW_ version should not matter much here
 
 cd CMSSW_10_6_26/src
 
-git clone https://github.com/Sumantifr/XtoYH.git .
+git clone https://github.com/Sumantifr/XtoYH.git -b Offline_Analysis
 
-scram b -j9
-
-Enjoy! 
+./Makefile
