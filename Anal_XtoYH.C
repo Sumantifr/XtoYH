@@ -138,7 +138,7 @@ int main()
    
    Tout->Branch("event_weight_LHE", &event_weight_LHE, "event_weight_LHE/D");	
    
-   calib_deepflav = BTagCalibration("DeepJet", "../BtagRecommendation106XUL18/DeepJet_106XUL18SF_WPonly_V1p1.csv");
+   calib_deepflav = BTagCalibration("DeepJet", "BtagRecommendation106XUL18/DeepJet_106XUL18SF_WPonly_V1p1.csv");
    reader_deepflav = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"}); 
    reader_deepflav.load(calib_deepflav, BTagEntry::FLAV_B, "comb");
    reader_deepflav.load(calib_deepflav, BTagEntry::FLAV_C, "comb");
@@ -730,24 +730,26 @@ int main()
 	bool anytrig_pass(false);
 	bool trig_threshold_pass(false); 
 	bool trig_matching_pass(false); 
-	bool muon_trig_pass(false), electron_trig_pass(false);
-	
-	Match_trigger(double_hlts, double_pt_cuts, double_pids,
-				  single_hlts, single_pt_cuts, single_pids, single_other_pt_cuts, single_other_pids,
-				  jet_hlts, jet_pt_cuts, jet_pids,
-			      trigobjects,
-				  vmuons, velectrons, vleptons, Jets, LJets,
-				  anytrig_pass, trig_threshold_pass, trig_matching_pass, muon_trig_pass, electron_trig_pass
-				 );
+	bool muon_trig_pass(false);
+	bool electron_trig_pass(false);
 	
 	if(isFastSIM){
-		
+				
 		anytrig_pass = true; 
 		if(vmuons.size()>0 && vmuons[0].pt>53) { trig_threshold_pass = true; trig_matching_pass = true; muon_trig_pass = true; }
 		else if(velectrons.size()>0 && velectrons[0].pt>35) { trig_threshold_pass = true; trig_matching_pass = true; electron_trig_pass = true; }
 		else if(Jets.size()>0 && Jets[0].pt>550) { trig_threshold_pass = true; trig_matching_pass = true; }
 		else if(LJets.size()>0 && LJets[0].pt>550) { trig_threshold_pass = true; trig_matching_pass = true; }
 		
+		}
+	else{
+		Match_trigger(double_hlts, double_pt_cuts, double_pids,
+					  single_hlts, single_pt_cuts, single_pids, single_other_pt_cuts, single_other_pids,
+					  jet_hlts, jet_pt_cuts, jet_pids,
+					  trigobjects,
+					  vmuons, velectrons, vleptons, Jets, LJets,
+					  anytrig_pass, trig_threshold_pass, trig_matching_pass, muon_trig_pass, electron_trig_pass
+					);
 		}
     
     // Event selection cuts //
@@ -761,23 +763,15 @@ int main()
 	event_cuts.push_back(trig_threshold_pass);	// Offline objects should pass trigger threshold 
 	event_cuts.push_back(trig_matching_pass);	// Offline objects should match to trigger object
 	event_cuts.push_back(!(muon_trig_pass & electron_trig_pass));   // reject if both mu & el triggers are fired 
-	
+		
     bool event_pass = true;
 	for(unsigned icut=0; icut<event_cuts.size(); icut++){
-		cout<<"cut: "<<icut+1<<" "<<event_cuts[icut]<<endl;
 		event_pass *= event_cuts[icut];
-		//if(!event_pass) break;
+		if(!event_pass) break;
     }
 
 	if(!event_pass) continue;
-	/*
-	if(vleptons.size()>=1 && LJets.size()>=1){
-		cout<<"Pt: Lepton "<<vleptons[0].pt<<"\t";
-		cout<<"FJet "<<LJets[0].pt<<"\t";
-		cout<<"MET "<<PuppiMET_pt<<"\n";
-	}
-    cout<<"A: "<<(vleptons.size()>=1)<<" B: "<<(LJets.size()>=1)<<" C: "<<(PuppiMET_pt>=50)<<" D: "<<anytrig_pass<<" E: "<<trigger_cut<<" F: "<<event_pass<<endl;
-   */
+	
     //cout<<"After: "<<LJets.size()<<" "<<Jets.size()<<" "<<vmuons.size()<<" "<<velectrons.size()<<" "<<nPhoton<<endl;
 		
 	int Y_cand = -1;
@@ -938,13 +932,14 @@ int main()
 	//weight *= prefiringweight;
 	
 	// LHE story //
+	/*
 	for(unsigned ilhe=0; ilhe<lheparts.size(); ++ilhe){
 		if(abs(lheparts[ilhe].pdgId)>10){
 			cout<<ilhe+1<<" ID "<<lheparts[ilhe].pdgId<<" pt "<<lheparts[ilhe].p4.Pt()<<endl;	
 			}	
 		}
 	cout<<"Lep "<<vleptons[0].pt<<" Nu "<<pnu.Pt()<<endl;
-	
+	*/
 	Tout->Fill();
    
 	}// entry
