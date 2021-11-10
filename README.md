@@ -16,4 +16,8 @@ cd CMSSW_10_6_26/src
 
 git clone https://github.com/Sumantifr/XtoYH.git -b Offline_Analysis
 
-./Makefile
+Compile the code with:
+./Makefile Anal_XtoYH
+
+Run the executable:
+./Anal_XtoYH.exe

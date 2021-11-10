@@ -705,10 +705,12 @@ int main()
     single_pt_cuts.push_back(32+3);
     single_pids.push_back(11);
     single_other_pt_cuts.push_back(-100);
+    single_other_pids.push_back(0);
     single_hlts.push_back(hlt_Ele40_WPTight_Gsf);
     single_pt_cuts.push_back(40+3);
     single_pids.push_back(11);
     single_other_pt_cuts.push_back(-100);
+    single_other_pids.push_back(0);
     single_hlts.push_back(hlt_Ele115_CaloIdVT_GsfTrkIdT);
     single_pt_cuts.push_back(115+3);
     single_pids.push_back(11);
@@ -762,7 +764,7 @@ int main()
 	event_cuts.push_back(anytrig_pass);		// At least one trigger should be fired 
 	event_cuts.push_back(trig_threshold_pass);	// Offline objects should pass trigger threshold 
 	event_cuts.push_back(trig_matching_pass);	// Offline objects should match to trigger object
-	event_cuts.push_back(!(muon_trig_pass & electron_trig_pass));   // reject if both mu & el triggers are fired 
+	event_cuts.push_back(!(muon_trig_pass & electron_trig_pass));   // reject if both mu & el triggers are fired (for single lepton channel)
 		
     bool event_pass = true;
 	for(unsigned icut=0; icut<event_cuts.size(); icut++){
