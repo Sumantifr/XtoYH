@@ -89,6 +89,11 @@ void getelectrons(std::vector<Electron> &velectrons, float ptcut=25, float etacu
     if(id==1 && !Electron_mvaid_Fallv2WP80_noIso[ie]) continue;
     if(id==2 && !Electron_mvaid_Fallv2WP90[ie]) continue;
     if(id==3 && !Electron_mvaid_Fallv2WP90_noIso[ie]) continue;
+    
+    bool impact_pass = 	((fabs(Electron_supcl_eta[ie])<1.4442 && fabs(Electron_dxy[ie])<dxy_cut && fabs(Electron_dz[ie])<dz_cut)
+					   ||(fabs(Electron_supcl_eta[ie])>1.5660 && fabs(Electron_dxy[ie])<(2*dxy_cut) && fabs(Electron_dz[ie])<(2*dz_cut)));
+
+	if(!impact_pass) continue;
         
     Electron velectron;
 
@@ -201,6 +206,48 @@ void getLeptons(std::vector<Lepton> &vleptons, std::vector<Muon> vmuons, std::ve
     vleptons.push_back(vlepton);
   }
   sorted_by_pt(vleptons);
+}
+
+void getAK4Genjets(std::vector<AK4GenJet> &genJets, float ptcut = 8.0, float etacut=2.5, bool isMC=false, int maxsize=njetmx)
+{
+	for(int ijet=0; ijet<(nGenJetAK4); ijet++){
+		AK4GenJet gJet;
+		if (fabs(GenJetAK4_eta[ijet]) >etacut) continue;
+                if (GenJetAK4_pt[ijet] < ptcut) continue;
+
+		gJet.pt = GenJetAK4_pt[ijet];
+		gJet.eta = GenJetAK4_eta[ijet];
+                gJet.phi = GenJetAK4_phi[ijet];
+                gJet.mass = GenJetAK4_mass[ijet];
+		gJet.hadronFlavor = GenJetAK4_hadronflav[ijet];
+		gJet.partonFlavor = GenJetAK4_partonflav[ijet];
+                gJet.p4.SetPtEtaPhiM(gJet.pt,gJet.eta,gJet.phi,gJet.mass);
+
+   genJets.push_back(gJet);
+   if(int(genJets.size())>=maxsize) break;
+  }
+  sorted_by_pt(genJets);
+}
+
+void getAK8Genjets(std::vector<AK8GenJet> &Jets, float ptcut=50, float etacut=2.5, bool isMC=false, int maxsize=njetmx)
+{
+    for(int ijet=0; ijet<(nGenJetAK8); ijet++){
+    AK8GenJet lJet; 
+	  
+    if(fabs(GenJetAK8_eta[ijet])>etacut) continue;
+    if(GenJetAK8_pt[ijet]<ptcut) continue;
+    
+    lJet.pt = GenJetAK8_pt[ijet];
+    lJet.mass = GenJetAK8_mass[ijet];
+    lJet.eta = GenJetAK8_eta[ijet];
+    lJet.phi = GenJetAK8_phi[ijet];
+    lJet.p4.SetPtEtaPhiM(lJet.pt,lJet.eta,lJet.phi,lJet.mass);
+    
+    Jets.push_back(lJet);
+    
+    if(int(Jets.size())>=maxsize) break;
+    
+  }
 }
 
 void getAK4jets(std::vector<AK4Jet> &Jets, float ptcut=30, float etacut=2.5, bool isMC=false, int maxsize=njetmx)

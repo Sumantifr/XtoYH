@@ -897,17 +897,28 @@
    float muon_pt_cut = 25;
    float electron_pt_cut = 25;
    float lepton_pt_cut = 30;
+   float AK4GenJet_pt_cut = 8.0;
    float AK4jet_pt_cut = 30;
    float AK8jet_pt_cut = 200;
-
+   float AK8GenJet_pt_cut = 50;
    float absetacut = 2.5;
    
    float deep_btag_cut = 0.2783; 
-  //for UL18 => 0.0490: loose, 0.2783: medium, 0.7100: tight 
-   float PNbb_cut_T = 0.9;
-   float PNbb_cut_L = 0.5;
-   float PNW_cut_T = 0.9;
-   float PNW_cut_L = 0.5;
+   //for UL18 => 0.0490: loose, 0.2783: medium, 0.7100: tight 
+
+   //DeepTag_PNetMD_XbbvsQCD
+   float PNbb_cut_T = 0.98;
+   float PNbb_cut_M = 0.94;
+   float PNbb_cut_L = 0.90;
+   //DeepTag_DAK8MD_WvsQCD cut values
+   float DAK8W_cut_T = 0.806;
+   float DAK8W_cut_M = 0.704;
+   float DAK8W_cut_L = 0.479;
+   // Deep Ak4 Flv
+   float DAK4_T = 0.71;
+   float DAK4_M = 0.2783;
+   float DAK4_L = 0.0490;
+
 
    bool isMC;
    bool isFastSIM;
@@ -922,23 +933,34 @@
    int nleptons, nfatjets;
    
    float l_pt, l_eta, l_phi, l_mass;
-   float Y_pt, Y_y, Y_phi, Y_mass, Y_sdmass, Y_PN_bb;
-   float W_pt, W_y, W_phi, W_mass, W_sdmass, W_PN_W;
-   float H_pt, H_y, H_phi, H_mass;
-   float X_mass;
+   float Y_pt, Y_y, Y_eta, Y_phi, Y_mass, Y_sdmass, Y_PN_bb;
+   float W_pt_opt1, W_y_opt1, W_eta_opt1, W_phi_opt1, W_mass_opt1, W_sdmass_opt1, W_PN_W_opt1;
+   float W_pt_opt2, W_y_opt2, W_eta_opt2, W_phi_opt2, W_mass_opt2, W_sdmass_opt2, W_PN_W_opt2;
+
+
+   float H_pt_opt1, H_y_opt1, H_eta_opt1, H_phi_opt1, H_mass_opt1;
+   float H_pt_opt2, H_y_opt2, H_eta_opt2, H_phi_opt2, H_mass_opt2;
+
+   float X_mass_opt1, X_mass_opt2; 
    
-   float dR_lW, dphi_lW, dy_lW;
+   float dR_lW_opt1, dphi_lW_opt1, dy_lW_opt1;
+   float dR_lW_opt2, dphi_lW_opt2, dy_lW_opt2;
+
    float dR_lY, dphi_lY, dy_lY;
    int nbjets_other;
    float MET;
    
-   bool Flag_Y_bb_pass_T, Flag_Y_bb_pass_L, Flag_H_W_pass_T, Flag_H_W_pass_L, Flag_H_m_pass, Flag_dR_lW_pass, Flag_MET_pass;
-   bool Reg_SR, Reg_Wj_CR;
+   bool Flag_Y_bb_pass_T, Flag_Y_bb_pass_M, Flag_Y_bb_pass_L, Flag_H_W_pass_T_opt1, Flag_H_W_pass_M_opt1, Flag_H_W_pass_L_opt1, Flag_H_m_pass_opt1, Flag_dR_lW_pass_opt1, Flag_MET_pass;
+   bool Flag_H_W_pass_T_opt2, Flag_H_W_pass_M_opt2, Flag_H_W_pass_L_opt2, Flag_H_m_pass_opt2, Flag_dR_lW_pass_opt2;
+   bool Reg_SR_opt1, Reg_Wj_CR_opt1;
+   bool Reg_SR_opt2, Reg_Wj_CR_opt2;
    
    double weight;
    
    float puWeight, puWeightup, puWeightdown;
    float leptonsf_weight, leptonsf_weight_stat, leptonsf_weight_syst;
+   
+   bool Flag_event_cuts[10];
    
    BTagCalibration calib_deepcsv, calib_deepflav;
    BTagCalibrationReader reader_deepcsv, reader_deepflav;

@@ -1,6 +1,10 @@
 //#include "Anal_XtoYH.h"
 #include "getobjects.h"
-
+#include<iostream>
+#include<vector>
+#include <bits/stdc++.h>
+#include<fstream>
+#include<string>
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -77,15 +81,77 @@ float* Electron_SF(TFile *file_el_sf, float pt, float eta){
 }
 
 
-int main()
+int main(int argc, char *argv[])
 {
-	
-   TFile *fileout = new TFile("Output.root","recreate");
+  cout<<"Program started"<<endl;
+  char fOut[50], fout1[50],fout2[50];
+  string inputFile=argv[3];
+  if(inputFile=="FILELIST/XtoYH_2018_TT_Had.log"){
+      sprintf(fOut,"HIST/JetHT_EraB_2017_UL_HFNoise_%s_%s.root",argv[1],argv[2]);
+   }
+  if(inputFile=="FILELIST/TTToSemiLeptonic_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_Nov_2021_%s_%s.root",argv[1],argv[2]);
+   } 
+
+   TFile *fileout = new TFile(fOut,"recreate");
    
    Tout = new TTree("Tout", "Results");
+   // Histogram definition for PU, NV 
+   TH1F *h_PU = new TH1F("h_PU", "h_PU", 100, 0, 100);
+   TH1F *h_TPU = new TH1F("h_TPU", "h_TPU", 100, 0, 100);
+   TH1F *h_PV = new TH1F("h_PV", "h_PV", 100, 0, 100);
+
+   //Binning definition
+   Double_t xEdges0[] =  {200,300,400,800,7000};
+   Double_t yEdges0[] =  {0,0.6,1.2,2.4}; 
+   const int XBINS0 = sizeof(xEdges0)/sizeof(xEdges0[0])-1; 
+   const int YBINS0 = sizeof(yEdges0)/sizeof(yEdges0[0])-1;
+   // Histogram definition for AK4 
+   TH2F* h_Ak4_b_flv = new TH2F("h_Ak4_b_flv", "h_Ak4_b_flv", XBINS0, xEdges0, YBINS0, yEdges0);
+   TH2F* h_Ak4_c_flv = new TH2F("h_Ak4_c_flv", "h_Ak4_c_flv", XBINS0, xEdges0, YBINS0, yEdges0);
+   TH2F* h_Ak4_l_flv = new TH2F("h_Ak4_l_flv", "h_Ak4_l_flv", XBINS0, xEdges0, YBINS0, yEdges0);
+
+   // Histogram definition for AK4 passed L DeepFlv
+   TH2F* h_Ak4_b_flv_pass_L = new TH2F("h_Ak4_b_flv_pass_L", "h_Ak4_b_flv_pass_L", XBINS0, xEdges0, YBINS0, yEdges0);
+   TH2F* h_Ak4_c_flv_pass_L = new TH2F("h_Ak4_c_flv_pass_L", "h_Ak4_c_flv_pass_L", XBINS0, xEdges0, YBINS0, yEdges0);
+   TH2F* h_Ak4_l_flv_pass_L = new TH2F("h_Ak4_l_flv_pass_L", "h_Ak4_l_flv_pass_L", XBINS0, xEdges0, YBINS0, yEdges0);
+   
+   // Histogram definition for AK4 passed M DeepFlv
+   TH2F* h_Ak4_b_flv_pass_M = new TH2F("h_Ak4_b_flv_pass_M", "h_Ak4_b_flv_pass_M", XBINS0, xEdges0, YBINS0, yEdges0);
+   TH2F* h_Ak4_c_flv_pass_M = new TH2F("h_Ak4_c_flv_pass_M", "h_Ak4_c_flv_pass_M", XBINS0, xEdges0, YBINS0, yEdges0);
+   TH2F* h_Ak4_l_flv_pass_M = new TH2F("h_Ak4_l_flv_pass_M", "h_Ak4_l_flv_pass_M", XBINS0, xEdges0, YBINS0, yEdges0);
+
+   // Histogram definition for AK4 passed T DeepFlv
+   TH2F* h_Ak4_b_flv_pass_T = new TH2F("h_Ak4_b_flv_pass_T", "h_Ak4_b_flv_pass_T", XBINS0, xEdges0, YBINS0, yEdges0);
+   TH2F* h_Ak4_c_flv_pass_T = new TH2F("h_Ak4_c_flv_pass_T", "h_Ak4_c_flv_pass_T", XBINS0, xEdges0, YBINS0, yEdges0);
+   TH2F* h_Ak4_l_flv_pass_T = new TH2F("h_Ak4_l_flv_pass_T", "h_Ak4_l_flv_pass_T", XBINS0, xEdges0, YBINS0, yEdges0);
+
+   //Binning definition   
+   Double_t xEdges1[] =  {200,300,400,800,7000};
+   Double_t yEdges1[] =  {0,0.6,1.2,2.4};
+   const int XBINS1 = sizeof(xEdges1)/sizeof(xEdges1[0])-1;
+   const int YBINS1 = sizeof(yEdges1)/sizeof(yEdges1[0])-1;
+   
+   TH2F* h_Ak8_DeepTag_DAK8MD_WvsQCD = new TH2F("h_Ak8_DeepTag_DAK8MD_WvsQCD", "h_Ak8_DeepTag_DAK8MD_WvsQCD", XBINS1, xEdges1, YBINS1, yEdges1);
+   TH2F* h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_L = new TH2F("h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_L", "h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_L", XBINS1, xEdges1, YBINS1, yEdges1);
+   TH2F* h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_M = new TH2F("h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_M", "h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_M", XBINS1, xEdges1, YBINS1, yEdges1);
+   TH2F* h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_T = new TH2F("h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_T", "h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_T", XBINS1, xEdges1, YBINS1, yEdges1);
+
+   Double_t xEdges2[] =  {200,300,400,500,600,800,7000};
+   Double_t yEdges2[] =  {0,0.6,1.2,2.4};
+   const int XBINS2 = sizeof(xEdges2)/sizeof(xEdges2[0])-1;
+   const int YBINS2 = sizeof(yEdges2)/sizeof(yEdges2[0])-1;
+
+   TH2F* h_Ak8_DeepTag_PNetMD_XbbvsQCD = new TH2F("h_Ak8_DeepTag_PNetMD_XbbvsQCD", "h_Ak8_DeepTag_PNetMD_XbbvsQCD", XBINS2, xEdges2, YBINS2, yEdges2);
+   TH2F* h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_L = new TH2F("h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_L", "h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_L", XBINS2, xEdges2, YBINS2, yEdges2);
+   TH2F* h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M = new TH2F("h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M", "h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M", XBINS2, xEdges2, YBINS2, yEdges2);
+   TH2F* h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T = new TH2F("h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T", "h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T", XBINS2, xEdges2, YBINS2, yEdges2);
+
 
    Tout->Branch("nleptons", &nleptons, "nleptons/I");
    Tout->Branch("nfatjets", &nfatjets, "nfatjets/I");	
+   
+   Tout->Branch("Flag_event_cuts", Flag_event_cuts, "Flag_event_cuts/O");	
    
    Tout->Branch("l_pt", &l_pt, "l_pt/F");	
    Tout->Branch("l_eta", &l_eta, "l_eta/F");	
@@ -94,47 +160,85 @@ int main()
 
    Tout->Branch("Y_pt", &Y_pt, "Y_pt/F");	
    Tout->Branch("Y_y", &Y_y, "Y_y/F");	
+   Tout->Branch("Y_eta", &Y_eta, "Y_eta/F");
    Tout->Branch("Y_phi", &Y_phi, "Y_phi/F");	
    Tout->Branch("Y_mass", &Y_mass, "Y_mass/F");	
    Tout->Branch("Y_sdmass", &Y_sdmass, "Y_sdmass/F");	
    Tout->Branch("Y_PN_bb", &Y_PN_bb, "Y_PN_bb/F");	
+
+   // W boson related branches based on option -1 
+   Tout->Branch("W_pt_opt1", &W_pt_opt1, "W_pt_opt1/F");	
+   Tout->Branch("W_y_opt1", &W_y_opt1, "W_y_opt1/F");	
+   Tout->Branch("W_eta_opt1", &W_eta_opt1, "W_eta_opt1/F");
+   Tout->Branch("W_phi_opt1", &W_phi_opt1, "W_phi_opt1/F");	
+   Tout->Branch("W_mass_opt1", &W_mass_opt1, "W_mass_opt1/F");	
+   Tout->Branch("W_sdmass_opt1", &W_sdmass_opt1, "W_sdmass_opt1/F");	
+   Tout->Branch("W_PN_W_opt1", &W_PN_W_opt1, "W_PN_W_opt1/F");	
    
-   Tout->Branch("W_pt", &W_pt, "W_pt/F");	
-   Tout->Branch("W_y", &W_y, "W_y/F");	
-   Tout->Branch("W_phi", &W_phi, "W_phi/F");	
-   Tout->Branch("W_mass", &W_mass, "W_mass/F");	
-   Tout->Branch("W_sdmass", &W_sdmass, "W_sdmass/F");	
-   Tout->Branch("W_PN_W", &W_PN_W, "W_PN_W/F");	
+   Tout->Branch("H_pt_opt1", &H_pt_opt1, "H_pt_opt1/F");	
+   Tout->Branch("H_y_opt1", &H_y_opt1, "H_y_opt1/F");
+   Tout->Branch("H_eta_opt1", &H_eta_opt1, "H_eta_opt1/F");
+   Tout->Branch("H_phi_opt1", &H_phi_opt1, "H_phi_opt1/F");	
+   Tout->Branch("H_mass_opt1", &H_mass_opt1, "H_mass_opt1/F");	
    
-   Tout->Branch("H_pt", &H_pt, "H_pt/F");	
-   Tout->Branch("H_y", &H_y, "H_y/F");	
-   Tout->Branch("H_phi", &H_phi, "H_phi/F");	
-   Tout->Branch("H_mass", &H_mass, "H_mass/F");	
+   Tout->Branch("X_mass_opt1", &X_mass_opt1, "X_mass_opt1/F");	
    
-   Tout->Branch("X_mass", &X_mass, "X_mass/F");	
-   
-   Tout->Branch("dR_lW", &dR_lW, "dR_lW/F");	
-   Tout->Branch("dy_lW", &dy_lW, "dy_lW/F");	
-   Tout->Branch("dphi_lW", &dphi_lW, "dphi_lW/F");	
-   
+   Tout->Branch("dR_lW_opt1", &dR_lW_opt1, "dR_lW_opt1/F");	
+   Tout->Branch("dy_lW_opt1", &dy_lW_opt1, "dy_lW_opt1/F");	
+   Tout->Branch("dphi_lW_opt1", &dphi_lW_opt1, "dphi_lW_opt1/F");	
+   // W boson related branches based on option -2
+   Tout->Branch("W_pt_opt2", &W_pt_opt2, "W_pt_opt2/F");
+   Tout->Branch("W_y_opt2", &W_y_opt2, "W_y_opt2/F");
+   Tout->Branch("W_eta_opt2", &W_eta_opt2, "W_eta_opt2/F");
+   Tout->Branch("W_phi_opt2", &W_phi_opt2, "W_phi_opt2/F");
+   Tout->Branch("W_mass_opt2", &W_mass_opt2, "W_mass_opt2/F");
+   Tout->Branch("W_sdmass_opt2", &W_sdmass_opt2, "W_sdmass_opt2/F");
+   Tout->Branch("W_PN_W_opt2", &W_PN_W_opt2, "W_PN_W_opt2/F");
+
+   Tout->Branch("H_pt_opt2", &H_pt_opt2, "H_pt_opt2/F");
+   Tout->Branch("H_y_opt2", &H_y_opt2, "H_y_opt2/F");
+   Tout->Branch("H_eta_opt2", &H_eta_opt2, "H_eta_opt2/F");
+   Tout->Branch("H_phi_opt2", &H_phi_opt2, "H_phi_opt2/F");
+   Tout->Branch("H_mass_opt2", &H_mass_opt2, "H_mass_opt2/F");
+
+   Tout->Branch("X_mass_opt2", &X_mass_opt2, "X_mass_opt2/F");
+
+   Tout->Branch("dR_lW_opt2", &dR_lW_opt2, "dR_lW_opt2/F");
+   Tout->Branch("dy_lW_opt2", &dy_lW_opt2, "dy_lW_opt2/F");
+   Tout->Branch("dphi_lW_opt2", &dphi_lW_opt2, "dphi_lW_opt2/F");
+
    Tout->Branch("dR_lY", &dR_lY, "dR_lY/F");	
    Tout->Branch("dy_lY", &dy_lY, "dy_lY/F");	
    Tout->Branch("dphi_lY", &dphi_lY, "dphi_lY/F");
    
    Tout->Branch("nbjets_other", &nbjets_other, "nbjets_other/I");	
    Tout->Branch("MET", &MET, "MET/F");	
-   
+   // Different flags and control regions   
+
    Tout->Branch("Flag_Y_bb_pass_T", &Flag_Y_bb_pass_T, "Flag_Y_bb_pass_T/O");	
+   Tout->Branch("Flag_Y_bb_pass_M", &Flag_Y_bb_pass_T, "Flag_Y_bb_pass_M/O");
    Tout->Branch("Flag_Y_bb_pass_L", &Flag_Y_bb_pass_L, "Flag_Y_bb_pass_L/O");	
-   Tout->Branch("Flag_H_W_pass_T", &Flag_H_W_pass_T, "Flag_H_W_pass_T/O");	
-   Tout->Branch("Flag_H_W_pass_L", &Flag_H_W_pass_L, "Flag_H_W_pass_L/O");	
-   Tout->Branch("Flag_H_m_pass", &Flag_H_m_pass, "Flag_H_m_pass/O");	
-   Tout->Branch("Flag_dR_lW_pass", &Flag_dR_lW_pass, "Flag_dR_lW_pass/O");	
+   Tout->Branch("Flag_H_W_pass_T_opt1", &Flag_H_W_pass_T_opt1, "Flag_H_W_pass_T_opt1/O");	
+   Tout->Branch("Flag_H_W_pass_M_opt1", &Flag_H_W_pass_T_opt1, "Flag_H_W_pass_M_opt1/O");
+   Tout->Branch("Flag_H_W_pass_L_opt1", &Flag_H_W_pass_L_opt1, "Flag_H_W_pass_L_opt1/O");
+
+   Tout->Branch("Flag_H_W_pass_T_opt2", &Flag_H_W_pass_T_opt2, "Flag_H_W_pass_T_opt2/O");
+   Tout->Branch("Flag_H_W_pass_M_opt2", &Flag_H_W_pass_T_opt2, "Flag_H_W_pass_M_opt2/O");
+   Tout->Branch("Flag_H_W_pass_L_opt2", &Flag_H_W_pass_L_opt2, "Flag_H_W_pass_L_opt2/O");
+   
+   Tout->Branch("Flag_H_m_pass_opt1", &Flag_H_m_pass_opt1, "Flag_H_m_pass_opt1/O");	
+   Tout->Branch("Flag_H_m_pass_opt2", &Flag_H_m_pass_opt2, "Flag_H_m_pass_opt2/O");
+   
+   Tout->Branch("Flag_dR_lW_pass_opt1", &Flag_dR_lW_pass_opt1, "Flag_dR_lW_pass_opt1/O");	
+   Tout->Branch("Flag_dR_lW_pass_opt2", &Flag_dR_lW_pass_opt2, "Flag_dR_lW_pass_opt2/O");
+   
    Tout->Branch("Flag_MET_pass", &Flag_MET_pass, "Flag_MET_pass/O");	
    
    Tout->Branch("Flag_MET_pass", &Flag_MET_pass, "Flag_MET_pass/O");	
-   Tout->Branch("Reg_SR", &Reg_SR, "Reg_SR/O");	
-   Tout->Branch("Reg_Wj_CR", &Reg_Wj_CR, "Reg_Wj_CR/O");
+   Tout->Branch("Reg_SR_opt1", &Reg_SR_opt1, "Reg_SR_opt1/O");	
+   Tout->Branch("Reg_Wj_CR_opt1", &Reg_Wj_CR_opt1, "Reg_Wj_CR_opt1/O");
+   Tout->Branch("Reg_SR_opt2", &Reg_SR_opt2, "Reg_SR_opt2/O");
+   Tout->Branch("Reg_Wj_CR_opt2", &Reg_Wj_CR_opt2, "Reg_Wj_CR_opt2/O");
    
    Tout->Branch("event_weight_LHE", &event_weight_LHE, "event_weight_LHE/D");	
    
@@ -154,11 +258,25 @@ int main()
    sprintf(name,"data/egammaEffi.txt_Ele_%s_EGM2D_UL%i.root",electron_id_name.c_str(),year);
    file_el_sf = new TFile(name,"read");
    
-   TFile* fileIn = TFile::Open("rootuple_signal.root");
-   
+   int count =0;
+   string fileName;
+   ifstream infile;
+   infile.open(argv[3]);
+   while(!infile.eof()){
+   count = count+1;
+   getline(infile,fileName);
+
+   int L_lim = stof(argv[1]);
+   int H_lim = stof(argv[2]);
+   if(count<=L_lim)continue;
+   if(count>H_lim)continue;
+   TFile *f = TFile::Open(fileName.data());
+   if(f==0) continue;
+
+   cout<<fileName<<endl;
+
    TTree *fChain;
-   fChain = (TTree*)fileIn->Get("Events");
-   
+   fChain = (TTree*)f->Get("Events");
    fChain->SetBranchAddress("irun", &irun, &b_irun);
    fChain->SetBranchAddress("ilumi", &ilumi, &b_ilumi);
    fChain->SetBranchAddress("ievt", &ievt, &b_ievt);
@@ -593,14 +711,17 @@ int main()
    cout<<"nentries "<<nentries<<endl;
    
    isMC = true;
-   isFastSIM = true;
+   isFastSIM = false;
    
    for (int ij=0; ij<nentries; ij++) {
    
-	if(ij%100==0){ cout<<"event "<<ij+1<<endl; }
-	fileIn->cd();
+	//if(ij%100==0){ cout<<"event "<<ij+1<<endl; }
+	f->cd();
 
 	fChain->GetEntry(ij);
+        h_PU->Fill(npu_vert,event_weight_LHE);
+        h_TPU->Fill(npu_vert_true,event_weight_LHE);
+        h_PV->Fill(npvert,event_weight_LHE);
 	
 	//cout<<"Before: "<<nPFJetAK8<<" "<<nPFJetAK4<<" "<<nMuon<<" "<<nElectron<<" "<<nPhoton<<endl;
 	
@@ -654,7 +775,7 @@ int main()
     vector <AK8Jet> LJets;
     getAK8jets(LJets,AK8jet_pt_cut,absetacut,isMC);
     //LeptonJet_cleaning(LJets,vleptons,AK8jet_pt_cut,absetacut);
-    
+
     nleptons = (vleptons.size());
 	nfatjets = (LJets.size());
     
@@ -753,7 +874,71 @@ int main()
 					  anytrig_pass, trig_threshold_pass, trig_matching_pass, muon_trig_pass, electron_trig_pass
 					);
 		}
-    
+    //*****************************************************************************************
+    //                            AK4 histogram filling for btag SF                          //
+    //*****************************************************************************************                            
+    if(anytrig_pass && trig_threshold_pass && trig_matching_pass && !(muon_trig_pass && electron_trig_pass))
+    {
+    vector <AK4GenJet> genJets;
+    getAK4Genjets(genJets,AK4GenJet_pt_cut,absetacut,isMC);
+
+    for(unsigned ijet=0; ijet<Jets.size(); ijet++){
+           double dR = 9999.9;
+           for(unsigned gjet=0; gjet<genJets.size(); gjet++)
+	     {
+                 double temp_dR = delta2R(Jets[ijet].y,Jets[ijet].phi,genJets[gjet].p4.Rapidity(),genJets[gjet].phi) ;
+		 if (temp_dR < dR )
+		 {
+			 dR = temp_dR;
+		 }
+	     }
+            if(dR < 0.4)
+	              {
+                           if( fabs(Jets[ijet].hadronFlavour) == 5 )  {  h_Ak4_b_flv->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); 
+				                                   if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_b_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); } 
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_b_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); } 
+			                                           if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_b_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
+			                                        }    
+                            else if( fabs(Jets[ijet].hadronFlavour) == 4 )  {  h_Ak4_c_flv->Fill(Jets[ijet].pt,Jets[ijet].eta,event_weight_LHE);  
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_c_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_c_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_c_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
+                                                                }
+                           if( Jets[ijet].hadronFlavour == 0 )  {  h_Ak4_l_flv->Fill(Jets[ijet].pt,Jets[ijet].eta,event_weight_LHE);  
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_l_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_l_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_l_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
+                                                                }
+		      }		                                   
+             }
+    //*****************************************************************************************
+    //                                           AK8 histogram filling                       //
+    //*****************************************************************************************                            
+    vector <AK8GenJet> genLJets;
+    getAK8Genjets(genLJets,AK8GenJet_pt_cut,absetacut,isMC);
+    for(unsigned ijet=0; ijet<LJets.size(); ijet++){
+         double dR = 9999.9;
+         for(unsigned gjet=0; gjet<genLJets.size(); gjet++)
+             {
+		     double temp_dR = delta2R(LJets[ijet].y,LJets[ijet].phi,genLJets[gjet].p4.Rapidity(),genLJets[gjet].phi) ;
+		     if(temp_dR < dR )
+                     {
+                         dR = temp_dR;
+                     }
+            }
+	 if(dR < 0.4) 
+	   { 
+                      h_Ak8_DeepTag_DAK8MD_WvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,event_weight_LHE);
+		      h_Ak8_DeepTag_PNetMD_XbbvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,event_weight_LHE);
+		      if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_T) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight_LHE);  }
+	              if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_M) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight_LHE);  }
+                      if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_L) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight_LHE);  }
+                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_T){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight_LHE);}
+                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_M){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight_LHE);}
+                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_L){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight_LHE);}
+           }
+    }
+    }
     // Event selection cuts //
 
     vector<bool> event_cuts;
@@ -764,7 +949,11 @@ int main()
 	event_cuts.push_back(anytrig_pass);		// At least one trigger should be fired 
 	event_cuts.push_back(trig_threshold_pass);	// Offline objects should pass trigger threshold 
 	event_cuts.push_back(trig_matching_pass);	// Offline objects should match to trigger object
-	event_cuts.push_back(!(muon_trig_pass & electron_trig_pass));   // reject if both mu & el triggers are fired (for single lepton channel)
+	event_cuts.push_back(!(muon_trig_pass && electron_trig_pass));   // reject if both mu & el triggers are fired (for single lepton channel)
+	
+	for(unsigned icut=0; icut<event_cuts.size(); icut++){
+		Flag_event_cuts[icut] = event_cuts[icut];
+	}
 		
     bool event_pass = true;
 	for(unsigned icut=0; icut<event_cuts.size(); icut++){
@@ -777,11 +966,12 @@ int main()
     //cout<<"After: "<<LJets.size()<<" "<<Jets.size()<<" "<<vmuons.size()<<" "<<velectrons.size()<<" "<<nPhoton<<endl;
 		
 	int Y_cand = -1;
-	int W_cand = -1;
-   
+	int W_cand_opt1 = -1;
+        int W_cand_opt2 = -1;
+
 	float max_PNet_bb = -100;
-	float max_PNet_W = -100;
-	
+	float max_DAK8_W = -100;
+	// Y candidate
 	for(unsigned ijet=0; ijet<LJets.size(); ijet++){
 		
 		if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD > max_PNet_bb){
@@ -792,19 +982,33 @@ int main()
 		}
 		
 	}
-   
+        //W candidate option 1
 	for(unsigned ijet=0; ijet<LJets.size(); ijet++){
 		
-		if(LJets[ijet].DeepTag_PNet_WvsQCD > max_PNet_W && int(ijet)!=Y_cand){
+		if(LJets[ijet].DeepTag_DAK8MD_WvsQCD > max_DAK8_W && int(ijet)!=Y_cand){
 			
-			max_PNet_W = LJets[ijet].DeepTag_PNet_WvsQCD;
-			W_cand = int(ijet);
+			max_DAK8_W = LJets[ijet].DeepTag_DAK8MD_WvsQCD;
+			W_cand_opt1 = int(ijet);
 			
 		}
 	}
-	
-	if(Y_cand==-1 || W_cand==-1) continue;
-	
+	if(Y_cand==-1 || W_cand_opt1==-1) continue;
+
+	// W candidate option 2
+	double dR_LJet_lep =  9999.9;
+	for(unsigned ijet=0; ijet<LJets.size(); ijet++){
+	        if (int(ijet) == Y_cand) continue;
+                double temp_dR = delta2R(LJets[ijet].y,LJets[ijet].phi,vleptons[0].eta,vleptons[0].phi);
+		if( temp_dR < dR_LJet_lep )
+                  {
+      		      dR_LJet_lep =  temp_dR;
+	              W_cand_opt2 =  int(ijet);
+	          }
+         }  		
+         if(Y_cand==-1 || W_cand_opt2==-1) continue;
+
+
+
 	TLorentzVector pnu;
 	double random_no = gRandom->Uniform(0,1);
 	pnu = neutrino_mom(vleptons[0].p4, PuppiMET_pt, PuppiMET_phi, random_no);
@@ -818,15 +1022,30 @@ int main()
 	// 6. dphi & dR between lepton & Y candidate
 	
 	bool Y_bb_pass_T = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD > PNbb_cut_T);
+        bool Y_bb_pass_M = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD > PNbb_cut_M);
 	bool Y_bb_pass_L = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD > PNbb_cut_L);
-	bool H_W_pass_T = (LJets[W_cand].DeepTag_PNet_WvsQCD > PNW_cut_T);
-	bool H_W_pass_L = (LJets[W_cand].DeepTag_PNet_WvsQCD > PNW_cut_L);
-	bool H_m_pass = ((vleptons[0].p4+LJets[W_cand].p4+pnu).M()>90. && (vleptons[0].p4+LJets[W_cand].p4+pnu).M()<150.);
-	bool dR_lW_pass = (delta2R(LJets[W_cand].y,LJets[W_cand].phi,vleptons[0].eta,vleptons[0].phi) < 1.2);
-    bool MET_pass = (PuppiMET_pt > 50);
+
+	bool H_W_pass_T_opt1 = (LJets[W_cand_opt1].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_T);
+        bool H_W_pass_M_opt1 = (LJets[W_cand_opt1].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_M);
+	bool H_W_pass_L_opt1 = (LJets[W_cand_opt1].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_L);
+
+        bool H_W_pass_T_opt2 = (LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_T);
+        bool H_W_pass_M_opt2 = (LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_M);
+        bool H_W_pass_L_opt2 = (LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_L);
+
+	bool H_m_pass_opt1 = ((vleptons[0].p4+LJets[W_cand_opt1].p4+pnu).M()>90. && (vleptons[0].p4+LJets[W_cand_opt1].p4+pnu).M()<150.);
+	bool dR_lW_pass_opt1 = (delta2R(LJets[W_cand_opt1].y,LJets[W_cand_opt1].phi,vleptons[0].eta,vleptons[0].phi) < 1.2);
+
+        bool H_m_pass_opt2 = ((vleptons[0].p4+LJets[W_cand_opt2].p4+pnu).M()>90. && (vleptons[0].p4+LJets[W_cand_opt2].p4+pnu).M()<150.);
+        bool dR_lW_pass_opt2 = (delta2R(LJets[W_cand_opt2].y,LJets[W_cand_opt2].phi,vleptons[0].eta,vleptons[0].phi) < 1.2);
+	
+    	bool MET_pass = (PuppiMET_pt > 50);
     
-    bool SR = (Y_bb_pass_T && H_W_pass_T && H_m_pass && dR_lW_pass && MET_pass);
-    bool Wj_CR = (!Y_bb_pass_T && H_W_pass_T && H_m_pass && !dR_lW_pass && MET_pass);
+        bool SR_opt1 = (Y_bb_pass_T && H_W_pass_T_opt1 && H_m_pass_opt1 && dR_lW_pass_opt1 && MET_pass);
+        bool Wj_CR_opt1 = (!Y_bb_pass_T && H_W_pass_T_opt1 && H_m_pass_opt1 && !dR_lW_pass_opt1 && MET_pass);
+
+	bool SR_opt2 = (Y_bb_pass_T && H_W_pass_T_opt2 && H_m_pass_opt2 && dR_lW_pass_opt2 && MET_pass);
+        bool Wj_CR_opt2 = (!Y_bb_pass_T && H_W_pass_T_opt2 && H_m_pass_opt2 && !dR_lW_pass_opt2 && MET_pass);
     
     if(vleptons.size()>0){
 		l_pt = vleptons[0].pt;
@@ -839,6 +1058,7 @@ int main()
     if(Y_cand>=0) {
 		Y_pt = LJets[Y_cand].pt;
 		Y_y = LJets[Y_cand].y;
+                Y_eta = LJets[Y_cand].eta;
 		Y_phi = LJets[Y_cand].phi;
 		Y_mass = LJets[Y_cand].mass;
 		Y_sdmass = LJets[Y_cand].sdmass;
@@ -853,51 +1073,96 @@ int main()
 		}
 	}
 	
-	if(W_cand>=0) {
+	if(W_cand_opt1>=0) {
 		
-		W_pt = LJets[W_cand].pt;
-		W_y = LJets[W_cand].y;
-		W_phi = LJets[W_cand].phi;
-		W_mass = LJets[W_cand].mass;
-		W_sdmass = LJets[W_cand].sdmass;
-		W_PN_W = LJets[W_cand].DeepTag_PNet_WvsQCD;
+		W_pt_opt1 = LJets[W_cand_opt1].pt;
+		W_y_opt1 = LJets[W_cand_opt1].y;
+                W_eta_opt1 = LJets[W_cand_opt1].eta;
+	        W_phi_opt1 = LJets[W_cand_opt1].phi;
+		W_mass_opt1 = LJets[W_cand_opt1].mass;
+		W_sdmass_opt1 = LJets[W_cand_opt1].sdmass;
+		W_PN_W_opt1 = LJets[W_cand_opt1].DeepTag_PNet_WvsQCD;
 		
 		if(vleptons.size()>0 && pnu.Eta()>-100){
 			
-			H_pt = (LJets[W_cand].p4 + vleptons[0].p4 + pnu).Pt();
-			H_y = (LJets[W_cand].p4 + vleptons[0].p4 + pnu).Rapidity();
-			H_phi = (LJets[W_cand].p4 + vleptons[0].p4 + pnu).Phi();
-			H_mass = (LJets[W_cand].p4 + vleptons[0].p4 + pnu).M();
+			H_pt_opt1 = (LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu).Pt();
+			H_y_opt1 = (LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu).Rapidity();
+                        H_eta_opt1 = (LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu).Eta();
+			H_phi_opt1 = (LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu).Phi();
+			H_mass_opt1 = (LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu).M();
 			
 			if(Y_cand>=0) {
-				X_mass = (LJets[Y_cand].p4 + LJets[W_cand].p4 + vleptons[0].p4 + pnu).M();
+				X_mass_opt1 = (LJets[Y_cand].p4 + LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu).M();
 				}
 		
 			}
 	}
+        if(W_cand_opt2>=0) {
+
+                W_pt_opt2 = LJets[W_cand_opt2].pt;
+                W_y_opt2 = LJets[W_cand_opt2].y;
+                W_eta_opt1 = LJets[W_cand_opt1].eta;
+                W_phi_opt2 = LJets[W_cand_opt2].phi;
+                W_mass_opt2 = LJets[W_cand_opt2].mass;
+                W_sdmass_opt2 = LJets[W_cand_opt2].sdmass;
+                W_PN_W_opt2 = LJets[W_cand_opt2].DeepTag_PNet_WvsQCD;
+
+                if(vleptons.size()>0 && pnu.Eta()>-100){
+
+                        H_pt_opt2 = (LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu).Pt();
+                        H_y_opt2 = (LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu).Rapidity();
+                        H_eta_opt1 = (LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu).Eta();
+                        H_phi_opt2 = (LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu).Phi();
+                        H_mass_opt2 = (LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu).M();
+
+                        if(Y_cand>=0) {
+                                X_mass_opt2 = (LJets[Y_cand].p4 + LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu).M();
+                                }
+
+                        }
+        }
+
 	
-	dR_lW = delta2R(LJets[W_cand].eta,LJets[W_cand].phi,vleptons[0].eta,vleptons[0].phi);
-	dy_lW = (LJets[W_cand].eta - vleptons[0].eta);
-	dphi_lW = PhiInRange(LJets[W_cand].phi - vleptons[0].p4.Phi());
-		
+	dR_lW_opt1 = delta2R(LJets[W_cand_opt1].eta,LJets[W_cand_opt1].phi,vleptons[0].eta,vleptons[0].phi);
+	dy_lW_opt1 = (LJets[W_cand_opt1].eta - vleptons[0].eta);
+	dphi_lW_opt1 = PhiInRange(LJets[W_cand_opt1].phi - vleptons[0].p4.Phi());
+
+        dR_lW_opt2 = delta2R(LJets[W_cand_opt2].eta,LJets[W_cand_opt2].phi,vleptons[0].eta,vleptons[0].phi);
+        dy_lW_opt2 = (LJets[W_cand_opt2].eta - vleptons[0].eta);
+        dphi_lW_opt2 = PhiInRange(LJets[W_cand_opt2].phi - vleptons[0].p4.Phi());
+
 	nbjets_other = 0;
 	for(auto & bjet: BJets){
-		if(delta2R(bjet.y,bjet.phi,Jets[W_cand].y,LJets[W_cand].phi)>0.6 && delta2R(bjet.y,bjet.phi,Jets[Y_cand].y,LJets[Y_cand].phi)>0.6){
+		if(delta2R(bjet.y,bjet.phi,Jets[W_cand_opt1].y,LJets[W_cand_opt1].phi)>0.6 && delta2R(bjet.y,bjet.phi,Jets[Y_cand].y,LJets[Y_cand].phi)>0.6){
 			nbjets_other++;
 			}
 	}
+
 	MET = pnu.Pt();
-	
+
 	Flag_Y_bb_pass_T = Y_bb_pass_T;
+        Flag_Y_bb_pass_M = Y_bb_pass_M;
 	Flag_Y_bb_pass_L = Y_bb_pass_L;
-	Flag_H_W_pass_T = H_W_pass_T;
-	Flag_H_W_pass_L = H_W_pass_L;
-	Flag_H_m_pass = H_m_pass;
-	Flag_dR_lW_pass = dR_lW_pass;
+	Flag_H_W_pass_T_opt1 = H_W_pass_T_opt1;
+        Flag_H_W_pass_M_opt1 = H_W_pass_M_opt1;
+	Flag_H_W_pass_L_opt1 = H_W_pass_L_opt1;
+
+	Flag_H_W_pass_T_opt2 = H_W_pass_T_opt2;
+        Flag_H_W_pass_M_opt2 = H_W_pass_M_opt2;
+        Flag_H_W_pass_L_opt2 = H_W_pass_L_opt2;
+
+	Flag_H_m_pass_opt1 = H_m_pass_opt1;
+	Flag_dR_lW_pass_opt1 = dR_lW_pass_opt1;
+
+        Flag_H_m_pass_opt2 = H_m_pass_opt2;
+        Flag_dR_lW_pass_opt2 = dR_lW_pass_opt2;	
+
 	Flag_MET_pass = MET_pass;
 	
-	Reg_SR = SR;
-	Reg_Wj_CR = Wj_CR;
+	Reg_SR_opt1 = SR_opt1;
+	Reg_Wj_CR_opt1 = Wj_CR_opt1;
+        Reg_SR_opt2 = SR_opt2;
+        Reg_Wj_CR_opt2 = Wj_CR_opt2;	
 	
     if(npu_vert_true>=0 && npu_vert_true<100){
 		puWeight = pu_rat18[npu_vert_true];
@@ -943,10 +1208,11 @@ int main()
 	cout<<"Lep "<<vleptons[0].pt<<" Nu "<<pnu.Pt()<<endl;
 	*/
 	Tout->Fill();
-   
 	}// entry
-	
-	fileout->cd();
+      f->Close();
+      }
+        infile.close();
+        fileout->cd();
 	fileout->Write();
 	fileout->Close();
 }
