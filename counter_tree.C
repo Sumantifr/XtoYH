@@ -15,7 +15,7 @@ char rootfiles[100];
 char infile[1000];
 char datafile[1000];
 
-cout <<"Give the input file name"<<endl;
+//cout <<"Give the input file name"<<endl;
 //cin>> rootfiles;
 sprintf(rootfiles,"%s",filename.c_str());
 
