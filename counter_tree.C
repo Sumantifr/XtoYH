@@ -37,20 +37,20 @@ while(!(file_db.eof())){
 	double sumweight = 0;
 	double sum_pos =0, sum_neg = 0;
 
-	Float_t Generator_weight;
+	double event_weight_LHE;
 
 	TTree* T1;
 	T1 = (TTree*)fileIn->Get("Events");
-	T1->SetBranchAddress("Generator_weight", &Generator_weight);
+	T1->SetBranchAddress("event_weight_LHE", &event_weight_LHE);
 
 	int nevt = T1->GetEntries();
 
 	for(int iev=0; iev<nevt; iev++){
 		T1->GetEntry(iev);
 		count[0]++;
-		count[1] += Generator_weight;
-//		cout<<iev<<" weight "<<Generator_weight<<endl;
-		//if((iev+1)%100000 == 1) { cout<<iev<<" weight "<<Generator_weight<<" event sum "<<count[1]<<" weight sum "<<count[2]<<endl; }
+		count[1] += event_weight_LHE;
+//		cout<<iev<<" weight "<<event_weight_LHE<<endl;
+		//if((iev+1)%100000 == 1) { cout<<iev<<" weight "<<event_weight_LHE<<" event sum "<<count[1]<<" weight sum "<<count[2]<<endl; }
 
 		//cout<<"sum "<<sumweight<<endl;
 	}
