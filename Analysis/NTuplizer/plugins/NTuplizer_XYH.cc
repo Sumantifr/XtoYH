@@ -619,6 +619,7 @@ private:
   int Nevt;
   bool isData;
   bool isMC;
+  bool isFastSIM;
   int year;
   bool isUltraLegacy;
   bool isSoftDrop;
@@ -1193,6 +1194,7 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   // old begin //
   isData    = pset.getUntrackedParameter<bool>("Data",false);
   isMC      = pset.getUntrackedParameter<bool>("MonteCarlo", false);
+  isFastSIM      = pset.getUntrackedParameter<bool>("FastSIM", false);
   year		= pset.getUntrackedParameter<int>("YEAR", 2018);
   isUltraLegacy = pset.getUntrackedParameter<bool>("UltraLegacy", false);
   isSoftDrop      = pset.getUntrackedParameter<bool>("SoftDrop_ON",false);
@@ -1306,9 +1308,12 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   mBtagSF_DeepCSV = pset.getParameter<std::string>("BtagSFFile_DeepCSV");
   mBtagSF_DeepFlav = pset.getParameter<std::string>("BtagSFFile_DeepFlav");
   
-  triggerBits_ = consumes<edm::TriggerResults> ( pset.getParameter<edm::InputTag>("bits"));
-  triggerObjects_ = consumes<pat::TriggerObjectStandAloneCollection>(pset.getParameter<edm::InputTag>("objects"));
-  triggerPrescales_ = consumes<pat::PackedTriggerPrescales>(pset.getParameter<edm::InputTag>("prescales"));
+  if(!isFastSIM){
+	triggerBits_ = consumes<edm::TriggerResults> ( pset.getParameter<edm::InputTag>("bits"));
+	triggerObjects_ = consumes<pat::TriggerObjectStandAloneCollection>(pset.getParameter<edm::InputTag>("objects"));
+	triggerPrescales_ = consumes<pat::PackedTriggerPrescales>(pset.getParameter<edm::InputTag>("prescales"));
+  }
+  
   if(add_prefireweights){
 	prefweight_token = consumes< double >(edm::InputTag("prefiringweight:nonPrefiringProb"));
 	prefweightup_token = consumes< double >(edm::InputTag("prefiringweight:nonPrefiringProbUp"));
@@ -1372,6 +1377,12 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("TrigObj_Ihlt",TrigObj_Ihlt,"TrigObj_Ihlt[nTrigObj]/I");
   T1->Branch("TrigObj_pdgId",TrigObj_pdgId,"TrigObj_pdgId[nTrigObj]/I");
   T1->Branch("TrigObj_type",TrigObj_type,"TrigObj_type[nTrigObj]/I");
+  
+  // Prefire weights //
+  
+  T1->Branch("prefiringweight",&prefiringweight,"prefiringweight/D");
+  T1->Branch("prefiringweightup",&prefiringweightup,"prefiringweightup/D");
+  T1->Branch("prefiringweightdown",&prefiringweightdown,"prefiringweightdown/D");
   
   // MET info //
   
@@ -1476,9 +1487,6 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("PFJetAK8_jesup_RelativeJEREC2",PFJetAK8_jesup_RelativeJEREC2,"PFJetAK8_jesup_RelativeJEREC2[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_jesup_RelativePtBB",PFJetAK8_jesup_RelativePtBB,"PFJetAK8_jesup_RelativePtBB[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_jesup_RelativePtEC1",PFJetAK8_jesup_RelativePtEC1,"PFJetAK8_jesup_RelativePtEC1[nPFJetAK8]/F");
-  T1->Branch("PFJetAK8_jesup_RelativeJEREC2",PFJetAK8_jesup_RelativeJEREC2,"PFJetAK8_jesup_RelativeJEREC2[nPFJetAK8]/F");
-  T1->Branch("PFJetAK8_jesup_RelativePtBB",PFJetAK8_jesup_RelativePtBB,"PFJetAK8_jesup_RelativePtBB[nPFJetAK8]/F");
-  T1->Branch("PFJetAK8_jesup_RelativePtEC1",PFJetAK8_jesup_RelativePtEC1,"PFJetAK8_jesup_RelativePtEC1[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_jesup_RelativePtEC2",PFJetAK8_jesup_RelativePtEC2,"PFJetAK8_jesup_RelativePtEC2[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_jesup_RelativeBal",PFJetAK8_jesup_RelativeBal,"PFJetAK8_jesup_RelativeBal[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_jesup_RelativeSample",PFJetAK8_jesup_RelativeSample,"PFJetAK8_jesup_RelativeSample[nPFJetAK8]/F");
@@ -1501,9 +1509,6 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("PFJetAK8_jesdn_PileUpPtRef",PFJetAK8_jesdn_PileUpPtRef,"PFJetAK8_jesdn_PileUpPtRef[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_jesdn_RelativeFSR",PFJetAK8_jesdn_RelativeFSR,"PFJetAK8_jesdn_RelativeFSR[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_jesdn_RelativeJEREC1",PFJetAK8_jesdn_RelativeJEREC1,"PFJetAK8_jesdn_RelativeJEREC1[nPFJetAK8]/F");
-  T1->Branch("PFJetAK8_jesdn_RelativeJEREC2",PFJetAK8_jesdn_RelativeJEREC2,"PFJetAK8_jesdn_RelativeJEREC2[nPFJetAK8]/F");
-  T1->Branch("PFJetAK8_jesdn_RelativePtBB",PFJetAK8_jesdn_RelativePtBB,"PFJetAK8_jesdn_RelativePtBB[nPFJetAK8]/F");
-  T1->Branch("PFJetAK8_jesdn_RelativePtEC1",PFJetAK8_jesdn_RelativePtEC1,"PFJetAK8_jesdn_RelativePtEC1[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_jesdn_RelativeJEREC2",PFJetAK8_jesdn_RelativeJEREC2,"PFJetAK8_jesdn_RelativeJEREC2[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_jesdn_RelativePtBB",PFJetAK8_jesdn_RelativePtBB,"PFJetAK8_jesdn_RelativePtBB[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_jesdn_RelativePtEC1",PFJetAK8_jesdn_RelativePtEC1,"PFJetAK8_jesdn_RelativePtEC1[nPFJetAK8]/F");
@@ -1557,9 +1562,6 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("PFJetAK4_jesup_RelativeJEREC2",PFJetAK4_jesup_RelativeJEREC2,"PFJetAK4_jesup_RelativeJEREC2[nPFJetAK4]/F");
   T1->Branch("PFJetAK4_jesup_RelativePtBB",PFJetAK4_jesup_RelativePtBB,"PFJetAK4_jesup_RelativePtBB[nPFJetAK4]/F");
   T1->Branch("PFJetAK4_jesup_RelativePtEC1",PFJetAK4_jesup_RelativePtEC1,"PFJetAK4_jesup_RelativePtEC1[nPFJetAK4]/F");
-  T1->Branch("PFJetAK4_jesup_RelativeJEREC2",PFJetAK4_jesup_RelativeJEREC2,"PFJetAK4_jesup_RelativeJEREC2[nPFJetAK4]/F");
-  T1->Branch("PFJetAK4_jesup_RelativePtBB",PFJetAK4_jesup_RelativePtBB,"PFJetAK4_jesup_RelativePtBB[nPFJetAK4]/F");
-  T1->Branch("PFJetAK4_jesup_RelativePtEC1",PFJetAK4_jesup_RelativePtEC1,"PFJetAK4_jesup_RelativePtEC1[nPFJetAK4]/F");
   T1->Branch("PFJetAK4_jesup_RelativePtEC2",PFJetAK4_jesup_RelativePtEC2,"PFJetAK4_jesup_RelativePtEC2[nPFJetAK4]/F");
   T1->Branch("PFJetAK4_jesup_RelativeBal",PFJetAK4_jesup_RelativeBal,"PFJetAK4_jesup_RelativeBal[nPFJetAK4]/F");
   T1->Branch("PFJetAK4_jesup_RelativeSample",PFJetAK4_jesup_RelativeSample,"PFJetAK4_jesup_RelativeSample[nPFJetAK4]/F");
@@ -1582,9 +1584,6 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("PFJetAK4_jesdn_PileUpPtRef",PFJetAK4_jesdn_PileUpPtRef,"PFJetAK4_jesdn_PileUpPtRef[nPFJetAK4]/F");
   T1->Branch("PFJetAK4_jesdn_RelativeFSR",PFJetAK4_jesdn_RelativeFSR,"PFJetAK4_jesdn_RelativeFSR[nPFJetAK4]/F");
   T1->Branch("PFJetAK4_jesdn_RelativeJEREC1",PFJetAK4_jesdn_RelativeJEREC1,"PFJetAK4_jesdn_RelativeJEREC1[nPFJetAK4]/F");
-  T1->Branch("PFJetAK4_jesdn_RelativeJEREC2",PFJetAK4_jesdn_RelativeJEREC2,"PFJetAK4_jesdn_RelativeJEREC2[nPFJetAK4]/F");
-  T1->Branch("PFJetAK4_jesdn_RelativePtBB",PFJetAK4_jesdn_RelativePtBB,"PFJetAK4_jesdn_RelativePtBB[nPFJetAK4]/F");
-  T1->Branch("PFJetAK4_jesdn_RelativePtEC1",PFJetAK4_jesdn_RelativePtEC1,"PFJetAK4_jesdn_RelativePtEC1[nPFJetAK4]/F");
   T1->Branch("PFJetAK4_jesdn_RelativeJEREC2",PFJetAK4_jesdn_RelativeJEREC2,"PFJetAK4_jesdn_RelativeJEREC2[nPFJetAK4]/F");
   T1->Branch("PFJetAK4_jesdn_RelativePtBB",PFJetAK4_jesdn_RelativePtBB,"PFJetAK4_jesdn_RelativePtBB[nPFJetAK4]/F");
   T1->Branch("PFJetAK4_jesdn_RelativePtEC1",PFJetAK4_jesdn_RelativePtEC1,"PFJetAK4_jesdn_RelativePtEC1[nPFJetAK4]/F");
@@ -2254,110 +2253,116 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
   
   // Store trigger information //
   
-  const char* variab1;
-  
-  edm::Handle<edm::TriggerResults> trigRes;
-  iEvent.getByToken(triggerBits_, trigRes);
-  
-  const edm::TriggerNames &names = iEvent.triggerNames(*trigRes);
-  
-  edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
-  iEvent.getByToken(triggerObjects_, triggerObjects);
-  
-  edm::Handle<pat::PackedTriggerPrescales> triggerPrescales;
-  iEvent.getByToken(triggerPrescales_, triggerPrescales);
-  
-  int ihlttrg[nHLTmx+1]= {0};
   bool booltrg[nHLTmx]= {false};
   
-  for (int jk=0; jk<nHLTmx; jk++) {
-    for(unsigned ij = 0; ij<trigRes->size(); ++ij) {
-      std::string name = names.triggerName(ij);
-      variab1 = name.c_str(); 
-      if (strstr(variab1,hlt_name[jk]) && ((strlen(variab1)-strlen(hlt_name[jk]))<5))
-		{
-			if ((trigRes->accept(ij))){   //||(isMC)) {
-				ihlttrg[jk] = ihlttrg[nHLTmx] = 1;
-				booltrg[jk] = true;
-				break;
-			}
-		}
-    }//ij     
-  }//jk
+  if(!isFastSIM){
   
-  trig_value = 1; 
+	const char* variab1;
   
-  for (int jk=1; jk<(nHLTmx+1); jk++) {
-    if(ihlttrg[nHLTmx-jk]>0) {
-      trig_value+=(1<<jk);
-    }
-  }
+	edm::Handle<edm::TriggerResults> trigRes;
+	iEvent.getByToken(triggerBits_, trigRes);
   
-  // Trigger objects //
-    
-  vector<triggervar> alltrgobj;
-  if (trigRes.isValid()) { 
-    
-    const char* variab2 ;
-    
-    alltrgobj.clear(); 
-    
-    for (pat::TriggerObjectStandAlone obj : *triggerObjects) {
-      
-      obj.unpackPathNames(names);
-      std::vector<std::string> pathNamesAll  = obj.pathNames(false);
-      
-      for (unsigned ih = 0, n = pathNamesAll.size(); ih < n; ih++) {
-	
-		variab2 = pathNamesAll[ih].c_str(); 
-	
-		for (int jk=0; jk<nHLTmx; jk++) {
-			if (strstr(variab2,hlt_name[jk]) && (strlen(variab2)-strlen(hlt_name[jk])<5)) {
-	    	    
-				if(obj.pt()>20 && fabs(obj.eta())<3.0) {
-	      
-					triggervar tmpvec1;
-	      
-					tmpvec1.both = obj.hasPathName( pathNamesAll[ih], true, true );
-					tmpvec1.highl  = obj.hasPathName( pathNamesAll[ih], false, true );
-					tmpvec1.level1 = obj.hasPathName( pathNamesAll[ih], true, false );
-					tmpvec1.trg4v = TLorentzVector(obj.px(), obj.py(), obj.pz(), obj.energy());
-					tmpvec1.pdgId = obj.pdgId();
-					tmpvec1.prescl = 1;    //triggerPrescales->getPrescaleForIndex(ih);
-					tmpvec1.ihlt = jk;
-					tmpvec1.type = (obj.type(92) + 2*(obj.coll("hltEgammaCandidates")) + 4*obj.type(83) + 8*(obj.coll("hltIterL3MuonCandidates")) + 16*obj.type(84) + 32*(obj.coll("*Tau*"))
-								  + 64*obj.type(87) + 128*(obj.coll("L1ETM")) + 256*obj.type(85));
-								  //order: e/gamma + muon + tau + met + jet
-					alltrgobj.push_back(tmpvec1);
+	const edm::TriggerNames &names = iEvent.triggerNames(*trigRes);
+  
+	edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
+	iEvent.getByToken(triggerObjects_, triggerObjects);
+  
+	edm::Handle<pat::PackedTriggerPrescales> triggerPrescales;
+	iEvent.getByToken(triggerPrescales_, triggerPrescales);
+  
+	int ihlttrg[nHLTmx+1]= {0};
+  
+  
+	for (int jk=0; jk<nHLTmx; jk++) {
+		for(unsigned ij = 0; ij<trigRes->size(); ++ij) {
+			std::string name = names.triggerName(ij);
+			variab1 = name.c_str(); 
+			if (strstr(variab1,hlt_name[jk]) && ((strlen(variab1)-strlen(hlt_name[jk]))<5))
+			{
+				if ((trigRes->accept(ij))){   //||(isMC)) {
+					ihlttrg[jk] = ihlttrg[nHLTmx] = 1;
+					booltrg[jk] = true;
 					break;
 				}
 			}
-		}//jk 
-      }//ih
-    }
-  }
+		}//ij     
+	}//jk
+  
+	trig_value = 1; 
+  
+	for (int jk=1; jk<(nHLTmx+1); jk++) {
+		if(ihlttrg[nHLTmx-jk]>0) {
+			trig_value+=(1<<jk);
+		}
+	}
+  
+  // Trigger objects //
     
-  int xht=0;
-  nTrigObj = alltrgobj.size();
-  if(nTrigObj>njetmx) { nTrigObj = njetmx; }
-  if(nTrigObj > 0){
-    for(unsigned int iht=0; iht<(unsigned int)nTrigObj; iht++){
-      if(alltrgobj[iht].trg4v.Pt()>20 && fabs(alltrgobj[iht].trg4v.Eta())<3.0) {
-		TrigObj_pt[xht] = alltrgobj[iht].trg4v.Pt();
-		TrigObj_eta[xht] = alltrgobj[iht].trg4v.Eta();
-		TrigObj_phi[xht] = alltrgobj[iht].trg4v.Phi();
-		TrigObj_mass[xht] = alltrgobj[iht].trg4v.M();
-		TrigObj_HLT[xht] = alltrgobj[iht].highl;
-		TrigObj_L1[xht] = alltrgobj[iht].level1;
-		TrigObj_Both[xht] = alltrgobj[iht].both;
-		TrigObj_Ihlt[xht] = alltrgobj[iht].ihlt;
-		TrigObj_pdgId[xht] = alltrgobj[iht].pdgId;
-		TrigObj_type[xht] = alltrgobj[iht].type;
-		xht++;
-      }
-      if(iht == (njetmx-1)) break;
-    }
-  }
+	vector<triggervar> alltrgobj;
+	if (trigRes.isValid()) { 
+    
+		const char* variab2 ;
+    
+		alltrgobj.clear(); 
+    
+		for (pat::TriggerObjectStandAlone obj : *triggerObjects) {
+      
+			obj.unpackPathNames(names);
+			std::vector<std::string> pathNamesAll  = obj.pathNames(false);
+      
+			for (unsigned ih = 0, n = pathNamesAll.size(); ih < n; ih++) {
+	
+				variab2 = pathNamesAll[ih].c_str(); 
+	
+				for (int jk=0; jk<nHLTmx; jk++) {
+					if (strstr(variab2,hlt_name[jk]) && (strlen(variab2)-strlen(hlt_name[jk])<5)) {
+	    	    
+						if(obj.pt()>20 && fabs(obj.eta())<3.0) {
+	      
+							triggervar tmpvec1;
+	      
+							tmpvec1.both = obj.hasPathName( pathNamesAll[ih], true, true );
+							tmpvec1.highl  = obj.hasPathName( pathNamesAll[ih], false, true );
+							tmpvec1.level1 = obj.hasPathName( pathNamesAll[ih], true, false );
+							tmpvec1.trg4v = TLorentzVector(obj.px(), obj.py(), obj.pz(), obj.energy());
+							tmpvec1.pdgId = obj.pdgId();
+							tmpvec1.prescl = 1;    //triggerPrescales->getPrescaleForIndex(ih);
+							tmpvec1.ihlt = jk;
+							tmpvec1.type = (obj.type(92) + 2*(obj.coll("hltEgammaCandidates")) + 4*obj.type(83) + 8*(obj.coll("hltIterL3MuonCandidates")) + 16*obj.type(84) + 32*(obj.coll("*Tau*"))
+								  + 64*obj.type(87) + 128*(obj.coll("L1ETM")) + 256*obj.type(85));
+								  //order: e/gamma + muon + tau + met + jet
+							alltrgobj.push_back(tmpvec1);
+							break;
+						}
+					}
+				}//jk 
+			}//ih
+		}
+	}
+    
+	int xht=0;
+	nTrigObj = alltrgobj.size();
+	if(nTrigObj>njetmx) { nTrigObj = njetmx; }
+	if(nTrigObj > 0){
+		for(unsigned int iht=0; iht<(unsigned int)nTrigObj; iht++){
+			if(alltrgobj[iht].trg4v.Pt()>20 && fabs(alltrgobj[iht].trg4v.Eta())<3.0) {
+				TrigObj_pt[xht] = alltrgobj[iht].trg4v.Pt();
+				TrigObj_eta[xht] = alltrgobj[iht].trg4v.Eta();
+				TrigObj_phi[xht] = alltrgobj[iht].trg4v.Phi();
+				TrigObj_mass[xht] = alltrgobj[iht].trg4v.M();
+				TrigObj_HLT[xht] = alltrgobj[iht].highl;
+				TrigObj_L1[xht] = alltrgobj[iht].level1;
+				TrigObj_Both[xht] = alltrgobj[iht].both;
+				TrigObj_Ihlt[xht] = alltrgobj[iht].ihlt;
+				TrigObj_pdgId[xht] = alltrgobj[iht].pdgId;
+				TrigObj_type[xht] = alltrgobj[iht].type;
+				xht++;
+			}
+		if(iht == (njetmx-1)) break;
+		}
+	}
+
+  } //isFastSIM
   
   // End of trigger info //
   
@@ -2376,7 +2381,8 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 	edm::Handle< double > theprefweightdown;
 	iEvent.getByToken(prefweightdown_token, theprefweightdown ) ;   
 	prefiringweightdown =(*theprefweightdown);
-  
+ 
+	cout<<"Prefiring: "<<prefiringweight<<endl; 
   }
   
   // End of prefire weights //
@@ -3309,12 +3315,12 @@ void
 Leptop::beginRun(edm::Run const& iRun, edm::EventSetup const& pset)
 {	
   bool changed(true);
-  
-  hltPrescaleProvider_.init(iRun,pset,theHLTTag,changed);
-  HLTConfigProvider const&  hltConfig_ = hltPrescaleProvider_.hltConfigProvider();
+  if(!isFastSIM){
+	hltPrescaleProvider_.init(iRun,pset,theHLTTag,changed);
+	HLTConfigProvider const&  hltConfig_ = hltPrescaleProvider_.hltConfigProvider();
+  }
   //hltConfig_.dump("Triggers");
   //hltConfig_.dump("PrescaleTable");
- 
 }
 
 // ------------ method called when ending the processing of a run  ------------
