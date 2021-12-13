@@ -45,7 +45,8 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 from RecoJets.Configuration.GenJetParticles_cff import *
 
-process.GlobalTag.globaltag = "106X_upgrade2018_realistic_v15_L1v1"
+process.GlobalTag.globaltag = "106X_upgrade2018_realistic_v16_L1v1"
+#106X_upgrade2018_realistic_v15_L1v1"
 #process.GlobalTag.globaltag = "102X_upgrade2018_realistic_v20"
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
 
@@ -61,11 +62,13 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 inFiles = cms.untracked.vstring(
 #'root://cmsxrootd.fnal.gov//store/mc/RunIIAutumn18MiniAOD/QCD_bEnriched_HT2000toInf_TuneCP5_13TeV-madgraph-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v2/20000/105691C7-8434-2940-88D2-7369139692CB.root'   
-'root://cms-xrd-global.cern.ch//store/mc/RunIISummer19UL18MiniAOD/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/260000/0112B4DB-39FA-4645-A39D-912087A8C335.root'
+#'root://cms-xrd-global.cern.ch//store/mc/RunIISummer19UL18MiniAOD/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/260000/0112B4DB-39FA-4645-A39D-912087A8C335.root'
 #'/store/mc/RunIISummer19UL18MiniAOD/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/260000/00C28834-56C0-2343-B436-AA8521756E9E.root'
 #'/store/mc/RunIISummer19UL18MiniAOD/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/100000/00BC2C64-EBF8-E843-ACC9-A1A2744FE11B.root'
 #'file:/tmp/deroy/00C28834-56C0-2343-B436-AA8521756E9E.root'
+#'file:MINIAOD_Signal_MX2000_MY200.root'
 #'root://xrootd-cms.infn.it//store/mc/RunIISummer19UL18MiniAOD/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/260000/00C28834-56C0-2343-B436-AA8521756E9E.root'
+'root://xrootd-cms.infn.it//store/mc/RunIISummer20UL18MiniAODv2/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/00000/04A0B676-D63A-6D41-B47F-F4CF8CBE7DB8.root'
    )
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(3000))
@@ -73,6 +76,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(3000))
 #process.firstEvent = cms.untracked.PSet(input = cms.untracked.int32(5000))
 process.source = cms.Source("PoolSource", fileNames = inFiles )
 
+FastSIM = bool(True)
 
 process.p = cms.Path()
 
@@ -175,6 +179,7 @@ process.mcjets =  cms.EDAnalyzer('Leptop',
 
 	 Data =  cms.untracked.bool(False),
 	 MonteCarlo =  cms.untracked.bool(True),
+	 FastSIM =  cms.untracked.bool(True),
          YEAR = cms.untracked.int32(2018),
          UltraLegacy =  cms.untracked.bool(True),                        
 	 isReco = cms.untracked.bool(True),
@@ -183,7 +188,7 @@ process.mcjets =  cms.EDAnalyzer('Leptop',
 	 add_prefireweights =  cms.untracked.bool(True),
 	 store_electron_scalnsmear =  cms.untracked.bool(True),
 	 store_electron_addvariab = cms.untracked.bool(False),
-	 Read_btagging_SF = cms.untracked.bool(True),
+	 Read_btagging_SF = cms.untracked.bool(False),
 
  	 RootFileName = cms.untracked.string('rootuple.root'),  #largest data till April5,2016
 	
@@ -297,7 +302,8 @@ process.mcjets =  cms.EDAnalyzer('Leptop',
 
 process.load('RecoMET.METFilters.primaryVertexFilter_cfi')
 process.primaryVertexFilter.vertexCollection = cms.InputTag("offlineSlimmedPrimaryVertices")
-process.load('RecoMET.METFilters.globalSuperTightHalo2016Filter_cfi')
+if not FastSIM:
+	process.load('RecoMET.METFilters.globalSuperTightHalo2016Filter_cfi')
 process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
 process.load('CommonTools.RecoAlgos.HBHENoiseFilter_cfi')
 process.HBHENoiseFilterResultProducerNoMinZ = process.HBHENoiseFilterResultProducer.clone(minZeros = cms.int32(99999))
@@ -330,14 +336,23 @@ process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0)
 )
 
-process.allMetFilterPaths=cms.Sequence(process.primaryVertexFilter*
-process.globalSuperTightHalo2016Filter*
-process.HBHENoiseFilter*
-process.HBHENoiseIsoFilter*
-process.EcalDeadCellTriggerPrimitiveFilter*
-process.BadPFMuonFilter*
-process.BadPFMuonDzFilter*
-process.ecalBadCalibFilter)
+if FastSIM:
+	process.allMetFilterPaths=cms.Sequence(process.primaryVertexFilter*
+	process.HBHENoiseFilter*
+	process.HBHENoiseIsoFilter*
+	process.EcalDeadCellTriggerPrimitiveFilter*
+	process.BadPFMuonFilter*
+	process.BadPFMuonDzFilter*
+	process.ecalBadCalibFilter)
+else:
+	process.allMetFilterPaths=cms.Sequence(process.primaryVertexFilter*
+	process.globalSuperTightHalo2016Filter*
+	process.HBHENoiseFilter*
+	process.HBHENoiseIsoFilter*
+	process.EcalDeadCellTriggerPrimitiveFilter*
+	process.BadPFMuonFilter*
+	process.BadPFMuonDzFilter*
+	process.ecalBadCalibFilter)
 
 process.jetSeq=cms.Sequence(process.patJetCorrFactorsSlimmedJetsAK8
 +process.updatedPatJetsSlimmedJetsAK8
