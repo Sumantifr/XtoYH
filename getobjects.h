@@ -594,8 +594,8 @@ void getPartons(std::vector<GenParton> &GenPartons, int maxsize=npartmx)
     
     parton.status = GenPart_status[igen];
 	parton.pdgId = GenPart_pdgId[igen];
-	parton.mompdgId = GenPart_pdgId[igen];
-	parton.grmompdgId = GenPart_pdgId[igen]; 
+	parton.mompdgId = GenPart_mompdgId[igen];
+	parton.grmompdgId = GenPart_grmompdgId[igen]; 
 	
 	parton.fromhard = GenPart_fromhard[igen];
 	parton.fromhardbFSR = GenPart_fromhardbFSR[igen];

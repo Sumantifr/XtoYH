@@ -81,202 +81,90 @@ float* Electron_SF(TFile *file_el_sf, float pt, float eta){
 }
 
 
-int main(int argc, char *argv[])
+//int main(int argc, char *argv[])
+int main()
 {
-  cout<<"Program started"<<endl;
-  char fOut[50], fout1[50],fout2[50];
-  string inputFile=argv[3];
-  if(inputFile=="FILELIST/XtoYH_2018_TT_Had.log"){
-      sprintf(fOut,"HIST/JetHT_EraB_2017_UL_HFNoise_%s_%s.root",argv[1],argv[2]);
-   }
-  if(inputFile=="FILELIST/TTToSemiLeptonic_XtoYH_Nov_2021.log"){
-     sprintf(fOut,"HIST/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_Nov_2021_%s_%s.root",argv[1],argv[2]);
-   } 
-
-   TFile *fileout = new TFile(fOut,"recreate");
+	
    
-   Tout = new TTree("Tout", "Results");
-   // Histogram definition for PU, NV 
-   TH1F *h_PU = new TH1F("h_PU", "h_PU", 100, 0, 100);
-   TH1F *h_TPU = new TH1F("h_TPU", "h_TPU", 100, 0, 100);
-   TH1F *h_PV = new TH1F("h_PV", "h_PV", 100, 0, 100);
 
-   //Binning definition
-   Double_t xEdges0[] =  {200,300,400,800,7000};
-   Double_t yEdges0[] =  {0,0.6,1.2,2.4}; 
-   const int XBINS0 = sizeof(xEdges0)/sizeof(xEdges0[0])-1; 
-   const int YBINS0 = sizeof(yEdges0)/sizeof(yEdges0[0])-1;
-   // Histogram definition for AK4 
-   TH2F* h_Ak4_b_flv = new TH2F("h_Ak4_b_flv", "h_Ak4_b_flv", XBINS0, xEdges0, YBINS0, yEdges0);
-   TH2F* h_Ak4_c_flv = new TH2F("h_Ak4_c_flv", "h_Ak4_c_flv", XBINS0, xEdges0, YBINS0, yEdges0);
-   TH2F* h_Ak4_l_flv = new TH2F("h_Ak4_l_flv", "h_Ak4_l_flv", XBINS0, xEdges0, YBINS0, yEdges0);
-
-   // Histogram definition for AK4 passed L DeepFlv
-   TH2F* h_Ak4_b_flv_pass_L = new TH2F("h_Ak4_b_flv_pass_L", "h_Ak4_b_flv_pass_L", XBINS0, xEdges0, YBINS0, yEdges0);
-   TH2F* h_Ak4_c_flv_pass_L = new TH2F("h_Ak4_c_flv_pass_L", "h_Ak4_c_flv_pass_L", XBINS0, xEdges0, YBINS0, yEdges0);
-   TH2F* h_Ak4_l_flv_pass_L = new TH2F("h_Ak4_l_flv_pass_L", "h_Ak4_l_flv_pass_L", XBINS0, xEdges0, YBINS0, yEdges0);
-   
-   // Histogram definition for AK4 passed M DeepFlv
-   TH2F* h_Ak4_b_flv_pass_M = new TH2F("h_Ak4_b_flv_pass_M", "h_Ak4_b_flv_pass_M", XBINS0, xEdges0, YBINS0, yEdges0);
-   TH2F* h_Ak4_c_flv_pass_M = new TH2F("h_Ak4_c_flv_pass_M", "h_Ak4_c_flv_pass_M", XBINS0, xEdges0, YBINS0, yEdges0);
-   TH2F* h_Ak4_l_flv_pass_M = new TH2F("h_Ak4_l_flv_pass_M", "h_Ak4_l_flv_pass_M", XBINS0, xEdges0, YBINS0, yEdges0);
-
-   // Histogram definition for AK4 passed T DeepFlv
-   TH2F* h_Ak4_b_flv_pass_T = new TH2F("h_Ak4_b_flv_pass_T", "h_Ak4_b_flv_pass_T", XBINS0, xEdges0, YBINS0, yEdges0);
-   TH2F* h_Ak4_c_flv_pass_T = new TH2F("h_Ak4_c_flv_pass_T", "h_Ak4_c_flv_pass_T", XBINS0, xEdges0, YBINS0, yEdges0);
-   TH2F* h_Ak4_l_flv_pass_T = new TH2F("h_Ak4_l_flv_pass_T", "h_Ak4_l_flv_pass_T", XBINS0, xEdges0, YBINS0, yEdges0);
-
-   //Binning definition   
-   Double_t xEdges1[] =  {200,300,400,800,7000};
-   Double_t yEdges1[] =  {0,0.6,1.2,2.4};
-   const int XBINS1 = sizeof(xEdges1)/sizeof(xEdges1[0])-1;
-   const int YBINS1 = sizeof(yEdges1)/sizeof(yEdges1[0])-1;
-   
-   TH2F* h_Ak8_DeepTag_DAK8MD_WvsQCD = new TH2F("h_Ak8_DeepTag_DAK8MD_WvsQCD", "h_Ak8_DeepTag_DAK8MD_WvsQCD", XBINS1, xEdges1, YBINS1, yEdges1);
-   TH2F* h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_L = new TH2F("h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_L", "h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_L", XBINS1, xEdges1, YBINS1, yEdges1);
-   TH2F* h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_M = new TH2F("h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_M", "h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_M", XBINS1, xEdges1, YBINS1, yEdges1);
-   TH2F* h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_T = new TH2F("h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_T", "h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_T", XBINS1, xEdges1, YBINS1, yEdges1);
-
-   Double_t xEdges2[] =  {200,300,400,500,600,800,7000};
-   Double_t yEdges2[] =  {0,0.6,1.2,2.4};
-   const int XBINS2 = sizeof(xEdges2)/sizeof(xEdges2[0])-1;
-   const int YBINS2 = sizeof(yEdges2)/sizeof(yEdges2[0])-1;
-
-   TH2F* h_Ak8_DeepTag_PNetMD_XbbvsQCD = new TH2F("h_Ak8_DeepTag_PNetMD_XbbvsQCD", "h_Ak8_DeepTag_PNetMD_XbbvsQCD", XBINS2, xEdges2, YBINS2, yEdges2);
-   TH2F* h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_L = new TH2F("h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_L", "h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_L", XBINS2, xEdges2, YBINS2, yEdges2);
-   TH2F* h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M = new TH2F("h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M", "h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M", XBINS2, xEdges2, YBINS2, yEdges2);
-   TH2F* h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T = new TH2F("h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T", "h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T", XBINS2, xEdges2, YBINS2, yEdges2);
-
-
-   Tout->Branch("nleptons", &nleptons, "nleptons/I");
-   Tout->Branch("nfatjets", &nfatjets, "nfatjets/I");	
-   
-   Tout->Branch("Flag_event_cuts", Flag_event_cuts, "Flag_event_cuts/O");	
-   
-   Tout->Branch("l_pt", &l_pt, "l_pt/F");	
-   Tout->Branch("l_eta", &l_eta, "l_eta/F");	
-   Tout->Branch("l_phi", &l_phi, "l_phi/F");	
-   Tout->Branch("l_mass", &l_mass, "l_mass/F");	
-
-   Tout->Branch("Y_pt", &Y_pt, "Y_pt/F");	
-   Tout->Branch("Y_y", &Y_y, "Y_y/F");	
-   Tout->Branch("Y_eta", &Y_eta, "Y_eta/F");
-   Tout->Branch("Y_phi", &Y_phi, "Y_phi/F");	
-   Tout->Branch("Y_mass", &Y_mass, "Y_mass/F");	
-   Tout->Branch("Y_sdmass", &Y_sdmass, "Y_sdmass/F");	
-   Tout->Branch("Y_PN_bb", &Y_PN_bb, "Y_PN_bb/F");	
-
-   // W boson related branches based on option -1 
-   Tout->Branch("W_pt_opt1", &W_pt_opt1, "W_pt_opt1/F");	
-   Tout->Branch("W_y_opt1", &W_y_opt1, "W_y_opt1/F");	
-   Tout->Branch("W_eta_opt1", &W_eta_opt1, "W_eta_opt1/F");
-   Tout->Branch("W_phi_opt1", &W_phi_opt1, "W_phi_opt1/F");	
-   Tout->Branch("W_mass_opt1", &W_mass_opt1, "W_mass_opt1/F");	
-   Tout->Branch("W_sdmass_opt1", &W_sdmass_opt1, "W_sdmass_opt1/F");	
-   Tout->Branch("W_PN_W_opt1", &W_PN_W_opt1, "W_PN_W_opt1/F");	
-   
-   Tout->Branch("H_pt_opt1", &H_pt_opt1, "H_pt_opt1/F");	
-   Tout->Branch("H_y_opt1", &H_y_opt1, "H_y_opt1/F");
-   Tout->Branch("H_eta_opt1", &H_eta_opt1, "H_eta_opt1/F");
-   Tout->Branch("H_phi_opt1", &H_phi_opt1, "H_phi_opt1/F");	
-   Tout->Branch("H_mass_opt1", &H_mass_opt1, "H_mass_opt1/F");	
-   
-   Tout->Branch("X_mass_opt1", &X_mass_opt1, "X_mass_opt1/F");	
-   
-   Tout->Branch("dR_lW_opt1", &dR_lW_opt1, "dR_lW_opt1/F");	
-   Tout->Branch("dy_lW_opt1", &dy_lW_opt1, "dy_lW_opt1/F");	
-   Tout->Branch("dphi_lW_opt1", &dphi_lW_opt1, "dphi_lW_opt1/F");	
-   // W boson related branches based on option -2
-   Tout->Branch("W_pt_opt2", &W_pt_opt2, "W_pt_opt2/F");
-   Tout->Branch("W_y_opt2", &W_y_opt2, "W_y_opt2/F");
-   Tout->Branch("W_eta_opt2", &W_eta_opt2, "W_eta_opt2/F");
-   Tout->Branch("W_phi_opt2", &W_phi_opt2, "W_phi_opt2/F");
-   Tout->Branch("W_mass_opt2", &W_mass_opt2, "W_mass_opt2/F");
-   Tout->Branch("W_sdmass_opt2", &W_sdmass_opt2, "W_sdmass_opt2/F");
-   Tout->Branch("W_PN_W_opt2", &W_PN_W_opt2, "W_PN_W_opt2/F");
-
-   Tout->Branch("H_pt_opt2", &H_pt_opt2, "H_pt_opt2/F");
-   Tout->Branch("H_y_opt2", &H_y_opt2, "H_y_opt2/F");
-   Tout->Branch("H_eta_opt2", &H_eta_opt2, "H_eta_opt2/F");
-   Tout->Branch("H_phi_opt2", &H_phi_opt2, "H_phi_opt2/F");
-   Tout->Branch("H_mass_opt2", &H_mass_opt2, "H_mass_opt2/F");
-
-   Tout->Branch("X_mass_opt2", &X_mass_opt2, "X_mass_opt2/F");
-
-   Tout->Branch("dR_lW_opt2", &dR_lW_opt2, "dR_lW_opt2/F");
-   Tout->Branch("dy_lW_opt2", &dy_lW_opt2, "dy_lW_opt2/F");
-   Tout->Branch("dphi_lW_opt2", &dphi_lW_opt2, "dphi_lW_opt2/F");
-
-   Tout->Branch("dR_lY", &dR_lY, "dR_lY/F");	
-   Tout->Branch("dy_lY", &dy_lY, "dy_lY/F");	
-   Tout->Branch("dphi_lY", &dphi_lY, "dphi_lY/F");
-   
-   Tout->Branch("nbjets_other", &nbjets_other, "nbjets_other/I");	
-   Tout->Branch("MET", &MET, "MET/F");	
-   // Different flags and control regions   
-
-   Tout->Branch("Flag_Y_bb_pass_T", &Flag_Y_bb_pass_T, "Flag_Y_bb_pass_T/O");	
-   Tout->Branch("Flag_Y_bb_pass_M", &Flag_Y_bb_pass_T, "Flag_Y_bb_pass_M/O");
-   Tout->Branch("Flag_Y_bb_pass_L", &Flag_Y_bb_pass_L, "Flag_Y_bb_pass_L/O");	
-   Tout->Branch("Flag_H_W_pass_T_opt1", &Flag_H_W_pass_T_opt1, "Flag_H_W_pass_T_opt1/O");	
-   Tout->Branch("Flag_H_W_pass_M_opt1", &Flag_H_W_pass_T_opt1, "Flag_H_W_pass_M_opt1/O");
-   Tout->Branch("Flag_H_W_pass_L_opt1", &Flag_H_W_pass_L_opt1, "Flag_H_W_pass_L_opt1/O");
-
-   Tout->Branch("Flag_H_W_pass_T_opt2", &Flag_H_W_pass_T_opt2, "Flag_H_W_pass_T_opt2/O");
-   Tout->Branch("Flag_H_W_pass_M_opt2", &Flag_H_W_pass_T_opt2, "Flag_H_W_pass_M_opt2/O");
-   Tout->Branch("Flag_H_W_pass_L_opt2", &Flag_H_W_pass_L_opt2, "Flag_H_W_pass_L_opt2/O");
-   
-   Tout->Branch("Flag_H_m_pass_opt1", &Flag_H_m_pass_opt1, "Flag_H_m_pass_opt1/O");	
-   Tout->Branch("Flag_H_m_pass_opt2", &Flag_H_m_pass_opt2, "Flag_H_m_pass_opt2/O");
-   
-   Tout->Branch("Flag_dR_lW_pass_opt1", &Flag_dR_lW_pass_opt1, "Flag_dR_lW_pass_opt1/O");	
-   Tout->Branch("Flag_dR_lW_pass_opt2", &Flag_dR_lW_pass_opt2, "Flag_dR_lW_pass_opt2/O");
-   
-   Tout->Branch("Flag_MET_pass", &Flag_MET_pass, "Flag_MET_pass/O");	
-   
-   Tout->Branch("Flag_MET_pass", &Flag_MET_pass, "Flag_MET_pass/O");	
-   Tout->Branch("Reg_SR_opt1", &Reg_SR_opt1, "Reg_SR_opt1/O");	
-   Tout->Branch("Reg_Wj_CR_opt1", &Reg_Wj_CR_opt1, "Reg_Wj_CR_opt1/O");
-   Tout->Branch("Reg_SR_opt2", &Reg_SR_opt2, "Reg_SR_opt2/O");
-   Tout->Branch("Reg_Wj_CR_opt2", &Reg_Wj_CR_opt2, "Reg_Wj_CR_opt2/O");
-   
-   Tout->Branch("event_weight_LHE", &event_weight_LHE, "event_weight_LHE/D");	
-   
-   calib_deepflav = BTagCalibration("DeepJet", "BtagRecommendation106XUL18/DeepJet_106XUL18SF_WPonly_V1p1.csv");
-   reader_deepflav = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"}); 
-   reader_deepflav.load(calib_deepflav, BTagEntry::FLAV_B, "comb");
-   reader_deepflav.load(calib_deepflav, BTagEntry::FLAV_C, "comb");
-   reader_deepflav.load(calib_deepflav, BTagEntry::FLAV_UDSG, "incl");
-   
    char name[1000];
    
-   TFile *file_mu_sf;
-   sprintf(name,"data/Efficiencies_muon_generalTracks_Z_Run%i_UL_ID.root",year);
-   file_mu_sf = new TFile(name,"read");
-   
-   TFile *file_el_sf;
-   sprintf(name,"data/egammaEffi.txt_Ele_%s_EGM2D_UL%i.root",electron_id_name.c_str(),year);
-   file_el_sf = new TFile(name,"read");
-   
-   int count =0;
-   string fileName;
-   ifstream infile;
-   infile.open(argv[3]);
-   while(!infile.eof()){
-   count = count+1;
-   getline(infile,fileName);
+   char rootfiles[100];
+   char infile[1000];
+   char datafile[1000];
+   char outfilx[100];
 
-   int L_lim = stof(argv[1]);
-   int H_lim = stof(argv[2]);
-   if(count<=L_lim)continue;
-   if(count>H_lim)continue;
-   TFile *f = TFile::Open(fileName.data());
-   if(f==0) continue;
+   cout <<"Give the input file name"<<endl;
+   cin>> rootfiles;
+   
+   // declare output file & histograms //
+   
+   int len = strlen(rootfiles);
+   strncpy(outfilx, rootfiles, len-4);
+   outfilx[len-4]='\0';
+   sprintf(name,"Output_GEN_%s.root",outfilx);
+   TFile *fileout = new TFile(name,"recreate");
+   
+   // Histograms
+   
+   TH1F *h_LHE_b1b2_m = new TH1F("LHE_b1b2_M", "", 100, 195, 205);
+   TH1F *h_LHE_j1j2_m = new TH1F("LHE_j1j2_M", "", 100, 0, 150);
+   TH1F *h_LHE_H_m = new TH1F("LHE_H_M", "", 50, 124, 126);
+   TH1F *h_LHE_X_m = new TH1F("LHE_X_M", "", 350, 1400, 2100);
+   
+   TH1F *h_LHE_b1b2_pt = new TH1F("LHE_b1b2_pt", "", 40, 0, 1000);
+   TH1F *h_LHE_j1j2_pt = new TH1F("LHE_j1j2_pt", "", 40, 0, 1000);
+   TH1F *h_LHE_l_pt = new TH1F("LHE_l_pt", "", 40, 0, 1000);
+   TH1F *h_LHE_nu_pt = new TH1F("LHE_nu_pt", "", 40, 0, 1000);
+   TH1F *h_LHE_H_pt = new TH1F("LHE_H_pt", "", 40, 0, 1000);
+   
+   TH1F *h_LHE_b1b2_dR = new TH1F("LHE_b1b2_dR", "", 100, 0, 5);
+   TH1F *h_LHE_j1j2_dR = new TH1F("LHE_j1j2_dR", "", 100, 0, 5);
+   TH1F *h_LHE_j1j2l_dR = new TH1F("LHE_j1j2l_dR", "", 100, 0, 5);
+   TH1F *h_LHE_j1j2l_b1b2_dR = new TH1F("LHE_j1j2l_b1b2_dR", "", 100, 0, 5);
+   
+   TH1F *h_GEN_b1b2_m = new TH1F("GEN_b1b2_M", "", 100, 195, 205);
+   TH1F *h_GEN_j1j2_m = new TH1F("GEN_j1j2_M", "", 100, 0, 150);
+   TH1F *h_GEN_H_m = new TH1F("GEN_H_M", "", 50, 124, 126);
+   TH1F *h_GEN_X_m = new TH1F("GEN_X_M", "", 350, 1400, 2100);
+   
+   TH1F *h_GEN_b1b2_pt = new TH1F("GEN_b1b2_pt", "", 40, 0, 1000);
+   TH1F *h_GEN_j1j2_pt = new TH1F("GEN_j1j2_pt", "", 40, 0, 1000);
+   TH1F *h_GEN_l_pt = new TH1F("GEN_l_pt", "", 40, 0, 1000);
+   TH1F *h_GEN_nu_pt = new TH1F("GEN_nu_pt", "", 40, 0, 1000);
+   TH1F *h_GEN_H_pt = new TH1F("GEN_H_pt", "", 40, 0, 1000);
+   
+   TH1F *h_GEN_b1b2_dR = new TH1F("GEN_b1b2_dR", "", 100, 0, 5);
+   TH1F *h_GEN_j1j2_dR = new TH1F("GEN_j1j2_dR", "", 100, 0, 5);
+   TH1F *h_GEN_j1j2l_dR = new TH1F("GEN_j1j2l_dR", "", 100, 0, 5);
+   TH1F *h_GEN_j1j2l_b1b2_dR = new TH1F("GEN_j1j2l_b1b2_dR", "", 100, 0, 5);
+   
+   TH1F *h_GEN_Y_m = new TH1F("GEN_Y_M", "", 100, 0, 300);
+   TH1F *h_GEN_Wh_m = new TH1F("GEN_Wh_M", "", 100, 0, 150);
+   TH1F *h_GEN_HJ_m = new TH1F("GEN_HJ_M", "", 60, 50, 350);
+   TH1F *h_GEN_XJ_m = new TH1F("GEN_XJ_M", "", 160, 1000, 2600);
+   TH2F *h_GEN_Y_XJ_m = new TH2F("GEN_XJ_Y_M", "", 160, 1000, 2600, 100, 0, 300);
+   TH1F *h_GEN_HJ_m_MET = new TH1F("GEN_MET_HJ_M", "", 60, 50, 350);
+   TH1F *h_GEN_XJ_m_MET = new TH1F("GEN_MET_XJ_M", "", 160, 1000, 2600);
+   TH2F *h_GEN_Y_XJ_m_MET = new TH2F("GEN_MET_XJ_Y_M", "", 160, 1000, 2600, 100, 0, 300);
+   
+   // end //
 
-   cout<<fileName<<endl;
+   ifstream file_db;
+   file_db.open(rootfiles);
+
+    while(!(file_db.eof())){
+
+	file_db >> datafile;
+    if(file_db.eof()) break;
+
+    sprintf(infile, "%s", datafile);
+    cout<<"infile "<<infile<<endl;
+
+    TFile *fileIn = new TFile(infile,"read");
 
    TTree *fChain;
-   fChain = (TTree*)f->Get("Events");
+   fChain = (TTree*)fileIn->Get("Events");
    fChain->SetBranchAddress("irun", &irun, &b_irun);
    fChain->SetBranchAddress("ilumi", &ilumi, &b_ilumi);
    fChain->SetBranchAddress("ievt", &ievt, &b_ievt);
@@ -716,13 +604,10 @@ int main(int argc, char *argv[])
    for (int ij=0; ij<nentries; ij++) {
    
 	//if(ij%100==0){ cout<<"event "<<ij+1<<endl; }
-	f->cd();
+	fileIn->cd();
 
 	fChain->GetEntry(ij);
-        h_PU->Fill(npu_vert,event_weight_LHE);
-        h_TPU->Fill(npu_vert_true,event_weight_LHE);
-        h_PV->Fill(npvert,event_weight_LHE);
-	
+
 	//cout<<"Before: "<<nPFJetAK8<<" "<<nPFJetAK4<<" "<<nMuon<<" "<<nElectron<<" "<<nPhoton<<endl;
 	
 	//Here you get gen particles
@@ -732,490 +617,166 @@ int main(int argc, char *argv[])
 	vector<GenParton> lheparts;
 	getLHEParts(lheparts);
 	
-	//Here you get electrons with your criteria
-	vector <Electron> velectrons;
-	getelectrons(velectrons,electron_pt_cut,absetacut,3); // index after eta cut is id: 0=WP80_Iso, 1=WP80_noIso, 2=WP90_Iso, 3=WP90_noIso
-	
-	//Here you get muons with your criteria (no iso used by default)
-    vector <Muon> vmuons;
-    getmuons(vmuons,muon_pt_cut,absetacut,2); // index after eta cut is id: 0=Loose, 1=Medium, 2=Tight
-    
-    //Make lepton collection from electrons & muons (using only common variables)
-    vector <Lepton> vleptons;
-    getLeptons(vleptons,vmuons,velectrons,lepton_pt_cut);    
-    
-    //Here you get AK4 jets with your criteria
-    vector <AK4Jet> Jets;
-    getAK4jets(Jets,AK4jet_pt_cut,absetacut,isMC);
-    //LeptonJet_cleaning(Jets,vleptons,AK4jet_pt_cut,absetacut);
-    
-    // Add b tag SF (if not in ntuple)//
-    for(auto & jet: Jets){
-		
-		BTagEntry::JetFlavor btv_flav;
-		if(abs(jet.hadronFlavour)==5){ btv_flav = BTagEntry::FLAV_B; }
-		else if (abs(jet.hadronFlavour)==4){ btv_flav = BTagEntry::FLAV_C; }
-		else { btv_flav = BTagEntry::FLAV_UDSG; }
-		
-		jet.btag_DeepFlav_SF = reader_deepflav.eval_auto_bounds("central",btv_flav,fabs(jet.eta),jet.pt); 
-		jet.btag_DeepFlav_SF_up = reader_deepflav.eval_auto_bounds("up",btv_flav,fabs(jet.eta),jet.pt);
-		jet.btag_DeepFlav_SF_dn = reader_deepflav.eval_auto_bounds("down",btv_flav,fabs(jet.eta),jet.pt);
-	
-	}
-	    
-    //Get b-tagged jets from AK4 jets
-    vector <AK4Jet> BJets;
-    for(auto & jet: Jets){
-		if(isBJet(jet,deep_btag_cut)){
-			BJets.push_back(jet);
-		}
-    }
-    
-	//Here you get AK8 jets with your criteria
-    vector <AK8Jet> LJets;
-    getAK8jets(LJets,AK8jet_pt_cut,absetacut,isMC);
-    //LeptonJet_cleaning(LJets,vleptons,AK8jet_pt_cut,absetacut);
-
-    nleptons = (vleptons.size());
-	nfatjets = (LJets.size());
-    
-    ////trigger object along with pdgid////
-    vector<TrigObj> trigobjects;
-    getTrigObjs(trigobjects);
-    
-    for (unsigned tr=0; tr<trigobjects.size(); tr++) {
-		
-        int trig_id = -1;
-        if(*(decToBinary(trigobjects[tr].type)) == 1) { trig_id = 11; }
-        else if (*(decToBinary(trigobjects[tr].type)+1)==1) { trig_id = 11; }
-        else if (*(decToBinary(trigobjects[tr].type)+2)==1 || *(decToBinary(trigobjects[tr].type)+3)==1) { trig_id = 13; }
-        else if (*(decToBinary(trigobjects[tr].type)+4)==1 || *(decToBinary(trigobjects[tr].type)+5)==1) { trig_id = 15; }
-        else if (*(decToBinary(trigobjects[tr].type)+6)==1) { trig_id = 0; }
-        else if (*(decToBinary(trigobjects[tr].type)+7)==1 || *(decToBinary(trigobjects[tr].type)+8)==1) { trig_id = 1; }
-        //cout<<"pdg "<<TrigObj_pdgId[tr]<<" id "<<trig_id<<endl;
-        trigobjects[tr].ID = trig_id;
-    
-    }
-
-	// trigger decisions //
-	vector<bool> double_hlts; vector<vector<float>> double_pt_cuts; vector<vector<int>> double_pids;
-    vector<bool> single_hlts; vector<float> single_pt_cuts; vector<int> single_pids; vector<float> single_other_pt_cuts; vector<int> single_other_pids;
-	vector<bool> jet_hlts; vector<float> jet_pt_cuts; vector<int> jet_pids;
-	
-	// For now offline cuts for leptons is kept 3 GeV higher than at trigger-level, these numbers need to be finalized from trigger efficiency plots //
-		
-	double_hlts.push_back(hlt_Mu37_Ele27_CaloIdL_MW);
-    double_pt_cuts.push_back({37+3,27+3});
-    double_pids.push_back({13,11});
-    double_hlts.push_back(hlt_Mu27_Ele37_CaloIdL_MW);
-    double_pt_cuts.push_back({37+3,27+3});
-    double_pids.push_back({11,13});
-	double_hlts.push_back(hlt_DoubleEle25_CaloIdL_MW);
-    double_pt_cuts.push_back({25+15,25+5});
-    double_pids.push_back({11,11});
-	double_hlts.push_back(hlt_Mu37_TkMu27);
-    double_pt_cuts.push_back({37+3,27+3});
-    double_pids.push_back({13,13});
-    
-    single_hlts.push_back(hlt_Mu50);
-    single_pt_cuts.push_back(50+3);
-    single_pids.push_back(13);
-    single_other_pt_cuts.push_back(-100);
-    single_other_pids.push_back(0);
-    single_hlts.push_back(hlt_Ele32_WPTight_Gsf);
-    single_pt_cuts.push_back(32+3);
-    single_pids.push_back(11);
-    single_other_pt_cuts.push_back(-100);
-    single_other_pids.push_back(0);
-    single_hlts.push_back(hlt_Ele40_WPTight_Gsf);
-    single_pt_cuts.push_back(40+3);
-    single_pids.push_back(11);
-    single_other_pt_cuts.push_back(-100);
-    single_other_pids.push_back(0);
-    single_hlts.push_back(hlt_Ele115_CaloIdVT_GsfTrkIdT);
-    single_pt_cuts.push_back(115+3);
-    single_pids.push_back(11);
-    single_other_pt_cuts.push_back(-100);
-    single_other_pids.push_back(0);
-    single_hlts.push_back(hlt_Ele50_CaloIdVT_GsfTrkIdT_PFJet165);
-    single_pt_cuts.push_back(50+3);
-    single_pids.push_back(11);
-    single_other_pt_cuts.push_back(165+15);
-    single_other_pids.push_back(1);
-
-	jet_hlts.push_back(hlt_AK8PFJet500);
-	jet_pt_cuts.push_back(500+50);
-	jet_pids.push_back(2);
-	jet_hlts.push_back(hlt_PFJet500);
-	jet_pt_cuts.push_back(500+50);
-	jet_pids.push_back(1);
-	
-	bool anytrig_pass(false);
-	bool trig_threshold_pass(false); 
-	bool trig_matching_pass(false); 
-	bool muon_trig_pass(false);
-	bool electron_trig_pass(false);
-	
-	if(isFastSIM){
-				
-		anytrig_pass = true; 
-		if(vmuons.size()>0 && vmuons[0].pt>53) { trig_threshold_pass = true; trig_matching_pass = true; muon_trig_pass = true; }
-		else if(velectrons.size()>0 && velectrons[0].pt>35) { trig_threshold_pass = true; trig_matching_pass = true; electron_trig_pass = true; }
-		else if(Jets.size()>0 && Jets[0].pt>550) { trig_threshold_pass = true; trig_matching_pass = true; }
-		else if(LJets.size()>0 && LJets[0].pt>550) { trig_threshold_pass = true; trig_matching_pass = true; }
-		
-		}
-	else{
-		Match_trigger(double_hlts, double_pt_cuts, double_pids,
-					  single_hlts, single_pt_cuts, single_pids, single_other_pt_cuts, single_other_pids,
-					  jet_hlts, jet_pt_cuts, jet_pids,
-					  trigobjects,
-					  vmuons, velectrons, vleptons, Jets, LJets,
-					  anytrig_pass, trig_threshold_pass, trig_matching_pass, muon_trig_pass, electron_trig_pass
-					);
-		}
-    //*****************************************************************************************
-    //                            AK4 histogram filling for btag SF                          //
-    //*****************************************************************************************                            
-    if(anytrig_pass && trig_threshold_pass && trig_matching_pass && !(muon_trig_pass && electron_trig_pass))
-    {
-    vector <AK4GenJet> genJets;
-    getAK4Genjets(genJets,AK4GenJet_pt_cut,absetacut,isMC);
-
-    for(unsigned ijet=0; ijet<Jets.size(); ijet++){
-           double dR = 9999.9;
-           for(unsigned gjet=0; gjet<genJets.size(); gjet++)
-	     {
-                 double temp_dR = delta2R(Jets[ijet].y,Jets[ijet].phi,genJets[gjet].p4.Rapidity(),genJets[gjet].phi) ;
-		 if (temp_dR < dR )
-		 {
-			 dR = temp_dR;
-		 }
-	     }
-            if(dR < 0.4)
-	              {
-                           if( fabs(Jets[ijet].hadronFlavour) == 5 )  {  h_Ak4_b_flv->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); 
-				                                   if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_b_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); } 
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_b_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); } 
-			                                           if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_b_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
-			                                        }    
-                            else if( fabs(Jets[ijet].hadronFlavour) == 4 )  {  h_Ak4_c_flv->Fill(Jets[ijet].pt,Jets[ijet].eta,event_weight_LHE);  
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_c_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_c_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_c_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
-                                                                }
-                           if( Jets[ijet].hadronFlavour == 0 )  {  h_Ak4_l_flv->Fill(Jets[ijet].pt,Jets[ijet].eta,event_weight_LHE);  
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_l_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_l_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_l_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
-                                                                }
-		      }		                                   
-             }
-    //*****************************************************************************************
-    //                                           AK8 histogram filling                       //
-    //*****************************************************************************************                            
-    vector <AK8GenJet> genLJets;
+	vector <AK8GenJet> genLJets;
     getAK8Genjets(genLJets,AK8GenJet_pt_cut,absetacut,isMC);
-    for(unsigned ijet=0; ijet<LJets.size(); ijet++){
-         double dR = 9999.9;
-         for(unsigned gjet=0; gjet<genLJets.size(); gjet++)
-             {
-		     double temp_dR = delta2R(LJets[ijet].y,LJets[ijet].phi,genLJets[gjet].p4.Rapidity(),genLJets[gjet].phi) ;
-		     if(temp_dR < dR )
-                     {
-                         dR = temp_dR;
-                     }
-            }
-	 if(dR < 0.4) 
-	   { 
-                      h_Ak8_DeepTag_DAK8MD_WvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,event_weight_LHE);
-		      h_Ak8_DeepTag_PNetMD_XbbvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,event_weight_LHE);
-		      if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_T) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight_LHE);  }
-	              if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_M) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight_LHE);  }
-                      if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_L) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight_LHE);  }
-                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_T){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight_LHE);}
-                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_M){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight_LHE);}
-                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_L){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight_LHE);}
-           }
-    }
-    }
-    // Event selection cuts //
 
-    vector<bool> event_cuts;
-    
-    event_cuts.push_back(vleptons.size()==1); // for single lepton channel 
-    event_cuts.push_back(LJets.size()>=2);	// At least two AK8 jets 
-    event_cuts.push_back(PuppiMET_pt>=20);	// Minimum MET cut
-	event_cuts.push_back(anytrig_pass);		// At least one trigger should be fired 
-	event_cuts.push_back(trig_threshold_pass);	// Offline objects should pass trigger threshold 
-	event_cuts.push_back(trig_matching_pass);	// Offline objects should match to trigger object
-	event_cuts.push_back(!(muon_trig_pass && electron_trig_pass));   // reject if both mu & el triggers are fired (for single lepton channel)
-	
-	for(unsigned icut=0; icut<event_cuts.size(); icut++){
-		Flag_event_cuts[icut] = event_cuts[icut];
-	}
-		
-    bool event_pass = true;
-	for(unsigned icut=0; icut<event_cuts.size(); icut++){
-		event_pass *= event_cuts[icut];
-		if(!event_pass) break;
-    }
-
-	if(!event_pass) continue;
-	
-    //cout<<"After: "<<LJets.size()<<" "<<Jets.size()<<" "<<vmuons.size()<<" "<<velectrons.size()<<" "<<nPhoton<<endl;
-		
-	int Y_cand = -1;
-	int W_cand_opt1 = -1;
-        int W_cand_opt2 = -1;
-
-	float max_PNet_bb = -100;
-	float max_DAK8_W = -100;
-	// Y candidate
-	for(unsigned ijet=0; ijet<LJets.size(); ijet++){
-		
-		if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD > max_PNet_bb){
-			
-			max_PNet_bb = LJets[ijet].DeepTag_PNetMD_XbbvsQCD;
-			Y_cand = int(ijet);
-			
-		}
-		
-	}
-        //W candidate option 1
-	for(unsigned ijet=0; ijet<LJets.size(); ijet++){
-		
-		if(LJets[ijet].DeepTag_DAK8MD_WvsQCD > max_DAK8_W && int(ijet)!=Y_cand){
-			
-			max_DAK8_W = LJets[ijet].DeepTag_DAK8MD_WvsQCD;
-			W_cand_opt1 = int(ijet);
-			
-		}
-	}
-	if(Y_cand==-1 || W_cand_opt1==-1) continue;
-
-	// W candidate option 2
-	double dR_LJet_lep =  9999.9;
-	for(unsigned ijet=0; ijet<LJets.size(); ijet++){
-	        if (int(ijet) == Y_cand) continue;
-                double temp_dR = delta2R(LJets[ijet].y,LJets[ijet].phi,vleptons[0].eta,vleptons[0].phi);
-		if( temp_dR < dR_LJet_lep )
-                  {
-      		      dR_LJet_lep =  temp_dR;
-	              W_cand_opt2 =  int(ijet);
-	          }
-         }  		
-         if(Y_cand==-1 || W_cand_opt2==-1) continue;
-
-
-
-	TLorentzVector pnu_opt1, pnu_opt2;
-	double random_no = gRandom->Uniform(0,1);
-	
-	// regions can be constructed using: 
-	// 1. MET
-	// 2. bb score of Y candidate
-	// 3. W score of W candidate
-	// 4. Mass of H candidate (l+nu+W)
-	// 5. dR of lepton & W candidate
-	// 6. dphi & dR between lepton & Y candidate
-	
-	bool Y_bb_pass_T = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD > PNbb_cut_T);
-        bool Y_bb_pass_M = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD > PNbb_cut_M);
-	bool Y_bb_pass_L = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD > PNbb_cut_L);
-
-	bool H_W_pass_T_opt1 = (LJets[W_cand_opt1].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_T);
-        bool H_W_pass_M_opt1 = (LJets[W_cand_opt1].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_M);
-	bool H_W_pass_L_opt1 = (LJets[W_cand_opt1].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_L);
-
-        bool H_W_pass_T_opt2 = (LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_T);
-        bool H_W_pass_M_opt2 = (LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_M);
-        bool H_W_pass_L_opt2 = (LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_L);
-
-	pnu_opt1 = neutrino_mom_fromH(vleptons[0].p4+LJets[W_cand_opt1].p4, PuppiMET_pt, PuppiMET_phi, random_no);
-
-	bool H_m_pass_opt1 = ((vleptons[0].p4+LJets[W_cand_opt1].p4+pnu_opt1).M()>90. && (vleptons[0].p4+LJets[W_cand_opt1].p4+pnu_opt1).M()<150.);
-	bool dR_lW_pass_opt1 = (delta2R(LJets[W_cand_opt1].y,LJets[W_cand_opt1].phi,vleptons[0].eta,vleptons[0].phi) < 1.2);
-
-	pnu_opt2 = neutrino_mom_fromH(vleptons[0].p4+LJets[W_cand_opt2].p4, PuppiMET_pt, PuppiMET_phi, random_no);
-
-        bool H_m_pass_opt2 = ((vleptons[0].p4+LJets[W_cand_opt2].p4+pnu_opt2).M()>90. && (vleptons[0].p4+LJets[W_cand_opt2].p4+pnu_opt2).M()<150.);
-        bool dR_lW_pass_opt2 = (delta2R(LJets[W_cand_opt2].y,LJets[W_cand_opt2].phi,vleptons[0].eta,vleptons[0].phi) < 1.2);
-	
-    	bool MET_pass = (PuppiMET_pt > 50);
-    
-        bool SR_opt1 = (Y_bb_pass_T && H_W_pass_T_opt1 && H_m_pass_opt1 && dR_lW_pass_opt1 && MET_pass);
-        bool Wj_CR_opt1 = (!Y_bb_pass_T && H_W_pass_T_opt1 && H_m_pass_opt1 && !dR_lW_pass_opt1 && MET_pass);
-
-	bool SR_opt2 = (Y_bb_pass_T && H_W_pass_T_opt2 && H_m_pass_opt2 && dR_lW_pass_opt2 && MET_pass);
-        bool Wj_CR_opt2 = (!Y_bb_pass_T && H_W_pass_T_opt2 && H_m_pass_opt2 && !dR_lW_pass_opt2 && MET_pass);
-    
-    if(vleptons.size()>0){
-		l_pt = vleptons[0].pt;
-		l_eta = vleptons[0].eta;
-		l_phi = vleptons[0].phi;
-		l_mass = vleptons[0].mass;
-		
-	}
-    
-    if(Y_cand>=0) {
-		Y_pt = LJets[Y_cand].pt;
-		Y_y = LJets[Y_cand].y;
-                Y_eta = LJets[Y_cand].eta;
-		Y_phi = LJets[Y_cand].phi;
-		Y_mass = LJets[Y_cand].mass;
-		Y_sdmass = LJets[Y_cand].sdmass;
-		Y_PN_bb = LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD;
-		
-		if(vleptons.size()>0){
-			
-			dR_lY = delta2R(LJets[Y_cand].eta,LJets[Y_cand].phi,vleptons[0].eta,vleptons[0].phi);
-			dy_lY = (LJets[Y_cand].eta - vleptons[0].eta);
-			dphi_lY = PhiInRange(LJets[Y_cand].phi - vleptons[0].p4.Phi());
-			
-		}
-	}
-	
-	if(W_cand_opt1>=0) {
-		
-		W_pt_opt1 = LJets[W_cand_opt1].pt;
-		W_y_opt1 = LJets[W_cand_opt1].y;
-                W_eta_opt1 = LJets[W_cand_opt1].eta;
-	        W_phi_opt1 = LJets[W_cand_opt1].phi;
-		W_mass_opt1 = LJets[W_cand_opt1].mass;
-		W_sdmass_opt1 = LJets[W_cand_opt1].sdmass;
-		W_PN_W_opt1 = LJets[W_cand_opt1].DeepTag_PNet_WvsQCD;
-		
-		if(vleptons.size()>0 && pnu_opt1.Eta()>-100){
-			
-			H_pt_opt1 = (LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu_opt1).Pt();
-			H_y_opt1 = (LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu_opt1).Rapidity();
-                        H_eta_opt1 = (LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu_opt1).Eta();
-			H_phi_opt1 = (LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu_opt1).Phi();
-			H_mass_opt1 = (LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu_opt1).M();
-			
-			if(Y_cand>=0) {
-				X_mass_opt1 = (LJets[Y_cand].p4 + LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu_opt1).M();
-				}
-		
-			}
-	}
-        if(W_cand_opt2>=0) {
-
-                W_pt_opt2 = LJets[W_cand_opt2].pt;
-                W_y_opt2 = LJets[W_cand_opt2].y;
-                W_eta_opt1 = LJets[W_cand_opt1].eta;
-                W_phi_opt2 = LJets[W_cand_opt2].phi;
-                W_mass_opt2 = LJets[W_cand_opt2].mass;
-                W_sdmass_opt2 = LJets[W_cand_opt2].sdmass;
-                W_PN_W_opt2 = LJets[W_cand_opt2].DeepTag_PNet_WvsQCD;
-
-                if(vleptons.size()>0 && pnu_opt2.Eta()>-100){
-
-                        H_pt_opt2 = (LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu_opt2).Pt();
-                        H_y_opt2 = (LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu_opt2).Rapidity();
-                        H_eta_opt1 = (LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu_opt2).Eta();
-                        H_phi_opt2 = (LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu_opt2).Phi();
-                        H_mass_opt2 = (LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu_opt2).M();
-
-                        if(Y_cand>=0) {
-                                X_mass_opt2 = (LJets[Y_cand].p4 + LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu_opt2).M();
-                                }
-
-                        }
-        }
-
-	
-	dR_lW_opt1 = delta2R(LJets[W_cand_opt1].eta,LJets[W_cand_opt1].phi,vleptons[0].eta,vleptons[0].phi);
-	dy_lW_opt1 = (LJets[W_cand_opt1].eta - vleptons[0].eta);
-	dphi_lW_opt1 = PhiInRange(LJets[W_cand_opt1].phi - vleptons[0].p4.Phi());
-
-        dR_lW_opt2 = delta2R(LJets[W_cand_opt2].eta,LJets[W_cand_opt2].phi,vleptons[0].eta,vleptons[0].phi);
-        dy_lW_opt2 = (LJets[W_cand_opt2].eta - vleptons[0].eta);
-        dphi_lW_opt2 = PhiInRange(LJets[W_cand_opt2].phi - vleptons[0].p4.Phi());
-
-	nbjets_other = 0;
-	for(auto & bjet: BJets){
-		if(delta2R(bjet.y,bjet.phi,Jets[W_cand_opt1].y,LJets[W_cand_opt1].phi)>0.6 && delta2R(bjet.y,bjet.phi,Jets[Y_cand].y,LJets[Y_cand].phi)>0.6){
-			nbjets_other++;
-			}
-	}
-
-	MET = pnu_opt1.Pt();
-
-	Flag_Y_bb_pass_T = Y_bb_pass_T;
-        Flag_Y_bb_pass_M = Y_bb_pass_M;
-	Flag_Y_bb_pass_L = Y_bb_pass_L;
-	Flag_H_W_pass_T_opt1 = H_W_pass_T_opt1;
-        Flag_H_W_pass_M_opt1 = H_W_pass_M_opt1;
-	Flag_H_W_pass_L_opt1 = H_W_pass_L_opt1;
-
-	Flag_H_W_pass_T_opt2 = H_W_pass_T_opt2;
-        Flag_H_W_pass_M_opt2 = H_W_pass_M_opt2;
-        Flag_H_W_pass_L_opt2 = H_W_pass_L_opt2;
-
-	Flag_H_m_pass_opt1 = H_m_pass_opt1;
-	Flag_dR_lW_pass_opt1 = dR_lW_pass_opt1;
-
-        Flag_H_m_pass_opt2 = H_m_pass_opt2;
-        Flag_dR_lW_pass_opt2 = dR_lW_pass_opt2;	
-
-	Flag_MET_pass = MET_pass;
-	
-	Reg_SR_opt1 = SR_opt1;
-	Reg_Wj_CR_opt1 = Wj_CR_opt1;
-        Reg_SR_opt2 = SR_opt2;
-        Reg_Wj_CR_opt2 = Wj_CR_opt2;	
-	
-    if(npu_vert_true>=0 && npu_vert_true<100){
-		puWeight = pu_rat18[npu_vert_true];
-		puWeightup = pu_rat18_up[npu_vert_true];
-		puWeightdown = pu_rat18_dn[npu_vert_true];
-	}
-	
-	leptonsf_weight = 1.0;
-	leptonsf_weight_stat = 1.0;
-	leptonsf_weight_syst = 1.0;
-	
-	for(unsigned lep=0; lep<vleptons.size(); lep++){
-		if(abs(vleptons[lep].pdgId)==11) { 
-			float *sfvalues = Electron_SF(file_el_sf, vleptons[lep].pt, vleptons[lep].eta);
-			leptonsf_weight *= sfvalues[0];
-			leptonsf_weight_stat *= (sfvalues[0] + sqrt(sfvalues[1]*sfvalues[1] + sfvalues[2]*sfvalues[2]));  // like this for time being 
-			leptonsf_weight_syst *= (sfvalues[0] + sqrt(sfvalues[3]*sfvalues[3] + sfvalues[4]*sfvalues[4] + sfvalues[5]*sfvalues[5] + sfvalues[6]*sfvalues[6]));  // like this for time being 
-		}
-		if(abs(vleptons[lep].pdgId)==13) { 
-			float *sfvalues;
-			sfvalues = Muon_SF(file_mu_sf, muon_id_name, vleptons[lep].pt, vleptons[lep].eta);
-			leptonsf_weight *= *(sfvalues+0);
-			leptonsf_weight_stat *= *(sfvalues+1);
-			leptonsf_weight_syst *= *(sfvalues+2);
-		}
-	}
 	
 	weight = 1;
 	if(!isFastSIM){
 		weight *= event_weight;
 	}
-	weight *= puWeight;
-	weight *= leptonsf_weight;
-	//weight *= prefiringweight;
 	
 	// LHE story //
-	/*
+	
+	//cout<<"lheparts.size() "<<lheparts.size()<<endl;
+	unsigned LHE_b1, LHE_b2, LHE_j1, LHE_j2, LHE_l, LHE_nu;
 	for(unsigned ilhe=0; ilhe<lheparts.size(); ++ilhe){
-		if(abs(lheparts[ilhe].pdgId)>10){
-			cout<<ilhe+1<<" ID "<<lheparts[ilhe].pdgId<<" pt "<<lheparts[ilhe].p4.Pt()<<endl;	
-			}	
+		//	cout<<ilhe+1<<" ID "<<lheparts[ilhe].pdgId<<" pt "<<lheparts[ilhe].p4.Pt()<<endl;	
+			if(lheparts[ilhe].pdgId==5) { LHE_b1 = ilhe; }
+			if(lheparts[ilhe].pdgId==-5) { LHE_b2 = ilhe; }
+			if(abs(lheparts[ilhe].pdgId)==1||abs(lheparts[ilhe].pdgId)==3) { LHE_j1 = ilhe; }
+			if(abs(lheparts[ilhe].pdgId)==2||abs(lheparts[ilhe].pdgId)==4) { LHE_j2 = ilhe; }
+			if(abs(lheparts[ilhe].pdgId)==11||abs(lheparts[ilhe].pdgId)==13/*||abs(lheparts[ilhe].pdgId)==15*/) { LHE_l = ilhe; }
+			if(abs(lheparts[ilhe].pdgId)==12||abs(lheparts[ilhe].pdgId)==14/*||abs(lheparts[ilhe].pdgId)==16*/) { LHE_nu = ilhe; }
 		}
-	cout<<"Lep "<<vleptons[0].pt<<" Nu "<<pnu.Pt()<<endl;
-	*/
-	Tout->Fill();
+	if(LHE_b1>=0 && LHE_b2>=0 && LHE_j1>=0 && LHE_j2>=0 && LHE_l>=0 && LHE_nu>=0){
+		
+		TLorentzVector p4_b1, p4_b2, p4_j1, p4_j2, p4_l, p4_nu;
+		TLorentzVector p4_Wh, p4_Wl, p4_H, p4_Y;
+		
+		p4_b1 = lheparts[LHE_b1].p4;
+		p4_b2 = lheparts[LHE_b2].p4;
+		p4_j1 = lheparts[LHE_j1].p4;
+		p4_j2 = lheparts[LHE_j2].p4;
+		p4_l = lheparts[LHE_l].p4;
+		p4_nu = lheparts[LHE_nu].p4;
+		
+		h_LHE_b1b2_pt->Fill((p4_b1+p4_b2).Pt());
+		h_LHE_j1j2_pt->Fill((p4_j1+p4_j2).Pt());
+		h_LHE_l_pt->Fill((p4_l).Pt());
+		h_LHE_nu_pt->Fill((p4_nu).Pt());
+		h_LHE_H_pt->Fill((p4_nu+p4_l+p4_j1+p4_j2).Pt());
+		
+		h_LHE_b1b2_m->Fill((p4_b1+p4_b2).M());
+		h_LHE_j1j2_m->Fill((p4_j1+p4_j2).M());
+		h_LHE_H_m->Fill((p4_j1+p4_j2+p4_l+p4_nu).M());
+		h_LHE_X_m->Fill((p4_b1+p4_b2+p4_j1+p4_j2+p4_l+p4_nu).M());
+		
+		h_LHE_b1b2_dR->Fill(delta2R_vec(p4_b1,p4_b2));
+		h_LHE_j1j2_dR->Fill(delta2R_vec(p4_j1,p4_j2));
+		h_LHE_j1j2l_dR->Fill(delta2R_vec(p4_j1+p4_j2,p4_l));
+		h_LHE_j1j2l_b1b2_dR->Fill(delta2R_vec(p4_b1+p4_b2,p4_j1+p4_j2+p4_l));
+		
+		}
+	
+	// GEN story //
+	
+		unsigned GEN_b1, GEN_b2, GEN_Y, GEN_W, GEN_j1, GEN_j2, GEN_l, GEN_nu;
+		GEN_Y = GEN_b1 = GEN_b2 = GEN_W = GEN_j1 = GEN_j2 = GEN_l = GEN_nu = 1000000;
+		
+		for(unsigned igen=0; igen<genpartons.size(); ++igen){
+			if((genpartons[igen].status==23 || genpartons[igen].status==1)&&(genpartons[igen].fromhard)){
+				if(genpartons[igen].pdgId==5 &&  abs(genpartons[igen].mompdgId)==35 && abs(genpartons[igen].grmompdgId)==45) { GEN_b1 = igen;  }
+				if(genpartons[igen].pdgId==-5 &&  abs(genpartons[igen].mompdgId)==35 && abs(genpartons[igen].grmompdgId)==45) { GEN_b2 = igen;  }
+				if((abs(genpartons[igen].pdgId)==1 || abs(genpartons[igen].pdgId)==3) &&  ((abs(genpartons[igen].mompdgId)==24 && abs(genpartons[igen].grmompdgId)==25)||(abs(genpartons[igen].mompdgId)==25 && abs(genpartons[igen].grmompdgId)==45))) { GEN_j1 = igen;  }
+				if((abs(genpartons[igen].pdgId)==2 || abs(genpartons[igen].pdgId)==4) &&  ((abs(genpartons[igen].mompdgId)==24 && abs(genpartons[igen].grmompdgId)==25)||(abs(genpartons[igen].mompdgId)==25 && abs(genpartons[igen].grmompdgId)==45))) { GEN_j2 = igen;  }
+				if((abs(genpartons[igen].pdgId)==11 || abs(genpartons[igen].pdgId)==13) &&  ((abs(genpartons[igen].mompdgId)==24 && abs(genpartons[igen].grmompdgId)==25)||(abs(genpartons[igen].mompdgId)==25 && abs(genpartons[igen].grmompdgId)==45))) { GEN_l = igen;  }
+				if((abs(genpartons[igen].pdgId)==12 || abs(genpartons[igen].pdgId)==14) &&  ((abs(genpartons[igen].mompdgId)==24 && abs(genpartons[igen].grmompdgId)==25)||(abs(genpartons[igen].mompdgId)==25 && abs(genpartons[igen].grmompdgId)==45))) { GEN_nu = igen;  }
+		
+		////		cout<<"GEN:"<<igen+1<<" "<<genpartons[igen].pdgId<<" "<<genpartons[igen].mompdgId<<" "<<genpartons[igen].grmompdgId<<endl; 
+			}
+		}
+		
+		//cout<<GEN_b1<<" "<<GEN_b2<<" "<<GEN_j1<<" "<<GEN_j2<<" "<<GEN_l<<" "<<GEN_nu<<endl;
+		
+		if(LHE_b1>=0 && LHE_b1<(lheparts.size()) && LHE_b2>=0 && LHE_b2<(lheparts.size())){
+			
+			float dRmin = 0.8;
+			for(unsigned ig=0; ig<(genLJets.size()); ig++){
+				if(delta2R_vec(genLJets[ig].p4,(lheparts[LHE_b1].p4+lheparts[LHE_b2].p4))<dRmin){
+					dRmin = delta2R_vec(genLJets[ig].p4,(lheparts[LHE_b1].p4+lheparts[LHE_b2].p4));
+					GEN_Y = ig;
+					}
+				}
+			}
+			
+		if(LHE_j1>=0 && LHE_j1<(lheparts.size()) && LHE_j2>=0 && LHE_j2<(lheparts.size())){
+			
+			float dRmin = 0.8;
+			for(unsigned ig=0; ig<(genLJets.size()); ig++){
+				if(delta2R_vec(genLJets[ig].p4,(lheparts[LHE_j1].p4+lheparts[LHE_j2].p4))<dRmin){
+					dRmin = delta2R_vec(genLJets[ig].p4,(lheparts[LHE_j1].p4+lheparts[LHE_j2].p4));
+					GEN_W = ig;
+					}
+				}
+			}
+		
+		if(GEN_b1>=0 && GEN_b1<(genpartons.size()) && GEN_b2>=0 && GEN_b2<(genpartons.size()) && GEN_j1>=0 && GEN_j1<(genpartons.size()) && GEN_j2>=0 && GEN_j2<(genpartons.size()) && 
+		GEN_l>=0 && GEN_l<(genpartons.size()) && GEN_nu>=0 && GEN_nu<(genpartons.size())){
+		
+			TLorentzVector p4_b1, p4_b2, p4_j1, p4_j2, p4_l, p4_nu;
+			
+			p4_b1 = genpartons[GEN_b1].p4;
+			p4_b2 = genpartons[GEN_b2].p4;
+			p4_j1 = genpartons[GEN_j1].p4;
+			p4_j2 = genpartons[GEN_j2].p4;
+			p4_l = genpartons[GEN_l].p4;
+			p4_nu = genpartons[GEN_nu].p4;
+		
+			h_GEN_b1b2_pt->Fill((p4_b1+p4_b2).Pt());
+			h_GEN_j1j2_pt->Fill((p4_j1+p4_j2).Pt());
+			h_GEN_l_pt->Fill((p4_l).Pt());
+			h_GEN_nu_pt->Fill((p4_nu).Pt());
+			h_GEN_H_pt->Fill((p4_nu+p4_l+p4_j1+p4_j2).Pt());
+		
+			h_GEN_b1b2_m->Fill((p4_b1+p4_b2).M());
+			h_GEN_j1j2_m->Fill((p4_j1+p4_j2).M());
+			h_GEN_H_m->Fill((p4_j1+p4_j2+p4_l+p4_nu).M());
+			h_GEN_X_m->Fill((p4_b1+p4_b2+p4_j1+p4_j2+p4_l+p4_nu).M());
+		
+			h_GEN_b1b2_dR->Fill(delta2R_vec(p4_b1,p4_b2));
+			h_GEN_j1j2_dR->Fill(delta2R_vec(p4_j1,p4_j2));
+			h_GEN_j1j2l_dR->Fill(delta2R_vec(p4_j1+p4_j2,p4_l));
+			h_GEN_j1j2l_b1b2_dR->Fill(delta2R_vec(p4_b1+p4_b2,p4_j1+p4_j2+p4_l));
+			
+			
+		}
+		
+		if(GEN_l>=0 && GEN_l<(genpartons.size()) && GEN_nu>=0 && GEN_nu<(genpartons.size())){
+		
+			TLorentzVector p4_Wh, p4_Wl, p4_H, p4_Y, p4_GMet, p4_l, p4_nu;
+			p4_l = genpartons[GEN_l].p4;
+			p4_nu = genpartons[GEN_nu].p4;
+			
+			if(GEN_W>=0 && GEN_W<(genLJets.size()) && GEN_Y>=0 && GEN_Y<(genLJets.size()) && GEN_Y!=GEN_W){
+				
+				p4_Wh = genLJets[GEN_W].p4;
+				p4_Y = genLJets[GEN_Y].p4;
+				double random_no = gRandom->Uniform(0,1);
+				p4_GMet = neutrino_mom_fromH((p4_l+p4_Wh), GENMET_pt, GENMET_phi, random_no);
+						
+				h_GEN_Y_m->Fill((p4_Y).M());
+				h_GEN_Wh_m->Fill((p4_Wh).M());
+				h_GEN_HJ_m->Fill((p4_Wh+p4_l+p4_nu).M());
+				h_GEN_XJ_m->Fill((p4_Y+p4_Wh+p4_l+p4_nu).M());
+				h_GEN_HJ_m_MET->Fill((p4_Wh+p4_l+p4_GMet).M());
+				h_GEN_XJ_m_MET->Fill((p4_Y+p4_Wh+p4_l+p4_GMet).M());
+				
+				h_GEN_Y_XJ_m->Fill((p4_Y+p4_Wh+p4_l+p4_nu).M(),(p4_Y).M());
+				h_GEN_Y_XJ_m_MET->Fill((p4_Y+p4_Wh+p4_l+p4_GMet).M(),(p4_Y).M());
+			}
+		}
+		
+	
 	}// entry
-      f->Close();
+     
+     fileIn->cd();
+     delete fChain;
+   
       }
-        infile.close();
-        fileout->cd();
+      
+    file_db.close();    
+    fileout->cd();
 	fileout->Write();
 	fileout->Close();
 }

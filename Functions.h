@@ -169,6 +169,34 @@ TLorentzVector neutrino_mom(TLorentzVector vec_lep, float MET_pt, float MET_phi,
 }
 
 
+TLorentzVector neutrino_mom_fromH(TLorentzVector vec_X, float MET_pt, float MET_phi, double seed){
+
+	float H_mass = 125;
+
+	TLorentzVector pnu;
+	
+	if(vec_X.E()<1.e-6) {pnu.SetPtEtaPhiM(0,-100,-100,0);}
+	
+	else{
+	
+		float Delta2 = (H_mass*H_mass - vec_X.M()*vec_X.M() + 2*vec_X.Pt()*MET_pt*cos(PhiInRange(vec_X.Phi()-MET_phi)))*1./(2*MET_pt*vec_X.Mt());
+	
+		if(Delta2>=1){
+			float nueta;
+			nueta = (seed>=0.5)?(vec_X.Rapidity() + acosh(Delta2)):(vec_X.Rapidity() - acosh(Delta2));
+			pnu.SetPtEtaPhiM(MET_pt,nueta,MET_phi,0);
+		}
+		else{
+			//pnu.SetPtEtaPhiM(0,-100,-100,0);
+			float nueta;
+			nueta = (vec_X.Rapidity());
+			pnu.SetPtEtaPhiM(MET_pt,nueta,MET_phi,0);
+			}
+	}
+	
+	return pnu;
+}
+
 bool Muon_TightID(bool muonisGL,bool muonisPF, float muonchi, float muonhit, float muonmst,
                                   float muontrkvtx, float muondz, float muonpixhit, float muontrklay){
 bool tightid = false;
