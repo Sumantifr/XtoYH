@@ -4,6 +4,7 @@ config=$2
 Dataset=$3
 publication=$4
 site=$5
+DBS=$6
 
 temp=crabfile_${1}.py
 
@@ -23,17 +24,16 @@ config.JobType.inputFiles = ['Summer19UL18_V5_MC','Summer19UL18_JRV2_MC','BtagRe
 config.JobType.disableAutomaticOutputCollection = True
 config.JobType.outputFiles = ['hist.root','rootuple.root']
 config.JobType.maxJobRuntimeMin = 2700
-#config.JobType.maxMemoryMB = 2480
+#config.JobType.maxMemoryMB = 2200
 config.JobType.allowUndistributedCMSSW = True
 
 config.Data.inputDataset = '$Dataset'
-config.Data.inputDBS = 'global'
+config.Data.inputDBS = '$DBS'
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 5
 config.Data.outLFNDirBase = '/store/user/chatterj/'
 config.Data.publication = $publication
 config.Data.outputDatasetTag = '${production_tag}'
-config.Data.outputPrimaryDataset = config.General.requestName
 config.Data.publishDBS = 'phys03'
 
 config.Site.storageSite = '$site'
