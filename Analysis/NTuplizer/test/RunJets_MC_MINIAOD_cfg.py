@@ -67,8 +67,8 @@ inFiles = cms.untracked.vstring(
 #'/store/mc/RunIISummer19UL18MiniAOD/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/100000/00BC2C64-EBF8-E843-ACC9-A1A2744FE11B.root'
 #'file:/tmp/deroy/00C28834-56C0-2343-B436-AA8521756E9E.root'
 #'file:MINIAOD_Signal_MX2000_MY200.root'
-#'root://xrootd-cms.infn.it//store/mc/RunIISummer19UL18MiniAOD/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/260000/00C28834-56C0-2343-B436-AA8521756E9E.root'
-'root://xrootd-cms.infn.it//store/mc/RunIISummer20UL18MiniAODv2/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/00000/04A0B676-D63A-6D41-B47F-F4CF8CBE7DB8.root'
+'root://xrootd-cms.infn.it//store/mc/RunIISummer19UL18MiniAOD/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/260000/00C28834-56C0-2343-B436-AA8521756E9E.root'
+#'root://xrootd-cms.infn.it//store/mc/RunIISummer20UL18MiniAODv2/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/00000/04A0B676-D63A-6D41-B47F-F4CF8CBE7DB8.root'
    )
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(3000))
@@ -76,7 +76,8 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(3000))
 #process.firstEvent = cms.untracked.PSet(input = cms.untracked.int32(5000))
 process.source = cms.Source("PoolSource", fileNames = inFiles )
 
-FastSIM = bool(True)
+RealData = bool(False)
+FastSIM = bool(False)
 
 process.p = cms.Path()
 
@@ -124,6 +125,7 @@ for iModule in pho_id_modules:
 from Analysis.NTuplizer.EgammaPostRecoTools import setupEgammaPostRecoSeq
 setupEgammaPostRecoSeq(process,era='2018-Prompt')  
 
+#DNN-based AK8 jet tagger names
 deep_discriminators = ["pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:TvsQCD",
                        "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:WvsQCD",
                        "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ZvsQCD",
@@ -140,28 +142,84 @@ deep_discriminators = ["pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:TvsQC
                        "pfMassDecorrelatedParticleNetDiscriminatorsJetTags:XqqvsQCD",
 		       "pfParticleNetDiscriminatorsJetTags:TvsQCD",
 		       "pfParticleNetDiscriminatorsJetTags:WvsQCD",
-		       "pfParticleNetDiscriminatorsJetTags:ZvsQCD"
-                       
+		       "pfParticleNetDiscriminatorsJetTags:ZvsQCD",
+		       "pfDeepCSVJetTags:probb", "pfDeepCSVJetTags:probbb"               
 ]
-
 #from RecoBTag.MXNet.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
 from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
 deep_discriminators += pfParticleNetJetTagsAll
 
-from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
+def _addProcessAndTask(proc, label, module):
+	task = getPatAlgosToolsTask(proc)
+    	addToProcessAndTask(label, module, proc, task)
 
-updateJetCollection(
-   process,
-   jetSource = cms.InputTag('slimmedJetsAK8'),
-   pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
-   svSource = cms.InputTag('slimmedSecondaryVertices'),
-   rParam = 0.8,
-   labelName = 'SlimmedJetsAK8',
-   jetCorrections = ('AK8PFPuppi', cms.vstring([]), 'None' ),
-   btagDiscriminators = deep_discriminators 
-)
+#New PF-collection:
+def producePF(process) :
+        from CommonTools.PileupAlgos.Puppi_cff import puppi
+        puppi.useExistingWeights = True
+        puppi.candName = "packedPFCandidates"
+        puppi.vertexName = "offlineSlimmedPrimaryVertices"
+        from LeptonLessPFProducer_cff import leptonLessPFProducer
+        _addProcessAndTask(process,"leptonLessPFProducer",leptonLessPFProducer.clone())
+        _addProcessAndTask(process,"leptonLesspuppi",puppi.clone(candName = cms.InputTag('leptonLessPFProducer')))
 
-# For prefire correction #
+## Define AK8 jet sequence:
+
+def ak8JetSequences(process):
+	
+# jetToolbox
+
+	JETCorrLevels = ['L1FastJet','L2Relative','L3Absolute']
+	if RealData: JETCorrLevels.append('L2L3Residual') 
+
+	subjetBTagDiscriminators = ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb']
+
+	from jetToolbox_cff import jetToolbox
+
+	jetToolbox( process, 'ak8', 'ak8JetSubs', 'noOutput', PUMethod='Puppi', dataTier="miniAOD", runOnMC=False, JETCorrPayload='AK8PFPuppi', JETCorrLevels=JETCorrLevels, addSoftDrop=True, addSoftDropSubjets=True, subJETCorrPayload='AK4PFPuppi', subJETCorrLevels=JETCorrLevels, addNsub=True, bTagDiscriminators=['None'], subjetBTagDiscriminators=subjetBTagDiscriminators)
+
+	jetToolbox( process, 'ak8', 'ak8JetSubs', 'noOutput', PUMethod='Puppi', dataTier="miniAOD", runOnMC=False, postFix='NoLep', newPFCollection=True, nameNewPFCollection='leptonLesspuppi', JETCorrPayload='AK8PFPuppi', JETCorrLevels=JETCorrLevels, addSoftDrop=True, addSoftDropSubjets=True, subJETCorrPayload='AK4PFPuppi', subJETCorrLevels=JETCorrLevels, addNsub=True, bTagDiscriminators=['None'], subjetBTagDiscriminators=subjetBTagDiscriminators)
+
+#update collection
+
+	from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+
+	updateJetCollection(
+		process,
+		jetSource=cms.InputTag('packedPatJetsAK8PFPuppiSoftDrop'),
+		#jetSource=cms.InputTag('selectedPatJetsAK8PFPuppi'),
+		pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+		svSource = cms.InputTag('slimmedSecondaryVertices'),
+		rParam=0.8,
+		jetCorrections = ('AK8PFPuppi', cms.vstring(JETCorrLevels), 'None'),
+		btagDiscriminators = deep_discriminators, #pfParticleNetJetTagsAll, #deep_discriminators,
+		postfix='AK8wLepWithPuppiDaughters', 
+		printWarning = False
+	)
+	#new collection -> selectedUpdatedPatJetsAK8wLepWithPuppiDaughters
+
+	updateJetCollection(
+		process,
+		jetSource=cms.InputTag('packedPatJetsAK8PFPuppiNoLepSoftDrop'),
+		pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+		svSource = cms.InputTag('slimmedSecondaryVertices'),
+		rParam=0.8,
+		jetCorrections = ('AK8PFPuppi', cms.vstring(JETCorrLevels), 'None'),
+		btagDiscriminators = deep_discriminators,
+		postfix='AK8NoLepWithPuppiDaughters',
+		printWarning = False
+	)
+	#new collection -> selectedUpdatedPatJetsAK8NoLepWithPuppiDaughters
+
+def defaultJetSequences(process):
+	producePF(process)
+	ak8JetSequences(process)
+
+defaultJetSequences(process)
+#-> gives jet collection from jetToolbox+updateJetCollection
+
+# Prefire correction #
 
 from PhysicsTools.PatUtils.l1PrefiringWeightProducer_cfi import l1PrefiringWeightProducer
 process.prefiringweight = l1PrefiringWeightProducer.clone(
@@ -177,9 +235,9 @@ process.prefiringweight = l1PrefiringWeightProducer.clone(
 
 process.mcjets =  cms.EDAnalyzer('Leptop',
 
-	 Data =  cms.untracked.bool(False),
-	 MonteCarlo =  cms.untracked.bool(True),
-	 FastSIM =  cms.untracked.bool(True),
+	 Data =  cms.untracked.bool(RealData),
+	 MonteCarlo =  cms.untracked.bool(not RealData),
+	 FastSIM =  cms.untracked.bool(FastSIM),
          YEAR = cms.untracked.int32(2018),
          UltraLegacy =  cms.untracked.bool(True),                        
 	 isReco = cms.untracked.bool(True),
@@ -189,22 +247,25 @@ process.mcjets =  cms.EDAnalyzer('Leptop',
 	 store_electron_scalnsmear =  cms.untracked.bool(True),
 	 store_electron_addvariab = cms.untracked.bool(False),
 	 Read_btagging_SF = cms.untracked.bool(False),
-	 Subtract_Lepton_fromAK8 = cms.untracked.bool(True),
-	 Subtract_Lepton_fromAK4 = cms.untracked.bool(True),
+	 Subtract_Lepton_fromAK8 = cms.untracked.bool(False),
+         Subtract_Lepton_fromAK4 = cms.untracked.bool(True),
 
  	 RootFileName = cms.untracked.string('rootuple.root'),  #largest data till April5,2016
 	
 #	 PFJetsAK8 = cms.InputTag("slimmedJetsAK8"),
 #        PFJetsAK8 = cms.InputTag("selectedPatJetsAK8PFPuppiSoftDropPacked","SubJets","Combined"),
 #        PFJetsAK8 = cms.InputTag("selectedPatJetsAK8PFPuppi","","Combined"),+ssDecorrelatedParticleNetJetTagsSlimmedJetsAK8
-	 PFJetsAK8 = cms.InputTag("updatedPatJetsTransientCorrectedSlimmedJetsAK8"),#"","PAT"),
+#	 PFJetsAK8 = cms.InputTag("updatedPatJetsTransientCorrectedSlimmedJetsAK8"),#"","PAT"),
+	 PFJetsAK8 = cms.InputTag("selectedUpdatedPatJetsAK8NoLepWithPuppiDaughters"),
+#	 PFJetsAK8 = cms.InputTag("selectedUpdatedPatJetsAK8wLepWithPuppiDaughters"),
+#	 PFJetsAK8 = cms.InputTag("selectedPatJetsAK8PFPuppi"),
 	 AK8PtCut = cms.untracked.double(180.),
          AK8GenPtCut = cms.untracked.double(150.),
 	 softdropmass  = cms.untracked.string("ak8PFJetsSoftDropMass"),#ak8PFJetsPuppiSoftDropMass"),#('ak8PFJetsPuppiSoftDropMass'),
-	 tau1  = cms.untracked.string("NjettinessAK8Puppi:tau1"),#'NjettinessAK8Puppi:tau1'),
-	 tau2  = cms.untracked.string("NjettinessAK8Puppi:tau2"),#'NjettinessAK8Puppi:tau2'),
-	 tau3  = cms.untracked.string("NjettinessAK8Puppi:tau3"),#'NjettinessAK8Puppi:tau3'),
-	 subjets  = cms.untracked.string('SoftDropPuppi'),#("SoftDrop"),#'SoftDropPuppi'),
+	 tau1  = cms.untracked.string("NjettinessAK8PuppiNoLep:tau1"),#'NjettinessAK8Puppi:tau1'),
+	 tau2  = cms.untracked.string("NjettinessAK8PuppiNoLep:tau2"),#'NjettinessAK8Puppi:tau2'),
+	 tau3  = cms.untracked.string("NjettinessAK8PuppiNoLep:tau3"),#'NjettinessAK8Puppi:tau3'),
+	 subjets  = cms.untracked.string('SoftDrop'),#("SoftDrop"),#'SoftDropPuppi'),
 #	 subjets = cms.untracked.string("slimmedJetsAK8PFPuppiSoftDropPacked"),
 	 toptagger_DAK8 = cms.untracked.string("pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:TvsQCD"),
 	 Wtagger_DAK8 = cms.untracked.string("pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:WvsQCD"),
@@ -356,20 +417,6 @@ else:
 	process.BadPFMuonDzFilter*
 	process.ecalBadCalibFilter)
 
-process.jetSeq=cms.Sequence(process.patJetCorrFactorsSlimmedJetsAK8
-+process.updatedPatJetsSlimmedJetsAK8
-+process.patJetCorrFactorsTransientCorrectedSlimmedJetsAK8
-+process.pfParticleNetTagInfosSlimmedJetsAK8
-+process.pfParticleNetJetTagsSlimmedJetsAK8
-+process.pfDeepBoostedJetTagInfosSlimmedJetsAK8
-+process.pfMassDecorrelatedDeepBoostedJetTagsSlimmedJetsAK8
-+process.pfMassDecorrelatedDeepBoostedDiscriminatorsJetTagsSlimmedJetsAK8
-+process.pfMassDecorrelatedParticleNetJetTagsSlimmedJetsAK8
-+process.pfMassDecorrelatedParticleNetDiscriminatorsJetTagsSlimmedJetsAK8
-+process.pfParticleNetJetTagsSlimmedJetsAK8
-+process.pfParticleNetDiscriminatorsJetTagsSlimmedJetsAK8
-+process.updatedPatJetsTransientCorrectedSlimmedJetsAK8
-)
 
 import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
 updatedTauName = "slimmedTausUpdated"
@@ -382,7 +429,6 @@ tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = True, updatedTau
         ]
 )
 tauIdEmbedder.runTauID()
-
 
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 runMetCorAndUncFromMiniAOD(process,
@@ -405,14 +451,13 @@ process.p = cms.Path(process.egmPhotonIDSequence
 		     *process.rerunMvaIsolationSequence*getattr(process,updatedTauName) #process.slimmedTausUpdated*  # this also works
 		     *process.egammaPostRecoSeq
 		     *process.prefiringweight
-		     *process.jetSeq
 		     *process.fullPatMetSequence 
 		     *process.puppiMETSequence
 		     *process.fullPatMetSequencePuppi
 		     *process.mcjets
 		     )
 
-process.schedule = cms.Schedule(process.p)
+#process.schedule = cms.Schedule(process.p)
 
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 process.options.allowUnscheduled = cms.untracked.bool(True)
