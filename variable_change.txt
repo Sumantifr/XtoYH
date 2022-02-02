@@ -1,0 +1,27 @@
+event_weight -> Generator_weight
+qscale -> Generator_qscale
+event_weight_LHE -> LHE_weight
+
+PFJetAK8_reso -> PFJetAK8_JER
+PFJetAK8_resoup -> PFJetAK8_JERup
+PFJetAK8_resodn -> PFJetAK8_JERdn
+PFJetAK8_sdmass -> PFJetAK8_msoftdrop
+
+PFJetAK4_reso -> PFJetAK4_JER
+PFJetAK4_resoup -> PFJetAK4_JERup
+PFJetAK4_resodn -> PFJetAK4_JERdn
+
+Muon_MediumID -> Muon_TightID 
+Muon_minchiso -> Muon_minisoch
+Muon_minnhiso -> Muon_minisonh
+Muon_minphiso -> Muon_minisoph
+
+Electron_minchiso -> Electron_minisoch
+Electron_minnhiso -> Electron_minisonh
+Electron_minphiso -> Electron_minisoph
+
+
+Newly added: 
+-----------
+PFJetAK8_sub1JEC
+PFJetAK8_sub2JEC

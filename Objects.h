@@ -42,9 +42,9 @@ class AK4Jet {
   float  btag_DeepCSV_SF_up;
   float  btag_DeepCSV_SF_dn;
  
-  float  reso;
-  float  resoup;
-  float  resodn;
+  float  JER;
+  float  JERup;
+  float  JERdn;
   
   float JEC;
   float jesup_AbsoluteStat;
@@ -152,13 +152,14 @@ class AK8Jet {
   float sub1phi;
   float sub1mass;
   float sub1btag;
-  float sub1hadfrac;
-  float sub1emfrac;
+  float sub1JEC;
+ 
   float sub2pt;
   float sub2eta;
   float sub2phi;
   float sub2mass;
   float sub2btag;
+  float sub2JEC;
   
   int match_muon_index;
   int match_electron_index;
@@ -181,9 +182,9 @@ class AK8Jet {
   bool hasmatchmu;
   bool hasmatche;
   
-  float  reso;
-  float  resoup;
-  float  resodn;
+  float  JER;
+  float  JERup;
+  float  JERdn;
   
   float JEC;
   float jesup_AbsoluteStat;
@@ -268,12 +269,12 @@ class Muon {
   bool isTight;
   bool isHighPt;
   bool isHighPttrk;
-  bool MediumID;
+  bool TightID;
   
   float minisoall;
-  float minchiso;
-  float minnhiso;
-  float minphiso;
+  float minisoch;
+  float minisonh;
+  float minisoph;
   
   float chi;
   int ndf;
@@ -365,10 +366,10 @@ class Electron {
   float pfisolsumphet;
   float pfisolsumchhadpt;
   float pfsiolsumneuhadet;
-  float minchiso;
-  float minnhiso;
-  float minphiso;
   float minisoall;
+  float minisoch;
+  float minisonh;
+  float minisoph;
   
   TLorentzVector p4;
 

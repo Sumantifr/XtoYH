@@ -89,9 +89,56 @@ int main(int argc, char *argv[])
   if(inputFile=="FILELIST/XtoYH_2018_TT_Had.log"){
       sprintf(fOut,"HIST/JetHT_EraB_2017_UL_HFNoise_%s_%s.root",argv[1],argv[2]);
    }
-  if(inputFile=="FILELIST/TTToSemiLeptonic_XtoYH_Nov_2021.log"){
-     sprintf(fOut,"HIST/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_Nov_2021_%s_%s.root",argv[1],argv[2]);
-   } 
+  else if(inputFile=="FILELIST/TTToSemiLeptonic_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST/TTToSemiLeptonic_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+   }
+  else if(inputFile=="FILELIST/ZZ_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST/ZZ_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+   }
+  else if(inputFile=="FILELIST/WZ_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST/WZ_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+   }
+
+  else if(inputFile=="FILELIST/WW_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST/WW_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+   }
+
+  else if(inputFile=="FILELIST/TTToHadronic_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST/TTToHadronic_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+   }
+
+  else if(inputFile=="FILELIST/TTTo2L2Nu_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST/TTTo2L2Nu_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+   }
+
+  else if(inputFile=="FILELIST/ST_tW_top_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST/ST_tW_top_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+   }
+
+  else if(inputFile=="FILELIST/ST_tW_antitop_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST/ST_tW_antitop_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+   }
+
+  else if(inputFile=="FILELIST/ST_s-channel_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST/ST_s-channel_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+   }
+
+  else if(inputFile=="FILELIST/DYJetsToLL_M-50_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST/DYJetsToLL_M-50_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+   }
+
+  else if(inputFile=="FILELIST/DYJetsToLL_M-10to50_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST/DYJetsToLL_M-10to50_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+   }
+  else if(inputFile=="FILELIST/WJetsToLNu_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST/WJetsToLNu_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+   }
+  else if(inputFile=="FILELIST/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1500_MY_200_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1500_MY_200_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+   }
+  else if(inputFile=="FILELIST/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_200_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_200_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+   }
 
    TFile *fileout = new TFile(fOut,"recreate");
    
@@ -216,14 +263,14 @@ int main(int argc, char *argv[])
    // Different flags and control regions   
 
    Tout->Branch("Flag_Y_bb_pass_T", &Flag_Y_bb_pass_T, "Flag_Y_bb_pass_T/O");	
-   Tout->Branch("Flag_Y_bb_pass_M", &Flag_Y_bb_pass_T, "Flag_Y_bb_pass_M/O");
+   Tout->Branch("Flag_Y_bb_pass_M", &Flag_Y_bb_pass_M, "Flag_Y_bb_pass_M/O");
    Tout->Branch("Flag_Y_bb_pass_L", &Flag_Y_bb_pass_L, "Flag_Y_bb_pass_L/O");	
    Tout->Branch("Flag_H_W_pass_T_opt1", &Flag_H_W_pass_T_opt1, "Flag_H_W_pass_T_opt1/O");	
-   Tout->Branch("Flag_H_W_pass_M_opt1", &Flag_H_W_pass_T_opt1, "Flag_H_W_pass_M_opt1/O");
+   Tout->Branch("Flag_H_W_pass_M_opt1", &Flag_H_W_pass_M_opt1, "Flag_H_W_pass_M_opt1/O");
    Tout->Branch("Flag_H_W_pass_L_opt1", &Flag_H_W_pass_L_opt1, "Flag_H_W_pass_L_opt1/O");
 
    Tout->Branch("Flag_H_W_pass_T_opt2", &Flag_H_W_pass_T_opt2, "Flag_H_W_pass_T_opt2/O");
-   Tout->Branch("Flag_H_W_pass_M_opt2", &Flag_H_W_pass_T_opt2, "Flag_H_W_pass_M_opt2/O");
+   Tout->Branch("Flag_H_W_pass_M_opt2", &Flag_H_W_pass_M_opt2, "Flag_H_W_pass_M_opt2/O");
    Tout->Branch("Flag_H_W_pass_L_opt2", &Flag_H_W_pass_L_opt2, "Flag_H_W_pass_L_opt2/O");
    
    Tout->Branch("Flag_H_m_pass_opt1", &Flag_H_m_pass_opt1, "Flag_H_m_pass_opt1/O");	
@@ -232,7 +279,6 @@ int main(int argc, char *argv[])
    Tout->Branch("Flag_dR_lW_pass_opt1", &Flag_dR_lW_pass_opt1, "Flag_dR_lW_pass_opt1/O");	
    Tout->Branch("Flag_dR_lW_pass_opt2", &Flag_dR_lW_pass_opt2, "Flag_dR_lW_pass_opt2/O");
    
-   Tout->Branch("Flag_MET_pass", &Flag_MET_pass, "Flag_MET_pass/O");	
    
    Tout->Branch("Flag_MET_pass", &Flag_MET_pass, "Flag_MET_pass/O");	
    Tout->Branch("Reg_SR_opt1", &Reg_SR_opt1, "Reg_SR_opt1/O");	
@@ -240,7 +286,7 @@ int main(int argc, char *argv[])
    Tout->Branch("Reg_SR_opt2", &Reg_SR_opt2, "Reg_SR_opt2/O");
    Tout->Branch("Reg_Wj_CR_opt2", &Reg_Wj_CR_opt2, "Reg_Wj_CR_opt2/O");
    
-   Tout->Branch("event_weight_LHE", &event_weight_LHE, "event_weight_LHE/D");	
+   Tout->Branch("LHE_weight", &LHE_weight, "LHE_weight/D");	
    
    calib_deepflav = BTagCalibration("DeepJet", "BtagRecommendation106XUL18/DeepJet_106XUL18SF_WPonly_V1p1.csv");
    reader_deepflav = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"}); 
@@ -360,10 +406,10 @@ int main(int argc, char *argv[])
    fChain->SetBranchAddress("PFJetAK8_HFHM", PFJetAK8_HFHM, &b_PFJetAK8_HFHM);
    fChain->SetBranchAddress("PFJetAK8_Neucons", PFJetAK8_Neucons, &b_PFJetAK8_Neucons);
    fChain->SetBranchAddress("PFJetAK8_Chcons", PFJetAK8_Chcons, &b_PFJetAK8_Chcons);
-   fChain->SetBranchAddress("PFJetAK8_reso", PFJetAK8_reso, &b_PFJetAK8_reso);
-   fChain->SetBranchAddress("PFJetAK8_resoup", PFJetAK8_resoup, &b_PFJetAK8_resoup);
-   fChain->SetBranchAddress("PFJetAK8_resodn", PFJetAK8_resodn, &b_PFJetAK8_resodn);
-   fChain->SetBranchAddress("PFJetAK8_sdmass", PFJetAK8_sdmass, &b_PFJetAK8_sdmass);
+   fChain->SetBranchAddress("PFJetAK8_JER", PFJetAK8_JER, &b_PFJetAK8_JER);
+   fChain->SetBranchAddress("PFJetAK8_JERup", PFJetAK8_JERup, &b_PFJetAK8_JERup);
+   fChain->SetBranchAddress("PFJetAK8_JERdn", PFJetAK8_JERdn, &b_PFJetAK8_JERdn);
+   fChain->SetBranchAddress("PFJetAK8_msoftdrop", PFJetAK8_msoftdrop, &b_PFJetAK8_msoftdrop);
    fChain->SetBranchAddress("PFJetAK8_tau1", PFJetAK8_tau1, &b_PFJetAK8_tau1);
    fChain->SetBranchAddress("PFJetAK8_tau2", PFJetAK8_tau2, &b_PFJetAK8_tau2);
    fChain->SetBranchAddress("PFJetAK8_tau3", PFJetAK8_tau3, &b_PFJetAK8_tau3);
@@ -385,11 +431,13 @@ int main(int argc, char *argv[])
    fChain->SetBranchAddress("PFJetAK8_sub1phi", PFJetAK8_sub1phi, &b_PFJetAK8_sub1phi);
    fChain->SetBranchAddress("PFJetAK8_sub1mass", PFJetAK8_sub1mass, &b_PFJetAK8_sub1mass);
    fChain->SetBranchAddress("PFJetAK8_sub1btag", PFJetAK8_sub1btag, &b_PFJetAK8_sub1btag);
+   fChain->SetBranchAddress("PFJetAK8_sub1JEC", PFJetAK8_sub1JEC, &b_PFJetAK8_sub1JEC);
    fChain->SetBranchAddress("PFJetAK8_sub2pt", PFJetAK8_sub2pt, &b_PFJetAK8_sub2pt);
    fChain->SetBranchAddress("PFJetAK8_sub2eta", PFJetAK8_sub2eta, &b_PFJetAK8_sub2eta);
    fChain->SetBranchAddress("PFJetAK8_sub2phi", PFJetAK8_sub2phi, &b_PFJetAK8_sub2phi);
    fChain->SetBranchAddress("PFJetAK8_sub2mass", PFJetAK8_sub2mass, &b_PFJetAK8_sub2mass);
    fChain->SetBranchAddress("PFJetAK8_sub2btag", PFJetAK8_sub2btag, &b_PFJetAK8_sub2btag);
+   fChain->SetBranchAddress("PFJetAK8_sub2JEC", PFJetAK8_sub2JEC, &b_PFJetAK8_sub2JEC);
    fChain->SetBranchAddress("PFJetAK8_jesup_AbsoluteStat", PFJetAK8_jesup_AbsoluteStat, &b_PFJetAK8_jesup_AbsoluteStat);
    fChain->SetBranchAddress("PFJetAK8_jesup_AbsoluteScale", PFJetAK8_jesup_AbsoluteScale, &b_PFJetAK8_jesup_AbsoluteScale);
    fChain->SetBranchAddress("PFJetAK8_jesup_AbsoluteMPFBias", PFJetAK8_jesup_AbsoluteMPFBias, &b_PFJetAK8_jesup_AbsoluteMPFBias);
@@ -449,9 +497,9 @@ int main(int argc, char *argv[])
    fChain->SetBranchAddress("PFJetAK4_JEC", PFJetAK4_JEC, &b_PFJetAK4_JEC);
    fChain->SetBranchAddress("PFJetAK4_btag_DeepCSV", PFJetAK4_btag_DeepCSV, &b_PFJetAK4_btag_DeepCSV);
    fChain->SetBranchAddress("PFJetAK4_btag_DeepFlav", PFJetAK4_btag_DeepFlav, &b_PFJetAK4_btag_DeepFlav);
-   fChain->SetBranchAddress("PFJetAK4_reso", PFJetAK4_reso, &b_PFJetAK4_reso);
-   fChain->SetBranchAddress("PFJetAK4_resoup", PFJetAK4_resoup, &b_PFJetAK4_resoup);
-   fChain->SetBranchAddress("PFJetAK4_resodn", PFJetAK4_resodn, &b_PFJetAK4_resodn);
+   fChain->SetBranchAddress("PFJetAK4_JER", PFJetAK4_JER, &b_PFJetAK4_JER);
+   fChain->SetBranchAddress("PFJetAK4_JERup", PFJetAK4_JERup, &b_PFJetAK4_JERup);
+   fChain->SetBranchAddress("PFJetAK4_JERdn", PFJetAK4_JERdn, &b_PFJetAK4_JERdn);
    fChain->SetBranchAddress("PFJetAK4_hadronflav", PFJetAK4_hadronflav, &b_PFJetAK4_hadronflav);
    fChain->SetBranchAddress("PFJetAK4_partonflav", PFJetAK4_partonflav, &b_PFJetAK4_partonflav);
    fChain->SetBranchAddress("PFJetAK4_qgl", PFJetAK4_qgl, &b_PFJetAK4_qgl);
@@ -521,14 +569,14 @@ int main(int argc, char *argv[])
    fChain->SetBranchAddress("Muon_isTight", Muon_isTight, &b_Muon_isTight);
    fChain->SetBranchAddress("Muon_isHighPt", Muon_isHighPt, &b_Muon_isHighPt);
    fChain->SetBranchAddress("Muon_isHighPttrk", Muon_isHighPttrk, &b_Muon_isHighPttrk);
-   fChain->SetBranchAddress("Muon_MediumID", Muon_MediumID, &b_Muon_MediumID);
+   fChain->SetBranchAddress("Muon_TightID", Muon_TightID, &b_Muon_Muon_TightID);
    fChain->SetBranchAddress("Muon_pt", Muon_pt, &b_Muon_pt);
    fChain->SetBranchAddress("Muon_p", Muon_p, &b_Muon_p);
    fChain->SetBranchAddress("Muon_eta", Muon_eta, &b_Muon_eta);
    fChain->SetBranchAddress("Muon_phi", Muon_phi, &b_Muon_phi);
-   fChain->SetBranchAddress("Muon_minchiso", Muon_minchiso, &b_Muon_minchiso);
-   fChain->SetBranchAddress("Muon_minnhiso", Muon_minnhiso, &b_Muon_minnhiso);
-   fChain->SetBranchAddress("Muon_minphiso", Muon_minphiso, &b_Muon_minphiso);
+   fChain->SetBranchAddress("Muon_minisoch", Muon_minisoch, &b_Muon_minisoch);
+   fChain->SetBranchAddress("Muon_minisonh", Muon_minisonh, &b_Muon_minisonh);
+   fChain->SetBranchAddress("Muon_minisoph", Muon_minisoph, &b_Muon_minisoph);
    fChain->SetBranchAddress("Muon_minisoall", Muon_minisoall, &b_Muon_minisoall);
    fChain->SetBranchAddress("Muon_dxy", Muon_dxy, &b_Muon_dxy);
    fChain->SetBranchAddress("Muon_dz", Muon_dz, &b_Muon_dz);
@@ -596,9 +644,9 @@ int main(int argc, char *argv[])
    fChain->SetBranchAddress("Electron_pfisolsumphet", Electron_pfisolsumphet, &b_Electron_pfisolsumphet);
    fChain->SetBranchAddress("Electron_pfisolsumchhadpt", Electron_pfisolsumchhadpt, &b_Electron_pfisolsumchhadpt);
    fChain->SetBranchAddress("Electron_pfsiolsumneuhadet", Electron_pfsiolsumneuhadet, &b_Electron_pfsiolsumneuhadet);
-   fChain->SetBranchAddress("Electron_minchiso", Electron_minchiso, &b_Electron_minchiso);
-   fChain->SetBranchAddress("Electron_minnhiso", Electron_minnhiso, &b_Electron_minnhiso);
-   fChain->SetBranchAddress("Electron_minphiso", Electron_minphiso, &b_Electron_minphiso);
+   fChain->SetBranchAddress("Electron_minisoch", Electron_minisoch, &b_Electron_minisoch);
+   fChain->SetBranchAddress("Electron_minisonh", Electron_minisonh, &b_Electron_minisonh);
+   fChain->SetBranchAddress("Electron_minisoph", Electron_minisoph, &b_Electron_minisoph);
    fChain->SetBranchAddress("Electron_minisoall", Electron_minisoall, &b_Electron_minisoall);
    fChain->SetBranchAddress("nPhoton", &nPhoton, &b_nPhoton);
    fChain->SetBranchAddress("Photon_e", Photon_e, &b_Photon_e);
@@ -647,8 +695,8 @@ int main(int argc, char *argv[])
    fChain->SetBranchAddress("Tau_rawiso", Tau_rawiso, &b_Tau_rawiso);
    fChain->SetBranchAddress("Tau_rawisodR03", Tau_rawisodR03, &b_Tau_rawisodR03);
    fChain->SetBranchAddress("Tau_puCorr", Tau_puCorr, &b_Tau_puCorr);
-   fChain->SetBranchAddress("event_weight", &event_weight, &b_event_weight);
-   fChain->SetBranchAddress("qscale", &qscale, &b_qscale);
+   fChain->SetBranchAddress("Generator_weight", &Generator_weight, &b_Generator_weight);
+   fChain->SetBranchAddress("Generator_qscale", &Generator_qscale, &b_Generator_qscale);
    fChain->SetBranchAddress("Generator_x1", &Generator_x1, &b_Generator_x1);
    fChain->SetBranchAddress("Generator_x2", &Generator_x2, &b_Generator_x2);
    fChain->SetBranchAddress("Generator_xpdf1", &Generator_xpdf1, &b_Generator_xpdf1);
@@ -695,7 +743,7 @@ int main(int argc, char *argv[])
    fChain->SetBranchAddress("LHEPart_eta", LHEPart_eta, &b_LHEPart_eta);
    fChain->SetBranchAddress("LHEPart_phi", LHEPart_phi, &b_LHEPart_phi);
    fChain->SetBranchAddress("LHEPart_m", LHEPart_m, &b_LHEPart_m);
-   fChain->SetBranchAddress("event_weight_LHE", &event_weight_LHE, &b_event_weight_LHE);
+   fChain->SetBranchAddress("LHE_weight", &LHE_weight, &b_LHE_weight);
    fChain->SetBranchAddress("nLHEScaleWeights", &nLHEScaleWeights, &b_nLHEScaleWeights);
    fChain->SetBranchAddress("LHEScaleWeights", LHEScaleWeights, &b_LHEScaleWeights);
    fChain->SetBranchAddress("nLHEPDFWeights", &nLHEPDFWeights, &b_nLHEPDFWeights);
@@ -711,7 +759,7 @@ int main(int argc, char *argv[])
    cout<<"nentries "<<nentries<<endl;
    
    isMC = true;
-   isFastSIM = false;
+   isFastSIM = true;
    
    for (int ij=0; ij<nentries; ij++) {
    
@@ -719,9 +767,9 @@ int main(int argc, char *argv[])
 	f->cd();
 
 	fChain->GetEntry(ij);
-        h_PU->Fill(npu_vert,event_weight_LHE);
-        h_TPU->Fill(npu_vert_true,event_weight_LHE);
-        h_PV->Fill(npvert,event_weight_LHE);
+        h_PU->Fill(npu_vert,LHE_weight);
+        h_TPU->Fill(npu_vert_true,LHE_weight);
+        h_PV->Fill(npvert,LHE_weight);
 	
 	//cout<<"Before: "<<nPFJetAK8<<" "<<nPFJetAK4<<" "<<nMuon<<" "<<nElectron<<" "<<nPhoton<<endl;
 	
@@ -894,20 +942,20 @@ int main(int argc, char *argv[])
 	     }
             if(dR < 0.4)
 	              {
-                           if( fabs(Jets[ijet].hadronFlavour) == 5 )  {  h_Ak4_b_flv->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); 
-				                                   if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_b_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); } 
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_b_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); } 
-			                                           if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_b_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
+                           if( fabs(Jets[ijet].hadronFlavour) == 5 )  {  h_Ak4_b_flv->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); 
+				                                   if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_b_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); } 
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_b_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); } 
+			                                           if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_b_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); }
 			                                        }    
-                            else if( fabs(Jets[ijet].hadronFlavour) == 4 )  {  h_Ak4_c_flv->Fill(Jets[ijet].pt,Jets[ijet].eta,event_weight_LHE);  
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_c_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_c_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_c_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
+                            else if( fabs(Jets[ijet].hadronFlavour) == 4 )  {  h_Ak4_c_flv->Fill(Jets[ijet].pt,Jets[ijet].eta,LHE_weight);  
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_c_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); }
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_c_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); }
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_c_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); }
                                                                 }
-                           if( Jets[ijet].hadronFlavour == 0 )  {  h_Ak4_l_flv->Fill(Jets[ijet].pt,Jets[ijet].eta,event_weight_LHE);  
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_l_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_l_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_l_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight_LHE); }
+                           if( Jets[ijet].hadronFlavour == 0 )  {  h_Ak4_l_flv->Fill(Jets[ijet].pt,Jets[ijet].eta,LHE_weight);  
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_l_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); }
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_l_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); }
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_l_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); }
                                                                 }
 		      }		                                   
              }
@@ -928,14 +976,14 @@ int main(int argc, char *argv[])
             }
 	 if(dR < 0.4) 
 	   { 
-                      h_Ak8_DeepTag_DAK8MD_WvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,event_weight_LHE);
-		      h_Ak8_DeepTag_PNetMD_XbbvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,event_weight_LHE);
-		      if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_T) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight_LHE);  }
-	              if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_M) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight_LHE);  }
-                      if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_L) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight_LHE);  }
-                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_T){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight_LHE);}
-                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_M){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight_LHE);}
-                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_L){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight_LHE);}
+                      h_Ak8_DeepTag_DAK8MD_WvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,LHE_weight);
+		      h_Ak8_DeepTag_PNetMD_XbbvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,LHE_weight);
+		      if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_T) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),LHE_weight);  }
+	              if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_M) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),LHE_weight);  }
+                      if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_L) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),LHE_weight);  }
+                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_T){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),LHE_weight);}
+                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_M){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),LHE_weight);}
+                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_L){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),LHE_weight);}
            }
     }
     }
@@ -1104,7 +1152,7 @@ int main(int argc, char *argv[])
 
                 W_pt_opt2 = LJets[W_cand_opt2].pt;
                 W_y_opt2 = LJets[W_cand_opt2].y;
-                W_eta_opt1 = LJets[W_cand_opt1].eta;
+                W_eta_opt2 = LJets[W_cand_opt2].eta;
                 W_phi_opt2 = LJets[W_cand_opt2].phi;
                 W_mass_opt2 = LJets[W_cand_opt2].mass;
                 W_sdmass_opt2 = LJets[W_cand_opt2].sdmass;
@@ -1114,7 +1162,7 @@ int main(int argc, char *argv[])
 
                         H_pt_opt2 = (LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu_opt2).Pt();
                         H_y_opt2 = (LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu_opt2).Rapidity();
-                        H_eta_opt1 = (LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu_opt2).Eta();
+                        H_eta_opt2 = (LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu_opt2).Eta();
                         H_phi_opt2 = (LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu_opt2).Phi();
                         H_mass_opt2 = (LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu_opt2).M();
 
@@ -1195,7 +1243,7 @@ int main(int argc, char *argv[])
 	
 	weight = 1;
 	if(!isFastSIM){
-		weight *= event_weight;
+		weight *= Generator_weight;
 	}
 	weight *= puWeight;
 	weight *= leptonsf_weight;

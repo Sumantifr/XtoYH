@@ -62,6 +62,7 @@
    Bool_t          hlt_PFMETNoMu140_PFMHTNoMu140_IDTight;
    Bool_t          hlt_PFMETTypeOne140_PFMHT140_IDTight;
    Int_t           nTrigObj;
+   Bool_t          Flag_event_cuts[njetmxAK8];
    Float_t         TrigObj_pt[njetmx];   //[nTrigObj]
    Float_t         TrigObj_eta[njetmx];   //[nTrigObj]
    Float_t         TrigObj_phi[njetmx];   //[nTrigObj]
@@ -116,10 +117,10 @@
    Int_t           PFJetAK8_HFHM[njetmxAK8];   //[nPFJetAK8]
    Int_t           PFJetAK8_Neucons[njetmxAK8];   //[nPFJetAK8]
    Int_t           PFJetAK8_Chcons[njetmxAK8];   //[nPFJetAK8]
-   Float_t         PFJetAK8_reso[njetmxAK8];   //[nPFJetAK8]
-   Float_t         PFJetAK8_resoup[njetmxAK8];   //[nPFJetAK8]
-   Float_t         PFJetAK8_resodn[njetmxAK8];   //[nPFJetAK8]
-   Float_t         PFJetAK8_sdmass[njetmxAK8];   //[nPFJetAK8]
+   Float_t         PFJetAK8_JER[njetmxAK8];   //[nPFJetAK8]
+   Float_t         PFJetAK8_JERup[njetmxAK8];   //[nPFJetAK8]
+   Float_t         PFJetAK8_JERdn[njetmxAK8];   //[nPFJetAK8]
+   Float_t         PFJetAK8_msoftdrop[njetmxAK8];   //[nPFJetAK8]
    Float_t         PFJetAK8_tau1[njetmxAK8];   //[nPFJetAK8]
    Float_t         PFJetAK8_tau2[njetmxAK8];   //[nPFJetAK8]
    Float_t         PFJetAK8_tau3[njetmxAK8];   //[nPFJetAK8]
@@ -141,11 +142,13 @@
    Float_t         PFJetAK8_sub1phi[njetmxAK8];   //[nPFJetAK8]
    Float_t         PFJetAK8_sub1mass[njetmxAK8];   //[nPFJetAK8]
    Float_t         PFJetAK8_sub1btag[njetmxAK8];   //[nPFJetAK8]
+   Float_t         PFJetAK8_sub1JEC[njetmxAK8];   //[nPFJetAK8]
    Float_t         PFJetAK8_sub2pt[njetmxAK8];   //[nPFJetAK8]
    Float_t         PFJetAK8_sub2eta[njetmxAK8];   //[nPFJetAK8]
    Float_t         PFJetAK8_sub2phi[njetmxAK8];   //[nPFJetAK8]
    Float_t         PFJetAK8_sub2mass[njetmxAK8];   //[nPFJetAK8]
    Float_t         PFJetAK8_sub2btag[njetmxAK8];   //[nPFJetAK8]
+   Float_t         PFJetAK8_sub2JEC[njetmxAK8];   //[nPFJetAK8]
    Float_t         PFJetAK8_jesup_AbsoluteStat[njetmxAK8];   //[nPFJetAK8]
    Float_t         PFJetAK8_jesup_AbsoluteScale[njetmxAK8];   //[nPFJetAK8]
    Float_t         PFJetAK8_jesup_AbsoluteMPFBias[njetmxAK8];   //[nPFJetAK8]
@@ -205,9 +208,9 @@
    Float_t         PFJetAK4_JEC[njetmx];   //[nPFJetAK4]
    Float_t         PFJetAK4_btag_DeepCSV[njetmx];   //[nPFJetAK4]
    Float_t         PFJetAK4_btag_DeepFlav[njetmx];   //[nPFJetAK4]
-   Float_t         PFJetAK4_reso[njetmx];   //[nPFJetAK4]
-   Float_t         PFJetAK4_resoup[njetmx];   //[nPFJetAK4]
-   Float_t         PFJetAK4_resodn[njetmx];   //[nPFJetAK4]
+   Float_t         PFJetAK4_JER[njetmx];   //[nPFJetAK4]
+   Float_t         PFJetAK4_JERup[njetmx];   //[nPFJetAK4]
+   Float_t         PFJetAK4_JERdn[njetmx];   //[nPFJetAK4]
    Int_t           PFJetAK4_hadronflav[njetmx];   //[nPFJetAK4]
    Int_t           PFJetAK4_partonflav[njetmx];   //[nPFJetAK4]
    Float_t         PFJetAK4_qgl[njetmx];   //[nPFJetAK4]
@@ -277,14 +280,14 @@
    Bool_t          Muon_isTight[njetmx];   //[nMuon]
    Bool_t          Muon_isHighPt[njetmx];   //[nMuon]
    Bool_t          Muon_isHighPttrk[njetmx];   //[nMuon]
-   Bool_t          Muon_MediumID[njetmx];   //[nMuon]
+   Bool_t          Muon_TightID[njetmx];   //[nMuon]
    Float_t         Muon_pt[njetmx];   //[nMuon]
    Float_t         Muon_p[njetmx];   //[nMuon]
    Float_t         Muon_eta[njetmx];   //[nMuon]
    Float_t         Muon_phi[njetmx];   //[nMuon]
-   Float_t         Muon_minchiso[njetmx];   //[nMuon]
-   Float_t         Muon_minnhiso[njetmx];   //[nMuon]
-   Float_t         Muon_minphiso[njetmx];   //[nMuon]
+   Float_t         Muon_minisoch[njetmx];   //[nMuon]
+   Float_t         Muon_minisonh[njetmx];   //[nMuon]
+   Float_t         Muon_minisoph[njetmx];   //[nMuon]
    Float_t         Muon_minisoall[njetmx];   //[nMuon]
    Float_t         Muon_dxy[njetmx];   //[nMuon]
    Float_t         Muon_dz[njetmx];   //[nMuon]
@@ -352,9 +355,9 @@
    Float_t         Electron_pfisolsumphet[njetmx];   //[nElectron]
    Float_t         Electron_pfisolsumchhadpt[njetmx];   //[nElectron]
    Float_t         Electron_pfsiolsumneuhadet[njetmx];   //[nElectron]
-   Float_t         Electron_minchiso[njetmx];   //[nElectron]
-   Float_t         Electron_minnhiso[njetmx];   //[nElectron]
-   Float_t         Electron_minphiso[njetmx];   //[nElectron]
+   Float_t         Electron_minisoch[njetmx];   //[nElectron]
+   Float_t         Electron_minisonh[njetmx];   //[nElectron]
+   Float_t         Electron_minisoph[njetmx];   //[nElectron]
    Float_t         Electron_minisoall[njetmx];   //[nElectron]
    Int_t           nPhoton;
    Float_t         Photon_e[njetmx];   //[nPhoton]
@@ -403,8 +406,8 @@
    Float_t         Tau_rawiso[njetmx];   //[nTau]
    Float_t         Tau_rawisodR03[njetmx];   //[nTau]
    Float_t         Tau_puCorr[njetmx];   //[nTau]
-   Double_t        event_weight;
-   Float_t         qscale;
+   Double_t        Generator_weight;
+   Float_t         Generator_qscale;
    Float_t         Generator_x1;
    Float_t         Generator_x2;
    Float_t         Generator_xpdf1;
@@ -451,7 +454,7 @@
    Float_t         LHEPart_eta[nlhemax];   //[nLHEPart]
    Float_t         LHEPart_phi[nlhemax];   //[nLHEPart]
    Float_t         LHEPart_m[nlhemax];   //[nLHEPart]
-   Double_t        event_weight_LHE;
+   Double_t        LHE_weight;
    Int_t           nLHEScaleWeights;
    Float_t         LHEScaleWeights[nlhescalemax];   //[nLHEScaleWeights]
    Int_t           nLHEPDFWeights;
@@ -545,10 +548,10 @@
    TBranch        *b_PFJetAK8_HFHM;   //!
    TBranch        *b_PFJetAK8_Neucons;   //!
    TBranch        *b_PFJetAK8_Chcons;   //!
-   TBranch        *b_PFJetAK8_reso;   //!
-   TBranch        *b_PFJetAK8_resoup;   //!
-   TBranch        *b_PFJetAK8_resodn;   //!
-   TBranch        *b_PFJetAK8_sdmass;   //!
+   TBranch        *b_PFJetAK8_JER;   //!
+   TBranch        *b_PFJetAK8_JERup;   //!
+   TBranch        *b_PFJetAK8_JERdn;   //!
+   TBranch        *b_PFJetAK8_msoftdrop;   //!
    TBranch        *b_PFJetAK8_tau1;   //!
    TBranch        *b_PFJetAK8_tau2;   //!
    TBranch        *b_PFJetAK8_tau3;   //!
@@ -570,11 +573,13 @@
    TBranch        *b_PFJetAK8_sub1phi;   //!
    TBranch        *b_PFJetAK8_sub1mass;   //!
    TBranch        *b_PFJetAK8_sub1btag;   //!
+   TBranch        *b_PFJetAK8_sub1JEC;   //!
    TBranch        *b_PFJetAK8_sub2pt;   //!
    TBranch        *b_PFJetAK8_sub2eta;   //!
    TBranch        *b_PFJetAK8_sub2phi;   //!
    TBranch        *b_PFJetAK8_sub2mass;   //!
    TBranch        *b_PFJetAK8_sub2btag;   //!
+   TBranch        *b_PFJetAK8_sub2JEC;   //!
    TBranch        *b_PFJetAK8_jesup_AbsoluteStat;   //!
    TBranch        *b_PFJetAK8_jesup_AbsoluteScale;   //!
    TBranch        *b_PFJetAK8_jesup_AbsoluteMPFBias;   //!
@@ -634,9 +639,9 @@
    TBranch        *b_PFJetAK4_JEC;   //!
    TBranch        *b_PFJetAK4_btag_DeepCSV;   //!
    TBranch        *b_PFJetAK4_btag_DeepFlav;   //!
-   TBranch        *b_PFJetAK4_reso;   //!
-   TBranch        *b_PFJetAK4_resoup;   //!
-   TBranch        *b_PFJetAK4_resodn;   //!
+   TBranch        *b_PFJetAK4_JER;   //!
+   TBranch        *b_PFJetAK4_JERup;   //!
+   TBranch        *b_PFJetAK4_JERdn;   //!
    TBranch        *b_PFJetAK4_hadronflav;   //!
    TBranch        *b_PFJetAK4_partonflav;   //!
    TBranch        *b_PFJetAK4_qgl;   //!
@@ -960,9 +965,6 @@
    float puWeight, puWeightup, puWeightdown;
    float leptonsf_weight, leptonsf_weight_stat, leptonsf_weight_syst;
    
-   bool Flag_event_cuts[10];
-   
-
    BTagCalibration calib_deepcsv, calib_deepflav;
    BTagCalibrationReader reader_deepcsv, reader_deepflav;
    

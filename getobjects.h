@@ -17,7 +17,7 @@ for(int mu=0; mu<(nMuon); mu++){
     */
     if(id==0 && !Muon_isLoose[mu]) 	continue;
     if(id==1 && !Muon_isMed[mu]) 	continue;
-    if(id==2 && !Muon_MediumID[mu]) continue;  //Muon_MediumID variable is actually tight id
+    if(id==2 && !Muon_TightID[mu]) continue;  // Muon_TightID & Muon_isTight should be the same
     
     //bool mu_iso = Muon_Iso_ID(Muon_pfiso[mu]);
     //if(!mu_iso) continue;
@@ -48,7 +48,7 @@ for(int mu=0; mu<(nMuon); mu++){
     vmuon.isTight = Muon_isTight[mu];
     vmuon.isHighPt = Muon_isHighPt[mu];
     vmuon.isHighPttrk = Muon_isHighPttrk[mu];
-    vmuon.MediumID = Muon_MediumID[mu];
+    vmuon.TightID = Muon_TightID[mu];
     
     vmuon.chi = Muon_chi[mu];
     vmuon.posmatch = Muon_posmatch[mu];
@@ -62,9 +62,9 @@ for(int mu=0; mu<(nMuon); mu++){
     vmuon.pfiso = Muon_pfiso[mu];   
    
     vmuon.minisoall = Muon_minisoall[mu];
-    vmuon.minchiso = Muon_minchiso[mu];
-    vmuon.minnhiso = Muon_minnhiso[mu];
-    vmuon.minphiso = Muon_minphiso[mu];
+    vmuon.minisoch = Muon_minisoch[mu];
+    vmuon.minisonh = Muon_minisonh[mu];
+    vmuon.minisoph = Muon_minisoph[mu];
     
     vmuon.p4.SetPtEtaPhiM(vmuon.pt,vmuon.eta,vmuon.phi,vmuon.mass);
     
@@ -143,10 +143,11 @@ void getelectrons(std::vector<Electron> &velectrons, float ptcut=25, float etacu
     velectron.pfisolsumphet = Electron_pfisolsumphet[ie];
     velectron.pfisolsumchhadpt = Electron_pfisolsumchhadpt[ie];
     velectron.pfsiolsumneuhadet = Electron_pfsiolsumneuhadet[ie];
-    velectron.minchiso  = Electron_minchiso[ie];
-    velectron.minnhiso  = Electron_minnhiso[ie];
-    velectron.minphiso  = Electron_minphiso[ie];
+  
     velectron.minisoall  = Electron_minisoall[ie];
+    velectron.minisoch  = Electron_minisoch[ie];
+    velectron.minisonh  = Electron_minisonh[ie];
+    velectron.minisoph  = Electron_minisoph[ie];
     
     //velectron.fbrem = Electron_fbrem[ie];
     //velectron.normchi2 = Electron_normchi2[ie];
@@ -263,8 +264,8 @@ void getAK4jets(std::vector<AK4Jet> &Jets, float ptcut=30, float etacut=2.5, boo
     PFJetAK4_mass[ijet] *= PFJetAK4_JEC[ijet];
     
     if(isMC){
-      PFJetAK4_pt[ijet] *= (1+PFJetAK4_reso[ijet]) ;
-      PFJetAK4_mass[ijet] *= (1+PFJetAK4_reso[ijet]) ;
+      PFJetAK4_pt[ijet] *= (1+PFJetAK4_JER[ijet]) ;
+      PFJetAK4_mass[ijet] *= (1+PFJetAK4_JER[ijet]) ;
     }
 	  
     if(fabs(PFJetAK4_eta[ijet])>etacut) continue;
@@ -286,9 +287,9 @@ void getAK4jets(std::vector<AK4Jet> &Jets, float ptcut=30, float etacut=2.5, boo
     sJet.PUID = PFJetAK4_PUID[ijet];
     sJet.qgl = PFJetAK4_qgl[ijet];
     
-    sJet.reso = PFJetAK4_reso[ijet];
-    sJet.resoup = PFJetAK4_resoup[ijet];
-    sJet.resodn = PFJetAK4_resodn[ijet];
+    sJet.JER = PFJetAK4_JER[ijet];
+    sJet.JERup = PFJetAK4_JERup[ijet];
+    sJet.JERdn = PFJetAK4_JERdn[ijet];
     
     sJet.JEC = PFJetAK4_JEC[ijet];
     sJet.jesup_AbsoluteStat = PFJetAK4_jesup_AbsoluteStat[ijet];
@@ -361,8 +362,8 @@ void getAK8jets(std::vector<AK8Jet> &LJets, float ptcut=200, float etacut=2.5, b
     PFJetAK8_mass[ijet] *= PFJetAK8_JEC[ijet];
     
     if(isMC){
-      PFJetAK8_pt[ijet] *= (1+PFJetAK8_reso[ijet]) ;
-      PFJetAK8_mass[ijet] *= (1+PFJetAK8_reso[ijet]) ;
+      PFJetAK8_pt[ijet] *= (1+PFJetAK8_JER[ijet]) ;
+      PFJetAK8_mass[ijet] *= (1+PFJetAK8_JER[ijet]) ;
     }
 				
     if(fabs(PFJetAK8_eta[ijet])>etacut) continue;
@@ -380,7 +381,7 @@ void getAK8jets(std::vector<AK8Jet> &LJets, float ptcut=200, float etacut=2.5, b
     LJet.y = PFJetAK8_y[ijet];
     LJet.p4.SetPtEtaPhiM(LJet.pt,LJet.eta,LJet.phi,LJet.mass);
     
-    LJet.sdmass = PFJetAK8_sdmass[ijet];
+    LJet.sdmass = PFJetAK8_msoftdrop[ijet];
     LJet.tau21 = PFJetAK8_tau2[ijet]*1./max(float(1.e-6),PFJetAK8_tau1[ijet]);
     LJet.tau32 = PFJetAK8_tau3[ijet]*1./max(float(1.e-6),PFJetAK8_tau2[ijet]);
    
@@ -415,21 +416,27 @@ void getAK8jets(std::vector<AK8Jet> &LJets, float ptcut=200, float etacut=2.5, b
     LJet.Neucons = PFJetAK8_Neucons[ijet];
     LJet.Chcons = PFJetAK8_Chcons[ijet];
     
+    PFJetAK8_sub1pt[ijet] *= PFJetAK8_sub1JEC[ijet];
+    PFJetAK8_sub1mass[ijet] *= PFJetAK8_sub1JEC[ijet];
     LJet.sub1pt = PFJetAK8_sub1pt[ijet];
     LJet.sub1eta = PFJetAK8_sub1eta[ijet];
     LJet.sub1phi = PFJetAK8_sub1phi[ijet];
     LJet.sub1mass = PFJetAK8_sub1mass[ijet];
     LJet.sub1btag = PFJetAK8_sub1btag[ijet];
+    LJet.sub1JEC = PFJetAK8_sub1JEC[ijet];
    
+    PFJetAK8_sub2pt[ijet] *= PFJetAK8_sub2JEC[ijet];
+    PFJetAK8_sub2mass[ijet] *= PFJetAK8_sub2JEC[ijet];
     LJet.sub2pt = PFJetAK8_sub2pt[ijet];
     LJet.sub2eta = PFJetAK8_sub2eta[ijet];
     LJet.sub2phi = PFJetAK8_sub2phi[ijet];
     LJet.sub2mass = PFJetAK8_sub2mass[ijet];
     LJet.sub2btag = PFJetAK8_sub2btag[ijet];
+    LJet.sub2JEC = PFJetAK8_sub2JEC[ijet];
         
-    LJet.reso = PFJetAK8_reso[ijet];
-    LJet.resoup = PFJetAK8_resoup[ijet];
-    LJet.resodn = PFJetAK8_resodn[ijet];
+    LJet.JER = PFJetAK8_JER[ijet];
+    LJet.JERup = PFJetAK8_JERup[ijet];
+    LJet.JERdn = PFJetAK8_JERdn[ijet];
     
     LJet.JEC = PFJetAK8_JEC[ijet];
     LJet.jesup_AbsoluteStat = PFJetAK8_jesup_AbsoluteStat[ijet];
@@ -819,127 +826,6 @@ else{
 	}	
 }
 
-/*
-void Match_trigger(vector<bool> double_hlts, vector<bool> single_hlts, 
-									  vector<vector<float>> double_pt_cuts, vector<float> single_pt_cuts, 
-									  vector<vector<int>> double_pids, vector<int> single_pids, 
-									  vector<float> single_other_pt_cuts, vector<int> single_other_pids,
-									  vector<std::pair<int,TLorentzVector> > TrigRefObj,
-									  Lepton lepcand_1, Lepton lepcand_2, vector<AK4Jet> Jets,
-									  bool &trig_threshold_pass,
-									  bool &trig_matching_pass,
-									  vector<TH1D*> &hist_init
-									  )
-{
-	
-  if(double_hlts.size()<1 && single_hlts.size()<1) { 
-	  return; 
-	  }
-  
-  else{
-
-	// checking if offline objects passed trigger thresholds //
-	
-	bool double_trig_pass(false), single_trig_pass(false);
-	bool any_double_hlt_pass = false;
-	
-	if(double_hlts.size()>0){
-		for(unsigned ihlt=0; ihlt<double_hlts.size(); ihlt++){
-			if (double_hlts[ihlt]){ any_double_hlt_pass = true; }
-			if (double_hlts[ihlt] && ((lepcand_1.pt>double_pt_cuts[ihlt][0] && lepcand_1.pdgId==double_pids[ihlt][0] && lepcand_2.pt>double_pt_cuts[ihlt][1] && lepcand_2.pdgId==double_pids[ihlt][1])
-			||  (lepcand_1.pt>double_pt_cuts[ihlt][1] && lepcand_1.pdgId==double_pids[ihlt][1] && lepcand_2.pt>double_pt_cuts[ihlt][0] && lepcand_2.pdgId==double_pids[ihlt][0]))
-			) { 
-				trig_threshold_pass = true; 
-				double_trig_pass = true;
-				break; }
-			}
-		}
-	
-	int fired_single_trig = -1;
-	
-	if(!any_double_hlt_pass){
-		if(single_hlts.size()>0){
-			for(unsigned ihlt=0; ihlt<single_hlts.size(); ihlt++){
-				if (single_hlts[ihlt] && ((lepcand_1.pt>single_pt_cuts[ihlt] && lepcand_1.pdgId==single_pids[ihlt]) || (lepcand_2.pt>single_pt_cuts[ihlt] && lepcand_2.pdgId==single_pids[ihlt])) && single_other_pt_cuts[ihlt]>0 && Jets.size()>0 && Jets[0].pt>single_other_pt_cuts[ihlt])  { 
-					trig_threshold_pass = true; 
-					single_trig_pass = true;
-					fired_single_trig = ihlt;
-					break; 
-					}
-				else if (single_hlts[ihlt] && ((lepcand_1.pt>single_pt_cuts[ihlt] && lepcand_1.pdgId==single_pids[ihlt]) || (lepcand_2.pt>single_pt_cuts[ihlt] && lepcand_2.pdgId==single_pids[ihlt])) && single_other_pt_cuts[ihlt]<0)
-					{
-					trig_threshold_pass = true; 
-					single_trig_pass = true;
-					fired_single_trig = ihlt;
-					break; 
-					}
-				}
-			}
-		}
-  
-	// check if offline objects match to trigger objects //
-  
-	bool lep1_match = false;
-	bool lep2_match = false;
-	bool jet_match = false;
-  
-    float ptratmin_lep1(0.3), ptratmin_lep2(0.3), ptratmin_jet(0.3);
-  
-	for (uint trv=0; trv<TrigRefObj.size(); trv++) {
-		
-		bool mutrobj(false), eltrobj(false), jettrobj(false);
-		if (abs(TrigRefObj[trv].first)==13) mutrobj=true;
-		else if (abs(TrigRefObj[trv].first)==0 && TrigRefObj[trv].second.M() < 1.e-3) eltrobj=true;
-		else if (abs(TrigRefObj[trv].first)==0 && TrigRefObj[trv].second.M() > 1.e-3) jettrobj=true;
-
-		TVector3 Trv = TrigRefObj[trv].second.Vect();
-		
-		if (mutrobj||eltrobj) {
-			
-			TVector3 flep1v = lepcand_1.p4.Vect();
-			TVector3 flep2v = lepcand_2.p4.Vect();
-
-			double tmprat1 = fabs((flep1v-Trv).Mag()/max(1.e-6,flep1v.Mag()));
-			double tmprat2 = fabs((flep2v-Trv).Mag()/max(1.e-6,flep2v.Mag()));
-			 
-			//hist_init[0]->Fill(tmprat1, weight);
-			//hist_init[1]->Fill(tmprat2, weight);
-      
-			if (tmprat1 < ptratmin_lep1) {
-				if((mutrobj && lepcand_1.pdgId==13)||(eltrobj && lepcand_1.pdgId==11)){
-					lep1_match = true;
-					ptratmin_lep1 = tmprat1;
-				}
-			}
-			
-			if (tmprat2 < ptratmin_lep2) {
-				if((mutrobj && lepcand_2.pdgId==13)||(eltrobj && lepcand_2.pdgId==11)){
-					lep2_match = true;
-					ptratmin_lep2 = tmprat2;
-				}
-			}
-		}
-		
-		if(jettrobj){
-			
-			double tmprat = fabs((Jets[0].p4.Vect()-Trv).Mag()/max(1.e-6,(Jets[0].p4.Vect().Mag())));
-			if (tmprat < ptratmin_jet) {
-				jet_match = true;
-				ptratmin_jet = tmprat;
-			}
-			
-		}
-	}
-	
-	//if (((double_hlts.size()>0 && double_trig_pass && lep1_match && lep2_match) || (single_hlts.size()>0 && single_trig_pass && lep1_match))) { trig_matching_pass = true; }
-	if (double_hlts.size()>0 && double_trig_pass && lep1_match && lep2_match)  { trig_matching_pass = true; }
-	else if (single_hlts.size()>0 && single_trig_pass && (lep1_match||lep2_match) && single_other_pt_cuts[fired_single_trig]>0 && jet_match) { trig_matching_pass = true; }
-	else if (single_hlts.size()>0 && single_trig_pass && (lep1_match||lep2_match) && single_other_pt_cuts[fired_single_trig]<0) { trig_matching_pass = true; }
-	
-  }
-   
-}
-*/
 void Match_trigger(vector<bool> double_hlts, vector<vector<float>> double_pt_cuts, vector<vector<int>> double_pids,
 				   vector<bool> single_hlts, vector<float> single_pt_cuts, vector<int> single_pids, vector<float> single_other_pt_cuts, vector<int> single_other_pids,
 				   vector<bool> jet_hlts, vector<float> jet_pt_cuts, vector<int> jet_pids,
