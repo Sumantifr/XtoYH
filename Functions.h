@@ -180,7 +180,6 @@ TLorentzVector neutrino_mom_fromH(TLorentzVector vec_X, float MET_pt, float MET_
 	else{
 	
 		float Delta2 = (H_mass*H_mass - vec_X.M()*vec_X.M() + 2*vec_X.Pt()*MET_pt*cos(PhiInRange(vec_X.Phi()-MET_phi)))*1./(2*MET_pt*vec_X.Mt());
-	
 		if(Delta2>=1){
 			float nueta;
 			nueta = (seed>=0.5)?(vec_X.Rapidity() + acosh(Delta2)):(vec_X.Rapidity() - acosh(Delta2));
@@ -197,7 +196,7 @@ TLorentzVector neutrino_mom_fromH(TLorentzVector vec_X, float MET_pt, float MET_
 	return pnu;
 }
 
-bool Muon_TightID(bool muonisGL,bool muonisPF, float muonchi, float muonhit, float muonmst,
+bool Muon_Tight_ID(bool muonisGL,bool muonisPF, float muonchi, float muonhit, float muonmst,
                                   float muontrkvtx, float muondz, float muonpixhit, float muontrklay){
 bool tightid = false;
 if(muonisGL && muonisPF){

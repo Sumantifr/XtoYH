@@ -72,6 +72,9 @@
    Int_t           TrigObj_Ihlt[njetmx];   //[nTrigObj]
    Int_t           TrigObj_pdgId[njetmx];   //[nTrigObj]
    Int_t           TrigObj_type[njetmx];   //[nTrigObj]
+   Double_t        prefiringweight;
+   Double_t        prefiringweightup;
+   Double_t        prefiringweightdown;
    Float_t         CHSMET_pt;
    Float_t         CHSMET_phi;
    Float_t         CHSMET_sig;
@@ -503,6 +506,9 @@
    TBranch        *b_TrigObj_Ihlt;   //!
    TBranch        *b_TrigObj_pdgId;   //!
    TBranch        *b_TrigObj_type;   //!
+   TBranch        *b_prefiringweight;   //!
+   TBranch        *b_prefiringweightup;   //!
+   TBranch        *b_prefiringweightdown;   //!
    TBranch        *b_miset;   //!
    TBranch        *b_misphi;   //!
    TBranch        *b_misetsig;   //!
@@ -700,6 +706,10 @@
    TBranch        *b_PFJetAK4_btag_DeepFlav_SF;   //!
    TBranch        *b_PFJetAK4_btag_DeepFlav_SF_up;   //!
    TBranch        *b_PFJetAK4_btag_DeepFlav_SF_dn;   //!
+   TBranch        *b_Muon_Muon_TightID;
+   TBranch        *b_Muon_minisoch;
+   TBranch        *b_Muon_minisonh;
+   TBranch        *b_Muon_minisoph;
    TBranch        *b_nMuon;   //!
    TBranch        *b_Muon_isPF;   //!
    TBranch        *b_Muon_isGL;   //!
@@ -790,6 +800,12 @@
    TBranch        *b_Electron_minnhiso;   //!
    TBranch        *b_Electron_minphiso;   //!
    TBranch        *b_Electron_minisoall;   //!
+   TBranch        *b_Electron_minisoch;
+   TBranch        *b_Electron_minisonh;
+   TBranch        *b_Electron_minisoph;
+   TBranch        *b_Generator_weight;
+   TBranch        *b_Generator_qscale;
+   TBranch        *b_LHE_weight;
    TBranch        *b_nPhoton;   //!
    TBranch        *b_Photon_e;   //!
    TBranch        *b_Photon_eta;   //!
@@ -938,13 +954,21 @@
    int nleptons, nfatjets;
    
    float l_pt, l_eta, l_phi, l_mass;
+   
    float Y_pt, Y_y, Y_eta, Y_phi, Y_mass, Y_sdmass, Y_PN_bb;
+   float Y_JESup, Y_JESdn, Y_JERup, Y_JERdn;
+   
    float W_pt_opt1, W_y_opt1, W_eta_opt1, W_phi_opt1, W_mass_opt1, W_sdmass_opt1, W_PN_W_opt1;
+   float W_JESup_opt1, W_JESdn_opt1, W_JERup_opt1, W_JERdn_opt1;
+   
    float W_pt_opt2, W_y_opt2, W_eta_opt2, W_phi_opt2, W_mass_opt2, W_sdmass_opt2, W_PN_W_opt2;
-
-
+   float W_JESup_opt2, W_JESdn_opt2, W_JERup_opt2, W_JERdn_opt2;
+   
    float H_pt_opt1, H_y_opt1, H_eta_opt1, H_phi_opt1, H_mass_opt1;
+   float H_JESup_opt1, H_JESdn_opt1, H_JERup_opt1, H_JERdn_opt1;
+   
    float H_pt_opt2, H_y_opt2, H_eta_opt2, H_phi_opt2, H_mass_opt2;
+   float H_JESup_opt2, H_JESdn_opt2, H_JERup_opt2, H_JERdn_opt2;
 
    float X_mass_opt1, X_mass_opt2; 
    

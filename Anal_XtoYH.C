@@ -86,58 +86,58 @@ int main(int argc, char *argv[])
   cout<<"Program started"<<endl;
   char fOut[50], fout1[50],fout2[50];
   string inputFile=argv[3];
-  if(inputFile=="FILELIST/XtoYH_2018_TT_Had.log"){
-      sprintf(fOut,"HIST/JetHT_EraB_2017_UL_HFNoise_%s_%s.root",argv[1],argv[2]);
+  if(inputFile=="FILELIST_2018UL/XtoYH_2018_TT_Had.log"){
+      sprintf(fOut,"HIST_2018UL/JetHT_EraB_2017_UL_HFNoise_%s_%s.root",argv[1],argv[2]);
    }
-  else if(inputFile=="FILELIST/TTToSemiLeptonic_XtoYH_Nov_2021.log"){
-     sprintf(fOut,"HIST/TTToSemiLeptonic_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+  else if(inputFile=="FILELIST_2018UL/TTToSemiLeptonic_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST_2018UL/TTToSemiLeptonic_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
    }
-  else if(inputFile=="FILELIST/ZZ_XtoYH_Nov_2021.log"){
-     sprintf(fOut,"HIST/ZZ_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+  else if(inputFile=="FILELIST_2018UL/ZZ_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST_2018UL/ZZ_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
    }
-  else if(inputFile=="FILELIST/WZ_XtoYH_Nov_2021.log"){
-     sprintf(fOut,"HIST/WZ_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
-   }
-
-  else if(inputFile=="FILELIST/WW_XtoYH_Nov_2021.log"){
-     sprintf(fOut,"HIST/WW_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+  else if(inputFile=="FILELIST_2018UL/WZ_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST_2018UL/WZ_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
    }
 
-  else if(inputFile=="FILELIST/TTToHadronic_XtoYH_Nov_2021.log"){
-     sprintf(fOut,"HIST/TTToHadronic_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+  else if(inputFile=="FILELIST_2018UL/WW_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST_2018UL/WW_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
    }
 
-  else if(inputFile=="FILELIST/TTTo2L2Nu_XtoYH_Nov_2021.log"){
-     sprintf(fOut,"HIST/TTTo2L2Nu_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+  else if(inputFile=="FILELIST_2018UL/TTToHadronic_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST_2018UL/TTToHadronic_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
    }
 
-  else if(inputFile=="FILELIST/ST_tW_top_XtoYH_Nov_2021.log"){
-     sprintf(fOut,"HIST/ST_tW_top_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+  else if(inputFile=="FILELIST_2018UL/TTTo2L2Nu_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST_2018UL/TTTo2L2Nu_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
    }
 
-  else if(inputFile=="FILELIST/ST_tW_antitop_XtoYH_Nov_2021.log"){
-     sprintf(fOut,"HIST/ST_tW_antitop_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+  else if(inputFile=="FILELIST_2018UL/ST_tW_top_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST_2018UL/ST_tW_top_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
    }
 
-  else if(inputFile=="FILELIST/ST_s-channel_XtoYH_Nov_2021.log"){
-     sprintf(fOut,"HIST/ST_s-channel_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+  else if(inputFile=="FILELIST_2018UL/ST_tW_antitop_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST_2018UL/ST_tW_antitop_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
    }
 
-  else if(inputFile=="FILELIST/DYJetsToLL_M-50_XtoYH_Nov_2021.log"){
-     sprintf(fOut,"HIST/DYJetsToLL_M-50_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+  else if(inputFile=="FILELIST_2018UL/ST_s-channel_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST_2018UL/ST_s-channel_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
    }
 
-  else if(inputFile=="FILELIST/DYJetsToLL_M-10to50_XtoYH_Nov_2021.log"){
-     sprintf(fOut,"HIST/DYJetsToLL_M-10to50_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+  else if(inputFile=="FILELIST_2018UL/DYJetsToLL_M-50_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST_2018UL/DYJetsToLL_M-50_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
    }
-  else if(inputFile=="FILELIST/WJetsToLNu_XtoYH_Nov_2021.log"){
-     sprintf(fOut,"HIST/WJetsToLNu_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+
+  else if(inputFile=="FILELIST_2018UL/DYJetsToLL_M-10to50_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST_2018UL/DYJetsToLL_M-10to50_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
    }
-  else if(inputFile=="FILELIST/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1500_MY_200_XtoYH_Nov_2021.log"){
-     sprintf(fOut,"HIST/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1500_MY_200_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+  else if(inputFile=="FILELIST_2018UL/WJetsToLNu_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST_2018UL/WJetsToLNu_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
    }
-  else if(inputFile=="FILELIST/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_200_XtoYH_Nov_2021.log"){
-     sprintf(fOut,"HIST/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_200_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+  else if(inputFile=="FILELIST_2018UL/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1500_MY_200_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST_2018UL/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1500_MY_200_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
+   }
+  else if(inputFile=="FILELIST_2018UL/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_200_XtoYH_Nov_2021.log"){
+     sprintf(fOut,"HIST_2018UL/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_200_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);
    }
 
    TFile *fileout = new TFile(fOut,"recreate");
@@ -200,6 +200,14 @@ int main(int argc, char *argv[])
    
    Tout->Branch("Flag_event_cuts", Flag_event_cuts, "Flag_event_cuts/O");	
    
+   Tout->Branch("puWeight", &puWeight, "puWeight/F");
+   Tout->Branch("puWeightup", &puWeightup, "puWeightup/F");	
+   Tout->Branch("puWeightdown", &puWeightdown, "puWeightdown/F");	
+   
+   Tout->Branch("leptonsf_weight", &leptonsf_weight, "leptonsf_weight/F");
+   Tout->Branch("leptonsf_weight_stat", &leptonsf_weight_stat, "leptonsf_weight_stat/F");	
+   Tout->Branch("leptonsf_weight_syst", &leptonsf_weight_syst, "leptonsf_weight_syst/F");	
+   
    Tout->Branch("l_pt", &l_pt, "l_pt/F");	
    Tout->Branch("l_eta", &l_eta, "l_eta/F");	
    Tout->Branch("l_phi", &l_phi, "l_phi/F");	
@@ -212,7 +220,11 @@ int main(int argc, char *argv[])
    Tout->Branch("Y_mass", &Y_mass, "Y_mass/F");	
    Tout->Branch("Y_sdmass", &Y_sdmass, "Y_sdmass/F");	
    Tout->Branch("Y_PN_bb", &Y_PN_bb, "Y_PN_bb/F");	
-
+   Tout->Branch("Y_JESup", &Y_JESup, "Y_JESup/F");	
+   Tout->Branch("Y_JESdn", &Y_JESdn, "Y_JESdn/F");	
+   Tout->Branch("Y_JERup", &Y_JERup, "Y_JERup/F");	
+   Tout->Branch("Y_JERdn", &Y_JERdn, "Y_JERdn/F");	
+   
    // W boson related branches based on option -1 
    Tout->Branch("W_pt_opt1", &W_pt_opt1, "W_pt_opt1/F");	
    Tout->Branch("W_y_opt1", &W_y_opt1, "W_y_opt1/F");	
@@ -221,19 +233,28 @@ int main(int argc, char *argv[])
    Tout->Branch("W_mass_opt1", &W_mass_opt1, "W_mass_opt1/F");	
    Tout->Branch("W_sdmass_opt1", &W_sdmass_opt1, "W_sdmass_opt1/F");	
    Tout->Branch("W_PN_W_opt1", &W_PN_W_opt1, "W_PN_W_opt1/F");	
+   Tout->Branch("W_JESup_opt1", &W_JESup_opt1, "W_JESup_opt1/F");	
+   Tout->Branch("W_JESdn_opt1", &W_JESdn_opt1, "W_JESdn_opt1/F");	
+   Tout->Branch("W_JERup_opt1", &W_JERup_opt1, "W_JERup_opt1/F");	
+   Tout->Branch("W_JERdn_opt1", &W_JERdn_opt1, "W_JERdn_opt1/F");	
    
    Tout->Branch("H_pt_opt1", &H_pt_opt1, "H_pt_opt1/F");	
    Tout->Branch("H_y_opt1", &H_y_opt1, "H_y_opt1/F");
    Tout->Branch("H_eta_opt1", &H_eta_opt1, "H_eta_opt1/F");
    Tout->Branch("H_phi_opt1", &H_phi_opt1, "H_phi_opt1/F");	
    Tout->Branch("H_mass_opt1", &H_mass_opt1, "H_mass_opt1/F");	
+   Tout->Branch("H_JESup_opt1", &H_JESup_opt1, "H_JESup_opt1/F");	
+   Tout->Branch("H_JESdn_opt1", &H_JESdn_opt1, "H_JESdn_opt1/F");	
+   Tout->Branch("H_JERup_opt1", &H_JERup_opt1, "H_JERup_opt1/F");	
+   Tout->Branch("H_JERdn_opt1", &H_JERdn_opt1, "H_JERdn_opt1/F");	
    
    Tout->Branch("X_mass_opt1", &X_mass_opt1, "X_mass_opt1/F");	
    
    Tout->Branch("dR_lW_opt1", &dR_lW_opt1, "dR_lW_opt1/F");	
    Tout->Branch("dy_lW_opt1", &dy_lW_opt1, "dy_lW_opt1/F");	
    Tout->Branch("dphi_lW_opt1", &dphi_lW_opt1, "dphi_lW_opt1/F");	
-   // W boson related branches based on option -2
+   
+   // W boson related branches based on option 2
    Tout->Branch("W_pt_opt2", &W_pt_opt2, "W_pt_opt2/F");
    Tout->Branch("W_y_opt2", &W_y_opt2, "W_y_opt2/F");
    Tout->Branch("W_eta_opt2", &W_eta_opt2, "W_eta_opt2/F");
@@ -241,12 +262,20 @@ int main(int argc, char *argv[])
    Tout->Branch("W_mass_opt2", &W_mass_opt2, "W_mass_opt2/F");
    Tout->Branch("W_sdmass_opt2", &W_sdmass_opt2, "W_sdmass_opt2/F");
    Tout->Branch("W_PN_W_opt2", &W_PN_W_opt2, "W_PN_W_opt2/F");
+   Tout->Branch("W_JESup_opt2", &W_JESup_opt2, "W_JESup_opt2/F");	
+   Tout->Branch("W_JESdn_opt2", &W_JESdn_opt2, "W_JESdn_opt2/F");	
+   Tout->Branch("W_JERup_opt2", &W_JERup_opt2, "W_JERup_opt2/F");	
+   Tout->Branch("W_JERdn_opt2", &W_JERdn_opt2, "W_JERdn_opt2/F");	
 
    Tout->Branch("H_pt_opt2", &H_pt_opt2, "H_pt_opt2/F");
    Tout->Branch("H_y_opt2", &H_y_opt2, "H_y_opt2/F");
    Tout->Branch("H_eta_opt2", &H_eta_opt2, "H_eta_opt2/F");
    Tout->Branch("H_phi_opt2", &H_phi_opt2, "H_phi_opt2/F");
    Tout->Branch("H_mass_opt2", &H_mass_opt2, "H_mass_opt2/F");
+   Tout->Branch("H_JESup_opt2", &H_JESup_opt2, "H_JESup_opt2/F");	
+   Tout->Branch("H_JESdn_opt2", &H_JESdn_opt2, "H_JESdn_opt2/F");	
+   Tout->Branch("H_JERup_opt2", &H_JERup_opt2, "H_JERup_opt2/F");	
+   Tout->Branch("H_JERdn_opt2", &H_JERdn_opt2, "H_JERdn_opt2/F");	
 
    Tout->Branch("X_mass_opt2", &X_mass_opt2, "X_mass_opt2/F");
 
@@ -260,6 +289,7 @@ int main(int argc, char *argv[])
    
    Tout->Branch("nbjets_other", &nbjets_other, "nbjets_other/I");	
    Tout->Branch("MET", &MET, "MET/F");	
+   
    // Different flags and control regions   
 
    Tout->Branch("Flag_Y_bb_pass_T", &Flag_Y_bb_pass_T, "Flag_Y_bb_pass_T/O");	
@@ -287,6 +317,12 @@ int main(int argc, char *argv[])
    Tout->Branch("Reg_Wj_CR_opt2", &Reg_Wj_CR_opt2, "Reg_Wj_CR_opt2/O");
    
    Tout->Branch("LHE_weight", &LHE_weight, "LHE_weight/D");	
+   Tout->Branch("Generator_weight", &Generator_weight, "Generator_weight/D");	
+   Tout->Branch("Event_weight", &weight, "weight/D");
+   
+   Tout->Branch("prefiringweight", &prefiringweight, "prefiringweight/D");	
+   Tout->Branch("prefiringweightup", &prefiringweightup, "prefiringweightup/D");	
+   Tout->Branch("prefiringweightdown", &prefiringweightdown, "prefiringweightdown/D");	
    
    calib_deepflav = BTagCalibration("DeepJet", "BtagRecommendation106XUL18/DeepJet_106XUL18SF_WPonly_V1p1.csv");
    reader_deepflav = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"}); 
@@ -361,6 +397,9 @@ int main(int argc, char *argv[])
    fChain->SetBranchAddress("TrigObj_Ihlt", TrigObj_Ihlt, &b_TrigObj_Ihlt);
    fChain->SetBranchAddress("TrigObj_pdgId", TrigObj_pdgId, &b_TrigObj_pdgId);
    fChain->SetBranchAddress("TrigObj_type", TrigObj_type, &b_TrigObj_type);
+   fChain->SetBranchAddress("prefiringweight", &prefiringweight, &b_prefiringweight);
+   fChain->SetBranchAddress("prefiringweightup", &prefiringweightup, &b_prefiringweightup);
+   fChain->SetBranchAddress("prefiringweightdown", &prefiringweightdown, &b_prefiringweightdown);
    fChain->SetBranchAddress("CHSMET_pt", &CHSMET_pt, &b_miset);
    fChain->SetBranchAddress("CHSMET_phi", &CHSMET_phi, &b_misphi);
    fChain->SetBranchAddress("CHSMET_sig", &CHSMET_sig, &b_misetsig);
@@ -766,10 +805,14 @@ int main(int argc, char *argv[])
 	//if(ij%100==0){ cout<<"event "<<ij+1<<endl; }
 	f->cd();
 
+	double event_weight;
+	if(fabs(LHE_weight)>1.e-12) { event_weight = LHE_weight; }
+	else { event_weight = Generator_weight;	}
+
 	fChain->GetEntry(ij);
-        h_PU->Fill(npu_vert,LHE_weight);
-        h_TPU->Fill(npu_vert_true,LHE_weight);
-        h_PV->Fill(npvert,LHE_weight);
+        h_PU->Fill(npu_vert,event_weight);
+        h_TPU->Fill(npu_vert_true,event_weight);
+        h_PV->Fill(npvert,event_weight);
 	
 	//cout<<"Before: "<<nPFJetAK8<<" "<<nPFJetAK4<<" "<<nMuon<<" "<<nElectron<<" "<<nPhoton<<endl;
 	
@@ -942,20 +985,20 @@ int main(int argc, char *argv[])
 	     }
             if(dR < 0.4)
 	              {
-                           if( fabs(Jets[ijet].hadronFlavour) == 5 )  {  h_Ak4_b_flv->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); 
-				                                   if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_b_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); } 
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_b_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); } 
-			                                           if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_b_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); }
+                           if( fabs(Jets[ijet].hadronFlavour) == 5 )  {  h_Ak4_b_flv->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); 
+				                                   if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_b_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); } 
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_b_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); } 
+			                                           if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_b_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
 			                                        }    
                             else if( fabs(Jets[ijet].hadronFlavour) == 4 )  {  h_Ak4_c_flv->Fill(Jets[ijet].pt,Jets[ijet].eta,LHE_weight);  
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_c_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); }
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_c_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); }
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_c_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); }
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_c_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_c_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_c_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
                                                                 }
                            if( Jets[ijet].hadronFlavour == 0 )  {  h_Ak4_l_flv->Fill(Jets[ijet].pt,Jets[ijet].eta,LHE_weight);  
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_l_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); }
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_l_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); }
-                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_l_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),LHE_weight); }
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_l_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_l_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
+                                                                   if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_l_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
                                                                 }
 		      }		                                   
              }
@@ -976,14 +1019,14 @@ int main(int argc, char *argv[])
             }
 	 if(dR < 0.4) 
 	   { 
-                      h_Ak8_DeepTag_DAK8MD_WvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,LHE_weight);
+                      h_Ak8_DeepTag_DAK8MD_WvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,event_weight);
 		      h_Ak8_DeepTag_PNetMD_XbbvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,LHE_weight);
-		      if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_T) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),LHE_weight);  }
-	              if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_M) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),LHE_weight);  }
-                      if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_L) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),LHE_weight);  }
-                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_T){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),LHE_weight);}
-                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_M){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),LHE_weight);}
-                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_L){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),LHE_weight);}
+		      if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_T) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
+	              if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_M) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
+                      if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_L) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
+                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_T){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);}
+                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_M){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);}
+                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_L){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);}
            }
     }
     }
@@ -1115,6 +1158,11 @@ int main(int argc, char *argv[])
 		Y_sdmass = LJets[Y_cand].sdmass;
 		Y_PN_bb = LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD;
 		
+		Y_JESup = LJets[Y_cand].jesup_Total;
+		Y_JESdn = LJets[Y_cand].jesdn_Total;
+		Y_JERup = LJets[Y_cand].JERup;
+		Y_JERdn = LJets[Y_cand].JERdn;
+				
 		if(vleptons.size()>0){
 			
 			dR_lY = delta2R(LJets[Y_cand].eta,LJets[Y_cand].phi,vleptons[0].eta,vleptons[0].phi);
@@ -1128,19 +1176,39 @@ int main(int argc, char *argv[])
 		
 		W_pt_opt1 = LJets[W_cand_opt1].pt;
 		W_y_opt1 = LJets[W_cand_opt1].y;
-                W_eta_opt1 = LJets[W_cand_opt1].eta;
-	        W_phi_opt1 = LJets[W_cand_opt1].phi;
+        W_eta_opt1 = LJets[W_cand_opt1].eta;
+	    W_phi_opt1 = LJets[W_cand_opt1].phi;
 		W_mass_opt1 = LJets[W_cand_opt1].mass;
 		W_sdmass_opt1 = LJets[W_cand_opt1].sdmass;
 		W_PN_W_opt1 = LJets[W_cand_opt1].DeepTag_PNet_WvsQCD;
 		
+		W_JESup_opt1 = LJets[W_cand_opt1].jesup_Total;
+		W_JESdn_opt1 = LJets[W_cand_opt1].jesdn_Total;
+		W_JERup_opt1 = LJets[W_cand_opt1].JERup;
+		W_JERdn_opt1 = LJets[W_cand_opt1].JERdn;
+		
 		if(vleptons.size()>0 && pnu_opt1.Eta()>-100){
 			
-			H_pt_opt1 = (LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu_opt1).Pt();
-			H_y_opt1 = (LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu_opt1).Rapidity();
-                        H_eta_opt1 = (LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu_opt1).Eta();
-			H_phi_opt1 = (LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu_opt1).Phi();
-			H_mass_opt1 = (LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu_opt1).M();
+			TLorentzVector W_mom = LJets[W_cand_opt1].p4;
+			TLorentzVector H_mom = (W_mom + vleptons[0].p4 + pnu_opt1);
+			
+			H_pt_opt1 = H_mom.Pt();
+			H_y_opt1 = H_mom.Rapidity();
+            H_eta_opt1 = H_mom.Eta();
+			H_phi_opt1 = H_mom.Phi();
+			H_mass_opt1 = H_mom.M();
+			
+			W_mom.SetPtEtaPhiM(LJets[W_cand_opt1].jesup_Total*LJets[W_cand_opt1].p4.Pt(),LJets[W_cand_opt1].p4.Eta(),LJets[W_cand_opt1].p4.Phi(),LJets[W_cand_opt1].jesup_Total*LJets[W_cand_opt1].p4.M());
+			H_JESup_opt1 = (W_mom + vleptons[0].p4 + pnu_opt1).Pt()/H_mom.Pt();
+			
+			W_mom.SetPtEtaPhiM(LJets[W_cand_opt1].jesdn_Total*LJets[W_cand_opt1].p4.Pt(),LJets[W_cand_opt1].p4.Eta(),LJets[W_cand_opt1].p4.Phi(),LJets[W_cand_opt1].jesdn_Total*LJets[W_cand_opt1].p4.M());
+			H_JESdn_opt1 = (W_mom + vleptons[0].p4 + pnu_opt1).Pt()/H_mom.Pt();
+			
+			W_mom.SetPtEtaPhiM(LJets[W_cand_opt1].JERup*LJets[W_cand_opt1].p4.Pt(),LJets[W_cand_opt1].p4.Eta(),LJets[W_cand_opt1].p4.Phi(),LJets[W_cand_opt1].JERup*LJets[W_cand_opt1].p4.M());
+			H_JERup_opt1 = (W_mom + vleptons[0].p4 + pnu_opt1).Pt()/H_mom.Pt();
+			
+			W_mom.SetPtEtaPhiM(LJets[W_cand_opt1].JERdn*LJets[W_cand_opt1].p4.Pt(),LJets[W_cand_opt1].p4.Eta(),LJets[W_cand_opt1].p4.Phi(),LJets[W_cand_opt1].JERdn*LJets[W_cand_opt1].p4.M());
+			H_JERdn_opt1 = (W_mom + vleptons[0].p4 + pnu_opt1).Pt()/H_mom.Pt();
 			
 			if(Y_cand>=0) {
 				X_mass_opt1 = (LJets[Y_cand].p4 + LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu_opt1).M();
@@ -1157,14 +1225,34 @@ int main(int argc, char *argv[])
                 W_mass_opt2 = LJets[W_cand_opt2].mass;
                 W_sdmass_opt2 = LJets[W_cand_opt2].sdmass;
                 W_PN_W_opt2 = LJets[W_cand_opt2].DeepTag_PNet_WvsQCD;
+                
+                W_JESup_opt2 = LJets[W_cand_opt2].jesup_Total;
+				W_JESdn_opt2 = LJets[W_cand_opt2].jesdn_Total;
+				W_JERup_opt2 = LJets[W_cand_opt2].JERup;
+				W_JERdn_opt2 = LJets[W_cand_opt2].JERdn;
 
                 if(vleptons.size()>0 && pnu_opt2.Eta()>-100){
 
-                        H_pt_opt2 = (LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu_opt2).Pt();
-                        H_y_opt2 = (LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu_opt2).Rapidity();
-                        H_eta_opt2 = (LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu_opt2).Eta();
-                        H_phi_opt2 = (LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu_opt2).Phi();
-                        H_mass_opt2 = (LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu_opt2).M();
+						TLorentzVector W_mom = LJets[W_cand_opt2].p4;
+						TLorentzVector H_mom = (W_mom + vleptons[0].p4 + pnu_opt2);
+
+                        H_pt_opt2 = H_mom.Pt();
+                        H_y_opt2 = H_mom.Rapidity();
+                        H_eta_opt2 = H_mom.Eta();
+                        H_phi_opt2 = H_mom.Phi();
+                        H_mass_opt2 = H_mom.M();
+                        
+                        W_mom.SetPtEtaPhiM(LJets[W_cand_opt2].jesup_Total*LJets[W_cand_opt2].p4.Pt(),LJets[W_cand_opt2].p4.Eta(),LJets[W_cand_opt2].p4.Phi(),LJets[W_cand_opt2].jesup_Total*LJets[W_cand_opt2].p4.M());
+						H_JESup_opt2 = (W_mom + vleptons[0].p4 + pnu_opt2).Pt()/H_mom.Pt();
+						
+						W_mom.SetPtEtaPhiM(LJets[W_cand_opt2].jesdn_Total*LJets[W_cand_opt2].p4.Pt(),LJets[W_cand_opt2].p4.Eta(),LJets[W_cand_opt2].p4.Phi(),LJets[W_cand_opt2].jesdn_Total*LJets[W_cand_opt2].p4.M());
+						H_JESdn_opt2 = (W_mom + vleptons[0].p4 + pnu_opt2).Pt()/H_mom.Pt();
+						
+						W_mom.SetPtEtaPhiM(LJets[W_cand_opt2].JERup*LJets[W_cand_opt2].p4.Pt(),LJets[W_cand_opt2].p4.Eta(),LJets[W_cand_opt2].p4.Phi(),LJets[W_cand_opt2].JERup*LJets[W_cand_opt2].p4.M());
+						H_JERup_opt2 = (W_mom + vleptons[0].p4 + pnu_opt2).Pt()/H_mom.Pt();
+						
+						W_mom.SetPtEtaPhiM(LJets[W_cand_opt2].JERdn*LJets[W_cand_opt2].p4.Pt(),LJets[W_cand_opt2].p4.Eta(),LJets[W_cand_opt2].p4.Phi(),LJets[W_cand_opt2].JERdn*LJets[W_cand_opt2].p4.M());
+						H_JERdn_opt2 = (W_mom + vleptons[0].p4 + pnu_opt2).Pt()/H_mom.Pt();
 
                         if(Y_cand>=0) {
                                 X_mass_opt2 = (LJets[Y_cand].p4 + LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu_opt2).M();
@@ -1247,7 +1335,7 @@ int main(int argc, char *argv[])
 	}
 	weight *= puWeight;
 	weight *= leptonsf_weight;
-	//weight *= prefiringweight;
+	weight *= prefiringweight;
 	
 	// LHE story //
 	/*
