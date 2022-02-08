@@ -265,7 +265,6 @@ void getAK4jets(std::vector<AK4Jet> &Jets, float ptcut=30, float etacut=2.5, boo
     
     if(isMC){
       PFJetAK4_pt[ijet] *= (1+PFJetAK4_JER[ijet]) ;
-      PFJetAK4_mass[ijet] *= (1+PFJetAK4_JER[ijet]) ;
     }
 	  
     if(fabs(PFJetAK4_eta[ijet])>etacut) continue;
@@ -287,9 +286,10 @@ void getAK4jets(std::vector<AK4Jet> &Jets, float ptcut=30, float etacut=2.5, boo
     sJet.PUID = PFJetAK4_PUID[ijet];
     sJet.qgl = PFJetAK4_qgl[ijet];
     
-    sJet.JER = PFJetAK4_JER[ijet];
-    sJet.JERup = PFJetAK4_JERup[ijet];
-    sJet.JERdn = PFJetAK4_JERdn[ijet];
+    // making JER coherent with JES //
+    sJet.JER = (1+PFJetAK4_JER[ijet]);
+    sJet.JERup = (1+PFJetAK4_JERup[ijet]);
+    sJet.JERdn = (1+PFJetAK4_JERdn[ijet]);
     
     sJet.JEC = PFJetAK4_JEC[ijet];
     sJet.jesup_AbsoluteStat = PFJetAK4_jesup_AbsoluteStat[ijet];
@@ -363,7 +363,6 @@ void getAK8jets(std::vector<AK8Jet> &LJets, float ptcut=200, float etacut=2.5, b
     
     if(isMC){
       PFJetAK8_pt[ijet] *= (1+PFJetAK8_JER[ijet]) ;
-      PFJetAK8_mass[ijet] *= (1+PFJetAK8_JER[ijet]) ;
     }
 				
     if(fabs(PFJetAK8_eta[ijet])>etacut) continue;
@@ -433,10 +432,11 @@ void getAK8jets(std::vector<AK8Jet> &LJets, float ptcut=200, float etacut=2.5, b
     LJet.sub2mass = PFJetAK8_sub2mass[ijet];
     LJet.sub2btag = PFJetAK8_sub2btag[ijet];
     LJet.sub2JEC = PFJetAK8_sub2JEC[ijet];
-        
-    LJet.JER = PFJetAK8_JER[ijet];
-    LJet.JERup = PFJetAK8_JERup[ijet];
-    LJet.JERdn = PFJetAK8_JERdn[ijet];
+    
+    //making JER coherent with JES //    
+    LJet.JER = (1.+PFJetAK8_JER[ijet]);
+    LJet.JERup = (1.+PFJetAK8_JERup[ijet]);
+    LJet.JERdn = (1.+PFJetAK8_JERdn[ijet]);
     
     LJet.JEC = PFJetAK8_JEC[ijet];
     LJet.jesup_AbsoluteStat = PFJetAK8_jesup_AbsoluteStat[ijet];
