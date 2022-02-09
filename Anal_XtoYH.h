@@ -960,11 +960,11 @@
    int Y_genindex, Y_genbindex[2];
    float Y_JESup, Y_JESdn, Y_JERup, Y_JERdn;
    
-   float W_pt_opt1, W_y_opt1, W_eta_opt1, W_phi_opt1, W_mass_opt1, W_sdmass_opt1, W_PN_W_opt1;
+   float W_pt_opt1, W_y_opt1, W_eta_opt1, W_phi_opt1, W_mass_opt1, W_sdmass_opt1, W_DAK8_W_opt1, W_PN_W_opt1;
    int W_genindex_opt1;
    float W_JESup_opt1, W_JESdn_opt1, W_JERup_opt1, W_JERdn_opt1;
    
-   float W_pt_opt2, W_y_opt2, W_eta_opt2, W_phi_opt2, W_mass_opt2, W_sdmass_opt2, W_PN_W_opt2;
+   float W_pt_opt2, W_y_opt2, W_eta_opt2, W_phi_opt2, W_mass_opt2, W_sdmass_opt2, W_DAK8_W_opt2, W_PN_W_opt2;
    int W_genindex_opt2;
    float W_JESup_opt2, W_JESdn_opt2, W_JERup_opt2, W_JERdn_opt2;
    

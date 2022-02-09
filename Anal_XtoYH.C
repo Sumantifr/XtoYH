@@ -235,6 +235,7 @@ int main(int argc, char *argv[])
    Tout->Branch("W_phi_opt1", &W_phi_opt1, "W_phi_opt1/F");	
    Tout->Branch("W_mass_opt1", &W_mass_opt1, "W_mass_opt1/F");	
    Tout->Branch("W_sdmass_opt1", &W_sdmass_opt1, "W_sdmass_opt1/F");	
+   Tout->Branch("W_DAK8_W_opt1", &W_DAK8_W_opt1, "W_DAK8_W_opt1/F");
    Tout->Branch("W_PN_W_opt1", &W_PN_W_opt1, "W_PN_W_opt1/F");	
    Tout->Branch("W_genindex_opt1", &W_genindex_opt1, "W_genindex_opt1/I");	
    Tout->Branch("W_JESup_opt1", &W_JESup_opt1, "W_JESup_opt1/F");	
@@ -266,6 +267,7 @@ int main(int argc, char *argv[])
    Tout->Branch("W_phi_opt2", &W_phi_opt2, "W_phi_opt2/F");
    Tout->Branch("W_mass_opt2", &W_mass_opt2, "W_mass_opt2/F");
    Tout->Branch("W_sdmass_opt2", &W_sdmass_opt2, "W_sdmass_opt2/F");
+   Tout->Branch("W_DAK8_W_opt2", &W_DAK8_W_opt2, "W_DAK8_W_opt2/F");
    Tout->Branch("W_PN_W_opt2", &W_PN_W_opt2, "W_PN_W_opt2/F");
    Tout->Branch("W_genindex_opt2", &W_genindex_opt2, "W_genindex_opt2/I");	
    Tout->Branch("W_JESup_opt2", &W_JESup_opt2, "W_JESup_opt2/F");	
@@ -1233,16 +1235,16 @@ int main(int argc, char *argv[])
 	// 6. dphi & dR between lepton & Y candidate
 	
 	bool Y_bb_pass_T = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD > PNbb_cut_T);
-        bool Y_bb_pass_M = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD > PNbb_cut_M);
+    bool Y_bb_pass_M = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD > PNbb_cut_M);
 	bool Y_bb_pass_L = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD > PNbb_cut_L);
 
 	bool H_W_pass_T_opt1 = (LJets[W_cand_opt1].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_T);
-        bool H_W_pass_M_opt1 = (LJets[W_cand_opt1].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_M);
+    bool H_W_pass_M_opt1 = (LJets[W_cand_opt1].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_M);
 	bool H_W_pass_L_opt1 = (LJets[W_cand_opt1].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_L);
 
-        bool H_W_pass_T_opt2 = (LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_T);
-        bool H_W_pass_M_opt2 = (LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_M);
-        bool H_W_pass_L_opt2 = (LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_L);
+    bool H_W_pass_T_opt2 = (LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_T);
+    bool H_W_pass_M_opt2 = (LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_M);
+    bool H_W_pass_L_opt2 = (LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_L);
 
 	pnu_opt1 = neutrino_mom_fromH(vleptons[0].p4+LJets[W_cand_opt1].p4, PuppiMET_pt, PuppiMET_phi, random_no);
 
@@ -1251,16 +1253,16 @@ int main(int argc, char *argv[])
 
 	pnu_opt2 = neutrino_mom_fromH(vleptons[0].p4+LJets[W_cand_opt2].p4, PuppiMET_pt, PuppiMET_phi, random_no);
 
-        bool H_m_pass_opt2 = ((vleptons[0].p4+LJets[W_cand_opt2].p4+pnu_opt2).M()>90. && (vleptons[0].p4+LJets[W_cand_opt2].p4+pnu_opt2).M()<150.);
-        bool dR_lW_pass_opt2 = (delta2R(LJets[W_cand_opt2].y,LJets[W_cand_opt2].phi,vleptons[0].eta,vleptons[0].phi) < 1.2);
+    bool H_m_pass_opt2 = ((vleptons[0].p4+LJets[W_cand_opt2].p4+pnu_opt2).M()>90. && (vleptons[0].p4+LJets[W_cand_opt2].p4+pnu_opt2).M()<150.);
+    bool dR_lW_pass_opt2 = (delta2R(LJets[W_cand_opt2].y,LJets[W_cand_opt2].phi,vleptons[0].eta,vleptons[0].phi) < 1.2);
 	
-    	bool MET_pass = (PuppiMET_pt > 50);
+    bool MET_pass = (PuppiMET_pt > 50);
     
-        bool SR_opt1 = (Y_bb_pass_T && H_W_pass_T_opt1 && H_m_pass_opt1 && dR_lW_pass_opt1 && MET_pass);
-        bool Wj_CR_opt1 = (!Y_bb_pass_T && H_W_pass_T_opt1 && H_m_pass_opt1 && !dR_lW_pass_opt1 && MET_pass);
+    bool SR_opt1 = (Y_bb_pass_T && H_W_pass_T_opt1 && H_m_pass_opt1 && dR_lW_pass_opt1 && MET_pass);
+    bool Wj_CR_opt1 = (!Y_bb_pass_T && H_W_pass_T_opt1 && H_m_pass_opt1 && !dR_lW_pass_opt1 && MET_pass);
 
 	bool SR_opt2 = (Y_bb_pass_T && H_W_pass_T_opt2 && H_m_pass_opt2 && dR_lW_pass_opt2 && MET_pass);
-        bool Wj_CR_opt2 = (!Y_bb_pass_T && H_W_pass_T_opt2 && H_m_pass_opt2 && !dR_lW_pass_opt2 && MET_pass);
+    bool Wj_CR_opt2 = (!Y_bb_pass_T && H_W_pass_T_opt2 && H_m_pass_opt2 && !dR_lW_pass_opt2 && MET_pass);
     
     if(vleptons.size()>0){
 		
@@ -1320,7 +1322,8 @@ int main(int argc, char *argv[])
 	    W_phi_opt1 = LJets[W_cand_opt1].phi;
 		W_mass_opt1 = LJets[W_cand_opt1].mass;
 		W_sdmass_opt1 = LJets[W_cand_opt1].sdmass;
-		W_PN_W_opt1 = LJets[W_cand_opt1].DeepTag_PNet_WvsQCD;
+		W_DAK8_W_opt1 = LJets[W_cand_opt1].DeepTag_DAK8MD_WvsQCD;
+		W_PN_W_opt1 = LJets[W_cand_opt1].DeepTag_PNetMD_XqqvsQCD;
 		
 		int gen_match = get_nearest_Parton(genVs,LJets[W_cand_opt1].p4,0.8);
 		if(gen_match>=0 && abs(genVs[gen_match].pdgId)==24){
@@ -1378,7 +1381,8 @@ int main(int argc, char *argv[])
                 W_phi_opt2 = LJets[W_cand_opt2].phi;
                 W_mass_opt2 = LJets[W_cand_opt2].mass;
                 W_sdmass_opt2 = LJets[W_cand_opt2].sdmass;
-                W_PN_W_opt2 = LJets[W_cand_opt2].DeepTag_PNet_WvsQCD;
+                W_DAK8_W_opt2 = LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD;
+                W_PN_W_opt2 = LJets[W_cand_opt2].DeepTag_PNetMD_XqqvsQCD;
                 
                 int gen_match = get_nearest_Parton(genVs,LJets[W_cand_opt2].p4,0.8);
 				if(gen_match>=0 && abs(genVs[gen_match].pdgId)==24){
