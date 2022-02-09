@@ -844,7 +844,7 @@ int main(int argc, char *argv[])
    cout<<"nentries "<<nentries<<endl;
    
    isMC = true;
-   isFastSIM = true;
+   isFastSIM = false;
    
    for (int ij=0; ij<nentries; ij++) {
    
