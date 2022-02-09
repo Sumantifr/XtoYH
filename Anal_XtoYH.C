@@ -179,10 +179,10 @@ int main(int argc, char *argv[])
    const int XBINS1 = sizeof(xEdges1)/sizeof(xEdges1[0])-1;
    const int YBINS1 = sizeof(yEdges1)/sizeof(yEdges1[0])-1;
    
-   TH2F* h_Ak8_DeepTag_DAK8MD_WvsQCD = new TH2F("h_Ak8_DeepTag_DAK8MD_WvsQCD", "h_Ak8_DeepTag_DAK8MD_WvsQCD", XBINS1, xEdges1, YBINS1, yEdges1);
-   TH2F* h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_L = new TH2F("h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_L", "h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_L", XBINS1, xEdges1, YBINS1, yEdges1);
-   TH2F* h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_M = new TH2F("h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_M", "h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_M", XBINS1, xEdges1, YBINS1, yEdges1);
-   TH2F* h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_T = new TH2F("h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_T", "h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_T", XBINS1, xEdges1, YBINS1, yEdges1);
+   TH2F* h_Ak8_DeepTag_PNetMD_WvsQCD = new TH2F("h_Ak8_DeepTag_PNetMD_WvsQCD", "h_Ak8_DeepTag_PNetMD_WvsQCD", XBINS1, xEdges1, YBINS1, yEdges1);
+   TH2F* h_Ak8_DeepTag_PNetMD_WvsQCD_pass_L = new TH2F("h_Ak8_DeepTag_PNetMD_WvsQCD_pass_L", "h_Ak8_DeepTag_PNetMD_WvsQCD_pass_L", XBINS1, xEdges1, YBINS1, yEdges1);
+   TH2F* h_Ak8_DeepTag_PNetMD_WvsQCD_pass_M = new TH2F("h_Ak8_DeepTag_PNetMD_WvsQCD_pass_M", "h_Ak8_DeepTag_PNetMD_WvsQCD_pass_M", XBINS1, xEdges1, YBINS1, yEdges1);
+   TH2F* h_Ak8_DeepTag_PNetMD_WvsQCD_pass_T = new TH2F("h_Ak8_DeepTag_PNetMD_WvsQCD_pass_T", "h_Ak8_DeepTag_PNetMD_WvsQCD_pass_T", XBINS1, xEdges1, YBINS1, yEdges1);
 
    Double_t xEdges2[] =  {200,300,400,500,600,800,7000};
    Double_t yEdges2[] =  {0,0.6,1.2,2.4};
@@ -1094,14 +1094,14 @@ int main(int argc, char *argv[])
             }
 	 if(dR < 0.4) 
 	   { 
-                      h_Ak8_DeepTag_DAK8MD_WvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,event_weight);
-		      h_Ak8_DeepTag_PNetMD_XbbvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,LHE_weight);
-		      if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_T) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
-	              if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_M) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
-                      if(LJets[ijet].DeepTag_DAK8MD_WvsQCD>DAK8W_cut_L) {h_Ak8_DeepTag_DAK8MD_WvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
-                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_T){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);}
-                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_M){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);}
-                      if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNbb_cut_L){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);}
+              h_Ak8_DeepTag_PNetMD_WvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,event_weight);
+			  h_Ak8_DeepTag_PNetMD_XbbvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,LHE_weight);
+		      if(LJets[ijet].DeepTag_PNetMD_WvsQCD>PNetW_cut_T) {h_Ak8_DeepTag_PNetMD_WvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
+	          if(LJets[ijet].DeepTag_PNetMD_WvsQCD>PNetW_cut_M) {h_Ak8_DeepTag_PNetMD_WvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
+              if(LJets[ijet].DeepTag_PNetMD_WvsQCD>PNetW_cut_L) {h_Ak8_DeepTag_PNetMD_WvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
+              if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNetbb_cut_T){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);}
+              if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNetbb_cut_M){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);}
+              if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNetbb_cut_L){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);}
            }
     }
     }
@@ -1184,7 +1184,7 @@ int main(int argc, char *argv[])
         int W_cand_opt2 = -1;
 
 	float max_PNet_bb = -100;
-	float max_DAK8_W = -100;
+	float max_PNet_W = -100;
 	// Y candidate
 	for(unsigned ijet=0; ijet<LJets.size(); ijet++){
 		
@@ -1199,9 +1199,9 @@ int main(int argc, char *argv[])
         //W candidate option 1
 	for(unsigned ijet=0; ijet<LJets.size(); ijet++){
 		
-		if(LJets[ijet].DeepTag_DAK8MD_WvsQCD > max_DAK8_W && int(ijet)!=Y_cand){
+		if(LJets[ijet].DeepTag_PNetMD_WvsQCD > max_PNet_W && int(ijet)!=Y_cand){
 			
-			max_DAK8_W = LJets[ijet].DeepTag_DAK8MD_WvsQCD;
+			max_PNet_W = LJets[ijet].DeepTag_PNetMD_WvsQCD;
 			W_cand_opt1 = int(ijet);
 			
 		}
@@ -1234,17 +1234,17 @@ int main(int argc, char *argv[])
 	// 5. dR of lepton & W candidate
 	// 6. dphi & dR between lepton & Y candidate
 	
-	bool Y_bb_pass_T = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD > PNbb_cut_T);
-    bool Y_bb_pass_M = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD > PNbb_cut_M);
-	bool Y_bb_pass_L = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD > PNbb_cut_L);
+	bool Y_bb_pass_T = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD > PNetbb_cut_T);
+    bool Y_bb_pass_M = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD > PNetbb_cut_M);
+	bool Y_bb_pass_L = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD > PNetbb_cut_L);
 
-	bool H_W_pass_T_opt1 = (LJets[W_cand_opt1].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_T);
-    bool H_W_pass_M_opt1 = (LJets[W_cand_opt1].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_M);
-	bool H_W_pass_L_opt1 = (LJets[W_cand_opt1].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_L);
+	bool H_W_pass_T_opt1 = (LJets[W_cand_opt1].DeepTag_PNetMD_WvsQCD > PNetW_cut_T);
+    bool H_W_pass_M_opt1 = (LJets[W_cand_opt1].DeepTag_PNetMD_WvsQCD > PNetW_cut_M);
+	bool H_W_pass_L_opt1 = (LJets[W_cand_opt1].DeepTag_PNetMD_WvsQCD > PNetW_cut_L);
 
-    bool H_W_pass_T_opt2 = (LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_T);
-    bool H_W_pass_M_opt2 = (LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_M);
-    bool H_W_pass_L_opt2 = (LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD > DAK8W_cut_L);
+    bool H_W_pass_T_opt2 = (LJets[W_cand_opt2].DeepTag_PNetMD_WvsQCD > PNetW_cut_T);
+    bool H_W_pass_M_opt2 = (LJets[W_cand_opt2].DeepTag_PNetMD_WvsQCD > PNetW_cut_M);
+    bool H_W_pass_L_opt2 = (LJets[W_cand_opt2].DeepTag_PNetMD_WvsQCD > PNetW_cut_L);
 
 	pnu_opt1 = neutrino_mom_fromH(vleptons[0].p4+LJets[W_cand_opt1].p4, PuppiMET_pt, PuppiMET_phi, random_no);
 
@@ -1302,8 +1302,8 @@ int main(int argc, char *argv[])
 		
 		Y_JESup = LJets[Y_cand].jesup_Total;
 		Y_JESdn = LJets[Y_cand].jesdn_Total;
-		Y_JERup = LJets[Y_cand].JERup;
-		Y_JERdn = LJets[Y_cand].JERdn;
+		Y_JERup = LJets[Y_cand].JERup/LJets[Y_cand].JER;
+		Y_JERdn = LJets[Y_cand].JERdn/LJets[Y_cand].JER;
 				
 		if(vleptons.size()>0){
 			
@@ -1323,7 +1323,7 @@ int main(int argc, char *argv[])
 		W_mass_opt1 = LJets[W_cand_opt1].mass;
 		W_sdmass_opt1 = LJets[W_cand_opt1].sdmass;
 		W_DAK8_W_opt1 = LJets[W_cand_opt1].DeepTag_DAK8MD_WvsQCD;
-		W_PN_W_opt1 = LJets[W_cand_opt1].DeepTag_PNetMD_XqqvsQCD;
+		W_PN_W_opt1 = LJets[W_cand_opt1].DeepTag_PNetMD_WvsQCD;
 		
 		int gen_match = get_nearest_Parton(genVs,LJets[W_cand_opt1].p4,0.8);
 		if(gen_match>=0 && abs(genVs[gen_match].pdgId)==24){
@@ -1334,8 +1334,8 @@ int main(int argc, char *argv[])
 		
 		W_JESup_opt1 = LJets[W_cand_opt1].jesup_Total;
 		W_JESdn_opt1 = LJets[W_cand_opt1].jesdn_Total;
-		W_JERup_opt1 = LJets[W_cand_opt1].JERup;
-		W_JERdn_opt1 = LJets[W_cand_opt1].JERdn;
+		W_JERup_opt1 = LJets[W_cand_opt1].JERup/LJets[W_cand_opt1].JER;
+		W_JERdn_opt1 = LJets[W_cand_opt1].JERdn/LJets[W_cand_opt1].JER;
 		
 		if(vleptons.size()>0 && pnu_opt1.Eta()>-100){
 			
@@ -1361,10 +1361,10 @@ int main(int argc, char *argv[])
 			W_mom.SetPtEtaPhiM(LJets[W_cand_opt1].jesdn_Total*LJets[W_cand_opt1].p4.Pt(),LJets[W_cand_opt1].p4.Eta(),LJets[W_cand_opt1].p4.Phi(),LJets[W_cand_opt1].jesdn_Total*LJets[W_cand_opt1].p4.M());
 			H_JESdn_opt1 = (W_mom + vleptons[0].p4 + pnu_opt1).Pt()/H_mom.Pt();
 			
-			W_mom.SetPtEtaPhiM(LJets[W_cand_opt1].JERup*LJets[W_cand_opt1].p4.Pt(),LJets[W_cand_opt1].p4.Eta(),LJets[W_cand_opt1].p4.Phi(),LJets[W_cand_opt1].JERup*LJets[W_cand_opt1].p4.M());
+			W_mom.SetPtEtaPhiM(LJets[W_cand_opt1].JERup*LJets[W_cand_opt1].p4.Pt(),LJets[W_cand_opt1].p4.Eta(),LJets[W_cand_opt1].p4.Phi(),LJets[W_cand_opt1].p4.M());
 			H_JERup_opt1 = (W_mom + vleptons[0].p4 + pnu_opt1).Pt()/H_mom.Pt();
 			
-			W_mom.SetPtEtaPhiM(LJets[W_cand_opt1].JERdn*LJets[W_cand_opt1].p4.Pt(),LJets[W_cand_opt1].p4.Eta(),LJets[W_cand_opt1].p4.Phi(),LJets[W_cand_opt1].JERdn*LJets[W_cand_opt1].p4.M());
+			W_mom.SetPtEtaPhiM(LJets[W_cand_opt1].JERdn*LJets[W_cand_opt1].p4.Pt(),LJets[W_cand_opt1].p4.Eta(),LJets[W_cand_opt1].p4.Phi(),LJets[W_cand_opt1].p4.M());
 			H_JERdn_opt1 = (W_mom + vleptons[0].p4 + pnu_opt1).Pt()/H_mom.Pt();
 			
 			if(Y_cand>=0) {
@@ -1382,7 +1382,7 @@ int main(int argc, char *argv[])
                 W_mass_opt2 = LJets[W_cand_opt2].mass;
                 W_sdmass_opt2 = LJets[W_cand_opt2].sdmass;
                 W_DAK8_W_opt2 = LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD;
-                W_PN_W_opt2 = LJets[W_cand_opt2].DeepTag_PNetMD_XqqvsQCD;
+                W_PN_W_opt2 = LJets[W_cand_opt2].DeepTag_PNetMD_WvsQCD;
                 
                 int gen_match = get_nearest_Parton(genVs,LJets[W_cand_opt2].p4,0.8);
 				if(gen_match>=0 && abs(genVs[gen_match].pdgId)==24){
@@ -1393,8 +1393,8 @@ int main(int argc, char *argv[])
                 
                 W_JESup_opt2 = LJets[W_cand_opt2].jesup_Total;
 				W_JESdn_opt2 = LJets[W_cand_opt2].jesdn_Total;
-				W_JERup_opt2 = LJets[W_cand_opt2].JERup;
-				W_JERdn_opt2 = LJets[W_cand_opt2].JERdn;
+				W_JERup_opt2 = LJets[W_cand_opt2].JERup/LJets[W_cand_opt2].JER;
+				W_JERdn_opt2 = LJets[W_cand_opt2].JERdn/LJets[W_cand_opt2].JER;
 
                 if(vleptons.size()>0 && pnu_opt2.Eta()>-100){
 
@@ -1420,10 +1420,10 @@ int main(int argc, char *argv[])
 						W_mom.SetPtEtaPhiM(LJets[W_cand_opt2].jesdn_Total*LJets[W_cand_opt2].p4.Pt(),LJets[W_cand_opt2].p4.Eta(),LJets[W_cand_opt2].p4.Phi(),LJets[W_cand_opt2].jesdn_Total*LJets[W_cand_opt2].p4.M());
 						H_JESdn_opt2 = (W_mom + vleptons[0].p4 + pnu_opt2).Pt()/H_mom.Pt();
 						
-						W_mom.SetPtEtaPhiM(LJets[W_cand_opt2].JERup*LJets[W_cand_opt2].p4.Pt(),LJets[W_cand_opt2].p4.Eta(),LJets[W_cand_opt2].p4.Phi(),LJets[W_cand_opt2].JERup*LJets[W_cand_opt2].p4.M());
+						W_mom.SetPtEtaPhiM(LJets[W_cand_opt2].JERup*LJets[W_cand_opt2].p4.Pt(),LJets[W_cand_opt2].p4.Eta(),LJets[W_cand_opt2].p4.Phi(),LJets[W_cand_opt2].p4.M());
 						H_JERup_opt2 = (W_mom + vleptons[0].p4 + pnu_opt2).Pt()/H_mom.Pt();
 						
-						W_mom.SetPtEtaPhiM(LJets[W_cand_opt2].JERdn*LJets[W_cand_opt2].p4.Pt(),LJets[W_cand_opt2].p4.Eta(),LJets[W_cand_opt2].p4.Phi(),LJets[W_cand_opt2].JERdn*LJets[W_cand_opt2].p4.M());
+						W_mom.SetPtEtaPhiM(LJets[W_cand_opt2].JERdn*LJets[W_cand_opt2].p4.Pt(),LJets[W_cand_opt2].p4.Eta(),LJets[W_cand_opt2].p4.Phi(),LJets[W_cand_opt2].p4.M());
 						H_JERdn_opt2 = (W_mom + vleptons[0].p4 + pnu_opt2).Pt()/H_mom.Pt();
 
                         if(Y_cand>=0) {

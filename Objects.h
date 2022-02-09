@@ -146,6 +146,7 @@ class AK8Jet {
   float DeepTag_PNetMD_XccvsQCD;
   float DeepTag_PNetMD_XqqvsQCD;
   float DeepTag_PNetMD_QCD;
+  float DeepTag_PNetMD_WvsQCD;
   
   float sub1pt;
   float sub1eta;

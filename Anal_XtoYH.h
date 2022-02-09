@@ -928,18 +928,21 @@
    //for UL18 => 0.0490: loose, 0.2783: medium, 0.7100: tight 
 
    //DeepTag_PNetMD_XbbvsQCD
-   float PNbb_cut_T = 0.98;
-   float PNbb_cut_M = 0.94;
-   float PNbb_cut_L = 0.90;
+   float PNetbb_cut_T = 0.98;
+   float PNetbb_cut_M = 0.94;
+   float PNetbb_cut_L = 0.90;
    //DeepTag_DAK8MD_WvsQCD cut values
    float DAK8W_cut_T = 0.806;
    float DAK8W_cut_M = 0.704;
    float DAK8W_cut_L = 0.479;
+   //DeepTag_PNetMD_WvsQCD cut values
+   float PNetW_cut_T = 0.90;
+   float PNetW_cut_M = 0.82;
+   float PNetW_cut_L = 0.59;
    // Deep Ak4 Flv
    float DAK4_T = 0.71;
    float DAK4_M = 0.2783;
    float DAK4_L = 0.0490;
-
 
    bool isMC;
    bool isFastSIM;
@@ -991,16 +994,20 @@
    bool Reg_SR_opt2, Reg_Wj_CR_opt2;
    
    int nGenLep;
-   float GenLep_pt[njetmx], GenLep_eta[njetmx], GenLep_phi[njetmx], GenLep_mass[njetmx], GenLep_pdgId[njetmx], GenLep_mompdgId[njetmx], GenLep_grmompdgId[njetmx];
+   float GenLep_pt[njetmx], GenLep_eta[njetmx], GenLep_phi[njetmx], GenLep_mass[njetmx];
+   int GenLep_pdgId[njetmx], GenLep_mompdgId[njetmx], GenLep_grmompdgId[njetmx];
    
    int nGenNu;
-   float GenNu_pt[njetmx], GenNu_eta[njetmx], GenNu_phi[njetmx], GenNu_mass[njetmx], GenNu_pdgId[njetmx], GenNu_mompdgId[njetmx], GenNu_grmompdgId[njetmx];
+   float GenNu_pt[njetmx], GenNu_eta[njetmx], GenNu_phi[njetmx], GenNu_mass[njetmx];
+   int GenNu_pdgId[njetmx], GenNu_mompdgId[njetmx], GenNu_grmompdgId[njetmx];
    
    int nGenBPart;
-   float GenBPart_pt[njetmx], GenBPart_eta[njetmx], GenBPart_phi[njetmx], GenBPart_mass[njetmx], GenBPart_pdgId[njetmx], GenBPart_mompdgId[njetmx], GenBPart_grmompdgId[njetmx];
+   float GenBPart_pt[njetmx], GenBPart_eta[njetmx], GenBPart_phi[njetmx], GenBPart_mass[njetmx];
+   int GenBPart_pdgId[njetmx], GenBPart_mompdgId[njetmx], GenBPart_grmompdgId[njetmx];
    
    int nGenV;
-   float GenV_pt[njetmx], GenV_eta[njetmx], GenV_phi[njetmx], GenV_mass[njetmx], GenV_pdgId[njetmx], GenV_mompdgId[njetmx], GenV_grmompdgId[njetmx];
+   float GenV_pt[njetmx], GenV_eta[njetmx], GenV_phi[njetmx], GenV_mass[njetmx];
+   int GenV_pdgId[njetmx], GenV_mompdgId[njetmx], GenV_grmompdgId[njetmx];
    
    double weight;
    

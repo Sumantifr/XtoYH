@@ -398,6 +398,11 @@ void getAK8jets(std::vector<AK8Jet> &LJets, float ptcut=200, float etacut=2.5, b
     LJet.DeepTag_PNetMD_XqqvsQCD = PFJetAK8_DeepTag_PNetMD_XqqvsQCD[ijet];
     LJet.DeepTag_PNetMD_QCD = PFJetAK8_DeepTag_PNetMD_QCD[ijet];
     
+    float Xbb = (LJet.DeepTag_PNetMD_XbbvsQCD*LJet.DeepTag_PNetMD_QCD)*1./(1.-LJet.DeepTag_PNetMD_XbbvsQCD);
+    float Xcc = (LJet.DeepTag_PNetMD_XccvsQCD*LJet.DeepTag_PNetMD_QCD)*1./(1.-LJet.DeepTag_PNetMD_XccvsQCD);
+    float Xqq = (LJet.DeepTag_PNetMD_XqqvsQCD*LJet.DeepTag_PNetMD_QCD)*1./(1.-LJet.DeepTag_PNetMD_XqqvsQCD);
+    LJet.DeepTag_PNetMD_WvsQCD = (Xcc+Xqq)*1./(Xcc+Xqq+LJet.DeepTag_PNetMD_QCD);
+    
     LJet.CHF = PFJetAK8_CHF[ijet];
     LJet.NHF = PFJetAK8_NHF[ijet];
     LJet.CEMF = PFJetAK8_CEMF[ijet];
