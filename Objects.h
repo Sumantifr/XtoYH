@@ -582,6 +582,24 @@ int get_nearest_AK8Jet(vector<AK8Jet>  & objs, TLorentzVector tmp_vec, float min
     return  nearest;
 }
 
+int get_nearest_Parton(vector<GenParton>  & objs, TLorentzVector tmp_vec, float minR = 0.4) {
+    // gives the index of parton to the tmp_vec vector
+	int nearest = -1;
+
+    for(unsigned iobs=0; iobs<objs.size(); iobs++){
+
+		if(delta2R(objs[iobs].p4.Rapidity(),objs[iobs].phi,tmp_vec.Rapidity(),tmp_vec.Phi()) < minR){
+
+			minR = delta2R(objs[iobs].p4.Rapidity(),objs[iobs].phi,tmp_vec.Rapidity(),tmp_vec.Phi()) ;
+            nearest = iobs;
+
+           }
+	}
+
+    return  nearest;
+}
+
+
 /*
   bool AK4Jet_sort_by_DeepFlav(AK4Jet i1, AK4Jet i2)
   {

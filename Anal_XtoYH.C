@@ -212,12 +212,15 @@ int main(int argc, char *argv[])
    Tout->Branch("l_eta", &l_eta, "l_eta/F");	
    Tout->Branch("l_phi", &l_phi, "l_phi/F");	
    Tout->Branch("l_mass", &l_mass, "l_mass/F");	
+   Tout->Branch("l_genindex", &l_genindex, "l_genindex/I");	
 
    Tout->Branch("Y_pt", &Y_pt, "Y_pt/F");	
    Tout->Branch("Y_y", &Y_y, "Y_y/F");	
    Tout->Branch("Y_eta", &Y_eta, "Y_eta/F");
    Tout->Branch("Y_phi", &Y_phi, "Y_phi/F");	
    Tout->Branch("Y_mass", &Y_mass, "Y_mass/F");	
+   Tout->Branch("Y_genindex", &Y_genindex, "Y_genindex/I");	
+   Tout->Branch("Y_genbindex", Y_genbindex, "Y_genbindex[2]/I");	
    Tout->Branch("Y_sdmass", &Y_sdmass, "Y_sdmass/F");	
    Tout->Branch("Y_PN_bb", &Y_PN_bb, "Y_PN_bb/F");	
    Tout->Branch("Y_JESup", &Y_JESup, "Y_JESup/F");	
@@ -233,6 +236,7 @@ int main(int argc, char *argv[])
    Tout->Branch("W_mass_opt1", &W_mass_opt1, "W_mass_opt1/F");	
    Tout->Branch("W_sdmass_opt1", &W_sdmass_opt1, "W_sdmass_opt1/F");	
    Tout->Branch("W_PN_W_opt1", &W_PN_W_opt1, "W_PN_W_opt1/F");	
+   Tout->Branch("W_genindex_opt1", &W_genindex_opt1, "W_genindex_opt1/I");	
    Tout->Branch("W_JESup_opt1", &W_JESup_opt1, "W_JESup_opt1/F");	
    Tout->Branch("W_JESdn_opt1", &W_JESdn_opt1, "W_JESdn_opt1/F");	
    Tout->Branch("W_JERup_opt1", &W_JERup_opt1, "W_JERup_opt1/F");	
@@ -243,6 +247,7 @@ int main(int argc, char *argv[])
    Tout->Branch("H_eta_opt1", &H_eta_opt1, "H_eta_opt1/F");
    Tout->Branch("H_phi_opt1", &H_phi_opt1, "H_phi_opt1/F");	
    Tout->Branch("H_mass_opt1", &H_mass_opt1, "H_mass_opt1/F");	
+   Tout->Branch("H_genindex_opt1", &H_genindex_opt1, "H_genindex_opt1/I");	
    Tout->Branch("H_JESup_opt1", &H_JESup_opt1, "H_JESup_opt1/F");	
    Tout->Branch("H_JESdn_opt1", &H_JESdn_opt1, "H_JESdn_opt1/F");	
    Tout->Branch("H_JERup_opt1", &H_JERup_opt1, "H_JERup_opt1/F");	
@@ -262,6 +267,7 @@ int main(int argc, char *argv[])
    Tout->Branch("W_mass_opt2", &W_mass_opt2, "W_mass_opt2/F");
    Tout->Branch("W_sdmass_opt2", &W_sdmass_opt2, "W_sdmass_opt2/F");
    Tout->Branch("W_PN_W_opt2", &W_PN_W_opt2, "W_PN_W_opt2/F");
+   Tout->Branch("W_genindex_opt2", &W_genindex_opt2, "W_genindex_opt2/I");	
    Tout->Branch("W_JESup_opt2", &W_JESup_opt2, "W_JESup_opt2/F");	
    Tout->Branch("W_JESdn_opt2", &W_JESdn_opt2, "W_JESdn_opt2/F");	
    Tout->Branch("W_JERup_opt2", &W_JERup_opt2, "W_JERup_opt2/F");	
@@ -272,6 +278,7 @@ int main(int argc, char *argv[])
    Tout->Branch("H_eta_opt2", &H_eta_opt2, "H_eta_opt2/F");
    Tout->Branch("H_phi_opt2", &H_phi_opt2, "H_phi_opt2/F");
    Tout->Branch("H_mass_opt2", &H_mass_opt2, "H_mass_opt2/F");
+   Tout->Branch("H_genindex_opt2", &H_genindex_opt2, "H_genindex_opt2/I");	
    Tout->Branch("H_JESup_opt2", &H_JESup_opt2, "H_JESup_opt2/F");	
    Tout->Branch("H_JESdn_opt2", &H_JESdn_opt2, "H_JESdn_opt2/F");	
    Tout->Branch("H_JERup_opt2", &H_JERup_opt2, "H_JERup_opt2/F");	
@@ -308,8 +315,7 @@ int main(int argc, char *argv[])
    
    Tout->Branch("Flag_dR_lW_pass_opt1", &Flag_dR_lW_pass_opt1, "Flag_dR_lW_pass_opt1/O");	
    Tout->Branch("Flag_dR_lW_pass_opt2", &Flag_dR_lW_pass_opt2, "Flag_dR_lW_pass_opt2/O");
-   
-   
+  
    Tout->Branch("Flag_MET_pass", &Flag_MET_pass, "Flag_MET_pass/O");	
    Tout->Branch("Reg_SR_opt1", &Reg_SR_opt1, "Reg_SR_opt1/O");	
    Tout->Branch("Reg_Wj_CR_opt1", &Reg_Wj_CR_opt1, "Reg_Wj_CR_opt1/O");
@@ -323,6 +329,44 @@ int main(int argc, char *argv[])
    Tout->Branch("prefiringweight", &prefiringweight, "prefiringweight/D");	
    Tout->Branch("prefiringweightup", &prefiringweightup, "prefiringweightup/D");	
    Tout->Branch("prefiringweightdown", &prefiringweightdown, "prefiringweightdown/D");	
+   
+   // GEN particles //
+   
+   Tout->Branch("nGenLep",&nGenLep, "nGenLep/I");
+   Tout->Branch("GenLep_pt",GenLep_pt,"GenLep_pt[nGenLep]/F");
+   Tout->Branch("GenLep_eta",GenLep_eta,"GenLep_eta[nGenLep]/F");
+   Tout->Branch("GenLep_phi",GenLep_phi,"GenLep_phi[nGenLep]/F");
+   Tout->Branch("GenLep_mass",GenLep_mass,"GenLep_mass[nGenLep]/F");
+   Tout->Branch("GenLep_pdgId",GenLep_pdgId,"GenLep_pdgId[nGenLep]/I");
+   Tout->Branch("GenLep_mompdgId",GenLep_mompdgId,"GenLep_mompdgId[nGenLep]/I");
+   Tout->Branch("GenLep_grmompdgId",GenLep_grmompdgId,"GenLep_grmompdgId[nGenLep]/I");
+   
+   Tout->Branch("nGenNu",&nGenNu, "nGenNu/I");
+   Tout->Branch("GenNu_pt",GenNu_pt,"GenNu_pt[nGenNu]/F");
+   Tout->Branch("GenNu_eta",GenNu_eta,"GenNu_eta[nGenNu]/F");
+   Tout->Branch("GenNu_phi",GenNu_phi,"GenNu_phi[nGenNu]/F");
+   Tout->Branch("GenNu_mass",GenNu_mass,"GenNu_mass[nGenNu]/F");
+   Tout->Branch("GenNu_pdgId",GenNu_pdgId,"GenNu_pdgId[nGenNu]/I");
+   Tout->Branch("GenNu_mompdgId",GenNu_mompdgId,"GenNu_mompdgId[nGenNu]/I");
+   Tout->Branch("GenNu_grmompdgId",GenNu_grmompdgId,"GenNu_grmompdgId[nGenNu]/I");
+   
+   Tout->Branch("nGenBPart",&nGenBPart, "nGenBPart/I");
+   Tout->Branch("GenBPart_pt",GenBPart_pt,"GenBPart_pt[nGenBPart]/F");
+   Tout->Branch("GenBPart_eta",GenBPart_eta,"GenBPart_eta[nGenBPart]/F");
+   Tout->Branch("GenBPart_phi",GenBPart_phi,"GenBPart_phi[nGenBPart]/F");
+   Tout->Branch("GenBPart_mass",GenBPart_mass,"GenBPart_mass[nGenBPart]/F");
+   Tout->Branch("GenBPart_pdgId",GenBPart_pdgId,"GenBPart_pdgId[nGenBPart]/I");
+   Tout->Branch("GenBPart_mompdgId",GenBPart_mompdgId,"GenBPart_mompdgId[nGenBPart]/I");
+   Tout->Branch("GenBPart_grmompdgId",GenBPart_grmompdgId,"GenBPart_grmompdgId[nGenNu]/I");
+   
+   Tout->Branch("nGenV",&nGenV, "nGenV/I");
+   Tout->Branch("GenV_pt",GenV_pt,"GenV_pt[nGenV]/F");
+   Tout->Branch("GenV_eta",GenV_eta,"GenV_eta[nGenV]/F");
+   Tout->Branch("GenV_phi",GenV_phi,"GenV_phi[nGenV]/F");
+   Tout->Branch("GenV_mass",GenV_mass,"GenV_mass[nGenV]/F");
+   Tout->Branch("GenV_pdgId",GenV_pdgId,"GenV_pdgId[nGenV]/I");
+   Tout->Branch("GenV_mompdgId",GenV_mompdgId,"GenV_mompdgId[nGenV]/I");
+   Tout->Branch("GenV_grmompdgId",GenV_grmompdgId,"GenV_grmompdgId[nGenNu]/I");
    
    calib_deepflav = BTagCalibration("DeepJet", "BtagRecommendation106XUL18/DeepJet_106XUL18SF_WPonly_V1p1.csv");
    reader_deepflav = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"}); 
@@ -820,6 +864,35 @@ int main(int argc, char *argv[])
 	vector<GenParton> genpartons;
 	getPartons(genpartons);
 	
+	vector<GenParton> genleps;
+	for(unsigned ig=0; ig<(genpartons).size(); ig++){
+		if((abs(genpartons[ig].pdgId)==11||abs(genpartons[ig].pdgId)==13) && ((genpartons[ig].status)==1||(genpartons[ig].status)==23) && (abs(genpartons[ig].mompdgId)==24||abs(genpartons[ig].mompdgId)==25)){
+			genleps.push_back(genpartons[ig]);
+		}
+	}
+	
+	vector<GenParton> gennus;
+	for(unsigned ig=0; ig<(genpartons).size(); ig++){
+		if((abs(genpartons[ig].pdgId)==12||abs(genpartons[ig].pdgId)==14||abs(genpartons[ig].pdgId)==16) && ((genpartons[ig].status)==1||(genpartons[ig].status)==23)){
+			gennus.push_back(genpartons[ig]);
+		}
+	}
+	
+	vector<GenParton> genbs;
+	for(unsigned ig=0; ig<(genpartons).size(); ig++){
+		if((abs(genpartons[ig].pdgId)==5) && (genpartons[ig].status==23) && (abs(genpartons[ig].mompdgId)==25||abs(genpartons[ig].mompdgId)==6||abs(genpartons[ig].mompdgId)==35)){
+			genbs.push_back(genpartons[ig]);
+		}
+	}
+	
+	vector<GenParton> genVs;
+	for(unsigned ig=0; ig<(genpartons).size(); ig++){
+		if(abs(genpartons[ig].pdgId)==23||abs(genpartons[ig].pdgId)==24||abs(genpartons[ig].pdgId)==25||abs(genpartons[ig].pdgId)==35){
+			genVs.push_back(genpartons[ig]);
+		}
+	}
+	
+	
 	vector<GenParton> lheparts;
 	getLHEParts(lheparts);
 	
@@ -1055,6 +1128,54 @@ int main(int argc, char *argv[])
 	if(!event_pass) continue;
 	
     //cout<<"After: "<<LJets.size()<<" "<<Jets.size()<<" "<<vmuons.size()<<" "<<velectrons.size()<<" "<<nPhoton<<endl;
+    
+    // store gen particles first //
+    
+    nGenLep = int(genleps.size());
+    for(unsigned ig=0; ig<(genleps.size()); ig++){
+		GenLep_pt[ig] = genleps[ig].pt;
+		GenLep_eta[ig] = genleps[ig].eta;
+		GenLep_phi[ig] = genleps[ig].phi;
+		GenLep_mass[ig] = genleps[ig].mass;
+		GenLep_pdgId[ig] = genleps[ig].pdgId;
+		GenLep_mompdgId[ig] = genleps[ig].mompdgId;
+		GenLep_grmompdgId[ig] = genleps[ig].grmompdgId;
+		}
+    
+    nGenNu = int(gennus.size());
+    for(unsigned ig=0; ig<(gennus.size()); ig++){
+		GenNu_pt[ig] = gennus[ig].pt;
+		GenNu_eta[ig] = gennus[ig].eta;
+		GenNu_phi[ig] = gennus[ig].phi;
+		GenNu_mass[ig] = gennus[ig].mass;
+		GenNu_pdgId[ig] = gennus[ig].pdgId;
+		GenNu_mompdgId[ig] = gennus[ig].mompdgId;
+		GenNu_grmompdgId[ig] = gennus[ig].grmompdgId;
+		}
+    
+    nGenBPart = int(genbs.size());
+    for(unsigned ig=0; ig<(genbs.size()); ig++){
+		GenBPart_pt[ig] = genbs[ig].pt;
+		GenBPart_eta[ig] = genbs[ig].eta;
+		GenBPart_phi[ig] = genbs[ig].phi;
+		GenBPart_mass[ig] = genbs[ig].mass;
+		GenBPart_pdgId[ig] = genbs[ig].pdgId;
+		GenBPart_mompdgId[ig] = genbs[ig].mompdgId;
+		GenBPart_grmompdgId[ig] = genbs[ig].grmompdgId;
+		}
+    
+    nGenV = int(genVs.size());
+    for(unsigned ig=0; ig<(genVs.size()); ig++){
+		GenV_pt[ig] = genVs[ig].pt;
+		GenV_eta[ig] = genVs[ig].eta;
+		GenV_phi[ig] = genVs[ig].phi;
+		GenV_mass[ig] = genVs[ig].mass;
+		GenV_pdgId[ig] = genVs[ig].pdgId;
+		GenV_mompdgId[ig] = genVs[ig].mompdgId;
+		GenV_grmompdgId[ig] = genVs[ig].grmompdgId;
+		}
+    
+    // check for reco objects //
 		
 	int Y_cand = -1;
 	int W_cand_opt1 = -1;
@@ -1142,21 +1263,40 @@ int main(int argc, char *argv[])
         bool Wj_CR_opt2 = (!Y_bb_pass_T && H_W_pass_T_opt2 && H_m_pass_opt2 && !dR_lW_pass_opt2 && MET_pass);
     
     if(vleptons.size()>0){
+		
 		l_pt = vleptons[0].pt;
 		l_eta = vleptons[0].eta;
 		l_phi = vleptons[0].phi;
 		l_mass = vleptons[0].mass;
 		
+		l_genindex = get_nearest_Parton(genleps,vleptons[0].p4,0.4);
+
 	}
     
     if(Y_cand>=0) {
 		Y_pt = LJets[Y_cand].pt;
 		Y_y = LJets[Y_cand].y;
-                Y_eta = LJets[Y_cand].eta;
+        Y_eta = LJets[Y_cand].eta;
 		Y_phi = LJets[Y_cand].phi;
 		Y_mass = LJets[Y_cand].mass;
 		Y_sdmass = LJets[Y_cand].sdmass;
 		Y_PN_bb = LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD;
+		
+		Y_genbindex[0] = get_nearest_Parton(genbs,LJets[Y_cand].p4,0.8);
+		if(Y_genbindex[0]>=0){
+			genbs.erase(genbs.begin()+Y_genbindex[0]);
+			Y_genbindex[1] = get_nearest_Parton(genbs,LJets[Y_cand].p4,0.8);
+		}
+		else{
+			Y_genbindex[1] = -1;
+			}
+		
+		int gen_match = get_nearest_Parton(genVs,LJets[Y_cand].p4,0.8);
+		if(gen_match>=0 && abs(genVs[gen_match].pdgId)==35){
+			Y_genindex = gen_match; 
+		}else{
+			Y_genindex = -1;
+			}
 		
 		Y_JESup = LJets[Y_cand].jesup_Total;
 		Y_JESdn = LJets[Y_cand].jesdn_Total;
@@ -1182,6 +1322,13 @@ int main(int argc, char *argv[])
 		W_sdmass_opt1 = LJets[W_cand_opt1].sdmass;
 		W_PN_W_opt1 = LJets[W_cand_opt1].DeepTag_PNet_WvsQCD;
 		
+		int gen_match = get_nearest_Parton(genVs,LJets[W_cand_opt1].p4,0.8);
+		if(gen_match>=0 && abs(genVs[gen_match].pdgId)==24){
+			W_genindex_opt1 = gen_match; 
+		}else{
+			W_genindex_opt1 = -1;
+			}
+		
 		W_JESup_opt1 = LJets[W_cand_opt1].jesup_Total;
 		W_JESdn_opt1 = LJets[W_cand_opt1].jesdn_Total;
 		W_JERup_opt1 = LJets[W_cand_opt1].JERup;
@@ -1197,6 +1344,13 @@ int main(int argc, char *argv[])
             H_eta_opt1 = H_mom.Eta();
 			H_phi_opt1 = H_mom.Phi();
 			H_mass_opt1 = H_mom.M();
+			
+			int gen_match = get_nearest_Parton(genVs,H_mom,0.8);
+			if(gen_match>=0 && abs(genVs[gen_match].pdgId)==25){
+				H_genindex_opt1 = gen_match; 
+			}else{
+				H_genindex_opt1 = -1;
+			}
 			
 			W_mom.SetPtEtaPhiM(LJets[W_cand_opt1].jesup_Total*LJets[W_cand_opt1].p4.Pt(),LJets[W_cand_opt1].p4.Eta(),LJets[W_cand_opt1].p4.Phi(),LJets[W_cand_opt1].jesup_Total*LJets[W_cand_opt1].p4.M());
 			H_JESup_opt1 = (W_mom + vleptons[0].p4 + pnu_opt1).Pt()/H_mom.Pt();
@@ -1226,6 +1380,13 @@ int main(int argc, char *argv[])
                 W_sdmass_opt2 = LJets[W_cand_opt2].sdmass;
                 W_PN_W_opt2 = LJets[W_cand_opt2].DeepTag_PNet_WvsQCD;
                 
+                int gen_match = get_nearest_Parton(genVs,LJets[W_cand_opt2].p4,0.8);
+				if(gen_match>=0 && abs(genVs[gen_match].pdgId)==24){
+					W_genindex_opt2 = gen_match; 
+				}else{
+					W_genindex_opt2 = -1;
+				}
+                
                 W_JESup_opt2 = LJets[W_cand_opt2].jesup_Total;
 				W_JESdn_opt2 = LJets[W_cand_opt2].jesdn_Total;
 				W_JERup_opt2 = LJets[W_cand_opt2].JERup;
@@ -1241,6 +1402,13 @@ int main(int argc, char *argv[])
                         H_eta_opt2 = H_mom.Eta();
                         H_phi_opt2 = H_mom.Phi();
                         H_mass_opt2 = H_mom.M();
+                        
+                        int gen_match = get_nearest_Parton(genVs,H_mom,0.8);
+						if(gen_match>=0 && abs(genVs[gen_match].pdgId)==25){
+							H_genindex_opt2 = gen_match; 
+						}else{
+							H_genindex_opt2 = -1;
+						}
                         
                         W_mom.SetPtEtaPhiM(LJets[W_cand_opt2].jesup_Total*LJets[W_cand_opt2].p4.Pt(),LJets[W_cand_opt2].p4.Eta(),LJets[W_cand_opt2].p4.Phi(),LJets[W_cand_opt2].jesup_Total*LJets[W_cand_opt2].p4.M());
 						H_JESup_opt2 = (W_mom + vleptons[0].p4 + pnu_opt2).Pt()/H_mom.Pt();

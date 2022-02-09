@@ -954,20 +954,26 @@
    int nleptons, nfatjets;
    
    float l_pt, l_eta, l_phi, l_mass;
+   int l_genindex;
    
    float Y_pt, Y_y, Y_eta, Y_phi, Y_mass, Y_sdmass, Y_PN_bb;
+   int Y_genindex, Y_genbindex[2];
    float Y_JESup, Y_JESdn, Y_JERup, Y_JERdn;
    
    float W_pt_opt1, W_y_opt1, W_eta_opt1, W_phi_opt1, W_mass_opt1, W_sdmass_opt1, W_PN_W_opt1;
+   int W_genindex_opt1;
    float W_JESup_opt1, W_JESdn_opt1, W_JERup_opt1, W_JERdn_opt1;
    
    float W_pt_opt2, W_y_opt2, W_eta_opt2, W_phi_opt2, W_mass_opt2, W_sdmass_opt2, W_PN_W_opt2;
+   int W_genindex_opt2;
    float W_JESup_opt2, W_JESdn_opt2, W_JERup_opt2, W_JERdn_opt2;
    
    float H_pt_opt1, H_y_opt1, H_eta_opt1, H_phi_opt1, H_mass_opt1;
+   int H_genindex_opt1;
    float H_JESup_opt1, H_JESdn_opt1, H_JERup_opt1, H_JERdn_opt1;
    
    float H_pt_opt2, H_y_opt2, H_eta_opt2, H_phi_opt2, H_mass_opt2;
+   int H_genindex_opt2;
    float H_JESup_opt2, H_JESdn_opt2, H_JERup_opt2, H_JERdn_opt2;
 
    float X_mass_opt1, X_mass_opt2; 
@@ -983,6 +989,18 @@
    bool Flag_H_W_pass_T_opt2, Flag_H_W_pass_M_opt2, Flag_H_W_pass_L_opt2, Flag_H_m_pass_opt2, Flag_dR_lW_pass_opt2;
    bool Reg_SR_opt1, Reg_Wj_CR_opt1;
    bool Reg_SR_opt2, Reg_Wj_CR_opt2;
+   
+   int nGenLep;
+   float GenLep_pt[njetmx], GenLep_eta[njetmx], GenLep_phi[njetmx], GenLep_mass[njetmx], GenLep_pdgId[njetmx], GenLep_mompdgId[njetmx], GenLep_grmompdgId[njetmx];
+   
+   int nGenNu;
+   float GenNu_pt[njetmx], GenNu_eta[njetmx], GenNu_phi[njetmx], GenNu_mass[njetmx], GenNu_pdgId[njetmx], GenNu_mompdgId[njetmx], GenNu_grmompdgId[njetmx];
+   
+   int nGenBPart;
+   float GenBPart_pt[njetmx], GenBPart_eta[njetmx], GenBPart_phi[njetmx], GenBPart_mass[njetmx], GenBPart_pdgId[njetmx], GenBPart_mompdgId[njetmx], GenBPart_grmompdgId[njetmx];
+   
+   int nGenV;
+   float GenV_pt[njetmx], GenV_eta[njetmx], GenV_phi[njetmx], GenV_mass[njetmx], GenV_pdgId[njetmx], GenV_mompdgId[njetmx], GenV_grmompdgId[njetmx];
    
    double weight;
    
