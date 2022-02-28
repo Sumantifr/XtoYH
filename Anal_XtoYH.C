@@ -80,6 +80,21 @@ float* Electron_SF(TFile *file_el_sf, float pt, float eta){
 	return sfvalues;
 }
 
+float* Get_PU_Weights(TFile *file_pu_ratio, int npu){
+
+	TH1F *h_data = (TH1F*)file_pu_ratio->Get("pileup_weight");
+	TH1F *h_data_plus = (TH1F*)file_pu_ratio->Get("pileup_plus_weight");
+	TH1F *h_data_minus = (TH1F*)file_pu_ratio->Get("pileup_minus_weight");
+
+	int bin_id = h_data->FindBin(npu);
+
+	static float puweight[3] = {0,0,0};
+	puweight[0] = h_data->GetBinContent(bin_id);
+	puweight[1] = h_data->GetBinContent(bin_id);
+	puweight[2] = h_data->GetBinContent(bin_id);
+
+	return puweight;
+}
 
 int main(int argc, char *argv[])
 {
@@ -581,6 +596,10 @@ else if(inputFile=="FILELIST_2018_NEW/ZZTo4Q_XtoYH_Nov_2021.log")
    TFile *file_el_sf;
    sprintf(name,"data/egammaEffi.txt_Ele_%s_EGM2D_UL%i.root",electron_id_name.c_str(),year);
    file_el_sf = new TFile(name,"read");
+   
+   TFile *file_pu_ratio;
+   sprintf(name,"data/pileup/RatioPileup-UL%i-100bins.root",year);
+   file_pu_ratio = new TFile(name,"read");
    
    int count =0;
    string fileName;
@@ -1859,9 +1878,15 @@ else if(inputFile=="FILELIST_2018_NEW/ZZTo4Q_XtoYH_Nov_2021.log")
 	}
 	
     if(npu_vert_true>=0 && npu_vert_true<100){
+		/*
 		puWeight = pu_rat18[npu_vert_true];
 		puWeightup = pu_rat18_up[npu_vert_true];
 		puWeightdown = pu_rat18_dn[npu_vert_true];
+		*/
+		float *puweights = Get_PU_Weights(file_pu_ratio, npu_vert_true);
+		puWeight = puweights[0];
+		puWeightup = puweights[1];
+		puWeightdown = puweights[2];
 	}
 	
 	leptonsf_weight = 1.0;

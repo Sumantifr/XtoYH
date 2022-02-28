@@ -219,3 +219,17 @@ if(muonpfiso<0.15) { isoid = true; } //SR
 //if(muonpfiso>0.15) { isoid = true; }  // CR
 return isoid;
 }
+
+void Normalize_h(TH1D *hin,bool normalize=false, bool dividebywidth=false){
+
+if(dividebywidth){
+	for(int bn=0; bn<hin->GetNbinsX(); bn++){
+        hin->SetBinContent(bn+1,hin->GetBinContent(bn+1)*1./hin->GetBinWidth(bn+1));
+	}
+}
+
+if(normalize==1){
+    hin->Scale(1./hin->Integral());
+}
+
+}
