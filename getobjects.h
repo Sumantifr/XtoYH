@@ -380,7 +380,7 @@ void getAK8jets(std::vector<AK8Jet> &LJets, float ptcut=200, float etacut=2.5, b
     LJet.y = PFJetAK8_y[ijet];
     LJet.p4.SetPtEtaPhiM(LJet.pt,LJet.eta,LJet.phi,LJet.mass);
     
-    LJet.sdmass = PFJetAK8_msoftdrop[ijet];
+    LJet.msoftdrop = PFJetAK8_msoftdrop[ijet];
     LJet.tau21 = PFJetAK8_tau2[ijet]*1./max(float(1.e-6),PFJetAK8_tau1[ijet]);
     LJet.tau32 = PFJetAK8_tau3[ijet]*1./max(float(1.e-6),PFJetAK8_tau2[ijet]);
    
@@ -422,21 +422,21 @@ void getAK8jets(std::vector<AK8Jet> &LJets, float ptcut=200, float etacut=2.5, b
     
     PFJetAK8_sub1pt[ijet] *= PFJetAK8_sub1JEC[ijet];
     PFJetAK8_sub1mass[ijet] *= PFJetAK8_sub1JEC[ijet];
-    LJet.sub1pt = PFJetAK8_sub1pt[ijet];
-    LJet.sub1eta = PFJetAK8_sub1eta[ijet];
-    LJet.sub1phi = PFJetAK8_sub1phi[ijet];
-    LJet.sub1mass = PFJetAK8_sub1mass[ijet];
-    LJet.sub1btag = PFJetAK8_sub1btag[ijet];
-    LJet.sub1JEC = PFJetAK8_sub1JEC[ijet];
+    LJet.sub1_pt = PFJetAK8_sub1pt[ijet];
+    LJet.sub1_eta = PFJetAK8_sub1eta[ijet];
+    LJet.sub1_phi = PFJetAK8_sub1phi[ijet];
+    LJet.sub1_mass = PFJetAK8_sub1mass[ijet];
+    LJet.sub1_btag = PFJetAK8_sub1btag[ijet];
+    LJet.sub1_JEC = PFJetAK8_sub1JEC[ijet];
    
     PFJetAK8_sub2pt[ijet] *= PFJetAK8_sub2JEC[ijet];
     PFJetAK8_sub2mass[ijet] *= PFJetAK8_sub2JEC[ijet];
-    LJet.sub2pt = PFJetAK8_sub2pt[ijet];
-    LJet.sub2eta = PFJetAK8_sub2eta[ijet];
-    LJet.sub2phi = PFJetAK8_sub2phi[ijet];
-    LJet.sub2mass = PFJetAK8_sub2mass[ijet];
-    LJet.sub2btag = PFJetAK8_sub2btag[ijet];
-    LJet.sub2JEC = PFJetAK8_sub2JEC[ijet];
+    LJet.sub2_pt = PFJetAK8_sub2pt[ijet];
+    LJet.sub2_eta = PFJetAK8_sub2eta[ijet];
+    LJet.sub2_phi = PFJetAK8_sub2phi[ijet];
+    LJet.sub2_mass = PFJetAK8_sub2mass[ijet];
+    LJet.sub2_btag = PFJetAK8_sub2btag[ijet];
+    LJet.sub2_JEC = PFJetAK8_sub2JEC[ijet];
     
     //making JER coherent with JES //    
     LJet.JER = (1.+PFJetAK8_JER[ijet]);

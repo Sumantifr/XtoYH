@@ -957,17 +957,40 @@
    int nleptons, nfatjets;
    
    float l_pt, l_eta, l_phi, l_mass;
+   float l_minisoch, l_minisonh, l_minisoph, l_minisoall; 
    int l_genindex;
    
-   float Y_pt, Y_y, Y_eta, Y_phi, Y_mass, Y_sdmass, Y_PN_bb;
+   float MET_pt, MET_phi, MET_sig, MET_sumEt;
+   float MET_pt_JESup, MET_pt_JESdn, MET_pt_JERup, MET_pt_JERdn, MET_pt_UnclusEup, MET_pt_UnclusEdn;
+   float MET_phi_JESup, MET_phi_JESdn, MET_phi_JERup, MET_phi_JERdn, MET_phi_UnclusEup, MET_phi_UnclusEdn;
+   
+   float Y_pt, Y_y, Y_eta, Y_phi, Y_mass;
+   float Y_msoftdrop, Y_tau21, Y_tau32;
+   float Y_DeepTag_DAK8MD_TvsQCD, Y_DeepTag_DAK8MD_WvsQCD, Y_DeepTag_DAK8MD_ZvsQCD, Y_DeepTag_DAK8MD_HvsQCD, Y_DeepTag_DAK8MD_bbvsQCD; 
+   float Y_DeepTag_PNet_TvsQCD, Y_DeepTag_PNet_WvsQCD, Y_DeepTag_PNet_ZvsQCD, Y_DeepTag_PNetMD_XbbvsQCD, Y_DeepTag_PNetMD_XccvsQCD, Y_DeepTag_PNetMD_XqqvsQCD, Y_DeepTag_PNetMD_QCD, Y_DeepTag_PNetMD_WvsQCD; 
+   float Y_PN_bb;
+   float Y_sub1_pt, Y_sub1_eta, Y_sub1_phi, Y_sub1_mass, Y_sub1_btag;
+   float Y_sub2_pt, Y_sub2_eta, Y_sub2_phi, Y_sub2_mass, Y_sub2_btag;
    int Y_genindex, Y_genbindex[2];
    float Y_JESup, Y_JESdn, Y_JERup, Y_JERdn;
    
-   float W_pt_opt1, W_y_opt1, W_eta_opt1, W_phi_opt1, W_mass_opt1, W_sdmass_opt1, W_DAK8_W_opt1, W_PN_W_opt1;
+   float W_pt_opt1, W_y_opt1, W_eta_opt1, W_phi_opt1, W_mass_opt1; 
+   float W_msoftdrop_opt1, W_tau21_opt1, W_tau32_opt1;
+   float W_DeepTag_DAK8MD_TvsQCD_opt1, W_DeepTag_DAK8MD_WvsQCD_opt1, W_DeepTag_DAK8MD_ZvsQCD_opt1, W_DeepTag_DAK8MD_HvsQCD_opt1, W_DeepTag_DAK8MD_bbvsQCD_opt1; 
+   float W_DeepTag_PNet_TvsQCD_opt1, W_DeepTag_PNet_WvsQCD_opt1, W_DeepTag_PNet_ZvsQCD_opt1, W_DeepTag_PNetMD_XbbvsQCD_opt1, W_DeepTag_PNetMD_XccvsQCD_opt1, W_DeepTag_PNetMD_XqqvsQCD_opt1, W_DeepTag_PNetMD_QCD_opt1, W_DeepTag_PNetMD_WvsQCD_opt1; 
+   float W_DAK8_W_opt1, W_PN_W_opt1;
+   float W_sub1_pt_opt1, W_sub1_eta_opt1, W_sub1_phi_opt1, W_sub1_mass_opt1, W_sub1_btag_opt1;
+   float W_sub2_pt_opt1, W_sub2_eta_opt1, W_sub2_phi_opt1, W_sub2_mass_opt1, W_sub2_btag_opt1;
    int W_genindex_opt1;
    float W_JESup_opt1, W_JESdn_opt1, W_JERup_opt1, W_JERdn_opt1;
    
-   float W_pt_opt2, W_y_opt2, W_eta_opt2, W_phi_opt2, W_mass_opt2, W_sdmass_opt2, W_DAK8_W_opt2, W_PN_W_opt2;
+   float W_pt_opt2, W_y_opt2, W_eta_opt2, W_phi_opt2, W_mass_opt2;
+   float W_msoftdrop_opt2, W_tau21_opt2, W_tau32_opt2;
+   float W_DeepTag_DAK8MD_TvsQCD_opt2, W_DeepTag_DAK8MD_WvsQCD_opt2, W_DeepTag_DAK8MD_ZvsQCD_opt2, W_DeepTag_DAK8MD_HvsQCD_opt2, W_DeepTag_DAK8MD_bbvsQCD_opt2; 
+   float W_DeepTag_PNet_TvsQCD_opt2, W_DeepTag_PNet_WvsQCD_opt2, W_DeepTag_PNet_ZvsQCD_opt2, W_DeepTag_PNetMD_XbbvsQCD_opt2, W_DeepTag_PNetMD_XccvsQCD_opt2, W_DeepTag_PNetMD_XqqvsQCD_opt2, W_DeepTag_PNetMD_QCD_opt2, W_DeepTag_PNetMD_WvsQCD_opt2; 
+   float W_DAK8_W_opt2, W_PN_W_opt2;
+   float W_sub1_pt_opt2, W_sub1_eta_opt2, W_sub1_phi_opt2, W_sub1_mass_opt2, W_sub1_btag_opt2;
+   float W_sub2_pt_opt2, W_sub2_eta_opt2, W_sub2_phi_opt2, W_sub2_mass_opt2, W_sub2_btag_opt2;
    int W_genindex_opt2;
    float W_JESup_opt2, W_JESdn_opt2, W_JERup_opt2, W_JERdn_opt2;
    
@@ -986,12 +1009,28 @@
 
    float dR_lY, dphi_lY, dy_lY;
    int nbjets_other;
-   float MET;
    
    bool Flag_Y_bb_pass_T, Flag_Y_bb_pass_M, Flag_Y_bb_pass_L, Flag_H_W_pass_T_opt1, Flag_H_W_pass_M_opt1, Flag_H_W_pass_L_opt1, Flag_H_m_pass_opt1, Flag_dR_lW_pass_opt1, Flag_MET_pass;
    bool Flag_H_W_pass_T_opt2, Flag_H_W_pass_M_opt2, Flag_H_W_pass_L_opt2, Flag_H_m_pass_opt2, Flag_dR_lW_pass_opt2;
    bool Reg_SR_opt1, Reg_Wj_CR_opt1;
    bool Reg_SR_opt2, Reg_Wj_CR_opt2;
+   
+   int _s_nPFJetAK8; 
+   float _s_PFJetAK8_pt[njetmxAK8], _s_PFJetAK8_eta[njetmxAK8], _s_PFJetAK8_phi[njetmxAK8], _s_PFJetAK8_mass[njetmxAK8];
+   float _s_PFJetAK8_msoftdrop[njetmxAK8], _s_PFJetAK8_tau21[njetmxAK8], _s_PFJetAK8_tau32[njetmxAK8];
+   int _s_PFJetAK8_jetID[njetmxAK8], _s_PFJetAK8_jetID_tightlepveto[njetmxAK8];
+   float _s_PFJetAK8_DeepTag_PNetMD_XbbvsQCD[njetmxAK8],  _s_PFJetAK8_DeepTag_PNetMD_WvsQCD[njetmxAK8], _s_PFJetAK8_DeepTag_PNet_TvsQCD[njetmxAK8], _s_PFJetAK8_DeepTag_PNet_WvsQCD[njetmxAK8];
+   float _s_PFJetAK8_DeepTag_DAK8MD_TvsQCD[njetmxAK8], _s_PFJetAK8_DeepTag_DAK8MD_WvsQCD[njetmxAK8], _s_PFJetAK8_DeepTag_DAK8MD_bbvsQCD[njetmxAK8]; 
+   float _s_PFJetAK8_JESup[njetmxAK8], _s_PFJetAK8_JESdn[njetmxAK8], _s_PFJetAK8_JERup[njetmxAK8], _s_PFJetAK8_JERdn[njetmxAK8];
+   int _s_PFJetAK8_Y_index, _s_PFJetAK8_W_index_opt1, _s_PFJetAK8_W_index_opt2;
+   
+   int _s_nBJetAK4;
+   float _s_BJetAK4_pt[njetmx], _s_BJetAK4_eta[njetmx], _s_BJetAK4_phi[njetmx], _s_BJetAK4_mass[njetmx];
+   float _s_BJetAK4_btag_DeepFlav[njetmx], _s_BJetAK4_btag_DeepCSV[njetmx];
+   int _s_BJetAK4_hadronflav[njetmx], _s_BJetAK4_partonflav[njetmx];
+   float _s_BJetAK4_qgl[njetmx], _s_BJetAK4_PUID[njetmx]; 
+   float _s_BJetAK4_JESup[njetmx], _s_BJetAK4_JESdn[njetmx], _s_BJetAK4_JERup[njetmx], _s_BJetAK4_JERdn[njetmx];
+   float _s_BJetAK4_btag_DeepFlav_SF[njetmx], _s_BJetAK4_btag_DeepFlav_SF_up[njetmx], _s_BJetAK4_btag_DeepFlav_SF_dn[njetmx];
    
    int nGenLep;
    float GenLep_pt[njetmx], GenLep_eta[njetmx], GenLep_phi[njetmx], GenLep_mass[njetmx];

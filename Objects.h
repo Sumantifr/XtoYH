@@ -129,7 +129,7 @@ class AK8Jet {
   int Neucons;
   int Chcons;
 
-  float sdmass;
+  float msoftdrop;
   float tau21;
   float tau32;
   
@@ -148,19 +148,19 @@ class AK8Jet {
   float DeepTag_PNetMD_QCD;
   float DeepTag_PNetMD_WvsQCD;
   
-  float sub1pt;
-  float sub1eta;
-  float sub1phi;
-  float sub1mass;
-  float sub1btag;
-  float sub1JEC;
+  float sub1_pt;
+  float sub1_eta;
+  float sub1_phi;
+  float sub1_mass;
+  float sub1_btag;
+  float sub1_JEC;
  
-  float sub2pt;
-  float sub2eta;
-  float sub2phi;
-  float sub2mass;
-  float sub2btag;
-  float sub2JEC;
+  float sub2_pt;
+  float sub2_eta;
+  float sub2_phi;
+  float sub2_mass;
+  float sub2_btag;
+  float sub2_JEC;
   
   int match_muon_index;
   int match_electron_index;
