@@ -89,10 +89,11 @@ float* Get_PU_Weights(TFile *file_pu_ratio, int npu){
 	int bin_id = h_data->FindBin(npu);
 
 	static float puweight[3] = {0,0,0};
-	puweight[0] = h_data->GetBinContent(bin_id);
-	puweight[1] = h_data->GetBinContent(bin_id);
-	puweight[2] = h_data->GetBinContent(bin_id);
-
+	if(bin_id>=0 && bin_id<100){
+		puweight[0] = h_data->GetBinContent(bin_id);
+		puweight[1] = h_data_plus->GetBinContent(bin_id);
+		puweight[2] = h_data_minus->GetBinContent(bin_id);
+	}
 	return puweight;
 }
 
@@ -258,10 +259,13 @@ else if(inputFile=="FILELIST_2018_NEW/ZZTo4Q_XtoYH_Nov_2021.log")
    Tout->Branch("leptonsf_weight_stat", &leptonsf_weight_stat, "leptonsf_weight_stat/F");	
    Tout->Branch("leptonsf_weight_syst", &leptonsf_weight_syst, "leptonsf_weight_syst/F");	
    
+   // lepton info //
+   
    Tout->Branch("l_pt", &l_pt, "l_pt/F");	
    Tout->Branch("l_eta", &l_eta, "l_eta/F");	
    Tout->Branch("l_phi", &l_phi, "l_phi/F");	
    Tout->Branch("l_mass", &l_mass, "l_mass/F");	
+   Tout->Branch("l_pdgId", &l_pdgId, "l_pdgId/I");	
    Tout->Branch("l_minisoch", &l_minisoch, "l_minisoch/F");	
    Tout->Branch("l_minisonh", &l_minisonh, "l_minisonh/F");
    Tout->Branch("l_minisoph", &l_minisoph, "l_minisoph/F");	
@@ -501,8 +505,8 @@ else if(inputFile=="FILELIST_2018_NEW/ZZTo4Q_XtoYH_Nov_2021.log")
    Tout->Branch("PFJetAK8_eta",_s_PFJetAK8_eta,"_s_PFJetAK8_eta[_s_nPFJetAK8]/F");
    Tout->Branch("PFJetAK8_phi",_s_PFJetAK8_phi,"_s_PFJetAK8_phi[_s_nPFJetAK8]/F");
    Tout->Branch("PFJetAK8_mass",_s_PFJetAK8_mass,"_s_PFJetAK8_mass[_s_nPFJetAK8]/F");
-   Tout->Branch("PFJetAK8_jetID",_s_PFJetAK8_jetID,"_s_PFJetAK8_jetID[_s_nPFJetAK8]/F");
-   Tout->Branch("PFJetAK8_jetID_tightlepveto",_s_PFJetAK8_jetID_tightlepveto,"_s_PFJetAK8_jetID_tightlepveto[_s_nPFJetAK8]/F");
+   Tout->Branch("PFJetAK8_jetID",_s_PFJetAK8_jetID,"_s_PFJetAK8_jetID[_s_nPFJetAK8]/O");
+   Tout->Branch("PFJetAK8_jetID_tightlepveto",_s_PFJetAK8_jetID_tightlepveto,"_s_PFJetAK8_jetID_tightlepveto[_s_nPFJetAK8]/O");
    Tout->Branch("PFJetAK8_msoftdrop",_s_PFJetAK8_msoftdrop,"_s_PFJetAK8_msoftdrop[_s_nPFJetAK8]/F");
    Tout->Branch("PFJetAK8_tau21",_s_PFJetAK8_tau21,"_s_PFJetAK8_tau21[_s_nPFJetAK8]/F");
    Tout->Branch("PFJetAK8_tau32",_s_PFJetAK8_tau32,"_s_PFJetAK8_tau32[_s_nPFJetAK8]/F");
@@ -1083,7 +1087,7 @@ else if(inputFile=="FILELIST_2018_NEW/ZZTo4Q_XtoYH_Nov_2021.log")
 	
 	vector<GenParton> genleps;
 	for(unsigned ig=0; ig<(genpartons).size(); ig++){
-		if((abs(genpartons[ig].pdgId)==11||abs(genpartons[ig].pdgId)==13) && ((genpartons[ig].status)==1||(genpartons[ig].status)==23) && (abs(genpartons[ig].mompdgId)==24||abs(genpartons[ig].mompdgId)==25)){
+		if((abs(genpartons[ig].pdgId)==11||abs(genpartons[ig].pdgId)==13) && ((genpartons[ig].status)==1||(genpartons[ig].status)==23) && ((abs(genpartons[ig].mompdgId)==15 && abs(genpartons[ig].grmompdgId)==24) || abs(genpartons[ig].mompdgId)==24 || abs(genpartons[ig].mompdgId)==25)){
 			genleps.push_back(genpartons[ig]);
 		}
 	}
@@ -1108,7 +1112,6 @@ else if(inputFile=="FILELIST_2018_NEW/ZZTo4Q_XtoYH_Nov_2021.log")
 			genVs.push_back(genpartons[ig]);
 		}
 	}
-	
 	
 	vector<GenParton> lheparts;
 	getLHEParts(lheparts);
@@ -1330,15 +1333,15 @@ else if(inputFile=="FILELIST_2018_NEW/ZZTo4Q_XtoYH_Nov_2021.log")
     
     MET_pt_JESup = PuppiMET_pt_JESup;
     MET_pt_JESdn = PuppiMET_pt_JESdn;
-    MET_pt_JERup = PuppiMET_pt_JESup;
-    MET_pt_JERdn = PuppiMET_pt_JESdn;
+    MET_pt_JERup = PuppiMET_pt_JERup;
+    MET_pt_JERdn = PuppiMET_pt_JERdn;
     MET_pt_UnclusEup = PuppiMET_pt_UnclusEup;
     MET_pt_UnclusEdn = PuppiMET_pt_UnclusEdn;
     
     MET_phi_JESup = PuppiMET_phi_JESup;
     MET_phi_JESdn = PuppiMET_phi_JESdn;
-    MET_phi_JERup = PuppiMET_phi_JESup;
-    MET_phi_JERdn = PuppiMET_phi_JESdn;
+    MET_phi_JERup = PuppiMET_phi_JERup;
+    MET_phi_JERdn = PuppiMET_phi_JERdn;
     MET_phi_UnclusEup = PuppiMET_phi_UnclusEup;
     MET_phi_UnclusEdn = PuppiMET_phi_UnclusEdn;
     
@@ -1507,6 +1510,7 @@ else if(inputFile=="FILELIST_2018_NEW/ZZTo4Q_XtoYH_Nov_2021.log")
 		l_eta = vleptons[0].eta;
 		l_phi = vleptons[0].phi;
 		l_mass = vleptons[0].mass;
+		l_pdgId = vleptons[0].pdgId;
 		
 		if(abs(vleptons[0].pdgId)==13 && vleptons[0].indexemu>=0 && vleptons[0].indexemu<(vmuons.size())){
 			l_minisoch = vmuons[vleptons[0].indexemu].minisoch;
@@ -1522,7 +1526,7 @@ else if(inputFile=="FILELIST_2018_NEW/ZZTo4Q_XtoYH_Nov_2021.log")
 			}
 			
 		l_genindex = get_nearest_Parton(genleps,vleptons[0].p4,0.4);
-
+		
 	}
 	
 	_s_PFJetAK8_Y_index = Y_cand;
@@ -1865,8 +1869,8 @@ else if(inputFile=="FILELIST_2018_NEW/ZZTo4Q_XtoYH_Nov_2021.log")
 		_s_BJetAK4_PUID[_s_nBJetAK4] = BJets[ijet].PUID;
 		_s_BJetAK4_JESup[_s_nBJetAK4] = BJets[ijet].jesup_Total;
 		_s_BJetAK4_JESdn[_s_nBJetAK4] = BJets[ijet].jesdn_Total;
-		_s_BJetAK4_JERup[_s_nBJetAK4] = BJets[ijet].JERup/LJets[ijet].JER;
-		_s_BJetAK4_JERdn[_s_nBJetAK4] = BJets[ijet].JERdn/LJets[ijet].JER;
+		_s_BJetAK4_JERup[_s_nBJetAK4] = BJets[ijet].JERup/BJets[ijet].JER;
+		_s_BJetAK4_JERdn[_s_nBJetAK4] = BJets[ijet].JERdn/BJets[ijet].JER;
 		_s_BJetAK4_btag_DeepFlav_SF[_s_nBJetAK4] = BJets[ijet].btag_DeepFlav_SF;
 		_s_BJetAK4_btag_DeepFlav_SF_up[_s_nBJetAK4] = BJets[ijet].btag_DeepFlav_SF_up;
 		_s_BJetAK4_btag_DeepFlav_SF_dn[_s_nBJetAK4] = BJets[ijet].btag_DeepFlav_SF_dn;

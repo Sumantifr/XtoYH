@@ -957,6 +957,7 @@
    int nleptons, nfatjets;
    
    float l_pt, l_eta, l_phi, l_mass;
+   int l_pdgId;
    float l_minisoch, l_minisonh, l_minisoph, l_minisoall; 
    int l_genindex;
    
@@ -1018,7 +1019,7 @@
    int _s_nPFJetAK8; 
    float _s_PFJetAK8_pt[njetmxAK8], _s_PFJetAK8_eta[njetmxAK8], _s_PFJetAK8_phi[njetmxAK8], _s_PFJetAK8_mass[njetmxAK8];
    float _s_PFJetAK8_msoftdrop[njetmxAK8], _s_PFJetAK8_tau21[njetmxAK8], _s_PFJetAK8_tau32[njetmxAK8];
-   int _s_PFJetAK8_jetID[njetmxAK8], _s_PFJetAK8_jetID_tightlepveto[njetmxAK8];
+   bool _s_PFJetAK8_jetID[njetmxAK8], _s_PFJetAK8_jetID_tightlepveto[njetmxAK8];
    float _s_PFJetAK8_DeepTag_PNetMD_XbbvsQCD[njetmxAK8],  _s_PFJetAK8_DeepTag_PNetMD_WvsQCD[njetmxAK8], _s_PFJetAK8_DeepTag_PNet_TvsQCD[njetmxAK8], _s_PFJetAK8_DeepTag_PNet_WvsQCD[njetmxAK8];
    float _s_PFJetAK8_DeepTag_DAK8MD_TvsQCD[njetmxAK8], _s_PFJetAK8_DeepTag_DAK8MD_WvsQCD[njetmxAK8], _s_PFJetAK8_DeepTag_DAK8MD_bbvsQCD[njetmxAK8]; 
    float _s_PFJetAK8_JESup[njetmxAK8], _s_PFJetAK8_JESdn[njetmxAK8], _s_PFJetAK8_JERup[njetmxAK8], _s_PFJetAK8_JERdn[njetmxAK8];

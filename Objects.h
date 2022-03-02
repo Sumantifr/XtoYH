@@ -15,8 +15,8 @@ class AK4Jet {
 
  public:
   
-  int  jetID;
-  int  jetID_tightlepveto;
+  bool  jetID;
+  bool  jetID_tightlepveto;
   
   float  pt;
   float  eta;
@@ -103,8 +103,8 @@ class AK8Jet {
 
  public:
   
-  int  jetID;
-  int  jetID_tightlepveto;
+  bool  jetID;
+  bool  jetID_tightlepveto;
   
   float  pt;
   float  eta;
