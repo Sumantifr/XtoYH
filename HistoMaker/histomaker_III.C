@@ -949,6 +949,7 @@ TString proc_Name[] = {"EGamma_UL2018.root","SingleMuon_UL2018.root"};
   
   TH1F* h_l_pt[nrgn][nbcat][nWop][nlid];
   TH1F* h_l_eta[nrgn][nbcat][nWop][nlid];
+  TH1F* h_l_minisoall[nrgn][nbcat][nWop][nlid];
   
   TH1F* h_MET_pt[nrgn][nbcat][nWop][nlid];
   TH1F* h_MET_sig[nrgn][nbcat][nWop][nlid]; 
@@ -1006,6 +1007,7 @@ TString proc_Name[] = {"EGamma_UL2018.root","SingleMuon_UL2018.root"};
                              
 				h_l_pt[ij][jk][kl][lm] 				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"l_pt","",40,0,1000);
 				h_l_eta[ij][jk][kl][lm]				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"l_eta","",50,-2.5,2.5);
+				h_l_minisoall[ij][jk][kl][lm]				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"l_minisoall","",100,0,1.5);
 	       	
 				h_MET_pt[ij][jk][kl][lm] 			= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"MET_pt","",40,0,1000);
 				h_MET_sig[ij][jk][kl][lm] 			= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"MET_sig","",20,0,300);				
@@ -1165,6 +1167,7 @@ TString proc_Name[] = {"EGamma_UL2018.root","SingleMuon_UL2018.root"};
    
 			h_l_pt[ireg][jk][kl][lm]->Fill(l_pt,weight); 
 			h_l_eta[ireg][jk][kl][lm]->Fill(l_eta,weight); 
+			h_l_minisoall[ireg][jk][kl][lm]->Fill(l_minisoall,weight); 
 					
 			h_MET_pt[ireg][jk][kl][lm]->Fill(MET_pt,weight); 
 			h_MET_sig[ireg][jk][kl][lm]->Fill(MET_sig,weight); 
