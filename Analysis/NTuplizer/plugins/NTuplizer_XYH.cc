@@ -709,6 +709,7 @@ private:
   TFile* theFile;
   
   TTree* T1;
+  TTree* T2;
   
   // HLTConfigProvider hltConfig_;
   
@@ -1233,7 +1234,7 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   theFile->cd();
-  
+ 
   T1 = new TTree("Events", "XtoYH");
  
   T1->Branch("irun", &irun, "irun/I");  
@@ -1779,6 +1780,20 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("LHEPSWeights",LHEPSWeights,"LHEPSWeights[nLHEPSWeights]/F");
   
   } //isMC
+  
+  T2 = new TTree("Events_All", "XtoYH");
+  
+  T2->Branch("ievt", &ievt, "ievt/i");
+  T2->Branch("npvert", &npvert, "npvert/I");
+  
+  if(isMC){
+	  
+  T2->Branch("Generator_weight", &Generator_weight, "Generator_weight/D") ;
+  T2->Branch("npu_vert",&npu_vert,"npu_vert/I");
+  T2->Branch("npu_vert_true",&npu_vert_true,"npu_vert_true/I");
+  T2->Branch("LHE_weight",&LHE_weight, "LHE_weight/D");
+  
+  }
   
   Nevt=0;
 }
@@ -3150,7 +3165,14 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
   }
        
   //cout<<"done!"<<endl;
-  T1->Fill();
+  
+  T2->Fill();
+  
+  // Skimming condition //
+  
+  if(nPFJetAK8>=1 && (nMuon+nElectron)>=1){
+	T1->Fill();
+  }
   
 }
 
