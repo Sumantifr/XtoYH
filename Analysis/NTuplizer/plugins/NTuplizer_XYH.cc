@@ -163,6 +163,9 @@ Btag SF (2018UL): https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation106
 #include "fastjet/Selector.hh"
 #include "fastjet/tools/Subtractor.hh"
 
+// Rochester correction for muons //
+#include "RoccoR.h"
+
 using namespace std;
 using namespace edm;
 using namespace reco;  
@@ -855,6 +858,9 @@ private:
   double LHE_weight;
   
   float miset , misphi , sumEt, misetsig;
+  float miset_UnclusEup, miset_UnclusEdn;
+  float misphi_UnclusEup, misphi_UnclusEdn;
+  
   float miset_PUPPI , misphi_PUPPI , sumEt_PUPPI, misetsig_PUPPI;
   float miset_PUPPI_JESup, miset_PUPPI_JESdn, miset_PUPPI_JERup, miset_PUPPI_JERdn, miset_PUPPI_UnclusEup, miset_PUPPI_UnclusEdn;
   float misphi_PUPPI_JESup, misphi_PUPPI_JESdn, misphi_PUPPI_JERup, misphi_PUPPI_JERdn, misphi_PUPPI_UnclusEup, misphi_PUPPI_UnclusEdn;
@@ -870,6 +876,8 @@ private:
   
   bool Muon_isPF[njetmx], Muon_isGL[njetmx], Muon_isTRK[njetmx];
   bool Muon_isGoodGL[njetmx], Muon_isTight[njetmx], Muon_isHighPt[njetmx], Muon_isHighPttrk[njetmx], Muon_isMed[njetmx], Muon_isMedPr[njetmx], Muon_isLoose[njetmx], Muon_TightID[njetmx];
+  
+  float Muon_corrected_pt[njetmx], Muon_correctedUp_pt[njetmx], Muon_correctedDown_pt[njetmx];
   
   int nElectron;
   bool Electron_mvaid_Fallv2WP90[njetmx], Electron_mvaid_Fallv2WP90_noIso[njetmx];
@@ -1073,6 +1081,10 @@ private:
   
   // ---- B tagging scale factor files End --- //
   
+  // ---- Rochester correction files --- //
+  
+  std::string mRochcorFolder;
+  
   // Electron MVA ID //
   
   std::string melectronID_isowp90, melectronID_noisowp90;
@@ -1082,6 +1094,10 @@ private:
   
   std::string mPhoID_FallV2_WP90, mPhoID_FallV2_WP80;
   std::string mPhoID_SpringV1_WP90, mPhoID_SpringV1_WP80;
+  
+  // Rochester correction for muons//
+  
+  RoccoR roch_cor; 
   
 };
 
@@ -1220,6 +1236,8 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   mBtagSF_DeepCSV = pset.getParameter<std::string>("BtagSFFile_DeepCSV");
   mBtagSF_DeepFlav = pset.getParameter<std::string>("BtagSFFile_DeepFlav");
   
+  mRochcorFolder = pset.getParameter<std::string>("RochcorFolder");
+  
   if(!isFastSIM){
 	triggerBits_ = consumes<edm::TriggerResults> ( pset.getParameter<edm::InputTag>("bits"));
 	triggerObjects_ = consumes<pat::TriggerObjectStandAloneCollection>(pset.getParameter<edm::InputTag>("objects"));
@@ -1300,6 +1318,12 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("CHSMET_phi",&misphi,"misphi/F") ;
   T1->Branch("CHSMET_sig",&misetsig,"misetsig/F");
   T1->Branch("CHSMET_sumEt",&sumEt,"sumEt/F");
+  
+  T1->Branch("CHSMET_pt_UnclusEup",&miset_UnclusEup,"miset_CHS_UnclusEup/F") ;
+  T1->Branch("CHSMET_pt_UnclusEdn",&miset_UnclusEdn,"miset_CHS_UnclusEdn/F") ;
+  T1->Branch("CHSMET_phi_UnclusEup",&misphi_UnclusEup,"CHSMET_phi_UnclusEup/F") ;
+  T1->Branch("CHSMET_phi_UnclusEdn",&misphi_UnclusEdn,"CHSMET_phi_UnclusEdn/F") ;
+  
   
   T1->Branch("PuppiMET_pt",&miset_PUPPI,"miset_PUPPI/F") ;
   T1->Branch("PuppiMET_phi",&misphi_PUPPI,"misphi_PUPPI/F") ;
@@ -1560,6 +1584,10 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("Muon_trklay",Muon_trklay,"Muon_trklay[nMuon]/F"); 
   T1->Branch("Muon_valfrac",Muon_valfrac,"Muon_valfrac[nMuon]/F"); 
   T1->Branch("Muon_dxy_sv",Muon_dxy_sv,"Muon_dxy_sv[nMuon]/F");
+  
+  T1->Branch("Muon_corrected_pt",Muon_corrected_pt,"Muon_corrected_pt[nMuon]/F");
+  T1->Branch("Muon_correctedUp_pt",Muon_correctedUp_pt,"Muon_correctedUp_pt[nMuon]/F");
+  T1->Branch("Muon_correctedDown_pt",Muon_correctedDown_pt,"Muon_correctedDown_pt[nMuon]/F");
   
   // Electron info //
   
@@ -2365,6 +2393,12 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
     misetsig = met.significance();
     sumEt = met.corSumEt();//sumEt();
     
+    miset_UnclusEup = met.shiftedPt(pat::MET::METUncertainty(10));
+	miset_UnclusEdn = met.shiftedPt(pat::MET::METUncertainty(11));
+	
+	misphi_UnclusEup = met.shiftedPhi(pat::MET::METUncertainty(10));
+	misphi_UnclusEdn = met.shiftedPhi(pat::MET::METUncertainty(11));
+	    
     if(isMC){
       genmiset = met.genMET()->pt();
       genmisphi = met.genMET()->phi();
@@ -2517,6 +2551,47 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 			if (Muon_pt[nMuon]>15 && fabs(Muon_eta[nMuon])<2.5 && mu_id && Muon_dxy[nMuon]<0.2 && Muon_dz[nMuon]<0.5) {
 				tlvmu.push_back(*muon1);
 			}
+			
+			// Application of Rochester correction //
+			
+			float rcSF, rcSF_error;
+			
+			if(!isMC){
+				// Data
+				rcSF = roch_cor.kScaleDT(muon1->charge(), Muon_pt[nMuon], Muon_eta[nMuon], Muon_phi[nMuon]); 
+				rcSF_error = roch_cor.kScaleDTerror(muon1->charge(), Muon_pt[nMuon], Muon_eta[nMuon], Muon_phi[nMuon]); 
+			}
+			else{
+				// MC
+				bool gen_match = false;
+				float match_genpt = -100;
+				float dR_cut = 0.1;
+				for(int ipart=0; ipart<nGenPart; ipart++)
+				{
+					if((GenPart_status[ipart]==1) && (GenPart_pdg[ipart]==(-1*muon1->charge()*13)) && (delta2R(GenPart_eta[ipart],GenPart_phi[ipart],Muon_eta[nMuon], Muon_phi[nMuon])<dR_cut))
+					{
+						dR_cut = delta2R(GenPart_eta[ipart],GenPart_phi[ipart],Muon_eta[nMuon], Muon_phi[nMuon]);
+						gen_match = true;
+						match_genpt = GenPart_pt[ipart];
+					}
+				}
+				if(gen_match){
+					// when matched gen muon is available
+					rcSF = roch_cor.kSpreadMC(muon1->charge(), Muon_pt[nMuon], Muon_eta[nMuon], Muon_phi[nMuon], match_genpt); 
+					rcSF_error = roch_cor.kSpreadMCerror(muon1->charge(), Muon_pt[nMuon], Muon_eta[nMuon], Muon_phi[nMuon], match_genpt);
+				} 
+				else{
+					// when matched gen muon is not available
+					rcSF = roch_cor.kSmearMC(muon1->charge(), Muon_pt[nMuon], Muon_eta[nMuon], Muon_phi[nMuon], Muon_trklay[nMuon], gRandom->Rndm()); 
+					rcSF_error = roch_cor.kSmearMCerror(muon1->charge(), Muon_pt[nMuon], Muon_eta[nMuon], Muon_phi[nMuon], Muon_trklay[nMuon], gRandom->Rndm());
+				}
+			}
+						
+			Muon_corrected_pt[nMuon] = Muon_pt[nMuon]*rcSF;
+			Muon_correctedUp_pt[nMuon] = Muon_pt[nMuon]*max(rcSF+rcSF_error,float(0.));
+			Muon_correctedDown_pt[nMuon] = Muon_pt[nMuon]*max(rcSF-rcSF_error,float(0.));
+			
+			// End of Rochester correction //
 			
 			if (++nMuon>=njetmx) break;                                                                                                                 
 		
@@ -3166,13 +3241,15 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
        
   //cout<<"done!"<<endl;
   
-  T2->Fill();
+  T2->Fill(); // filling the tree used to get sumofweights
   
   // Skimming condition //
   
   if(nPFJetAK8>=1 && (nMuon+nElectron)>=1){
-	T1->Fill();
+	T1->Fill(); // filling the main tree
   }
+  
+  // End of skimming 
   
 }
 
@@ -3239,6 +3316,23 @@ Leptop::beginJob()
 	reader_deepflav.load(calib_deepflav, BTagEntry::FLAV_C, "comb");
 	reader_deepflav.load(calib_deepflav, BTagEntry::FLAV_UDSG, "incl");
   }
+  
+  if(isUltraLegacy)
+  {
+	if(year==2018){
+		roch_cor.init((mRochcorFolder+"RoccoR2018UL.txt").c_str()); 
+	}
+	if(year==2017){
+		roch_cor.init((mRochcorFolder+"RoccoR2017UL.txt").c_str()); 
+	}
+	if(year==2016){
+		roch_cor.init((mRochcorFolder+"RoccoR2016aUL.txt").c_str()); 
+	}
+  }
+  else{
+		roch_cor.init((mRochcorFolder+"RoccoR2017.txt").c_str()); 
+	  }
+  
   //**Important**//
   //For precision top physics, change "comb" to "mujets" in BTagCalibrationReader above //
   //https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation106XUL18#Additional_information

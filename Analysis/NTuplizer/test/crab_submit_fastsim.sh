@@ -1,0 +1,3 @@
+#!/bin/bash
+crab submit -c crabfile_XtoYH_UL2018_XtoYH_YTobb_HToWWTo2QLNu_MX_1500_MY_200.py
+crab submit -c crabfile_XtoYH_UL2018_XtoYH_YTobb_HToWWTo2QLNu_MX_2000_MY_200.py
