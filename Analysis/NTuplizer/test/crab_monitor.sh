@@ -1,2 +1,0 @@
-crab status -d crab_XtoYH_UL2018_QCD_HT300to500/crab_crab_XtoYH_UL2018_QCD_HT300to500/
-crab status -d crab_XtoYH_UL2018_QCD_HT500to700/crab_crab_XtoYH_UL2018_QCD_HT500to700/
