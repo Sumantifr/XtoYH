@@ -2378,6 +2378,10 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
   // MET //
     
   miset = misphi = misetsig = sumEt = genmiset = genmisphi = genmisetsig = -1000 ;
+  miset_UnclusEup = miset_UnclusEdn = -100;
+  misphi_UnclusEup = misphi_UnclusEdn = -100;
+  
+  // MET uncertainty ids are taken from: https://github.com/cms-sw/cmssw/blob/CMSSW_8_0_X/DataFormats/PatCandidates/interface/MET.h#L152-L158 //
   
   // CHS MET //
   
