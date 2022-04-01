@@ -25,6 +25,7 @@ JEC: https://twiki.cern.ch/twiki/bin/viewauth/CMS/JECUncertaintySources
 DeepAKX: https://twiki.cern.ch/twiki/bin/viewauth/CMS/DeepAKXTagging
 Btag SF (recipe): https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagCalibration
 Btag SF (2018UL): https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation106XUL18
+Rochester correction: https://gitlab.cern.ch/akhukhun/roccor
 */
 
 // system include files
@@ -165,6 +166,20 @@ Btag SF (2018UL): https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation106
 
 // Rochester correction for muons //
 #include "RoccoR.h"
+
+//for storing vectors in tree//
+
+# include <vector>
+
+
+#ifdef __MAKECINT__
+    
+    #pragma link C++ class std::vector+;
+    #pragma link C++ class std::vector<float>+;
+    #pragma link C++ class std::vector<std::vector<float> >+;
+    
+#endif
+
 
 using namespace std;
 using namespace edm;
@@ -628,6 +643,7 @@ private:
   bool isSoftDrop;
   bool add_prefireweights;
   bool store_electron_scalnsmear, store_electron_addvariabs;
+  bool store_fatjet_constituents;
   bool read_btagSF;
   bool subtractLepton_fromAK4, subtractLepton_fromAK8;
   
@@ -721,6 +737,7 @@ private:
   static const int njetmx = 20; 
   static const int njetmxAK8 =10;
   static const int npartmx = 50; 
+  static const int nconsmax = 100; 
   
   int irunold;
   int irun, ilumi, ifltr, nprim, npvert, ibrnch;
@@ -777,6 +794,10 @@ private:
   float PFJetAK8_jesup_SinglePionHCAL[njetmxAK8], PFJetAK8_jesdn_SinglePionHCAL[njetmxAK8];
   float PFJetAK8_jesup_TimePtEta[njetmxAK8], PFJetAK8_jesdn_TimePtEta[njetmxAK8];
   float PFJetAK8_jesup_Total[njetmxAK8], PFJetAK8_jesdn_Total[njetmxAK8];
+  
+  int PFJetAK8_ncons[njetmxAK8];
+  std::vector <std::vector <float> > PFJetAK8_cons_pt, PFJetAK8_cons_eta, PFJetAK8_cons_phi, PFJetAK8_cons_mass;
+  //float PFJetAK8_cons_pt[njetmxAK8][nconsmax], PFJetAK8_cons_eta[njetmxAK8][nconsmax], PFJetAK8_cons_phi[njetmxAK8][nconsmax], PFJetAK8_cons_mass[njetmxAK8][nconsmax];
   
   int nPFJetAK4;
   float PFJetAK4_pt[njetmx], PFJetAK4_eta[njetmx], PFJetAK4_y[njetmx], PFJetAK4_phi[njetmx], PFJetAK4_mass[njetmx];
@@ -1131,6 +1152,7 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   add_prefireweights = pset.getUntrackedParameter<bool>("add_prefireweights", false);
   store_electron_scalnsmear = pset.getUntrackedParameter<bool>("store_electron_scalnsmear", false);
   store_electron_addvariabs = pset.getUntrackedParameter<bool>("store_electron_addvariabs", false);
+  store_fatjet_constituents = pset.getUntrackedParameter<bool>("store_fatjet_constituents", false);
   read_btagSF = pset.getUntrackedParameter<bool>("Read_btagging_SF", false);
   subtractLepton_fromAK8 = pset.getUntrackedParameter<bool>("Subtract_Lepton_fromAK8", false);
   subtractLepton_fromAK4 = pset.getUntrackedParameter<bool>("Subtract_Lepton_fromAK4", false);
@@ -1458,6 +1480,15 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("PFJetAK8_jesdn_TimePtEta",PFJetAK8_jesdn_TimePtEta,"PFJetAK8_jesdn_TimePtEta[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_jesdn_Total",PFJetAK8_jesdn_Total,"PFJetAK8_jesdn_Total[nPFJetAK8]/F");
   
+  //gROOT->ProcessLine(".L /afs/cern.ch/user/c/chatterj/work/private/XToYH/CMSSW_10_6_26/src/Analysis/NTuplizer/plugins/CustomRootDict.cc+");
+  
+  if(store_fatjet_constituents){
+	T1->Branch("PFJetAK8_ncons",PFJetAK8_ncons,"PFJetAK8_ncons[nPFJetAK8]/I");
+	T1->Branch("PFJetAK8_cons_pt",&PFJetAK8_cons_pt);//,"PFJetAK8_cons_pt[nPFJetAK8][100]/F");
+	T1->Branch("PFJetAK8_cons_eta",&PFJetAK8_cons_eta);
+	T1->Branch("PFJetAK8_cons_phi",&PFJetAK8_cons_phi);//,"PFJetAK8_cons_phi[nPFJetAK8][100]/F");
+	T1->Branch("PFJetAK8_cons_mass",&PFJetAK8_cons_mass);//,"PFJetAK8_cons_mass[nPFJetAK8][100]/F");
+  }
   // AK4 jet info //
  
   T1->Branch("nPFJetAK4",&nPFJetAK4,"nPFJetAK4/I"); 
@@ -2961,6 +2992,47 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 	
       }//isSoftDrop
       
+      // Storing 4-momenta of jet constituents//
+      if(store_fatjet_constituents)
+      {
+		PFJetAK8_ncons[nPFJetAK8] = 0;
+
+		PFJetAK8_cons_pt.clear();
+		PFJetAK8_cons_eta.clear();
+		PFJetAK8_cons_phi.clear();
+		PFJetAK8_cons_mass.clear();
+		
+		vector<float> v_PFJetAK8_cons_pt, v_PFJetAK8_cons_eta, v_PFJetAK8_cons_phi, v_PFJetAK8_cons_mass;
+		
+		for(unsigned int ic = 0 ; ic < ak8jet.numberOfSourceCandidatePtrs() ; ++ic) {  
+			
+			if(ak8jet.sourceCandidatePtr(ic).isNonnull() && ak8jet.sourceCandidatePtr(ic).isAvailable()){
+				
+				const reco::Candidate* jcand = ak8jet.sourceCandidatePtr(ic).get();
+				
+				v_PFJetAK8_cons_pt.push_back(jcand->pt());
+				v_PFJetAK8_cons_eta.push_back(jcand->eta());
+				v_PFJetAK8_cons_phi.push_back(jcand->phi());
+				v_PFJetAK8_cons_mass.push_back(jcand->mass());
+				
+				if(++PFJetAK8_ncons[nPFJetAK8]>= nconsmax) break;				
+			}
+		}
+		
+		PFJetAK8_cons_pt.push_back(v_PFJetAK8_cons_pt);
+		PFJetAK8_cons_eta.push_back(v_PFJetAK8_cons_eta);
+		PFJetAK8_cons_phi.push_back(v_PFJetAK8_cons_phi);
+		PFJetAK8_cons_mass.push_back(v_PFJetAK8_cons_mass);
+		
+		v_PFJetAK8_cons_pt.clear();
+		v_PFJetAK8_cons_eta.clear();
+		v_PFJetAK8_cons_phi.clear();
+		v_PFJetAK8_cons_mass.clear();
+		
+	  }		
+      
+      // end of candidate storage //
+            
       nPFJetAK8++;	
       if(nPFJetAK8 >= njetmxAK8) { break;}
       
