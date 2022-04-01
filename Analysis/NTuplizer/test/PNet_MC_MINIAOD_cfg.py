@@ -295,6 +295,8 @@ process.mcjets =  cms.EDAnalyzer('Leptop',
 	 BtagSFFile_DeepCSV = cms.string("BtagRecommendation106XUL18/DeepCSV_106XUL18SF_V1p1.csv"),
 	 BtagSFFile_DeepFlav = cms.string("BtagRecommendation106XUL18/DeepJet_106XUL18SF_V1p1.csv"),
 
+	 RochcorFolder = cms.string("roccor.Run2.v5/"),
+
 	 bits = cms.InputTag("TriggerResults","","HLT"),
          prescales = cms.InputTag("patTrigger","","RECO"),
          objects = cms.InputTag("slimmedPatTrigger")
