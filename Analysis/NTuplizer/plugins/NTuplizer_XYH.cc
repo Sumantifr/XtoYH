@@ -797,6 +797,7 @@ private:
   
   int PFJetAK8_ncons[njetmxAK8];
   std::vector <std::vector <float> > PFJetAK8_cons_pt, PFJetAK8_cons_eta, PFJetAK8_cons_phi, PFJetAK8_cons_mass;
+  std::vector <std::vector <int> > PFJetAK8_cons_pdgId;
   //float PFJetAK8_cons_pt[njetmxAK8][nconsmax], PFJetAK8_cons_eta[njetmxAK8][nconsmax], PFJetAK8_cons_phi[njetmxAK8][nconsmax], PFJetAK8_cons_mass[njetmxAK8][nconsmax];
   
   int nPFJetAK4;
@@ -1480,7 +1481,7 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("PFJetAK8_jesdn_TimePtEta",PFJetAK8_jesdn_TimePtEta,"PFJetAK8_jesdn_TimePtEta[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_jesdn_Total",PFJetAK8_jesdn_Total,"PFJetAK8_jesdn_Total[nPFJetAK8]/F");
   
-  //gROOT->ProcessLine(".L /afs/cern.ch/user/c/chatterj/work/private/XToYH/CMSSW_10_6_26/src/Analysis/NTuplizer/plugins/CustomRootDict.cc+");
+  //gROOT->ProcessLine(".L CustomRootDict.cc+");
   
   if(store_fatjet_constituents){
 	T1->Branch("PFJetAK8_ncons",PFJetAK8_ncons,"PFJetAK8_ncons[nPFJetAK8]/I");
@@ -1488,6 +1489,7 @@ Leptop::Leptop(const edm::ParameterSet& pset):
 	T1->Branch("PFJetAK8_cons_eta",&PFJetAK8_cons_eta);
 	T1->Branch("PFJetAK8_cons_phi",&PFJetAK8_cons_phi);//,"PFJetAK8_cons_phi[nPFJetAK8][100]/F");
 	T1->Branch("PFJetAK8_cons_mass",&PFJetAK8_cons_mass);//,"PFJetAK8_cons_mass[nPFJetAK8][100]/F");
+	T1->Branch("PFJetAK8_cons_pdgId",&PFJetAK8_cons_pdgId);
   }
   // AK4 jet info //
  
@@ -3001,8 +3003,10 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 		PFJetAK8_cons_eta.clear();
 		PFJetAK8_cons_phi.clear();
 		PFJetAK8_cons_mass.clear();
+		PFJetAK8_cons_pdgId.clear();
 		
 		vector<float> v_PFJetAK8_cons_pt, v_PFJetAK8_cons_eta, v_PFJetAK8_cons_phi, v_PFJetAK8_cons_mass;
+		vector<int> v_PFJetAK8_cons_pdgId;
 		
 		for(unsigned int ic = 0 ; ic < ak8jet.numberOfSourceCandidatePtrs() ; ++ic) {  
 			
@@ -3014,6 +3018,7 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 				v_PFJetAK8_cons_eta.push_back(jcand->eta());
 				v_PFJetAK8_cons_phi.push_back(jcand->phi());
 				v_PFJetAK8_cons_mass.push_back(jcand->mass());
+				v_PFJetAK8_cons_pdgId.push_back(jcand->pdgId());
 				
 				if(++PFJetAK8_ncons[nPFJetAK8]>= nconsmax) break;				
 			}
@@ -3023,6 +3028,7 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 		PFJetAK8_cons_eta.push_back(v_PFJetAK8_cons_eta);
 		PFJetAK8_cons_phi.push_back(v_PFJetAK8_cons_phi);
 		PFJetAK8_cons_mass.push_back(v_PFJetAK8_cons_mass);
+		PFJetAK8_cons_pdgId.push_back(v_PFJetAK8_cons_pdgId);
 		
 		v_PFJetAK8_cons_pt.clear();
 		v_PFJetAK8_cons_eta.clear();
