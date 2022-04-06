@@ -166,7 +166,7 @@ updateJetCollection(
 from PhysicsTools.PatUtils.l1PrefiringWeightProducer_cfi import l1PrefiringWeightProducer
 process.prefiringweight = l1PrefiringWeightProducer.clone(
 	TheJets = cms.InputTag("slimmedJets"), #"updatedPatJetsUpdatedJEC"), #this should be the slimmedJets collection with up to date JECs 
-	DataEraECAL = cms.string("2017BtoF"), #Use 2016BtoH for 2016
+	DataEraECAL = cms.string("None"), #Use 2016BtoH for 2016
 	DataEraMuon = cms.string("20172018"), #Use 2016 for 2016
 	UseJetEMPt = cms.bool(False),
 	PrefiringRateSystematicUnctyECAL = cms.double(0.2),

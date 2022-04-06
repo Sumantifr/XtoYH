@@ -224,7 +224,7 @@ defaultJetSequences(process)
 from PhysicsTools.PatUtils.l1PrefiringWeightProducer_cfi import l1PrefiringWeightProducer
 process.prefiringweight = l1PrefiringWeightProducer.clone(
 	TheJets = cms.InputTag("slimmedJets"), #"updatedPatJetsUpdatedJEC"), #this should be the slimmedJets collection with up to date JECs 
-	DataEraECAL = cms.string("2017BtoF"), #Use 2016BtoH for 2016
+	DataEraECAL = cms.string("None"), #Use 2016BtoH for 2016
 	DataEraMuon = cms.string("20172018"), #Use 2016 for 2016
 	UseJetEMPt = cms.bool(False),
 	PrefiringRateSystematicUnctyECAL = cms.double(0.2),
@@ -246,6 +246,7 @@ process.mcjets =  cms.EDAnalyzer('Leptop',
 	 add_prefireweights =  cms.untracked.bool(True),
 	 store_electron_scalnsmear =  cms.untracked.bool(True),
 	 store_electron_addvariab = cms.untracked.bool(False),
+         store_fatjet_constituents = cms.untracked.bool(False),
 	 Read_btagging_SF = cms.untracked.bool(False),
 	 Subtract_Lepton_fromAK8 = cms.untracked.bool(False),
          Subtract_Lepton_fromAK4 = cms.untracked.bool(True),
@@ -355,6 +356,8 @@ process.mcjets =  cms.EDAnalyzer('Leptop',
 
 	 BtagSFFile_DeepCSV = cms.string("BtagRecommendation106XUL18/DeepCSV_106XUL18SF_V1p1.csv"),
 	 BtagSFFile_DeepFlav = cms.string("BtagRecommendation106XUL18/DeepJet_106XUL18SF_V1p1.csv"),
+
+	 RochcorFolder = cms.string("roccor.Run2.v5/"),
 
 	 bits = cms.InputTag("TriggerResults","","HLT"),
          prescales = cms.InputTag("patTrigger","","RECO"),
