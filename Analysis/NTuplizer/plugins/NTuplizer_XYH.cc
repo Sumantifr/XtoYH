@@ -740,7 +740,11 @@ private:
   static const int nconsmax = 100; 
   
   int irunold;
-  int irun, ilumi, ifltr, nprim, npvert, ibrnch;
+  int irun, ilumi, ifltr, ibrnch;
+  
+  int nprim, npvert, PV_npvsGood, PV_ndof;
+  float PV_x, PV_y, PV_z, PV_chi2;
+  
   double Generator_weight;
   double weights[njetmx];
   
@@ -1280,12 +1284,18 @@ Leptop::Leptop(const edm::ParameterSet& pset):
  
   T1->Branch("irun", &irun, "irun/I");  
   T1->Branch("ilumi", &ilumi, "ilumi/I");  
+  T1->Branch("ievt", &ievt, "ievt/i");
   
   // primary vertices //
   
-  T1->Branch("ievt", &ievt, "ievt/i");
   T1->Branch("nprim", &nprim, "nprim/I");
   T1->Branch("npvert", &npvert, "npvert/I");
+  T1->Branch("PV_npvsGood", &PV_npvsGood, "PV_npvsGood/I");
+  T1->Branch("PV_ndof", &PV_ndof, "PV_ndof/I");
+  T1->Branch("PV_chi2", &PV_chi2, "PV_chi2/F");
+  T1->Branch("PV_x", &PV_x, "PV_x/F");
+  T1->Branch("PV_y", &PV_y, "PV_y/F");
+  T1->Branch("PV_z", &PV_z, "PV_z/F");
   
   // energy density //
   
@@ -1845,7 +1855,7 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T2 = new TTree("Events_All", "XtoYH");
   
   T2->Branch("ievt", &ievt, "ievt/i");
-  T2->Branch("npvert", &npvert, "npvert/I");
+  T2->Branch("PV_npvsGood", &PV_npvsGood, "PV_npvsGood/I");
   
   if(isMC){
 	  
@@ -2198,7 +2208,14 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
   
   if (primaryVertices.isValid()) {
 	  
-	if(primaryVertices->size() > 0){  vertex = primaryVertices->at(0); } 
+	if(primaryVertices->size() > 0){  
+		vertex = primaryVertices->at(0); 
+		PV_ndof = vertex.ndof();
+		PV_chi2 = vertex.normalizedChi2();
+		PV_x = vertex.position().x();
+		PV_y = vertex.position().y();
+		PV_z = vertex.position().z();
+	} 
 	 
     int ndofct_org=0;
     int nchict_org=0;
@@ -2220,10 +2237,14 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
     
     nprim = min(999,nvert_org) + 1000*min(999,ndofct_org) + 1000000*min(999,nchict_org);
     npvert = nchict_org;
+    PV_npvsGood = nprimi_org;
     
   } else { 
     nprim = -100;
     npvert = -100;
+    PV_npvsGood = -100;
+    PV_ndof = -100;
+    PV_chi2 = PV_x = PV_y = PV_z = -1000;
   }
   
   reco::TrackBase::Point beamPoint(0,0, 0);
