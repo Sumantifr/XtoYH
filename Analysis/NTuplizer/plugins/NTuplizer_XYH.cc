@@ -737,8 +737,9 @@ private:
   static const int njetmx = 20; 
   static const int njetmxAK8 =10;
   static const int npartmx = 50; 
-  static const int nconsmax = 100; 
-  
+  static const int nconsmax = 1000; 
+  static const int njetconsmax = 3; 
+    
   int irunold;
   int irun, ilumi, ifltr, ibrnch;
   
@@ -799,10 +800,9 @@ private:
   float PFJetAK8_jesup_TimePtEta[njetmxAK8], PFJetAK8_jesdn_TimePtEta[njetmxAK8];
   float PFJetAK8_jesup_Total[njetmxAK8], PFJetAK8_jesdn_Total[njetmxAK8];
   
-  int PFJetAK8_ncons[njetmxAK8];
-  std::vector <std::vector <float> > PFJetAK8_cons_pt, PFJetAK8_cons_eta, PFJetAK8_cons_phi, PFJetAK8_cons_mass;
-  std::vector <std::vector <int> > PFJetAK8_cons_pdgId;
-  //float PFJetAK8_cons_pt[njetmxAK8][nconsmax], PFJetAK8_cons_eta[njetmxAK8][nconsmax], PFJetAK8_cons_phi[njetmxAK8][nconsmax], PFJetAK8_cons_mass[njetmxAK8][nconsmax];
+  int nPFJetAK8_cons;
+  float PFJetAK8_cons_pt[nconsmax], PFJetAK8_cons_eta[nconsmax], PFJetAK8_cons_phi[nconsmax], PFJetAK8_cons_mass[nconsmax];
+  int PFJetAK8_cons_jetIndex[nconsmax], PFJetAK8_cons_pdgId[nconsmax];
   
   int nPFJetAK4;
   float PFJetAK4_pt[njetmx], PFJetAK4_eta[njetmx], PFJetAK4_y[njetmx], PFJetAK4_phi[njetmx], PFJetAK4_mass[njetmx];
@@ -850,6 +850,10 @@ private:
   int nGenJetAK8;
   float GenJetAK8_pt[njetmxAK8], GenJetAK8_eta[njetmxAK8], GenJetAK8_phi[njetmxAK8], GenJetAK8_mass[njetmxAK8], GenJetAK8_sdmass[njetmxAK8]; 
   int GenJetAK8_hadronflav[njetmxAK8], GenJetAK8_partonflav[njetmxAK8];
+  
+  int nGenJetAK8_cons;
+  float GenJetAK8_cons_pt[nconsmax], GenJetAK8_cons_eta[nconsmax], GenJetAK8_cons_phi[nconsmax], GenJetAK8_cons_mass[nconsmax];
+  int GenJetAK8_cons_jetIndex[nconsmax], GenJetAK8_cons_pdgId[nconsmax];
   
   int nGenJetAK4;
   float GenJetAK4_pt[njetmx], GenJetAK4_eta[njetmx], GenJetAK4_phi[njetmx], GenJetAK4_mass[njetmx];
@@ -1494,13 +1498,16 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   //gROOT->ProcessLine(".L CustomRootDict.cc+");
   
   if(store_fatjet_constituents){
-	T1->Branch("PFJetAK8_ncons",PFJetAK8_ncons,"PFJetAK8_ncons[nPFJetAK8]/I");
-	T1->Branch("PFJetAK8_cons_pt",&PFJetAK8_cons_pt);//,"PFJetAK8_cons_pt[nPFJetAK8][100]/F");
-	T1->Branch("PFJetAK8_cons_eta",&PFJetAK8_cons_eta);
-	T1->Branch("PFJetAK8_cons_phi",&PFJetAK8_cons_phi);//,"PFJetAK8_cons_phi[nPFJetAK8][100]/F");
-	T1->Branch("PFJetAK8_cons_mass",&PFJetAK8_cons_mass);//,"PFJetAK8_cons_mass[nPFJetAK8][100]/F");
-	T1->Branch("PFJetAK8_cons_pdgId",&PFJetAK8_cons_pdgId);
+    T1->Branch("nPFJetAK8_cons",&nPFJetAK8_cons,"nPFJetAK8_cons/I");
+    T1->Branch("PFJetAK8_cons_pt",PFJetAK8_cons_pt, "PFJetAK8_cons_pt[nPFJetAK8_cons]/F");
+    T1->Branch("PFJetAK8_cons_eta",PFJetAK8_cons_eta, "PFJetAK8_cons_eta[nPFJetAK8_cons]/F");
+    T1->Branch("PFJetAK8_cons_phi",PFJetAK8_cons_phi, "PFJetAK8_cons_phi[nPFJetAK8_cons]/F");
+    T1->Branch("PFJetAK8_cons_mass",PFJetAK8_cons_mass, "PFJetAK8_cons_mass[nPFJetAK8_cons]/F");
+    T1->Branch("PFJetAK8_cons_pdgId",PFJetAK8_cons_pdgId, "PFJetAK8_cons_pdgId[nPFJetAK8_cons]/I");
+    T1->Branch("PFJetAK8_cons_jetIndex",PFJetAK8_cons_jetIndex, "PFJetAK8_cons_jetIndex[nPFJetAK8_cons]/I");
   }
+  
+
   // AK4 jet info //
  
   T1->Branch("nPFJetAK4",&nPFJetAK4,"nPFJetAK4/I"); 
@@ -1804,6 +1811,16 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("GenJetAK8_hadronflav",GenJetAK8_hadronflav,"GenJetAK8_hadronflav[nGenJetAK8]/I");
   T1->Branch("GenJetAK8_partonflav",GenJetAK8_partonflav,"GenJetAK8_partonflav[nGenJetAK8]/I");
 
+  if(store_fatjet_constituents){
+    T1->Branch("nGenJetAK8_cons",&nGenJetAK8_cons,"nGenJetAK8_cons/I");
+    T1->Branch("GenJetAK8_cons_pt",GenJetAK8_cons_pt, "GenJetAK8_cons_pt[nGenJetAK8_cons]/F");
+    T1->Branch("GenJetAK8_cons_eta",GenJetAK8_cons_eta, "GenJetAK8_cons_eta[nGenJetAK8_cons]/F");
+    T1->Branch("GenJetAK8_cons_phi",GenJetAK8_cons_phi, "GenJetAK8_cons_phi[nGenJetAK8_cons]/F");
+    T1->Branch("GenJetAK8_cons_mass",GenJetAK8_cons_mass, "GenJetAK8_cons_mass[nGenJetAK8_cons]/F");
+    T1->Branch("GenJetAK8_cons_pdgId",GenJetAK8_cons_pdgId, "GenJetAK8_cons_pdgId[nGenJetAK8_cons]/I");
+    T1->Branch("GenJetAK8_cons_jetIndex",GenJetAK8_cons_jetIndex, "GenJetAK8_cons_jetIndex[nGenJetAK8_cons]/I");
+  }
+  
   // GEN AK4 jet info //  
  
   T1->Branch("nGenJetAK4",&nGenJetAK4, "nGenJetAK4/I");
@@ -2003,6 +2020,8 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 	// AK8 GEN jet //
 
     nGenJetAK8 = 0;
+    nGenJetAK8_cons = 0;
+    
     iEvent.getByToken(tok_genjetAK8s_, genjetAK8s);
     
     if(genjetAK8s.isValid()){
@@ -2052,6 +2071,19 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 				PseudoJet psjet = PseudoJet( (*daught[i2]).px(),(*daught[i2]).py(),(*daught[i2]).pz(),(*daught[i2]).energy() );
 				psjet.set_user_index(i2);
 				fjInputs.push_back(psjet); 
+        
+        // Storing 4-momenta of jet constituents//
+        if(store_fatjet_constituents && nGenJetAK8<njetconsmax){
+          GenJetAK8_cons_pt[nGenJetAK8_cons] = daught[i2]->pt();
+          GenJetAK8_cons_eta[nGenJetAK8_cons] = daught[i2]->eta();
+          GenJetAK8_cons_phi[nGenJetAK8_cons] = daught[i2]->phi();
+          GenJetAK8_cons_mass[nGenJetAK8_cons] = daught[i2]->mass();
+          GenJetAK8_cons_pdgId[nGenJetAK8_cons] = daught[i2]->pdgId();
+          GenJetAK8_cons_jetIndex[nGenJetAK8_cons] = nGenJetAK8;   
+          nGenJetAK8_cons++;
+        }
+        // end of candidate storage //
+        
 			} //i2
 	
 			vector <fastjet::PseudoJet> sortedJets;
@@ -2802,6 +2834,8 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
   // AK8 jets //
   
   nPFJetAK8 = 0;
+  nPFJetAK8_cons = 0;
+  
   edm::Handle<edm::View<pat::Jet>> pfjetAK8s;
   iEvent.getByToken(tok_pfjetAK8s_, pfjetAK8s);	
   
@@ -3016,48 +3050,23 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
       }//isSoftDrop
       
       // Storing 4-momenta of jet constituents//
-      if(store_fatjet_constituents)
-      {
-		PFJetAK8_ncons[nPFJetAK8] = 0;
-
-		PFJetAK8_cons_pt.clear();
-		PFJetAK8_cons_eta.clear();
-		PFJetAK8_cons_phi.clear();
-		PFJetAK8_cons_mass.clear();
-		PFJetAK8_cons_pdgId.clear();
-		
-		vector<float> v_PFJetAK8_cons_pt, v_PFJetAK8_cons_eta, v_PFJetAK8_cons_phi, v_PFJetAK8_cons_mass;
-		vector<int> v_PFJetAK8_cons_pdgId;
-		
-		for(unsigned int ic = 0 ; ic < ak8jet.numberOfSourceCandidatePtrs() ; ++ic) {  
-			
-			if(ak8jet.sourceCandidatePtr(ic).isNonnull() && ak8jet.sourceCandidatePtr(ic).isAvailable()){
-				
-				const reco::Candidate* jcand = ak8jet.sourceCandidatePtr(ic).get();
-				
-				v_PFJetAK8_cons_pt.push_back(jcand->pt());
-				v_PFJetAK8_cons_eta.push_back(jcand->eta());
-				v_PFJetAK8_cons_phi.push_back(jcand->phi());
-				v_PFJetAK8_cons_mass.push_back(jcand->mass());
-				v_PFJetAK8_cons_pdgId.push_back(jcand->pdgId());
-				
-				if(++PFJetAK8_ncons[nPFJetAK8]>= nconsmax) break;				
-			}
-		}
-		
-		PFJetAK8_cons_pt.push_back(v_PFJetAK8_cons_pt);
-		PFJetAK8_cons_eta.push_back(v_PFJetAK8_cons_eta);
-		PFJetAK8_cons_phi.push_back(v_PFJetAK8_cons_phi);
-		PFJetAK8_cons_mass.push_back(v_PFJetAK8_cons_mass);
-		PFJetAK8_cons_pdgId.push_back(v_PFJetAK8_cons_pdgId);
-		
-		v_PFJetAK8_cons_pt.clear();
-		v_PFJetAK8_cons_eta.clear();
-		v_PFJetAK8_cons_phi.clear();
-		v_PFJetAK8_cons_mass.clear();
-		
-	  }		
-      
+      if(store_fatjet_constituents && nGenJetAK8<njetconsmax)     {
+        for(unsigned int ic = 0 ; ic < ak8jet.numberOfSourceCandidatePtrs() ; ++ic) {  
+          if(ak8jet.sourceCandidatePtr(ic).isNonnull() && ak8jet.sourceCandidatePtr(ic).isAvailable()){
+            
+            if(nPFJetAK8_cons>= nconsmax) break;	
+            const reco::Candidate* jcand = ak8jet.sourceCandidatePtr(ic).get();
+            PFJetAK8_cons_pt[nPFJetAK8_cons] = jcand->pt();
+            PFJetAK8_cons_eta[nPFJetAK8_cons] = jcand->eta();
+            PFJetAK8_cons_phi[nPFJetAK8_cons] = jcand->phi();
+            PFJetAK8_cons_mass[nPFJetAK8_cons] = jcand->mass();
+            PFJetAK8_cons_pdgId[nPFJetAK8_cons] = jcand->pdgId();
+            PFJetAK8_cons_jetIndex[nPFJetAK8_cons] = nPFJetAK8;   
+            nPFJetAK8_cons++;
+          }
+        }
+      }
+            
       // end of candidate storage //
             
       nPFJetAK8++;	
