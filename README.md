@@ -8,7 +8,7 @@ mkdir XtoYH
 
 cd XtoYH
 
-cmsrel CMSSSW_10_6_29 
+cmsrel CMSSW_10_6_29 
 
 #For CMSSW_10_6_X (X<=25), some changes need to be made for ECAL prefiring weights
 
