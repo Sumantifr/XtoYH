@@ -75,12 +75,14 @@ float PNbb_SF_ptbins[PNbb_SF_nptbins+1] = {300,400,500,600,10000};
 double PNbb_SF_HP[PNbb_SF_nptbins] = {1.192,1.137,1.211,1.350};
 double PNbb_SF_HP_up[PNbb_SF_nptbins] = {1.192-0.101,1.137-0.081,1.211-0.151,1.350-0.237};
 double PNbb_SF_HP_dn[PNbb_SF_nptbins] = {1.192+0.101,1.137+0.082,1.211+0.151,1.350+0.238};
+// SFs taken from: https://indico.cern.ch/event/1011640/contributions/4460748/attachments/2285317/3885997/21.07.21_BTV_ParticleNet%20SFs%20for%20UL1718%20v2.pdf
 
 static const int PNW_SF_nptbins = 3;
 float PNW_SF_ptbins[PNbb_SF_nptbins+1] = {200,300,400,10000};
 double PNW_SF_T[PNW_SF_nptbins] = {0.81,0.86,0.91};
 double PNW_SF_T_up[PNW_SF_nptbins] = {0.81+0.02,0.86+0.02,0.91+0.04};
 double PNW_SF_T_dn[PNW_SF_nptbins] = {0.81-0.02,0.86-0.02,0.91-0.04};
+// SFs taken from: https://indico.cern.ch/event/1103765/contributions/4647556/attachments/2364610/4037250/ParticleNet_2018_ULNanoV9_JMAR_14Dec2021_PK.pdf
 
 //int main()
 void histomaker_V()
