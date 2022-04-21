@@ -1187,17 +1187,21 @@ TString proc_Name[] = {
 		bb_SF = bb_SF_up = bb_SF_dn = 1.;
 		int Y_pt_bin = getbinid(Y_pt,PNbb_SF_nptbins,PNbb_SF_ptbins);
 		if(Y_pt_bin>=0 && Y_pt_bin<PNbb_SF_nptbins) { 
-			bb_SF = PNbb_SF_HP[Y_pt_bin]; 
-			bb_SF_up = PNbb_SF_HP_up[Y_pt_bin]; 
-			bb_SF_dn = PNbb_SF_HP_dn[Y_pt_bin]; 
+			if(Flag_Y_bb_pass_T){
+				bb_SF = PNbb_SF_HP[Y_pt_bin]; 
+				bb_SF_up = PNbb_SF_HP_up[Y_pt_bin]; 
+				bb_SF_dn = PNbb_SF_HP_dn[Y_pt_bin]; 
+			}
 		}
      
 		W_SF = W_SF_up = W_SF_dn = 1.;
 		int W_pt_bin = getbinid(W_pt_opt2,PNW_SF_nptbins,PNW_SF_ptbins);
 		if(W_pt_bin>=0 && W_pt_bin<PNW_SF_nptbins) { 
-			W_SF = PNW_SF_T[W_pt_bin]; 
-			W_SF_up = PNW_SF_T_up[W_pt_bin]; 
-			W_SF_dn = PNW_SF_T_dn[W_pt_bin]; 
+			if(Flag_H_W_pass_T_opt2){
+				W_SF = PNW_SF_T[W_pt_bin]; 
+				W_SF_up = PNW_SF_T_up[W_pt_bin]; 
+				W_SF_dn = PNW_SF_T_dn[W_pt_bin]; 
+			}
 		}
 	}
    // end of tagger SF //
