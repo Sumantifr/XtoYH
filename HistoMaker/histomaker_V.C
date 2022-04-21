@@ -72,9 +72,9 @@ return hout;
 
 static const int PNbb_SF_nptbins = 4;
 float PNbb_SF_ptbins[PNbb_SF_nptbins+1] = {300,400,500,600,10000};
-double PNbb_SF_HP[PNbb_SF_nptbins] = {1.195,1.153,1.126,1.314};
-double PNbb_SF_HP_up[PNbb_SF_nptbins] = {1.195-0.059,1.153-0.094,1.126-0.098,1.314-0.215};
-double PNbb_SF_HP_dn[PNbb_SF_nptbins] = {1.195+0.058,1.153+0.095,1.126+0.098,1.314+0.214};
+double PNbb_SF_HP[PNbb_SF_nptbins] = {1.192,1.137,1.211,1.350};
+double PNbb_SF_HP_up[PNbb_SF_nptbins] = {1.192-0.101,1.137-0.081,1.211-0.151,1.350-0.237};
+double PNbb_SF_HP_dn[PNbb_SF_nptbins] = {1.192+0.101,1.137+0.082,1.211+0.151,1.350+0.238};
 
 static const int PNW_SF_nptbins = 3;
 float PNW_SF_ptbins[PNbb_SF_nptbins+1] = {200,300,400,10000};
