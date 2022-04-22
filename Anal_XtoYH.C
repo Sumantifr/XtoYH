@@ -37,7 +37,7 @@ float* Muon_SF(TFile *file_mu_sf, string id, float pt, float eta){
 		sf_stat = sf_sys = 1;
 		}
 	
-	static float sfvalues[4];
+	static float sfvalues[5];
 	sfvalues[0] = sf;
 	sfvalues[1] = sf+sf_err;
 	sfvalues[2] = sf-sf_err;
