@@ -25,21 +25,24 @@ float* Muon_SF(TFile *file_mu_sf, string id, float pt, float eta){
 	int eta_bin_id = h_SF->GetXaxis()->FindBin(fabs(eta));
 	int pt_bin_id = h_SF->GetYaxis()->FindBin(pt);
 	
-	float sf, sf_stat, sf_sys;
+	float sf, sf_stat, sf_sys, sf_err;
 		
 	if(eta_bin_id>0 && eta_bin_id<=(h_SF->GetNbinsX()) && pt_bin_id>0 && pt_bin_id<=(h_SF->GetNbinsY())){
 		sf = h_SF->GetBinContent(eta_bin_id,pt_bin_id);
+		sf_err = h_SF->GetBinError(eta_bin_id,pt_bin_id);
 		sf_stat = h_SF_stat->GetBinContent(eta_bin_id,pt_bin_id);
 		sf_sys = h_SF_sys->GetBinContent(eta_bin_id,pt_bin_id);
 	}else{
 		sf = 1;
-		sf_stat = sf_sys = 0;
+		sf_stat = sf_sys = 1;
 		}
 	
-	static float sfvalues[3];
+	static float sfvalues[4];
 	sfvalues[0] = sf;
-	sfvalues[1] = sf_stat;
-	sfvalues[2] = sf_stat;
+	sfvalues[1] = sf+sf_err;
+	sfvalues[2] = sf-sf_err;
+	sfvalues[3] = sf_stat;
+	sfvalues[4] = sf_sys;
 		
 	return sfvalues;
 }
@@ -56,25 +59,25 @@ float* Electron_SF(TFile *file_el_sf, float pt, float eta){
 	TH2F *h_SF_altMCEff = (TH2F*)file_el_sf->Get("altMCEff");
 	TH2F *h_SF_altTagSelection = (TH2F*)file_el_sf->Get("altTagSelection");
 	
-	int eta_bin_id = h_SF->GetXaxis()->FindBin(fabs(eta));
+	int eta_bin_id = h_SF->GetXaxis()->FindBin(eta);
 	int pt_bin_id = h_SF->GetYaxis()->FindBin(pt);
-	
-	float sf, sf_stat, sf_sys;
-	
-	static float sfvalues[7] = {-100,-100,-100,-100,-100,-100,-100};
+		
+	static float sfvalues[9] = {-100,-100,-100,-100,-100,-100,-100,-100,-100};
 	
 	if(eta_bin_id>0 && eta_bin_id<=(h_SF->GetNbinsX()) && pt_bin_id>0 && pt_bin_id<=(h_SF->GetNbinsY())){
 		sfvalues[0] = h_SF->GetBinContent(eta_bin_id,pt_bin_id);
-		sfvalues[1] = h_SF_statData->GetBinContent(eta_bin_id,pt_bin_id);
-		sfvalues[2] = h_SF_statMC->GetBinContent(eta_bin_id,pt_bin_id);
-		sfvalues[3] = h_SF_altBkgModel->GetBinContent(eta_bin_id,pt_bin_id);
-		sfvalues[4] = h_SF_altSignalModel->GetBinContent(eta_bin_id,pt_bin_id);
-		sfvalues[5] = h_SF_altMCEff->GetBinContent(eta_bin_id,pt_bin_id);
-		sfvalues[6] = h_SF_altTagSelection->GetBinContent(eta_bin_id,pt_bin_id);
+		sfvalues[1] = sfvalues[0]+h_SF->GetBinError(eta_bin_id,pt_bin_id);
+		sfvalues[2] = sfvalues[0]-h_SF->GetBinError(eta_bin_id,pt_bin_id);
+		sfvalues[3] = h_SF_statData->GetBinContent(eta_bin_id,pt_bin_id);
+		sfvalues[4] = h_SF_statMC->GetBinContent(eta_bin_id,pt_bin_id);
+		sfvalues[5] = h_SF_altBkgModel->GetBinContent(eta_bin_id,pt_bin_id);
+		sfvalues[6] = h_SF_altSignalModel->GetBinContent(eta_bin_id,pt_bin_id);
+		sfvalues[7] = h_SF_altMCEff->GetBinContent(eta_bin_id,pt_bin_id);
+		sfvalues[8] = h_SF_altTagSelection->GetBinContent(eta_bin_id,pt_bin_id);
 	}
 	else{
-		sfvalues[0] = 1;
-		sfvalues[1] = sfvalues[2] = sfvalues[3] = sfvalues[4] = sfvalues[5] = sfvalues[6] = 0;
+		sfvalues[0] = sfvalues[1] = sfvalues[2] = 1;
+		sfvalues[3] = sfvalues[4] = sfvalues[5] = sfvalues[6] = sfvalues[7] = sfvalues[8] = 0;
 		}
 			
 	return sfvalues;
@@ -132,6 +135,10 @@ else if(inputFile=="FILELIST_2018_NEW/QCD_HT2000toInf_XtoYH_Nov_2021.log")
 {sprintf(fOut,"HIST_2018UL/QCD_HT2000toInf_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
 else if(inputFile=="FILELIST_2018_NEW/QCD_HT700to1000_XtoYH_Nov_2021.log")
 {sprintf(fOut,"HIST_2018UL/QCD_HT700to1000_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/QCD_HT300to500_XtoYH_Nov_2021.log")
+{sprintf(fOut,"HIST_2018UL/QCD_HT300to500_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/QCD_HT500to700_XtoYH_Nov_2021.log")
+{sprintf(fOut,"HIST_2018UL/QCD_HT500to700_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
 else if(inputFile=="FILELIST_2018_NEW/ST_s-channel_XtoYH_Nov_2021.log")
 {sprintf(fOut,"HIST_2018UL/ST_s-channel_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
 else if(inputFile=="FILELIST_2018_NEW/ST_t-channel_antitop_XtoYH_Nov_2021.log")
@@ -192,6 +199,42 @@ else if(inputFile=="FILELIST_2018_NEW/ZZTo4L_XtoYH_Nov_2021.log")
 {sprintf(fOut,"HIST_2018UL/ZZTo4L_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
 else if(inputFile=="FILELIST_2018_NEW/ZZTo4Q_XtoYH_Nov_2021.log")
 {sprintf(fOut,"HIST_2018UL/ZZTo4Q_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/XtoYH_YTobb_HToWWTo2QLNu_MX_2000_MY_200_Nov_2021.log")
+{sprintf(fOut,"HIST_2018UL/XtoYH_YTobb_HToWWTo2QLNu_MX_2000_MY_200_Nov_2021_%s_%s.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/XtoYH_YTobb_HToWWTo2QLNu_MX_1500_MY_200_Nov_2021.log")
+{sprintf(fOut,"HIST_2018UL/XtoYH_YTobb_HToWWTo2QLNu_MX_1500_MY_200_Nov_2021_%s_%s.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/EGamma_UL2018A_XtoYH_Nov_2021.log")
+{sprintf(fOut,"HIST_2018UL_DATA/EGamma_UL2018A_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/EGamma_UL2018B_XtoYH_Nov_2021.log")
+{sprintf(fOut,"HIST_2018UL_DATA/EGamma_UL2018B_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/EGamma_UL2018C_XtoYH_Nov_2021.log")
+{sprintf(fOut,"HIST_2018UL_DATA/EGamma_UL2018C_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/EGamma_UL2018D_XtoYH_Nov_2021.log")
+{sprintf(fOut,"HIST_2018UL_DATA/EGamma_UL2018D_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/SingleMuon_UL2018A_XtoYH_Nov_2021.log")
+{sprintf(fOut,"HIST_2018UL_DATA/SingleMuon_UL2018A_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/SingleMuon_UL2018B_XtoYH_Nov_2021.log")
+{sprintf(fOut,"HIST_2018UL_DATA/SingleMuon_UL2018B_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/SingleMuon_UL2018C_XtoYH_Nov_2021.log")
+{sprintf(fOut,"HIST_2018UL_DATA/SingleMuon_UL2018C_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/SingleMuon_UL2018D_XtoYH_Nov_2021.log")
+{sprintf(fOut,"HIST_2018UL_DATA/SingleMuon_UL2018D_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
+/**********************************************************************************************/
+else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1000_MY_100.log")
+{sprintf(fOut,"HIST_2018UL/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1000_MY_100_XtoYH_Nov_2021_%s_%s_v2.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1500_MY_200.log")
+{sprintf(fOut,"HIST_2018UL/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1500_MY_200_XtoYH_Nov_2021_%s_%s_v2.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_200.log")
+{sprintf(fOut,"HIST_2018UL/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_200_XtoYH_Nov_2021_%s_%s_v2.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2400_MY_300.log")
+{sprintf(fOut,"HIST_2018UL/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2400_MY_300_XtoYH_Nov_2021_%s_%s_v2.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_100.log")
+{sprintf(fOut,"HIST_2018UL/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_100_XtoYH_Nov_2021_%s_%s_v2.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_500.log")
+{sprintf(fOut,"HIST_2018UL/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_500_XtoYH_Nov_2021_%s_%s_v2.root",argv[1],argv[2]);}
+/**********************************************************************************************/
+
+
    TFile *fileout = new TFile(fOut,"recreate");
    
    Tout = new TTree("Tout", "Results");
@@ -256,6 +299,8 @@ else if(inputFile=="FILELIST_2018_NEW/ZZTo4Q_XtoYH_Nov_2021.log")
    Tout->Branch("puWeightdown", &puWeightdown, "puWeightdown/F");	
    
    Tout->Branch("leptonsf_weight", &leptonsf_weight, "leptonsf_weight/F");
+   Tout->Branch("leptonsf_weight_up", &leptonsf_weight_up, "leptonsf_weight_up/F");	
+   Tout->Branch("leptonsf_weight_dn", &leptonsf_weight_dn, "leptonsf_weight_dn/F");	
    Tout->Branch("leptonsf_weight_stat", &leptonsf_weight_stat, "leptonsf_weight_stat/F");	
    Tout->Branch("leptonsf_weight_syst", &leptonsf_weight_syst, "leptonsf_weight_syst/F");	
    
@@ -584,6 +629,15 @@ else if(inputFile=="FILELIST_2018_NEW/ZZTo4Q_XtoYH_Nov_2021.log")
    Tout->Branch("GenV_pdgId",GenV_pdgId,"GenV_pdgId[nGenV]/I");
    Tout->Branch("GenV_mompdgId",GenV_mompdgId,"GenV_mompdgId[nGenV]/I");
    Tout->Branch("GenV_grmompdgId",GenV_grmompdgId,"GenV_grmompdgId[nGenNu]/I");
+   
+   Tout->Branch("nLHEScaleWeights", &nLHEScaleWeights, "nLHEScaleWeights/I");
+   Tout->Branch("LHEScaleWeights", LHEScaleWeights, "LHEScaleWeights[nLHEScaleWeights]/F");
+   Tout->Branch("nLHEPDFWeights", &nLHEPDFWeights, "nLHEPDFWeights/I");
+   Tout->Branch("LHEPDFWeights", LHEPDFWeights, "LHEPDFWeights[nLHEPDFWeights]/F");
+   Tout->Branch("nLHEAlpsWeights", &nLHEAlpsWeights, "nLHEAlpsWeights/I");
+   Tout->Branch("LHEAlpsWeights", LHEAlpsWeights, )"LHEAlpsWeights[nLHEAlpsWeights]/F";
+   Tout->Branch("nLHEPSWeights", &nLHEPSWeights, "nLHEPSWeights/I");
+   Tout->Branch("LHEPSWeights", LHEPSWeights, "LHEPSWeights[nLHEPSWeights]/F");
    
    calib_deepflav = BTagCalibration("DeepJet", "BtagRecommendation106XUL18/DeepJet_106XUL18SF_WPonly_V1p1.csv");
    reader_deepflav = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"}); 
@@ -1063,7 +1117,7 @@ else if(inputFile=="FILELIST_2018_NEW/ZZTo4Q_XtoYH_Nov_2021.log")
    cout<<"nentries "<<nentries<<endl;
    
    isMC = true;
-   isFastSIM = false;
+   isFastSIM = true;
    
    for (int ij=0; ij<nentries; ij++) {
    
@@ -1283,12 +1337,12 @@ else if(inputFile=="FILELIST_2018_NEW/ZZTo4Q_XtoYH_Nov_2021.log")
                                                                    if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_b_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); } 
 			                                           if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_b_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
 			                                        }    
-                            else if( fabs(Jets[ijet].hadronFlavour) == 4 )  {  h_Ak4_c_flv->Fill(Jets[ijet].pt,Jets[ijet].eta,LHE_weight);  
+                            else if( fabs(Jets[ijet].hadronFlavour) == 4 )  {  h_Ak4_c_flv->Fill(Jets[ijet].pt,Jets[ijet].eta,event_weight);  
                                                                    if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_c_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
                                                                    if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_c_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
                                                                    if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_c_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
                                                                 }
-                           if( Jets[ijet].hadronFlavour == 0 )  {  h_Ak4_l_flv->Fill(Jets[ijet].pt,Jets[ijet].eta,LHE_weight);  
+                            else if( Jets[ijet].hadronFlavour == 0 )  {  h_Ak4_l_flv->Fill(Jets[ijet].pt,Jets[ijet].eta,event_weight);  
                                                                    if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_l_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
                                                                    if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_l_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
                                                                    if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_l_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
@@ -1313,9 +1367,9 @@ else if(inputFile=="FILELIST_2018_NEW/ZZTo4Q_XtoYH_Nov_2021.log")
 	 if(dR < 0.4) 
 	   { 
               h_Ak8_DeepTag_PNetMD_WvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,event_weight);
-			  h_Ak8_DeepTag_PNetMD_XbbvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,LHE_weight);
-		      if(LJets[ijet].DeepTag_PNetMD_WvsQCD>PNetW_cut_T) {h_Ak8_DeepTag_PNetMD_WvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
-	          if(LJets[ijet].DeepTag_PNetMD_WvsQCD>PNetW_cut_M) {h_Ak8_DeepTag_PNetMD_WvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
+	      h_Ak8_DeepTag_PNetMD_XbbvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,event_weight);
+	      if(LJets[ijet].DeepTag_PNetMD_WvsQCD>PNetW_cut_T) {h_Ak8_DeepTag_PNetMD_WvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
+	      if(LJets[ijet].DeepTag_PNetMD_WvsQCD>PNetW_cut_M) {h_Ak8_DeepTag_PNetMD_WvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
               if(LJets[ijet].DeepTag_PNetMD_WvsQCD>PNetW_cut_L) {h_Ak8_DeepTag_PNetMD_WvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
               if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNetbb_cut_T){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);}
               if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNetbb_cut_M){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);}
@@ -1894,6 +1948,8 @@ else if(inputFile=="FILELIST_2018_NEW/ZZTo4Q_XtoYH_Nov_2021.log")
 	}
 	
 	leptonsf_weight = 1.0;
+	leptonsf_weight_up = 1.0;
+	leptonsf_weight_dn = 1.0;
 	leptonsf_weight_stat = 1.0;
 	leptonsf_weight_syst = 1.0;
 	
@@ -1901,15 +1957,19 @@ else if(inputFile=="FILELIST_2018_NEW/ZZTo4Q_XtoYH_Nov_2021.log")
 		if(abs(vleptons[lep].pdgId)==11) { 
 			float *sfvalues = Electron_SF(file_el_sf, vleptons[lep].pt, vleptons[lep].eta);
 			leptonsf_weight *= sfvalues[0];
-			leptonsf_weight_stat *= (sfvalues[0] + sqrt(sfvalues[1]*sfvalues[1] + sfvalues[2]*sfvalues[2]));  // like this for time being 
-			leptonsf_weight_syst *= (sfvalues[0] + sqrt(sfvalues[3]*sfvalues[3] + sfvalues[4]*sfvalues[4] + sfvalues[5]*sfvalues[5] + sfvalues[6]*sfvalues[6]));  // like this for time being 
+			leptonsf_weight_up *= sfvalues[1];
+			leptonsf_weight_dn *= sfvalues[2];
+			leptonsf_weight_stat *= (sfvalues[0] + sqrt(sfvalues[3]*sfvalues[3] + sfvalues[4]*sfvalues[4]));  // like this for time being 
+			leptonsf_weight_syst *= (sfvalues[0] + sqrt(sfvalues[5]*sfvalues[5] + sfvalues[6]*sfvalues[6] + sfvalues[7]*sfvalues[7] + sfvalues[8]*sfvalues[8]));  // like this for time being 
 		}
 		if(abs(vleptons[lep].pdgId)==13) { 
 			float *sfvalues;
 			sfvalues = Muon_SF(file_mu_sf, muon_id_name, vleptons[lep].pt, vleptons[lep].eta);
 			leptonsf_weight *= *(sfvalues+0);
-			leptonsf_weight_stat *= *(sfvalues+1);
-			leptonsf_weight_syst *= *(sfvalues+2);
+			leptonsf_weight_up *= *(sfvalues+1);
+			leptonsf_weight_dn *= *(sfvalues+2);
+			leptonsf_weight_stat *= *(sfvalues+3);
+			leptonsf_weight_syst *= *(sfvalues+4);
 		}
 	}
 	

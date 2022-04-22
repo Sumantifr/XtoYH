@@ -1052,7 +1052,7 @@
    double weight;
    
    float puWeight, puWeightup, puWeightdown;
-   float leptonsf_weight, leptonsf_weight_stat, leptonsf_weight_syst;
+   float leptonsf_weight, leptonsf_weight_up, leptonsf_weight_dn, leptonsf_weight_stat, leptonsf_weight_syst;
    
    BTagCalibration calib_deepcsv, calib_deepflav;
    BTagCalibrationReader reader_deepcsv, reader_deepflav;
