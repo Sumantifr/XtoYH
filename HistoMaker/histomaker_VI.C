@@ -79,9 +79,9 @@ double PNbb_SF_HP_dn[PNbb_SF_nptbins] = {1.192+0.101,1.137+0.082,1.211+0.151,1.3
 
 static const int PNW_SF_nptbins = 3;
 float PNW_SF_ptbins[PNW_SF_nptbins+1] = {200,300,400,10000};
-double PNW_SF_T[PNW_SF_nptbins] = {0.81,0.86,0.91};
-double PNW_SF_T_up[PNW_SF_nptbins] = {0.81+0.02,0.86+0.02,0.91+0.04};
-double PNW_SF_T_dn[PNW_SF_nptbins] = {0.81-0.02,0.86-0.02,0.91-0.04};
+double PNW_SF_T[PNW_SF_nptbins] = {0.81,0.81,0.77};
+double PNW_SF_T_up[PNW_SF_nptbins] = {0.81+0.02,0.81+0.02,0.77+0.04};
+double PNW_SF_T_dn[PNW_SF_nptbins] = {0.81-0.02,0.81-0.02,0.77-0.04};
 // SFs taken from: https://indico.cern.ch/event/1103765/contributions/4647556/attachments/2364610/4037250/ParticleNet_2018_ULNanoV9_JMAR_14Dec2021_PK.pdf
 
 static const int PNTop_SF_nptbins = 4;
@@ -1028,7 +1028,7 @@ TString proc_Name[] = {
    tree->SetBranchAddress("GenV_grmompdgId", GenV_grmompdgId, &b_GenV_grmompdgId);
    //tree->SetBranchAddress("event_weight_LHE", &event_weight_LHE);
 
-  float ptedges[] = {20, 25, 30, 37, 43, 49, 56, 64, 74, 84, 97, 114, 133, 153, 174, 196, 220, 245, 272, 300, 330, 362, 395, 430, 468, 507, 548, 592, 638, 686, 737, 790, 846, 905, 967, 1101, 2500};
+  float ptedges[] = {20, 25, 30, 37, 43, 49, 56, 64, 74, 84, 97, 114, 133, 153, 174, 196, 220, 245, 272, 300, 330, 362, 395, 430, 468, 507, 548, 592, 638, 686, 737, 790, 846, 905, 967, 1101, 1248, 1410, 1588, 1784, 2000, 2366, 2787, 3450};
   const int nptbins = sizeof(ptedges)/sizeof(ptedges[0])-1;
 
   TString rgn[] = {"SR","CR1","CR2","CR3","CR4","CR5","CR6","CR7"};
@@ -1127,40 +1127,39 @@ TString proc_Name[] = {
                              
 				h_l_pt[ij][jk][kl][lm] 				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"l_pt","",40,0,1000);
 				h_l_eta[ij][jk][kl][lm]				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"l_eta","",50,-2.5,2.5);
-				h_l_minisoall[ij][jk][kl][lm]				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"l_minisoall","",100,0,1.5);
+				h_l_minisoall[ij][jk][kl][lm]		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"l_minisoall","",150,0,1.5);
 	       	
 				h_MET_pt[ij][jk][kl][lm] 			= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"MET_pt","",40,0,1000);
-				h_MET_sig[ij][jk][kl][lm] 			= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"MET_sig","",20,0,300);				
-				h_MT[ij][jk][kl][lm] 				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"MT","",20,0,300);
+				h_MET_sig[ij][jk][kl][lm] 			= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"MET_sig","",50,0,300);				
+				h_MT[ij][jk][kl][lm] 				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"MT","",25,0,300);
 			
-				h_leadbjet_pt[ij][jk][kl][lm] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"LeadBJet_pt","",40,0,1000);
-				h_leadbjet_btag_DeepFlav[ij][jk][kl][lm] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"LeadBJet_btag_DeepFlav","",50,0,1);
+				//h_leadbjet_pt[ij][jk][kl][lm] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"LeadBJet_pt","",40,0,1000);
+				//h_leadbjet_btag_DeepFlav[ij][jk][kl][lm] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"LeadBJet_btag_DeepFlav","",50,0,1);
 				
-			
 				h_Y_pt[ij][jk][kl][lm] 				= get_histo_asymbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_pt","",nptbins, ptedges);
-				h_Y_msoftdrop[ij][jk][kl][lm] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop","",20,0,500);
-				h_Y_PNetMD_XbbvsQCD[ij][jk][kl][lm] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_PNetMD_XbbvsQCD","", 50, 0.0, 1.0 );
-				h_Y_PNetMD_WvsQCD[ij][jk][kl][lm] 	= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_PNetMD_WvsQCD","", 50, 0.0, 1.0 );
-				h_Y_PNet_TvsQCD[ij][jk][kl][lm] 	= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_PNet_TvsQCD","", 50, 0.0, 1.0 );
-				h_Y_sub1_mass[ij][jk][kl][lm] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_sub1_mass","", 20, 0.0, 300 );
-				h_Y_sub2_mass[ij][jk][kl][lm] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_sub2_mass","", 20, 0.0, 300 );
+				h_Y_msoftdrop[ij][jk][kl][lm] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop","",40,0,600);
+				h_Y_PNetMD_XbbvsQCD[ij][jk][kl][lm] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_PNetMD_XbbvsQCD","", 100, 0.0, 1.0 );
+				h_Y_PNetMD_WvsQCD[ij][jk][kl][lm] 	= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_PNetMD_WvsQCD","", 100, 0.0, 1.0 );
+				h_Y_PNet_TvsQCD[ij][jk][kl][lm] 	= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_PNet_TvsQCD","", 100, 0.0, 1.0 );
+				h_Y_sub1_mass[ij][jk][kl][lm] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_sub1_mass","", 40, 0.0, 300 );
+				h_Y_sub2_mass[ij][jk][kl][lm] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_sub2_mass","", 40, 0.0, 300 );
 				h_Y_sub1_btag[ij][jk][kl][lm] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_sub1_btag","", 50, 0.0, 1.0 );
 				h_Y_sub2_btag[ij][jk][kl][lm] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_sub2_btag","", 50, 0.0, 1.0 );
 				
 				h_W_pt[ij][jk][kl][lm]	 			 = get_histo_asymbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"W_pt","",nptbins, ptedges);
-				h_W_msoftdrop[ij][jk][kl][lm] 		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"W_msoftdrop","",35,0,350);
-				h_W_PNetMD_XbbvsQCD[ij][jk][kl][lm] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"W_PNetMD_XbbvsQCD","",50,0,1);
-				h_W_PNetMD_WvsQCD[ij][jk][kl][lm] 	 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"W_PNetMD_WvsQCD","",50,0,1);
-				h_W_PNet_TvsQCD[ij][jk][kl][lm] 	 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"W_PNet_TvsQCD","",50,0,1);
-				h_W_DAK8MD_WvsQCD[ij][jk][kl][lm]	 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"W_DAK8MD_WvsQCD","",50,0,1);
-				h_W_sub1_mass[ij][jk][kl][lm] 		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"W_sub1_mass","",20, 0.0, 300);
-				h_W_sub2_mass[ij][jk][kl][lm] 		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"W_sub2_mass","",20, 0.0, 300);
+				h_W_msoftdrop[ij][jk][kl][lm] 		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"W_msoftdrop","",50,0,350);
+				h_W_PNetMD_XbbvsQCD[ij][jk][kl][lm] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"W_PNetMD_XbbvsQCD","",100,0,1);
+				h_W_PNetMD_WvsQCD[ij][jk][kl][lm] 	 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"W_PNetMD_WvsQCD","",100,0,1);
+				h_W_PNet_TvsQCD[ij][jk][kl][lm] 	 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"W_PNet_TvsQCD","",100,0,1);
+				h_W_DAK8MD_WvsQCD[ij][jk][kl][lm]	 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"W_DAK8MD_WvsQCD","",100,0,1);
+				h_W_sub1_mass[ij][jk][kl][lm] 		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"W_sub1_mass","",40, 0.0, 300);
+				h_W_sub2_mass[ij][jk][kl][lm] 		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"W_sub2_mass","",40, 0.0, 300);
 				h_W_sub1_btag[ij][jk][kl][lm] 		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"W_sub1_btag","",50, 0.0, 1);
 				h_W_sub2_btag[ij][jk][kl][lm] 		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"W_sub2_btag","",50, 0.0, 1);
 				
-				h_dR_lW[ij][jk][kl][lm] 			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"dR_lW","",50, 0.0, 5.0);
-				h_dy_lW[ij][jk][kl][lm] 			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"dy_lW","",50, -5.0, 5.0);
-				h_dphi_lW[ij][jk][kl][lm]			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"dphi_lW","",60, -M_PI, +M_PI);
+				h_dR_lW[ij][jk][kl][lm] 			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"dR_lW","",100, 0.0, 5.0);
+				h_dy_lW[ij][jk][kl][lm] 			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"dy_lW","",100, -5.0, 5.0);
+				h_dphi_lW[ij][jk][kl][lm]			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"dphi_lW","",90, -M_PI, +M_PI);
 				
 				h_H_mass[ij][jk][kl][lm] 			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"H_mass","",35, 0.0, 350.0);
 				
@@ -1168,9 +1167,9 @@ TString proc_Name[] = {
 				
 				h_nbjets_other[ij][jk][kl][lm]		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"nbjets_other","",5 ,0.0, 5.0 );
                
-				h_X_Y_mass[ij][jk][kl][lm] 		     = new TH2F("h_Y_"+Ytype[y_wp]+"_W_"+Wtype[w_wp]+"_X_Y_mass_"+Wops[kl]+"_"+rgn[ij]+bcats[jk]+lepids[lm], "", 40, 0.0, 4000.0, 20, 0.0, 500.0);
+				h_X_Y_mass[ij][jk][kl][lm] 		     = new TH2F("h_Y_"+Ytype[y_wp]+"_W_"+Wtype[w_wp]+"_X_Y_mass_"+Wops[kl]+"_"+rgn[ij]+bcats[jk]+lepids[lm], "", 40, 0.0, 4000.0, 40, 0.0, 600.0);
 				
-				h_Y_msoftdrop_sys[ij][jk][kl][lm][0] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop","_nom",20,0,500);
+				h_Y_msoftdrop_sys[ij][jk][kl][lm][0] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop","_nom",40,0,600);
 				h_X_mass_sys[ij][jk][kl][lm][0] 			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"X_mass","_nom",40, 0.0, 4000.0);
 
                 h_for_limit_X_mass[ij][jk][kl][lm]                 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin1_X_mass","",260,0,52000);
@@ -1185,14 +1184,14 @@ TString proc_Name[] = {
 					char name[50];
 					//up systematics
 					sprintf(name,"_%s_up",sysnames[isys].Data());
-					h_Y_msoftdrop_sys[ij][jk][kl][lm][2*(isys+1)-1] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop",name,20,0,500);
+					h_Y_msoftdrop_sys[ij][jk][kl][lm][2*(isys+1)-1] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop",name,40,0,600);
 					h_X_mass_sys[ij][jk][kl][lm][2*(isys+1)-1]			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"X_mass",name,40, 0.0, 4000.0);
 					h_for_limit_X_mass_sys[ij][jk][kl][lm][2*(isys+1)-1] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin1_X_mass",name,260,0,52000);
                     h_for_limit_X_mass_sys_v2[ij][jk][kl][lm][2*(isys+1)-1] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin2_X_mass",name,216,400,43600);
 
                     //dn systematics
 					sprintf(name,"_%s_dn",sysnames[isys].Data());
-					h_Y_msoftdrop_sys[ij][jk][kl][lm][2*(isys+1)] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop",name,20,0,500);
+					h_Y_msoftdrop_sys[ij][jk][kl][lm][2*(isys+1)] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop",name,40,0,600);
 					h_X_mass_sys[ij][jk][kl][lm][2*(isys+1)]			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"X_mass",name,40, 0.0, 4000.0);
                     h_for_limit_X_mass_sys[ij][jk][kl][lm][2*(isys+1)] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin1_X_mass",name,260,0,52000);
                     h_for_limit_X_mass_sys_v2[ij][jk][kl][lm][2*(isys+1)] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin2_X_mass",name,216,400,43600);
