@@ -99,7 +99,6 @@ void histomaker_VI()
 {
 Bool_t isDATA = false;
 TString proc_Name[] = {
-/*
 "DYBJetsToLL_M-50_Zpt-100to200_XtoYH.root",
 "DYBJetsToLL_M-50_Zpt-200toInf_XtoYH.root",
 "DYJetsToLL_M-10to50_XtoYH.root",
@@ -152,7 +151,6 @@ TString proc_Name[] = {
 "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_200_XtoYH_Nov_2021_v2.root",
 "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2400_MY_300_XtoYH_Nov_2021_v2.root",
 "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_100_XtoYH_Nov_2021_v2.root",
-*/
 "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_500_XtoYH_Nov_2021_v2.root"
 };
  int nproc = sizeof(proc_Name)/sizeof(proc_Name[0]);
@@ -169,7 +167,7 @@ TString proc_Name[] = {
 
 
    std::cout << proc_Name[ii] << std::endl;
-   TFile* final_file = TFile::Open("OUTPUT/Histogram_"+proc_Name[ii], "RECREATE");  
+   TFile* final_file = TFile::Open("OUTPUTS/Histogram_"+proc_Name[ii], "RECREATE");  
 
    TFile *file = TFile::Open(proc_Name[ii]);
    TTree *tree = (TTree*)file->Get("Tout");
@@ -1058,7 +1056,9 @@ TString proc_Name[] = {
   // Declaration of histograms //
   
   final_file->cd();
-  TH1D* h_nom = new TH1D("h_nom","h_nom",7,0.0,7.0);
+  
+  TH1D* h_nom;
+  TH1D* h_nom_reg[nrgn];  
   TH1D* h_reg = new TH1D("h_reg_id","h_reg_id",10,0.0,10.0);
 
   TH1F* h_l_pt[nrgn][nbcat][nWop][nlid];
@@ -1115,6 +1115,16 @@ TString proc_Name[] = {
   // End of declaration //
   
   // Definition of histograms //
+  
+  h_nom = new TH1D("h_nom","h_nom",7,0.0,7.0);
+  h_nom->Sumw2();
+  
+  for(int ij=0; ij<nrgn; ij++){
+	char name[50];
+	sprintf(name,"h_nom_%s",rgn[ij].Data());
+	h_nom_reg[ij] = new TH1D(name,name,7,0.,7.);
+	h_nom_reg[ij]->Sumw2();
+  }
   
   for (int ij=0 ; ij< nrgn ; ij++)
   {
@@ -1266,6 +1276,7 @@ TString proc_Name[] = {
 			bb_SF_up = PNbb_SF_HP_up[Y_pt_bin]; 
 			bb_SF_dn = PNbb_SF_HP_dn[Y_pt_bin]; 
 		}
+		/*
 		else{
             int etabin = std::max(1, std::min(h_YtagT_eff->GetNbinsY(), h_YtagT_eff->GetYaxis()->FindBin(fabs(Y_eta))));
 		   	int ptbin  = std::max(1, std::min(h_YtagT_eff->GetNbinsX(), h_YtagT_eff->GetXaxis()->FindBin(Y_pt)));	
@@ -1274,6 +1285,7 @@ TString proc_Name[] = {
 			bb_SF_up  = std::max(1.e-6,(1.0 - PNbb_SF_HP_up[Y_pt_bin] * h_YtagT_eff->GetBinContent(ptbin, etabin) )/(1. - h_YtagT_eff->GetBinContent(ptbin, etabin)));
             bb_SF_dn  = std::max(1.e-6,(1.0 - PNbb_SF_HP_dn[Y_pt_bin] * h_YtagT_eff->GetBinContent(ptbin, etabin) )/(1. - h_YtagT_eff->GetBinContent(ptbin, etabin)));
 		}
+		*/ 
 	}
 
                  
@@ -1284,6 +1296,7 @@ TString proc_Name[] = {
 			W_SF_up = PNW_SF_T_up[W_pt_bin]; 
 			W_SF_dn = PNW_SF_T_dn[W_pt_bin]; 
 		}
+		/*
 		else {
 			int wetabin = std::max(1, std::min(h_WtagT_eff->GetNbinsY(), h_WtagT_eff->GetYaxis()->FindBin(fabs(W_eta_opt2))));
 			int wptbin  = std::max(1, std::min(h_WtagT_eff->GetNbinsX(), h_WtagT_eff->GetXaxis()->FindBin(W_pt_opt2)));
@@ -1292,6 +1305,7 @@ TString proc_Name[] = {
 			W_SF_up  = std::max(1.e-6,(1.0 - PNW_SF_T_up[W_pt_bin] * h_WtagT_eff->GetBinContent(wptbin, wetabin) )/(1. - h_WtagT_eff->GetBinContent(wptbin, wetabin)));
 			W_SF_dn  = std::max(1.e-6,(1.0 - PNW_SF_T_dn[W_pt_bin] * h_WtagT_eff->GetBinContent(wptbin, wetabin) )/(1. - h_WtagT_eff->GetBinContent(wptbin, wetabin)));
 		}
+		*/ 
 	}
     //std::cout << Flag_H_W_pass_T_opt2 << "	" << W_SF << "	" << W_SF_up  << "	" << W_SF_dn << std::endl; 
    
@@ -1387,6 +1401,16 @@ TString proc_Name[] = {
 	int ireg = get_region(reg_tags);
    
 	if(ireg<0||ireg>=nrgn) continue;
+	
+	if(kl==1){
+		h_nom_reg[ireg]->Fill(0.0,1.0);
+		h_nom_reg[ireg]->Fill(1.0,b_SF);
+		h_nom_reg[ireg]->Fill(2.0,bb_SF);
+		h_nom_reg[ireg]->Fill(3.0,W_SF);
+		h_nom_reg[ireg]->Fill(4.0,bb_SF*W_SF);
+		h_nom_reg[ireg]->Fill(5.0,b_SF*W_SF*bb_SF);
+		h_nom_reg[ireg]->Fill(6.0,Top_SF);
+	}
    
 	int jk_b = (nbjets_other==0)?1:2;
    
@@ -1424,7 +1448,7 @@ TString proc_Name[] = {
 			h_MET_pt[ireg][jk][kl][lm]->Fill(MET_pt,weight); 
 			h_MET_sig[ireg][jk][kl][lm]->Fill(MET_sig,weight); 
 			h_MT[ireg][jk][kl][lm]->Fill(MT,weight); 
-	                /*  
+	        /*  
 			if(nBJetAK4>0){
 				h_leadbjet_pt[ireg][jk][kl][lm]->Fill(BJetAK4_pt[0],weight); 
 				h_leadbjet_btag_DeepFlav[ireg][jk][kl][lm]->Fill(BJetAK4_btag_DeepFlav[0],weight); 
@@ -1504,16 +1528,16 @@ TString proc_Name[] = {
 			else { X_mass = X_mass_opt2; }
 		
 			// conditions to purify control regions (filled only for histograms with systematic uncs) //
-		
+			/*
 			if(isCR1 && Y_DeepTag_PNetMD_XbbvsQCD<0.4) continue;
 			if(isCR3){
 				if(kl==0 && W_msoftdrop_opt1>=60.) continue;
 				if(kl==1 && W_msoftdrop_opt2>=60.) continue;
 			}
 			if(isCR6 && MET_pt<75.) continue;
-			
+			*/
 			// end of purification conditions //
-		
+			
 			h_X_mass_sys[ireg][jk][kl][lm][0]->Fill(X_mass,weight); 
 			h_Y_msoftdrop_sys[ireg][jk][kl][lm][0]->Fill(Y_msoftdrop,weight);
 			h_for_limit_X_mass_sys[ireg][jk][kl][lm][0]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight);
