@@ -1101,6 +1101,9 @@ TString proc_Name[] = {
   TH1F* h_X_mass[nrgn][nbcat][nWop][nlid]; 
   TH1F* h_nbjets_other[nrgn][nbcat][nWop][nlid]; 
   
+  TH1F* h_Y_msoftdrop_pure[nrgn][nbcat][nWop][nlid]; 
+  TH1F* h_X_mass_pure[nrgn][nbcat][nWop][nlid]; 
+  
   TH2F* h_X_Y_mass[nrgn][nbcat][nWop][nlid];   
   
   TH1F *h_Y_msoftdrop_sys[nrgn][nbcat][nWop][nlid][1+2*nsys];
@@ -1187,7 +1190,9 @@ TString proc_Name[] = {
 
 				h_for_limit_X_mass_sys[ij][jk][kl][lm][0] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin1_X_mass","_nom",260,0,52000);
                 h_for_limit_X_mass_sys_v2[ij][jk][kl][lm][0] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin2_X_mass","_nom",216,400,43600);
-
+	
+				h_Y_msoftdrop_pure[ij][jk][kl][lm] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop_pure","",40,0,600);
+				h_X_mass_pure[ij][jk][kl][lm] 			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"X_mass_pure","",40, 0.0, 4000.0);
 
 				for(int isys=0; isys<nsys; isys++){
 					
@@ -1526,17 +1531,6 @@ TString proc_Name[] = {
 			float X_mass;
 			if(kl==0) { X_mass = X_mass_opt1; }
 			else { X_mass = X_mass_opt2; }
-		
-			// conditions to purify control regions (filled only for histograms with systematic uncs) //
-			/*
-			if(isCR1 && Y_DeepTag_PNetMD_XbbvsQCD<0.4) continue;
-			if(isCR3){
-				if(kl==0 && W_msoftdrop_opt1>=60.) continue;
-				if(kl==1 && W_msoftdrop_opt2>=60.) continue;
-			}
-			if(isCR6 && MET_pt<75.) continue;
-			*/
-			// end of purification conditions //
 			
 			h_X_mass_sys[ireg][jk][kl][lm][0]->Fill(X_mass,weight); 
 			h_Y_msoftdrop_sys[ireg][jk][kl][lm][0]->Fill(Y_msoftdrop,weight);
@@ -1713,6 +1707,20 @@ TString proc_Name[] = {
                                 
 				
 			}//sys loop
+			
+			// conditions to purify control regions (filled only for histograms with systematic uncs) //
+			bool pure_pass = true;
+			if(ireg==1 && Y_DeepTag_PNetMD_XbbvsQCD<0.4) { pure_pass = false; } //CR1
+			if(ireg==3){										   //CR3
+				if(kl==0 && W_msoftdrop_opt1>=60.) { pure_pass = false; }
+				if(kl==1 && W_msoftdrop_opt2>=60.) { pure_pass = false; }
+			}
+			if(ireg==6 && MET_pt<75.) { pure_pass = false; }					   //CR6
+			if(pure_pass){
+				h_Y_msoftdrop_pure[ireg][jk][kl][lm]->Fill(Y_msoftdrop,weight);
+				h_X_mass_pure[ireg][jk][kl][lm]->Fill(X_mass,weight); 		
+			}
+			// end of purification conditions //
 		
 		}// lepid (lm)
 		
