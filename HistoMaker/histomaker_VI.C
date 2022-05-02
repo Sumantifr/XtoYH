@@ -1231,6 +1231,11 @@ TString proc_Name[] = {
    tree->GetEntry(j);
    if( j % 10000 == 0) { std::cout <<j<<" events processed" << std::endl;}
 
+   // Condition to avoid double counting in data //
+   if((string(proc_Name[ii].Data()).find("SingleMuon")!=string::npos) && (abs(l_pdgId)!=13)) continue;
+   if((string(proc_Name[ii].Data()).find("EGamma")!=string::npos) && (abs(l_pdgId)!=11)) continue;
+   // end of condition
+
    // Tagger scale factors // (simplified version for time being)
    double b_SF, b_SF_up, b_SF_dn;
    double bb_SF, bb_SF_up, bb_SF_dn;
