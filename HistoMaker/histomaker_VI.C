@@ -1302,7 +1302,7 @@ TString proc_Name[] = {
                  
 	int W_pt_bin = getbinid(W_pt_opt2,PNW_SF_nptbins,PNW_SF_ptbins);
 	if(W_pt_bin>=0 && W_pt_bin<PNW_SF_nptbins) { 
-		if(Flag_H_W_pass_T_opt2){
+		if(Flag_H_W_pass_T_opt2 && (W_msoftdrop_opt2>=65. && W_msoftdrop_opt2<=105.)){
 			W_SF = PNW_SF_T[W_pt_bin]; 
 			W_SF_up = PNW_SF_T_up[W_pt_bin]; 
 			W_SF_dn = PNW_SF_T_dn[W_pt_bin]; 
@@ -1478,7 +1478,7 @@ TString proc_Name[] = {
 			if(kl==0){  
 				h_W_msoftdrop_ref[ireg][jk][kl][lm]->Fill(W_msoftdrop_opt1,weight); 
 			}
-			if(kl==0){  
+			if(kl==1){  
 				h_W_msoftdrop_ref[ireg][jk][kl][lm]->Fill(W_msoftdrop_opt2,weight); 
 			}
 			
