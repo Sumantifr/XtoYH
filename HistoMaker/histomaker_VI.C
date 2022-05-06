@@ -1104,6 +1104,7 @@ TString proc_Name[] = {
   TH1F* h_H_mass[nrgn][nbcat][nWop][nlid]; 
   TH1F* h_X_mass[nrgn][nbcat][nWop][nlid]; 
   TH1F* h_nbjets_other[nrgn][nbcat][nWop][nlid]; 
+  TH1F* h_nbjets_outY[nrgn][nbcat][nWop][nlid]; 
   
   TH2F* h_X_Y_mass[nrgn][nbcat][nWop][nlid];   
   
@@ -1188,6 +1189,7 @@ TString proc_Name[] = {
 				h_X_mass[ij][jk][kl][lm] 			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"X_mass","",40, 0.0, 4000.0);
 				
 				h_nbjets_other[ij][jk][kl][lm]		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"nbjets_other","",5 ,0.0, 5.0 );
+				h_nbjets_outY[ij][jk][kl][lm]		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"nbjets_outY","",5 ,0.0, 5.0 );
                
 				h_X_Y_mass[ij][jk][kl][lm] 		     = new TH2F("h_Y_"+Ytype[y_wp]+"_W_"+Wtype[w_wp]+"_X_Y_mass_"+Wops[kl]+"_"+rgn[ij]+bcats[jk]+lepids[lm], "", 40, 0.0, 4000.0, 40, 0.0, 600.0);
 				
@@ -1248,12 +1250,23 @@ TString proc_Name[] = {
    W_SF = W_SF_up = W_SF_dn = 1.;
    Top_SF = Top_SF_up = Top_SF_dn = 1.;
    
+   int nbjets_outY = 0;
+   
+   for( int jj = 0; jj < nJetAK4 ; jj++){
+		if(delta2R(JetAK4_eta[jj],JetAK4_phi[jj],Y_eta,Y_phi)>1.2){
+			if(JetAK4_btag_DeepFlav[jj] > deep_btag_cut ){ 
+				nbjets_outY++; 
+			}
+		}
+   }
+   
    if(!isDATA){		 
 			 
 	for( int jj = 0; jj < nJetAK4 ; jj++)
 	{
                        
-		if(delta2R(JetAK4_eta[jj],JetAK4_phi[jj],W_eta_opt2,W_phi_opt2)>0.6 && delta2R(JetAK4_eta[jj],JetAK4_phi[jj],Y_eta,Y_phi)>0.6){
+		//if(delta2R(JetAK4_eta[jj],JetAK4_phi[jj],W_eta_opt2,W_phi_opt2)>0.6 && delta2R(JetAK4_eta[jj],JetAK4_phi[jj],Y_eta,Y_phi)>0.6){
+		if(delta2R(JetAK4_eta[jj],JetAK4_phi[jj],Y_eta,Y_phi)>1.2){	
 					
 			int etabin = std::max(1, std::min(h_AK4M_flv_b_eff->GetNbinsY(), h_AK4M_flv_b_eff->GetYaxis()->FindBin(fabs(JetAK4_eta[jj]))));
 			int ptbin  = std::max(1, std::min(h_AK4M_flv_b_eff->GetNbinsX(), h_AK4M_flv_b_eff->GetXaxis()->FindBin(JetAK4_pt[jj])));
@@ -1447,7 +1460,8 @@ TString proc_Name[] = {
 		h_nom_reg[ireg]->Fill(6.0,Top_SF);
 	}
    
-	int jk_b = (nbjets_other==0)?1:2;
+	//int jk_b = (nbjets_other==0)?1:2;
+	int jk_b = (nbjets_outY==0)?1:2;
    
 	float MT = sqrt(2*l_pt*MET_pt*(1-cos(PhiInRange(l_phi-MET_phi))));
    
@@ -1570,6 +1584,7 @@ TString proc_Name[] = {
 				}
 		
 				h_nbjets_other[ireg][jk][kl][lm]->Fill(nbjets_other,weight);
+				h_nbjets_outY[ireg][jk][kl][lm]->Fill(nbjets_outY,weight);
 		
 				float X_mass;
 				if(kl==0) { X_mass = X_mass_opt1; }
