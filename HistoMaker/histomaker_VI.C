@@ -173,6 +173,7 @@ TString proc_Name[] = {
    TTree *tree = (TTree*)file->Get("Tout");
 
    int narray = 20;
+   int njetmx = 6;
    Int_t           nleptons;
    Int_t           nfatjets;
    Bool_t          Flag_event_cuts;
@@ -405,23 +406,23 @@ TString proc_Name[] = {
    Int_t           PFJetAK8_W_index_opt1;
    Int_t           PFJetAK8_W_index_opt2;
    Int_t           nJetAK4;
-   Float_t         JetAK4_pt[6];   //[_s_nJetAK4]
-   Float_t         JetAK4_eta[6];   //[_s_nJetAK4]
-   Float_t         JetAK4_phi[6];   //[_s_nJetAK4]
-   Float_t         JetAK4_mass[6];   //[_s_nJetAK4]
-   Float_t         JetAK4_btag_DeepCSV[6];   //[_s_nJetAK4]
-   Float_t         JetAK4_btag_DeepFlav[6];   //[_s_nJetAK4]
-   Int_t           JetAK4_hadronflav[6];   //[_s_nJetAK4]
-   Int_t           JetAK4_partonflav[6];   //[_s_nJetAK4]
-   Float_t         JetAK4_qgl[6];   //[_s_nJetAK4]
-   Float_t         JetAK4_PUID[6];   //[_s_nJetAK4]
-   Float_t         JetAK4_JESup[6];   //[_s_nJetAK4]
-   Float_t         JetAK4_JESdn[6];   //[_s_nJetAK4]
-   Float_t         JetAK4_JERup[6];   //[_s_nJetAK4]
-   Float_t         JetAK4_JERdn[6];   //[_s_nJetAK4]
-   Float_t         JetAK4_btag_DeepFlav_SF[6];   //[_s_nJetAK4]
-   Float_t         JetAK4_btag_DeepFlav_SF_up[6];   //[_s_nJetAK4]
-   Float_t         JetAK4_btag_DeepFlav_SF_dn[6];   //[_s_nJetAK4]
+   Float_t         JetAK4_pt[njetmx];   //[_s_nJetAK4]
+   Float_t         JetAK4_eta[njetmx];   //[_s_nJetAK4]
+   Float_t         JetAK4_phi[njetmx];   //[_s_nJetAK4]
+   Float_t         JetAK4_mass[njetmx];   //[_s_nJetAK4]
+   Float_t         JetAK4_btag_DeepCSV[njetmx];   //[_s_nJetAK4]
+   Float_t         JetAK4_btag_DeepFlav[njetmx];   //[_s_nJetAK4]
+   Int_t           JetAK4_hadronflav[njetmx];   //[_s_nJetAK4]
+   Int_t           JetAK4_partonflav[njetmx];   //[_s_nJetAK4]
+   Float_t         JetAK4_qgl[njetmx];   //[_s_nJetAK4]
+   Float_t         JetAK4_PUID[njetmx];   //[_s_nJetAK4]
+   Float_t         JetAK4_JESup[njetmx];   //[_s_nJetAK4]
+   Float_t         JetAK4_JESdn[njetmx];   //[_s_nJetAK4]
+   Float_t         JetAK4_JERup[njetmx];   //[_s_nJetAK4]
+   Float_t         JetAK4_JERdn[njetmx];   //[_s_nJetAK4]
+   Float_t         JetAK4_btag_DeepFlav_SF[njetmx];   //[_s_nJetAK4]
+   Float_t         JetAK4_btag_DeepFlav_SF_up[njetmx];   //[_s_nJetAK4]
+   Float_t         JetAK4_btag_DeepFlav_SF_dn[njetmx];   //[_s_nJetAK4]
    Int_t           nGenLep;
    Float_t         GenLep_pt[narray];   //[nGenLep]
    Float_t         GenLep_eta[narray];   //[nGenLep]
@@ -1402,7 +1403,7 @@ TString proc_Name[] = {
 		isCR1 = (!Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt1 && Flag_dR_lW_pass_opt1 && Flag_MET_pass && lep_miniso);
 		isCR2 = (!Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && Flag_MET_pass && lep_miniso);
 		isCR3 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && Flag_MET_pass && lep_miniso);
-		isCR4 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt1 && Flag_dR_lW_pass_opt1 && !Flag_MET_pass && lep_miniso && (Y_DeepTag_PNet_TvsQCD>=PN_Top_med));
+		isCR4 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt1 && Flag_dR_lW_pass_opt1 && lep_miniso && (Y_DeepTag_PNet_TvsQCD>=PN_Top_med));
 		isCR5 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && !Flag_MET_pass && !lep_miniso);
 		isCR6 = (Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && Flag_MET_pass && lep_miniso);
 		isCR7 = (Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && !Flag_MET_pass && lep_miniso);
@@ -1414,7 +1415,7 @@ TString proc_Name[] = {
 		isCR1 = (!Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
 		isCR2 = (!Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
 		isCR3 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
-		isCR4 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && !Flag_MET_pass && lep_miniso && (Y_DeepTag_PNet_TvsQCD>=PN_Top_med));
+		isCR4 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && lep_miniso && (Y_DeepTag_PNet_TvsQCD>=PN_Top_med));
 		isCR5 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && !Flag_MET_pass && !lep_miniso);
 		isCR6 = (Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso); 
 		isCR7 = (Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && !Flag_MET_pass && lep_miniso);
