@@ -34,6 +34,7 @@ float* Muon_SF(TFile *file_mu_sf, string id, float pt, float eta){
 		sf_sys = h_SF_sys->GetBinContent(eta_bin_id,pt_bin_id);
 	}else{
 		sf = 1;
+		sf_err = 0;
 		sf_stat = sf_sys = 1;
 		}
 	
@@ -238,6 +239,8 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
    TFile *fileout = new TFile(fOut,"recreate");
    
    Tout = new TTree("Tout", "Results");
+   Tout_presel = new TTree("Tout_presel", "All");
+
    // Histogram definition for PU, NV 
    TH1F *h_PU = new TH1F("h_PU", "h_PU", 100, 0, 100);
    TH1F *h_TPU = new TH1F("h_TPU", "h_TPU", 100, 0, 100);
@@ -289,11 +292,35 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
    TH2F* h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M = new TH2F("h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M", "h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M", XBINS2, xEdges2, YBINS2, yEdges2);
    TH2F* h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T = new TH2F("h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T", "h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T", XBINS2, xEdges2, YBINS2, yEdges2);
 
+   Tout_presel->Branch("ncuts",&ncuts,"ncuts/I");
+   Tout_presel->Branch("Flag_event_cuts", Flag_event_cuts, "Flag_event_cuts[ncuts]/O");
+   Tout_presel->Branch("nleptons", &nleptons, "nleptons/I");
+   Tout_presel->Branch("nfatjets", &nfatjets, "nfatjets/I");
+
+
    Tout->Branch("nleptons", &nleptons, "nleptons/I");
    Tout->Branch("nfatjets", &nfatjets, "nfatjets/I");	
-   
-   Tout->Branch("Flag_event_cuts", Flag_event_cuts, "Flag_event_cuts/O");	
-   
+
+   Tout->Branch("ncuts",&ncuts,"ncuts/I");
+   Tout->Branch("Flag_event_cuts", Flag_event_cuts, "Flag_event_cuts[ncuts]/O");	
+
+   Tout->Branch("hlt_IsoMu24",&hlt_IsoMu24,"hlt_IsoMu24/O");
+   Tout->Branch("hlt_Mu50",&hlt_Mu50,"hlt_Mu50/O");
+   Tout->Branch("hlt_Ele50_CaloIdVT_GsfTrkIdT_PFJet165",&hlt_Ele50_CaloIdVT_GsfTrkIdT_PFJet165,"hlt_Ele50_CaloIdVT_GsfTrkIdT_PFJet165/O");
+   Tout->Branch("hlt_Ele115_CaloIdVT_GsfTrkIdT",&hlt_Ele115_CaloIdVT_GsfTrkIdT,"hlt_Ele115_CaloIdVT_GsfTrkIdT/O");
+   Tout->Branch("hlt_Ele40_WPTight_Gsf",&hlt_Ele40_WPTight_Gsf,"hlt_Ele40_WPTight_Gsf/O");
+   Tout->Branch("hlt_Ele32_WPTight_Gsf",&hlt_Ele32_WPTight_Gsf,"hlt_Ele32_WPTight_Gsf/O");
+   Tout->Branch("hlt_Ele28_eta2p1_WPTight_Gsf_HT150",&hlt_Ele28_eta2p1_WPTight_Gsf_HT150,"hlt_Ele28_eta2p1_WPTight_Gsf_HT150/O");
+   Tout->Branch("hlt_Mu37_Ele27_CaloIdL_MW",&hlt_Mu37_Ele27_CaloIdL_MW,"hlt_Mu37_Ele27_CaloIdL_MW/O");
+   Tout->Branch("hlt_Mu27_Ele37_CaloIdL_MW",&hlt_Mu27_Ele37_CaloIdL_MW,"hlt_Mu27_Ele37_CaloIdL_MW/O");
+   Tout->Branch("hlt_Mu37_TkMu27",&hlt_Mu37_TkMu27,"hlt_Mu37_TkMu27/O");
+   Tout->Branch("hlt_DoubleEle25_CaloIdL_MW",&hlt_DoubleEle25_CaloIdL_MW,"hlt_DoubleEle25_CaloIdL_MW/O");
+   Tout->Branch("hlt_AK8PFJet500",&hlt_AK8PFJet500,"hlt_AK8PFJet500/O");
+   Tout->Branch("hlt_PFJet500",&hlt_PFJet500,"hlt_PFJet500/O");
+   Tout->Branch("hlt_HT1050",&hlt_HT1050,"hlt_HT1050/O");
+   Tout->Branch("hlt_AK8PFJet400_TrimMass30",&hlt_AK8PFJet400_TrimMass30,"hlt_AK8PFJet400_TrimMass30/O");
+   Tout->Branch("hlt_AK8PFHT800_TrimMass50",&hlt_AK8PFHT800_TrimMass50,"hlt_AK8PFHT800_TrimMass50/O");
+
    Tout->Branch("puWeight", &puWeight, "puWeight/F");
    Tout->Branch("puWeightup", &puWeightup, "puWeightup/F");	
    Tout->Branch("puWeightdown", &puWeightdown, "puWeightdown/F");	
@@ -362,7 +389,13 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
    Tout->Branch("Y_DeepTag_PNetMD_XqqvsQCD", &Y_DeepTag_PNetMD_XqqvsQCD, "Y_DeepTag_PNetMD_XqqvsQCD/F");
    Tout->Branch("Y_DeepTag_PNetMD_WvsQCD", &Y_DeepTag_PNetMD_WvsQCD, "Y_DeepTag_PNetMD_WvsQCD/F");		
    Tout->Branch("Y_DeepTag_PNetMD_QCD", &Y_DeepTag_PNetMD_QCD, "Y_DeepTag_PNetMD_QCD/F");
-    Tout->Branch("Y_PN_bb", &Y_PN_bb, "Y_PN_bb/F");	
+   Tout->Branch("Y_PN_bb", &Y_PN_bb, "Y_PN_bb/F");	
+   Tout->Branch("Y_label_Top_bq", &Y_label_Top_bq, "Y_label_Top_bq/O");	
+   Tout->Branch("Y_label_Top_bc", &Y_label_Top_bc, "Y_label_Top_bc/O");	
+   Tout->Branch("Y_label_Top_bcq", &Y_label_Top_bcq, "Y_label_Top_bcq/O");	
+   Tout->Branch("Y_label_Top_bqq", &Y_label_Top_bqq, "Y_label_Top_bqq/O");	
+   Tout->Branch("Y_label_W_qq", &Y_label_W_qq, "Y_label_W_qq/O");	
+   Tout->Branch("Y_label_W_cq", &Y_label_W_cq, "Y_label_W_cq/O");	
     
    Tout->Branch("Y_sub1_pt", &Y_sub1_pt, "Y_sub1_pt/F");	
    Tout->Branch("Y_sub1_eta", &Y_sub1_eta, "Y_sub1_eta/F");	
@@ -408,6 +441,8 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
    Tout->Branch("W_DeepTag_PNetMD_QCD_opt1", &W_DeepTag_PNetMD_QCD_opt1, "W_DeepTag_PNetMD_QCD_opt1/F");	
    Tout->Branch("W_DAK8_W_opt1", &W_DAK8_W_opt1, "W_DAK8_W_opt1/F");
    Tout->Branch("W_PN_W_opt1", &W_PN_W_opt1, "W_PN_W_opt1/F");	
+   Tout->Branch("W_label_W_qq_opt1", &W_label_W_qq_opt1, "W_label_W_qq_opt1/O");	
+   Tout->Branch("W_label_W_cq_opt1", &W_label_W_cq_opt1, "W_label_W_cq_opt1/O");	
    
    Tout->Branch("W_sub1_pt_opt1", &W_sub1_pt_opt1, "W_sub1_pt_opt1/F");	
    Tout->Branch("W_sub1_eta_opt1", &W_sub1_eta_opt1, "W_sub1_eta_opt1/F");	
@@ -469,6 +504,8 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
    Tout->Branch("W_DeepTag_PNetMD_QCD_opt2", &W_DeepTag_PNetMD_QCD_opt2, "W_DeepTag_PNetMD_QCD_opt2/F");	
    Tout->Branch("W_DAK8_W_opt2", &W_DAK8_W_opt2, "W_DAK8_W_opt2/F");
    Tout->Branch("W_PN_W_opt2", &W_PN_W_opt2, "W_PN_W_opt2/F");	
+   Tout->Branch("W_label_W_qq_opt2", &W_label_W_qq_opt2, "W_label_W_qq_opt2/O");	
+   Tout->Branch("W_label_W_cq_opt2", &W_label_W_cq_opt2, "W_label_W_cq_opt2/O");	
    
    Tout->Branch("W_sub1_pt_opt2", &W_sub1_pt_opt2, "W_sub1_pt_opt2/F");	
    Tout->Branch("W_sub1_eta_opt2", &W_sub1_eta_opt2, "W_sub1_eta_opt2/F");	
@@ -509,6 +546,7 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
    Tout->Branch("dphi_lY", &dphi_lY, "dphi_lY/F");
    
    Tout->Branch("nbjets_other", &nbjets_other, "nbjets_other/I");		
+   Tout->Branch("nbjets_outY", &nbjets_outY, "nbjets_outY/I");	
    
    // Different flags and control regions   
 
@@ -572,7 +610,7 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
    Tout->Branch("PFJetAK8_W_index_opt2",&_s_PFJetAK8_W_index_opt2,"_s_PFJetAK8_W_index_opt2/I");
    
    // all b-tagged AK4 jets //
-   
+   /*   
    Tout->Branch("nBJetAK4",&_s_nBJetAK4,"_s_nBJetAK4/I"); 
    Tout->Branch("BJetAK4_pt",_s_BJetAK4_pt,"_s_BJetAK4_pt[_s_nBJetAK4]/F");
    Tout->Branch("BJetAK4_eta",_s_BJetAK4_eta,"_s_BJetAK4_eta[_s_nBJetAK4]/F");
@@ -591,6 +629,26 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
    Tout->Branch("BJetAK4_btag_DeepFlav_SF",_s_BJetAK4_btag_DeepFlav_SF,"_s_BJetAK4_btag_DeepFlav_SF[_s_nBJetAK4]/F");
    Tout->Branch("BJetAK4_btag_DeepFlav_SF_up",_s_BJetAK4_btag_DeepFlav_SF_up,"_s_BJetAK4_btag_DeepFlav_SF_up[_s_nBJetAK4]/F");
    Tout->Branch("BJetAK4_btag_DeepFlav_SF_dn",_s_BJetAK4_btag_DeepFlav_SF_dn,"_s_BJetAK4_btag_DeepFlav_SF_dn[_s_nBJetAK4]/F");
+   */
+   //First 6 AK4 jets
+   Tout->Branch("nJetAK4",&_s_nJetAK4,"_s_nJetAK4/I");
+   Tout->Branch("JetAK4_pt",_s_JetAK4_pt,"_s_JetAK4_pt[_s_nJetAK4]/F");
+   Tout->Branch("JetAK4_eta",_s_JetAK4_eta,"_s_JetAK4_eta[_s_nJetAK4]/F");
+   Tout->Branch("JetAK4_phi",_s_JetAK4_phi,"_s_JetAK4_phi[_s_nJetAK4]/F");
+   Tout->Branch("JetAK4_mass",_s_JetAK4_mass,"_s_JetAK4_mass[_s_nJetAK4]/F");
+   Tout->Branch("JetAK4_btag_DeepCSV",_s_JetAK4_btag_DeepCSV,"_s_JetAK4_btag_DeepCSV[_s_nJetAK4]/F");
+   Tout->Branch("JetAK4_btag_DeepFlav",_s_JetAK4_btag_DeepFlav,"_s_JetAK4_btag_DeepFlav[_s_nJetAK4]/F");
+   Tout->Branch("JetAK4_hadronflav",_s_JetAK4_hadronflav,"_s_JetAK4_hadronflav[_s_nJetAK4]/I");
+   Tout->Branch("JetAK4_partonflav",_s_JetAK4_partonflav,"_s_JetAK4_partonflav[_s_nJetAK4]/I");
+   Tout->Branch("JetAK4_qgl",_s_JetAK4_qgl,"_s_JetAK4_qgl[_s_nJetAK4]/F");
+   Tout->Branch("JetAK4_PUID",_s_JetAK4_PUID,"_s_JetAK4_PUID[_s_nJetAK4]/F");
+   Tout->Branch("JetAK4_JESup",_s_JetAK4_JESup,"_s_JetAK4_JESup[_s_nJetAK4]/F");
+   Tout->Branch("JetAK4_JESdn",_s_JetAK4_JESdn,"_s_JetAK4_JESdn[_s_nJetAK4]/F");
+   Tout->Branch("JetAK4_JERup",_s_JetAK4_JERup,"_s_JetAK4_JERup[_s_nJetAK4]/F");
+   Tout->Branch("JetAK4_JERdn",_s_JetAK4_JERdn,"_s_JetAK4_JERdn[_s_nJetAK4]/F");
+   Tout->Branch("JetAK4_btag_DeepFlav_SF",_s_JetAK4_btag_DeepFlav_SF,"_s_JetAK4_btag_DeepFlav_SF[_s_nJetAK4]/F");
+   Tout->Branch("JetAK4_btag_DeepFlav_SF_up",_s_JetAK4_btag_DeepFlav_SF_up,"_s_JetAK4_btag_DeepFlav_SF_up[_s_nJetAK4]/F");
+   Tout->Branch("JetAK4_btag_DeepFlav_SF_dn",_s_JetAK4_btag_DeepFlav_SF_dn,"_s_JetAK4_btag_DeepFlav_SF_dn[_s_nJetAK4]/F");
    
    // GEN particles //
    
@@ -635,7 +693,7 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
    Tout->Branch("nLHEPDFWeights", &nLHEPDFWeights, "nLHEPDFWeights/I");
    Tout->Branch("LHEPDFWeights", LHEPDFWeights, "LHEPDFWeights[nLHEPDFWeights]/F");
    Tout->Branch("nLHEAlpsWeights", &nLHEAlpsWeights, "nLHEAlpsWeights/I");
-   Tout->Branch("LHEAlpsWeights", LHEAlpsWeights, )"LHEAlpsWeights[nLHEAlpsWeights]/F";
+   Tout->Branch("LHEAlpsWeights", LHEAlpsWeights, "LHEAlpsWeights[nLHEAlpsWeights]/F");
    Tout->Branch("nLHEPSWeights", &nLHEPSWeights, "nLHEPSWeights/I");
    Tout->Branch("LHEPSWeights", LHEPSWeights, "LHEPSWeights[nLHEPSWeights]/F");
    
@@ -1117,7 +1175,7 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
    cout<<"nentries "<<nentries<<endl;
    
    isMC = true;
-   isFastSIM = true;
+   isFastSIM = false;
    
    for (int ij=0; ij<nentries; ij++) {
    
@@ -1129,9 +1187,10 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 	else { event_weight = Generator_weight;	}
 
 	fChain->GetEntry(ij);
-        h_PU->Fill(npu_vert,event_weight);
-        h_TPU->Fill(npu_vert_true,event_weight);
-        h_PV->Fill(npvert,event_weight);
+    
+    h_PU->Fill(npu_vert,event_weight);
+    h_TPU->Fill(npu_vert_true,event_weight);
+    h_PV->Fill(npvert,event_weight);
 	
 	//cout<<"Before: "<<nPFJetAK8<<" "<<nPFJetAK4<<" "<<nMuon<<" "<<nElectron<<" "<<nPhoton<<endl;
 	
@@ -1167,6 +1226,15 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 		}
 	}
 	
+	//Here you get top quarks (along with its daughters) from GEN paeticles 
+	vector<HeavyParticle> gentops;
+    getGENTops(gentops, genpartons);
+    
+    //Here you get W bosons (along with its daughters) from GEN paeticles 
+    vector<HeavyParticle> genwhads;
+    getGENWHads(genwhads, genpartons);
+	
+	//Here you get LHE particles 
 	vector<GenParton> lheparts;
 	getLHEParts(lheparts);
 	
@@ -1213,7 +1281,11 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
     vector <AK8Jet> LJets;
     getAK8jets(LJets,AK8jet_pt_cut,absetacut,isMC);
     //LeptonJet_cleaning(LJets,vleptons,AK8jet_pt_cut,absetacut);
-
+    
+    //Matching to AK8 jets to heavy particle products (GEN level)
+	Match_AK8_TopDaughters(LJets,gentops);
+	Match_AK8_TwoProngDaughters(LJets,genwhads);
+	
     nleptons = (vleptons.size());
 	nfatjets = (LJets.size());
     
@@ -1337,12 +1409,12 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
                                                                    if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_b_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); } 
 			                                           if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_b_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
 			                                        }    
-                            else if( fabs(Jets[ijet].hadronFlavour) == 4 )  {  h_Ak4_c_flv->Fill(Jets[ijet].pt,Jets[ijet].eta,event_weight);  
+                            else if( fabs(Jets[ijet].hadronFlavour) == 4 )  {  h_Ak4_c_flv->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight);  
                                                                    if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_c_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
                                                                    if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_c_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
                                                                    if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_c_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
                                                                 }
-                            else if( Jets[ijet].hadronFlavour == 0 )  {  h_Ak4_l_flv->Fill(Jets[ijet].pt,Jets[ijet].eta,event_weight);  
+                            else if( Jets[ijet].hadronFlavour == 0 )  {  h_Ak4_l_flv->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight);  
                                                                    if (Jets[ijet].btag_DeepFlav   > DAK4_T  )  { h_Ak4_l_flv_pass_T->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
                                                                    if (Jets[ijet].btag_DeepFlav   > DAK4_M ) { h_Ak4_l_flv_pass_M->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
                                                                    if (Jets[ijet].btag_DeepFlav   > DAK4_L ) { h_Ak4_l_flv_pass_L->Fill(Jets[ijet].pt,fabs(Jets[ijet].eta),event_weight); }
@@ -1364,10 +1436,10 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
                          dR = temp_dR;
                      }
             }
-	 if(dR < 0.4) 
+	 if(dR < 0.6) 
 	   { 
-              h_Ak8_DeepTag_PNetMD_WvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,event_weight);
-	      h_Ak8_DeepTag_PNetMD_XbbvsQCD->Fill(LJets[ijet].pt,LJets[ijet].eta,event_weight);
+              h_Ak8_DeepTag_PNetMD_WvsQCD->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);
+	      h_Ak8_DeepTag_PNetMD_XbbvsQCD->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);
 	      if(LJets[ijet].DeepTag_PNetMD_WvsQCD>PNetW_cut_T) {h_Ak8_DeepTag_PNetMD_WvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
 	      if(LJets[ijet].DeepTag_PNetMD_WvsQCD>PNetW_cut_M) {h_Ak8_DeepTag_PNetMD_WvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
               if(LJets[ijet].DeepTag_PNetMD_WvsQCD>PNetW_cut_L) {h_Ak8_DeepTag_PNetMD_WvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
@@ -1410,11 +1482,20 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 	event_cuts.push_back(trig_threshold_pass);	// Offline objects should pass trigger threshold 
 	event_cuts.push_back(trig_matching_pass);	// Offline objects should match to trigger object
 	event_cuts.push_back(!(muon_trig_pass && electron_trig_pass));   // reject if both mu & el triggers are fired (for single lepton channel)
-	
+
+    if(isMC){
+            if(Jets.size()>0){
+                   event_cuts.push_back((Jets[0].pt<3*Generator_qscale));
+            }
+     }
+        ncuts=0;	
 	for(unsigned icut=0; icut<event_cuts.size(); icut++){
 		Flag_event_cuts[icut] = event_cuts[icut];
+                ncuts++;
+		if (icut>=njetmxAK8) break;
 	}
-		
+
+    Tout_presel->Fill();	
     bool event_pass = true;
 	for(unsigned icut=0; icut<event_cuts.size(); icut++){
 		event_pass *= event_cuts[icut];
@@ -1615,6 +1696,13 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 		
 		Y_PN_bb = LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD;
 		
+		Y_label_Top_bq = LJets[Y_cand].label_Top_bq;
+		Y_label_Top_bc = LJets[Y_cand].label_Top_bc;
+		Y_label_Top_bcq = LJets[Y_cand].label_Top_bcq;
+		Y_label_Top_bqq = LJets[Y_cand].label_Top_bqq;
+		Y_label_W_qq = LJets[Y_cand].label_W_qq;
+		Y_label_W_cq = LJets[Y_cand].label_W_cq;
+		
 		Y_sub1_pt = LJets[Y_cand].sub1_pt;
 		Y_sub1_eta = LJets[Y_cand].sub1_eta;
 		Y_sub1_phi = LJets[Y_cand].sub1_phi;
@@ -1649,7 +1737,7 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 				
 		if(vleptons.size()>0){
 			
-			dR_lY = delta2R(LJets[Y_cand].eta,LJets[Y_cand].phi,vleptons[0].eta,vleptons[0].phi);
+			dR_lY = delta2R(LJets[Y_cand].y,LJets[Y_cand].phi,vleptons[0].eta,vleptons[0].phi);
 			dy_lY = (LJets[Y_cand].eta - vleptons[0].eta);
 			dphi_lY = PhiInRange(LJets[Y_cand].phi - vleptons[0].p4.Phi());
 			
@@ -1684,6 +1772,9 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 		
 		W_DAK8_W_opt1 = LJets[W_cand_opt1].DeepTag_DAK8MD_WvsQCD;
 		W_PN_W_opt1 = LJets[W_cand_opt1].DeepTag_PNetMD_WvsQCD;
+		
+		W_label_W_cq_opt1 = LJets[W_cand_opt1].label_W_cq;
+		W_label_W_qq_opt1 = LJets[W_cand_opt1].label_W_qq;
 		
 		W_sub1_pt_opt1 = LJets[W_cand_opt1].sub1_pt;
 		W_sub1_eta_opt1 = LJets[W_cand_opt1].sub1_eta;
@@ -1773,6 +1864,9 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
             W_DAK8_W_opt2 = LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD;
             W_PN_W_opt2 = LJets[W_cand_opt2].DeepTag_PNetMD_WvsQCD;
             
+            W_label_W_cq_opt2 = LJets[W_cand_opt2].label_W_cq;
+			W_label_W_qq_opt2 = LJets[W_cand_opt2].label_W_qq;
+            
             W_sub1_pt_opt2 = LJets[W_cand_opt2].sub1_pt;
 			W_sub1_eta_opt2 = LJets[W_cand_opt2].sub1_eta;
 			W_sub1_phi_opt2 = LJets[W_cand_opt2].sub1_phi;
@@ -1834,21 +1928,27 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
         }
 
 	
-	dR_lW_opt1 = delta2R(LJets[W_cand_opt1].eta,LJets[W_cand_opt1].phi,vleptons[0].eta,vleptons[0].phi);
+	dR_lW_opt1 = delta2R(LJets[W_cand_opt1].y,LJets[W_cand_opt1].phi,vleptons[0].eta,vleptons[0].phi);
 	dy_lW_opt1 = (LJets[W_cand_opt1].eta - vleptons[0].eta);
 	dphi_lW_opt1 = PhiInRange(LJets[W_cand_opt1].phi - vleptons[0].p4.Phi());
 
-        dR_lW_opt2 = delta2R(LJets[W_cand_opt2].eta,LJets[W_cand_opt2].phi,vleptons[0].eta,vleptons[0].phi);
+        dR_lW_opt2 = delta2R(LJets[W_cand_opt2].y,LJets[W_cand_opt2].phi,vleptons[0].eta,vleptons[0].phi);
         dy_lW_opt2 = (LJets[W_cand_opt2].eta - vleptons[0].eta);
         dphi_lW_opt2 = PhiInRange(LJets[W_cand_opt2].phi - vleptons[0].p4.Phi());
 
 	nbjets_other = 0;
 	for(auto & bjet: BJets){
-		if(delta2R(bjet.y,bjet.phi,Jets[W_cand_opt1].y,LJets[W_cand_opt1].phi)>0.6 && delta2R(bjet.y,bjet.phi,Jets[Y_cand].y,LJets[Y_cand].phi)>0.6){
+		if(delta2R(bjet.y,bjet.phi,LJets[W_cand_opt1].y,LJets[W_cand_opt1].phi)>0.6 && delta2R(bjet.y,bjet.phi,LJets[Y_cand].y,LJets[Y_cand].phi)>0.6){
 			nbjets_other++;
 			}
 	}
-
+	
+	nbjets_outY = 0;
+	for(auto & bjet: BJets){
+		if(delta2R(bjet.y,bjet.phi,LJets[W_cand_opt1].y,LJets[W_cand_opt1].phi)>1.2){
+			nbjets_outY++;
+			}
+	}
 
 	Flag_Y_bb_pass_T = Y_bb_pass_T;
         Flag_Y_bb_pass_M = Y_bb_pass_M;
@@ -1906,7 +2006,7 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 		if(_s_nPFJetAK8>=njetmxAK8) break;
 		
 		}
-        
+    /*    
     _s_nBJetAK4 = 0;
     
     for(unsigned ijet=0; ijet<BJets.size(); ijet++){
@@ -1933,8 +2033,36 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 		
 		if(_s_nBJetAK4>=njetmx) break;
 		
-	}
-	
+	}     */
+
+    _s_nJetAK4 = 0;
+
+    for(unsigned ijet=0; ijet<Jets.size(); ijet++){
+
+                _s_JetAK4_pt[_s_nJetAK4] = Jets[ijet].pt;
+                _s_JetAK4_eta[_s_nJetAK4] = Jets[ijet].eta;
+                _s_JetAK4_phi[_s_nJetAK4] = Jets[ijet].phi;
+                _s_JetAK4_mass[_s_nJetAK4] = Jets[ijet].mass;
+                _s_JetAK4_btag_DeepFlav[_s_nJetAK4] = Jets[ijet].btag_DeepFlav;
+                _s_JetAK4_btag_DeepCSV[_s_nJetAK4] = Jets[ijet].btag_DeepCSV;
+                _s_JetAK4_hadronflav[_s_nJetAK4] = Jets[ijet].hadronFlavour;
+                _s_JetAK4_partonflav[_s_nJetAK4] = Jets[ijet].partonFlavour;
+                _s_JetAK4_qgl[_s_nJetAK4] = Jets[ijet].qgl;
+                _s_JetAK4_PUID[_s_nJetAK4] = Jets[ijet].PUID;
+                _s_JetAK4_JESup[_s_nJetAK4] = Jets[ijet].jesup_Total;
+                _s_JetAK4_JESdn[_s_nJetAK4] = Jets[ijet].jesdn_Total;
+                _s_JetAK4_JERup[_s_nJetAK4] = Jets[ijet].JERup/Jets[ijet].JER;
+                _s_JetAK4_JERdn[_s_nJetAK4] = Jets[ijet].JERdn/Jets[ijet].JER;
+                _s_JetAK4_btag_DeepFlav_SF[_s_nJetAK4] = Jets[ijet].btag_DeepFlav_SF;
+                _s_JetAK4_btag_DeepFlav_SF_up[_s_nJetAK4] = Jets[ijet].btag_DeepFlav_SF_up;
+                _s_JetAK4_btag_DeepFlav_SF_dn[_s_nJetAK4] = Jets[ijet].btag_DeepFlav_SF_dn;
+
+                _s_nJetAK4++;
+
+                if(_s_nJetAK4>5) break;
+
+        }
+
     if(npu_vert_true>=0 && npu_vert_true<100){
 		/*
 		puWeight = pu_rat18[npu_vert_true];

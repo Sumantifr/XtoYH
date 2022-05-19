@@ -265,6 +265,7 @@ void getAK4jets(std::vector<AK4Jet> &Jets, float ptcut=30, float etacut=2.5, boo
     
     if(isMC){
       PFJetAK4_pt[ijet] *= (1+PFJetAK4_JER[ijet]) ;
+      PFJetAK4_mass[ijet] *= (1+PFJetAK4_JER[ijet]) ;
     }
 	  
     if(fabs(PFJetAK4_eta[ijet])>etacut) continue;
@@ -363,6 +364,7 @@ void getAK8jets(std::vector<AK8Jet> &LJets, float ptcut=200, float etacut=2.5, b
     
     if(isMC){
       PFJetAK8_pt[ijet] *= (1+PFJetAK8_JER[ijet]) ;
+      PFJetAK8_mass[ijet] *= (1+PFJetAK8_JER[ijet]);
     }
 				
     if(fabs(PFJetAK8_eta[ijet])>etacut) continue;
@@ -496,6 +498,18 @@ void getAK8jets(std::vector<AK8Jet> &LJets, float ptcut=200, float etacut=2.5, b
     LJet.haselectron = LJet.hasmuon = LJet.hastau = LJet.hasqg = LJet.hasb = LJet.hasleptop = LJet.hashadtop = LJet.hastop = LJet.hasmatchmu = LJet.hasmatche = false;
     LJet.hasleptop_alldecay = LJet.hashadtop_alldecay = false;
     LJet.matchAK4deepb = -100;
+    
+    LJet.label_Top_bc = false;
+    LJet.label_Top_bcq = false;
+    LJet.label_Top_bele = false;
+    LJet.label_Top_bl = false;
+    LJet.label_Top_blt = false;
+    LJet.label_Top_bmu = false;
+    LJet.label_Top_bq = false;
+    LJet.label_Top_bqq = false;
+    LJet.label_Top_btau = false;
+    LJet.label_W_cq = false;
+    LJet.label_W_qq = false;
     
     LJets.push_back(LJet);
     
@@ -664,7 +678,7 @@ void getLHETops(std::vector<GenParton> &LHETops, std::vector<GenParton> GenParto
 	  }
 }
 
-void getGENTops(vector<TopQuark> &gentops, vector<GenParton> genpartons)  // with daughters after shower
+void getGENTops(vector<HeavyParticle> &gentops, vector<GenParton> genpartons)  // with daughters after shower
 {     
     vector<GenParton> W_dau;
     vector<GenParton> t_bp;
@@ -718,7 +732,7 @@ void getGENTops(vector<TopQuark> &gentops, vector<GenParton> genpartons)  // wit
 		  
 		  if(int(partner)>=0 && partner<W_dau.size() && int(match_b)>=0 && match_b<t_bp.size()){
 			
-			TopQuark topQ;
+			HeavyParticle topQ;
 			  
 			topQ.p4 = (b.p4 + q1.p4 + q2.p4);
 			topQ.daughter.push_back(q1);
@@ -731,9 +745,46 @@ void getGENTops(vector<TopQuark> &gentops, vector<GenParton> genpartons)  // wit
   
 }
 
+void getGENWHads(vector<HeavyParticle> &genWs, vector<GenParton> genpartons)  // with daughters after shower
+{     
+  
+    vector<GenParton> W_dau;
+  
+    for(unsigned igen=0; igen<genpartons.size(); igen++){
+      
+      if(!(genpartons[igen].status==23 || genpartons[igen].status==1)) continue;
+      if(!(genpartons[igen].fromhard)) continue;
+      
+      if(abs(genpartons[igen].pdgId)>=1 && abs(genpartons[igen].pdgId)<5 && abs(genpartons[igen].mompdgId)==24)   {  W_dau.push_back(genpartons[igen]); }
+      
+    }
+    
+    for(unsigned ipart=0; ipart<W_dau.size(); ipart++){
+    
+		HeavyParticle Whad;
+    
+		unsigned partner = -1;
+		  
+		for(unsigned jpart=(ipart+1); jpart<W_dau.size(); jpart++){
+			if((W_dau[ipart].mompdgId==W_dau[jpart].mompdgId) && (W_dau[ipart].grmompdgId==W_dau[jpart].grmompdgId) && (W_dau[ipart].pdgId*W_dau[jpart].pdgId<0) && abs(abs(W_dau[ipart].pdgId)-abs(W_dau[jpart].pdgId))==1){
+				 partner = jpart;
+				 break;
+			 }
+		 }
+		
+		if(partner>=0 && partner<W_dau.size() && partner!=ipart){
+			
+			Whad.p4 = (W_dau[ipart].p4 + W_dau[partner].p4);
+			Whad.daughter.push_back(W_dau[ipart]);
+			Whad.daughter.push_back(W_dau[partner]);
+			
+			genWs.push_back(Whad);	
+		}
+		 
+	}
+}
 
-
-void TopAssignment_toJet(std::vector<AK8Jet> &LJets, std::vector<GenParton> lhetops, std::vector<TopQuark> gentops)
+void TopAssignment_toJet(std::vector<AK8Jet> &LJets, std::vector<GenParton> lhetops, std::vector<HeavyParticle> gentops)
 {
 
   for(unsigned ijet=0; ijet<LJets.size(); ijet++){
@@ -819,6 +870,64 @@ void AssignGen(std::vector<AK8Jet> &LJets, std::vector<GenParton> GenPartons){
 			 } 
 		}
 	}
+}
+
+void Match_AK8_TopDaughters(std::vector<AK8Jet> &LJets, std::vector<HeavyParticle> gentops){
+
+	for(auto & LJet: LJets){
+		// products of top quark
+		for(auto & GTop: gentops){
+			
+			bool match_b, match_c, match_q1, match_q2, match_e, match_mu, match_tau;
+			match_b = match_c = match_q1 = match_q2 = match_e = match_mu = match_tau = false;
+		
+			for(unsigned idaugh=0; idaugh<GTop.daughter.size(); idaugh++){
+				if(delta2R(LJet.eta,LJet.phi,GTop.daughter[idaugh].eta,GTop.daughter[idaugh].phi)<0.8){
+					if(abs(GTop.daughter[idaugh].pdgId)==5){ match_b = true;  }
+					if(abs(GTop.daughter[idaugh].pdgId)==4){ match_c = true;  }
+					if(abs(GTop.daughter[idaugh].pdgId)==1 || abs(GTop.daughter[idaugh].pdgId)==3){ match_q1 = true;  }
+					if(abs(GTop.daughter[idaugh].pdgId)==2 || abs(GTop.daughter[idaugh].pdgId)==4){ match_q2 = true;  }
+					if(abs(GTop.daughter[idaugh].pdgId)==11){ match_e = true;  }
+					if(abs(GTop.daughter[idaugh].pdgId)==11){ match_mu = true;  }
+					if(abs(GTop.daughter[idaugh].pdgId)==15){ match_tau = true;  }
+				}
+			}
+		
+			if(match_b && match_c) { LJet.label_Top_bc = true; }
+			if(match_b && match_c && (match_q1||match_q2)) { LJet.label_Top_bcq = true; }
+			if(match_b && match_e) { LJet.label_Top_bele = true; }
+			if(match_b && match_mu) { LJet.label_Top_bmu = true; }
+			if(match_b && match_tau) { LJet.label_Top_btau = true; }
+			if(match_b && (match_e||match_mu||match_tau)) { LJet.label_Top_bl = true; }
+			if(match_b && (match_q1||match_q2)) { LJet.label_Top_bq = true; }
+			if(match_b && match_q1 && match_q2) { LJet.label_Top_bqq = true; }
+		
+		}//top
+	}
+}
+
+void Match_AK8_TwoProngDaughters(std::vector<AK8Jet> &LJets, std::vector<HeavyParticle> genwhads){
+	
+	for(auto & LJet: LJets){
+	// products of W boson
+		for(auto & GW: genwhads){
+			
+			bool match_c, match_q1, match_q2;
+			match_c = match_q1 = match_q2 = false;
+			
+			for(unsigned idaugh=0; idaugh<GW.daughter.size(); idaugh++){
+				if(delta2R(LJet.eta,LJet.phi,GW.daughter[idaugh].eta,GW.daughter[idaugh].phi)<0.8){
+					if(abs(GW.daughter[idaugh].pdgId)==4){ match_c = true;  }
+					if(abs(GW.daughter[idaugh].pdgId)==1 || abs(GW.daughter[idaugh].pdgId)==3){ match_q1 = true;  }
+					if(abs(GW.daughter[idaugh].pdgId)==2 || abs(GW.daughter[idaugh].pdgId)==4){ match_q2 = true;  }
+				}
+				
+				if(match_c && (match_q1||match_q2)) { LJet.label_W_cq = true; }
+				if(match_q1 && match_q2) { LJet.label_W_qq = true; }
+			}
+		}//W
+	}
+	
 }
 
 bool isBJet(AK4Jet jet, float btag_cut)

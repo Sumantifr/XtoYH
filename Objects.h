@@ -237,6 +237,18 @@ class AK8Jet {
   float jesdn_TimePtEta;
   float jesdn_Total;
   
+  bool  label_Top_bc;
+  bool  label_Top_bcq;
+  bool  label_Top_bele;
+  bool  label_Top_bl;
+  bool  label_Top_blt;
+  bool  label_Top_bmu;
+  bool  label_Top_bq;
+  bool  label_Top_bqq;
+  bool  label_Top_btau;
+  bool  label_W_cq;
+  bool  label_W_qq;
+
   TLorentzVector p4;
 };
 
@@ -447,6 +459,17 @@ class GenParton{
 } ;
 
 class TopQuark{
+ // gives 4-momentum of top quark and a vector of its daughters 
+ //(length of the vector of daughters should be 3)
+ // each daughter is of GenParton-type
+ public:
+
+  TLorentzVector p4;
+  vector<GenParton> daughter;
+
+} ;
+
+class HeavyParticle{
  // gives 4-momentum of top quark and a vector of its daughters 
  //(length of the vector of daughters should be 3)
  // each daughter is of GenParton-type
