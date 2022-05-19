@@ -861,7 +861,7 @@ private:
   
   int nGenPart;
   int GenPart_status[npartmx], GenPart_pdg[npartmx], GenPart_mompdg[npartmx], GenPart_grmompdg[npartmx], GenPart_momid[npartmx], GenPart_daugno[npartmx];
-  float GenPart_pt[npartmx], GenPart_eta[npartmx], GenPart_phi[npartmx], GenPart_m[npartmx]; //GenPart_q[npartmx];
+  float GenPart_pt[npartmx], GenPart_eta[npartmx], GenPart_phi[npartmx], GenPart_mass[npartmx]; //GenPart_q[npartmx];
   bool GenPart_fromhard[npartmx], GenPart_fromhardbFSR[npartmx], GenPart_isPromptFinalState[npartmx], GenPart_isLastCopyBeforeFSR[npartmx];
   
   static const int nlhemax = 10;
@@ -1807,7 +1807,7 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("GenJetAK8_eta",GenJetAK8_eta,"GenJetAK8_eta[nGenJetAK8]/F");
   T1->Branch("GenJetAK8_phi",GenJetAK8_phi,"GenJetAK8_phi[nGenJetAK8]/F");
   T1->Branch("GenJetAK8_mass",GenJetAK8_mass,"GenJetAK8_mass[nGenJetAK8]/F"); 
-  T1->Branch("GenJetAK8_sdmass",GenJetAK8_sdmass,"GenJetAK8_sdmass[nGenJetAK8]/F");
+  T1->Branch("GenJetAK8_msoftdrop",GenJetAK8_sdmass,"GenJetAK8_sdmass[nGenJetAK8]/F");
   T1->Branch("GenJetAK8_hadronflav",GenJetAK8_hadronflav,"GenJetAK8_hadronflav[nGenJetAK8]/I");
   T1->Branch("GenJetAK8_partonflav",GenJetAK8_partonflav,"GenJetAK8_partonflav[nGenJetAK8]/I");
 
@@ -1837,7 +1837,7 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("GenPart_pt",GenPart_pt,"GenPart_pt[nGenPart]/F");
   T1->Branch("GenPart_eta",GenPart_eta,"GenPart_eta[nGenPart]/F");
   T1->Branch("GenPart_phi",GenPart_phi,"GenPart_phi[nGenPart]/F");
-  T1->Branch("GenPart_m",GenPart_m,"GenPart_m[nGenPart]/F");
+  T1->Branch("GenPart_mass",GenPart_mass,"GenPart_mass[nGenPart]/F");
   T1->Branch("GenPart_status",GenPart_status,"GenPart_status[nGenPart]/I");
   T1->Branch("GenPart_pdgId",GenPart_pdg,"GenPart_pdg[nGenPart]/I");
   T1->Branch("GenPart_mompdgId",GenPart_mompdg,"GenPart_mompdg[nGenPart]/I");
@@ -2174,7 +2174,7 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 			GenPart_pt[nGenPart] = (*genparticles)[ig].pt();
 			GenPart_eta[nGenPart] = (*genparticles)[ig].eta();
 			GenPart_phi[nGenPart] = (*genparticles)[ig].phi();
-			GenPart_m[nGenPart] = (*genparticles)[ig].mass();
+			GenPart_mass[nGenPart] = (*genparticles)[ig].mass();
 			
 			// mother pdg id //
 			const Candidate * mom = (*genparticles)[ig].mother();
