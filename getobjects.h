@@ -886,21 +886,23 @@ void Match_AK8_TopDaughters(std::vector<AK8Jet> &LJets, std::vector<HeavyParticl
 					if(abs(GTop.daughter[idaugh].pdgId)==5){ match_b = true;  }
 					if(abs(GTop.daughter[idaugh].pdgId)==4){ match_c = true;  }
 					if(abs(GTop.daughter[idaugh].pdgId)==1 || abs(GTop.daughter[idaugh].pdgId)==3){ match_q1 = true;  }
-					if(abs(GTop.daughter[idaugh].pdgId)==2 || abs(GTop.daughter[idaugh].pdgId)==4){ match_q2 = true;  }
+					if(abs(GTop.daughter[idaugh].pdgId)==2){ match_q2 = true;  }
 					if(abs(GTop.daughter[idaugh].pdgId)==11){ match_e = true;  }
-					if(abs(GTop.daughter[idaugh].pdgId)==11){ match_mu = true;  }
+					if(abs(GTop.daughter[idaugh].pdgId)==13){ match_mu = true;  }
 					if(abs(GTop.daughter[idaugh].pdgId)==15){ match_tau = true;  }
 				}
 			}
 		
 			if(match_b && match_c) { LJet.label_Top_bc = true; }
 			if(match_b && match_c && (match_q1||match_q2)) { LJet.label_Top_bcq = true; }
+			if(match_b && (match_q1||match_q2)) { LJet.label_Top_bq = true; }
+			if(match_b && match_q1 && match_q2) { LJet.label_Top_bqq = true; }
+			
 			if(match_b && match_e) { LJet.label_Top_bele = true; }
 			if(match_b && match_mu) { LJet.label_Top_bmu = true; }
 			if(match_b && match_tau) { LJet.label_Top_btau = true; }
 			if(match_b && (match_e||match_mu||match_tau)) { LJet.label_Top_bl = true; }
-			if(match_b && (match_q1||match_q2)) { LJet.label_Top_bq = true; }
-			if(match_b && match_q1 && match_q2) { LJet.label_Top_bqq = true; }
+			
 		
 		}//top
 	}
@@ -919,7 +921,7 @@ void Match_AK8_TwoProngDaughters(std::vector<AK8Jet> &LJets, std::vector<HeavyPa
 				if(delta2R(LJet.eta,LJet.phi,GW.daughter[idaugh].eta,GW.daughter[idaugh].phi)<0.8){
 					if(abs(GW.daughter[idaugh].pdgId)==4){ match_c = true;  }
 					if(abs(GW.daughter[idaugh].pdgId)==1 || abs(GW.daughter[idaugh].pdgId)==3){ match_q1 = true;  }
-					if(abs(GW.daughter[idaugh].pdgId)==2 || abs(GW.daughter[idaugh].pdgId)==4){ match_q2 = true;  }
+					if(abs(GW.daughter[idaugh].pdgId)==2){ match_q2 = true;  }
 				}
 				
 				if(match_c && (match_q1||match_q2)) { LJet.label_W_cq = true; }
