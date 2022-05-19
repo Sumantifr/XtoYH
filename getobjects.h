@@ -902,7 +902,6 @@ void Match_AK8_TopDaughters(std::vector<AK8Jet> &LJets, std::vector<HeavyParticl
 			if(match_b && match_mu) { LJet.label_Top_bmu = true; }
 			if(match_b && match_tau) { LJet.label_Top_btau = true; }
 			if(match_b && (match_e||match_mu||match_tau)) { LJet.label_Top_bl = true; }
-			
 		
 		}//top
 	}
@@ -923,10 +922,11 @@ void Match_AK8_TwoProngDaughters(std::vector<AK8Jet> &LJets, std::vector<HeavyPa
 					if(abs(GW.daughter[idaugh].pdgId)==1 || abs(GW.daughter[idaugh].pdgId)==3){ match_q1 = true;  }
 					if(abs(GW.daughter[idaugh].pdgId)==2){ match_q2 = true;  }
 				}
-				
-				if(match_c && (match_q1||match_q2)) { LJet.label_W_cq = true; }
-				if(match_q1 && match_q2) { LJet.label_W_qq = true; }
 			}
+			
+			if(match_c && match_q1) { LJet.label_W_cq = true; }
+			if(match_q1 && match_q2) { LJet.label_W_qq = true; }
+			
 		}//W
 	}
 	
