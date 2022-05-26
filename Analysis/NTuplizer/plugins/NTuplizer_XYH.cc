@@ -860,9 +860,9 @@ private:
   int GenJetAK4_hadronflav[njetmx], GenJetAK4_partonflav[njetmx];
   
   int nGenPart;
-  int GenPart_status[npartmx], GenPart_pdg[npartmx], GenPart_mompdg[npartmx], GenPart_grmompdg[npartmx], GenPart_momid[npartmx], GenPart_daugno[npartmx];
+  int GenPart_status[npartmx], GenPart_pdg[npartmx], GenPart_mompdg[npartmx], GenPart_momstatus[npartmx], GenPart_grmompdg[npartmx], GenPart_momid[npartmx], GenPart_daugno[npartmx];
   float GenPart_pt[npartmx], GenPart_eta[npartmx], GenPart_phi[npartmx], GenPart_mass[npartmx]; //GenPart_q[npartmx];
-  bool GenPart_fromhard[npartmx], GenPart_fromhardbFSR[npartmx], GenPart_isPromptFinalState[npartmx], GenPart_isLastCopyBeforeFSR[npartmx];
+  bool GenPart_fromhard[npartmx], GenPart_fromhardbFSR[npartmx], GenPart_isPromptFinalState[npartmx], GenPart_isLastCopyBeforeFSR[npartmx], GenPart_isDirectPromptTauDecayProductFinalState[npartmx];
   
   static const int nlhemax = 10;
   int nLHEPart;
@@ -1841,12 +1841,15 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("GenPart_status",GenPart_status,"GenPart_status[nGenPart]/I");
   T1->Branch("GenPart_pdgId",GenPart_pdg,"GenPart_pdg[nGenPart]/I");
   T1->Branch("GenPart_mompdgId",GenPart_mompdg,"GenPart_mompdg[nGenPart]/I");
+  T1->Branch("GenPart_momstatus",GenPart_momstatus,"GenPart_momstatus[nGenPart]/I");
   T1->Branch("GenPart_grmompdgId",GenPart_grmompdg,"GenPart_grmompdg[nGenPart]/I");
   T1->Branch("GenPart_daugno",GenPart_daugno,"GenPart_daugno[nGenPart]/I");
   T1->Branch("GenPart_fromhard",GenPart_fromhard,"GenPart_fromhard[nGenPart]/O");
   T1->Branch("GenPart_fromhardbFSR",GenPart_fromhardbFSR,"GenPart_fromhardbFSR[nGenPart]/O");
   T1->Branch("GenPart_isPromptFinalState",GenPart_isPromptFinalState,"GenPart_isPromptFinalState[nGenPart]/O");
   T1->Branch("GenPart_isLastCopyBeforeFSR",GenPart_isLastCopyBeforeFSR,"GenPart_isLastCopyBeforeFSR[nGenPart]/O");
+  T1->Branch("GenPart_isDirectPromptTauDecayProductFinalState",GenPart_isDirectPromptTauDecayProductFinalState,"GenPart_isDirectPromptTauDecayProductFinalState[nGenPart]/O");
+  
   
   // LHE Info //
   
@@ -2158,8 +2161,8 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 	
 		for(unsigned ig=0; ig<(genparticles->size()); ig++){
 			
-			if(!(((*genparticles)[ig].status()==1)||(abs((*genparticles)[ig].status())==22)||((*genparticles)[ig].status()==23))) continue;
-			if(!((*genparticles)[ig].isHardProcess())) continue;
+			if(!(((*genparticles)[ig].status()==1)||(abs((*genparticles)[ig].status())==22)||((*genparticles)[ig].status()==23)|((*genparticles)[ig].status()==2))) continue;
+			if(!((*genparticles)[ig].isHardProcess()||(*genparticles)[ig].fromHardProcessBeforeFSR()||(*genparticles)[ig].isLastCopyBeforeFSR()||(*genparticles)[ig].isDirectPromptTauDecayProductFinalState())) continue;
 	  
 			if(!((abs((*genparticles)[ig].pdgId())>=1 && abs((*genparticles)[ig].pdgId())<=6) || (abs((*genparticles)[ig].pdgId())>=11 && abs((*genparticles)[ig].pdgId())<=16) || (abs((*genparticles)[ig].pdgId())>=22 && abs((*genparticles)[ig].pdgId())<=24))) continue;
 			// important condition on pdg id -> May be changed in other analyses //
@@ -2171,42 +2174,58 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 			GenPart_fromhardbFSR[nGenPart] = (*genparticles)[ig].fromHardProcessBeforeFSR();
 			GenPart_isLastCopyBeforeFSR[nGenPart] = (*genparticles)[ig].isLastCopyBeforeFSR();
 			GenPart_isPromptFinalState[nGenPart] = (*genparticles)[ig].isPromptFinalState();
+			GenPart_isDirectPromptTauDecayProductFinalState[nGenPart] = (*genparticles)[ig].isDirectPromptTauDecayProductFinalState();
 			GenPart_pt[nGenPart] = (*genparticles)[ig].pt();
 			GenPart_eta[nGenPart] = (*genparticles)[ig].eta();
 			GenPart_phi[nGenPart] = (*genparticles)[ig].phi();
 			GenPart_mass[nGenPart] = (*genparticles)[ig].mass();
 			
-			// mother pdg id //
-			const Candidate * mom = (*genparticles)[ig].mother();
-			GenPart_mompdg[nGenPart] = mom->pdgId();
-			const Candidate * momtmp = (*genparticles)[ig].mother();
-			while(GenPart_mompdg[nGenPart] == GenPart_pdg[nGenPart])
-			{
-				GenPart_mompdg[nGenPart] = momtmp->mother()->pdgId();
-				momtmp = momtmp->mother();
-			}
+			int mompdg, momstatus, grmompdg;
+			mompdg = momstatus = grmompdg = 0;
+			
+			if((*genparticles)[ig].numberOfMothers()>0){
+				
+				// mother pdg id & status //
+			
+				const Candidate * mom = (*genparticles)[ig].mother();
+				
+				while(mom->pdgId() == (*genparticles)[ig].pdgId())
+				{
+					mom = mom->mother();
+				}
+				
+				if(!(*genparticles)[ig].isPromptFinalState() && !(*genparticles)[ig].isDirectPromptTauDecayProductFinalState()){
+					while(mom->status()==2){
+						mom = mom->mother();	
+					}
+				}
+				
+				mompdg = mom->pdgId();
+				momstatus = mom->status();
 	  
-			// grand-mother pdg id //
-			bool found_grmom = false;
-			if(mom->numberOfMothers()>0){
-				const Candidate * grmom  = mom->mother();
-				for(int iter=0; iter<10; iter++){
-					if(grmom->pdgId() != mom->pdgId()){
-						GenPart_grmompdg[nGenPart]  = grmom->pdgId();
-						found_grmom = true;
-						break;
-					}else{
+				// grand-mother pdg id //
+						
+				if(mom->numberOfMothers()>0){
+	
+					const Candidate * grmom = mom->mother();
+					
+					while(grmom->pdgId() == mompdg)
+					{
 						if(grmom->numberOfMothers()>0){
 							grmom = grmom->mother();
 						}
 						else{ break; }
 					}
-				}
+					
+					grmompdg  = grmom->pdgId();	
+				} 
+				
 			}
-			if(!found_grmom){
-				GenPart_grmompdg[nGenPart]  = -10000000;
-			}
-	  
+			
+			GenPart_mompdg[nGenPart] = mompdg;
+			GenPart_momstatus[nGenPart] = momstatus;
+			GenPart_grmompdg[nGenPart] = grmompdg; 
+			
 			nGenPart++;
 			if(nGenPart>=npartmx) break;
 		}
