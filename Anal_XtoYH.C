@@ -1491,12 +1491,14 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 	event_cuts.push_back(trig_matching_pass);	// Offline objects should match to trigger object
 	event_cuts.push_back(!(muon_trig_pass && electron_trig_pass));   // reject if both mu & el triggers are fired (for single lepton channel)
 
+	/*
     if(isMC){
             if(Jets.size()>0){
-     //              event_cuts.push_back((Jets[0].pt<3*Generator_qscale));   // safety condition against pileup
+                   event_cuts.push_back((Jets[0].pt<3*Generator_qscale));   // safety condition against pileup
             }
      }
-    
+    // this condition reduces too much MC events. But, why?
+    */
     ncuts=0;	
 	for(unsigned icut=0; icut<event_cuts.size(); icut++){
 		Flag_event_cuts[icut] = event_cuts[icut];
