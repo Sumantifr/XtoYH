@@ -220,6 +220,14 @@ else if(inputFile=="FILELIST_2018_NEW/SingleMuon_UL2018C_XtoYH_Nov_2021.log")
 {sprintf(fOut,"HIST_2018UL_DATA/SingleMuon_UL2018C_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
 else if(inputFile=="FILELIST_2018_NEW/SingleMuon_UL2018D_XtoYH_Nov_2021.log")
 {sprintf(fOut,"HIST_2018UL_DATA/SingleMuon_UL2018D_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/JetHT_UL2018A_XtoYH_Nov_2021.log")
+{sprintf(fOut,"HIST_2018UL_DATA/JetHT_UL2018A_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/JetHT_UL2018B_XtoYH_Nov_2021.log")
+{sprintf(fOut,"HIST_2018UL_DATA/JetHT_UL2018B_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/JetHT_UL2018C_XtoYH_Nov_2021.log")
+{sprintf(fOut,"HIST_2018UL_DATA/JetHT_UL2018C_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
+else if(inputFile=="FILELIST_2018_NEW/JetHT_UL2018D_XtoYH_Nov_2021.log")
+{sprintf(fOut,"HIST_2018UL_DATA/JetHT_UL2018D_XtoYH_Nov_2021_%s_%s.root",argv[1],argv[2]);}
 /**********************************************************************************************/
 else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1000_MY_100.log")
 {sprintf(fOut,"HIST_2018UL/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1000_MY_100_XtoYH_Nov_2021_%s_%s_v2.root",argv[1],argv[2]);}
@@ -1475,8 +1483,8 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 
     vector<bool> event_cuts;
     
-    event_cuts.push_back(vleptons.size()==1); // for single lepton channel 
-    event_cuts.push_back(LJets.size()>=2);	// At least two AK8 jets 
+    event_cuts.push_back((int)vleptons.size()==1); // for single lepton channel 
+    event_cuts.push_back((int)LJets.size()>=2);	// At least two AK8 jets 
     event_cuts.push_back(MET_pt>=20);	// Minimum MET cut
 	event_cuts.push_back(anytrig_pass);		// At least one trigger should be fired 
 	event_cuts.push_back(trig_threshold_pass);	// Offline objects should pass trigger threshold 
@@ -1485,17 +1493,19 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 
     if(isMC){
             if(Jets.size()>0){
-                   event_cuts.push_back((Jets[0].pt<3*Generator_qscale));
+     //              event_cuts.push_back((Jets[0].pt<3*Generator_qscale));   // safety condition against pileup
             }
      }
-        ncuts=0;	
+    
+    ncuts=0;	
 	for(unsigned icut=0; icut<event_cuts.size(); icut++){
 		Flag_event_cuts[icut] = event_cuts[icut];
-                ncuts++;
-		if (icut>=njetmxAK8) break;
+        ncuts++;
+		if (ncuts>=njetmxAK8) break;
 	}
 
-    Tout_presel->Fill();	
+    Tout_presel->Fill();
+    	
     bool event_pass = true;
 	for(unsigned icut=0; icut<event_cuts.size(); icut++){
 		event_pass *= event_cuts[icut];
@@ -1938,20 +1948,20 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 
 	nbjets_other = 0;
 	for(auto & bjet: BJets){
-		if(delta2R(bjet.y,bjet.phi,LJets[W_cand_opt1].y,LJets[W_cand_opt1].phi)>0.6 && delta2R(bjet.y,bjet.phi,LJets[Y_cand].y,LJets[Y_cand].phi)>0.6){
+		if(delta2R(bjet.y,bjet.phi,LJets[W_cand_opt2].y,LJets[W_cand_opt2].phi)>0.6 && delta2R(bjet.y,bjet.phi,LJets[Y_cand].y,LJets[Y_cand].phi)>0.6){
 			nbjets_other++;
 			}
 	}
 	
 	nbjets_outY = 0;
 	for(auto & bjet: BJets){
-		if(delta2R(bjet.y,bjet.phi,LJets[W_cand_opt1].y,LJets[W_cand_opt1].phi)>1.2){
+		if(delta2R(bjet.y,bjet.phi,LJets[Y_cand].y,LJets[Y_cand].phi)>1.2){
 			nbjets_outY++;
 			}
 	}
 
 	Flag_Y_bb_pass_T = Y_bb_pass_T;
-        Flag_Y_bb_pass_M = Y_bb_pass_M;
+    Flag_Y_bb_pass_M = Y_bb_pass_M;
 	Flag_Y_bb_pass_L = Y_bb_pass_L;
 	Flag_H_W_pass_T_opt1 = H_W_pass_T_opt1;
     Flag_H_W_pass_M_opt1 = H_W_pass_M_opt1;
