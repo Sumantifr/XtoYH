@@ -1,6 +1,6 @@
 # XtoYH
 
-##Ntuple production
+Framework for ntuple production in X->Y(->bb)H(->WW) analysis
 
 - Log in to your lxplus account
 
@@ -20,10 +20,9 @@
 
 - scram b -j10 
 
-For a test run: 
-==============
+## For a test run: 
 
-- cd CMSSSW_10_6_29/src
+cd CMSSSW_10_6_29/src
 
 - cmsenv
 
@@ -35,8 +34,7 @@ For a test run:
 
 Enjoy!
 
-For submitting crab jobs (MC):
-=========================
+## For submitting crab jobs (MC):
 
 - cd CMSSSW_10_6_29/src
 
