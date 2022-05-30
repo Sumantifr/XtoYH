@@ -1,49 +1,52 @@
 # XtoYH
 
-Log in to your lxplus account
+##Ntuple production
 
-cd work/private
+- Log in to your lxplus account
 
-mkdir XtoYH
+- cd work/private
 
-cd XtoYH
+- mkdir XtoYH
 
-cmsrel CMSSW_10_6_29 
+- cd XtoYH
 
+- cmsrel CMSSW_10_6_29 <br/>
 #For CMSSW_10_6_X (X<=25), some changes need to be made for ECAL prefiring weights
 
-cd CMSSW_10_6_29/src
+- cd CMSSW_10_6_29/src
 
-git clone https://github.com/Sumantifr/XtoYH.git .
+- git clone https://github.com/Sumantifr/XtoYH.git . <br/>
+  *(Don't forget '.')*
 
-scram b -j10
-
-Enjoy! 
+- scram b -j10 
 
 For a test run: 
 ==============
-cd CMSSSW_10_6_29/src
 
-cmsenv
+- cd CMSSSW_10_6_29/src
 
-cd $CMSSW_BASE/src/Analysis/NTuplizer/test/
+- cmsenv
 
-voms-proxy-init -rfc -voms cms -valid 48:00
+- cd $CMSSW_BASE/src/Analysis/NTuplizer/test/
 
-cmsRun PNet_MC_MINIAOD_cfg.py
+- voms-proxy-init -rfc -voms cms -valid 48:00
+
+- cmsRun PNet_MC_MINIAOD_cfg.py
+
+Enjoy!
 
 For submitting crab jobs (MC):
 =========================
 
-cd CMSSSW_10_6_29/src
+- cd CMSSSW_10_6_29/src
 
-cmsenv
+- cmsenv
 
-cd $CMSSW_BASE/src/Analysis/NTuplizer/test/
+- cd $CMSSW_BASE/src/Analysis/NTuplizer/test/
 
-voms-proxy-init -rfc -voms cms -valid 48:00
+- voms-proxy-init -rfc -voms cms -valid 48:00
 
-./generate_crab_miniaod_UL18.sh 
-  (This will create all the files necessary to submit jobs, but the command will not submit jobs!!)
+- ./generate_crab_miniaod_UL18.sh <br/>
+  *This will create all the files necessary to submit jobs, but the command will not submit jobs!!*
 
 ./crab_submit.sh
