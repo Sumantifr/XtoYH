@@ -22,7 +22,7 @@ Framework for ntuple production in X->Y(->bb)H(->WW) analysis
 
 ## For a test run: 
 
-cd CMSSSW_10_6_29/src
+- cd CMSSSW_10_6_29/src
 
 - cmsenv
 
@@ -47,4 +47,4 @@ Enjoy!
 - ./generate_crab_miniaod_UL18.sh <br/>
   *This will create all the files necessary to submit jobs, but the command will not submit jobs!!*
 
-./crab_submit.sh
+- ./crab_submit.sh
