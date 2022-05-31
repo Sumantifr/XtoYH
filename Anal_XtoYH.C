@@ -555,6 +555,9 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
    
    Tout->Branch("nbjets_other", &nbjets_other, "nbjets_other/I");		
    Tout->Branch("nbjets_outY", &nbjets_outY, "nbjets_outY/I");	
+   Tout->Branch("nbjets_outY_L", &nbjets_outY_L, "nbjets_outY_L/I");	
+   Tout->Branch("nbjets", &nbjets, "nbjets/I");	
+   Tout->Branch("nbjets_L", &nbjets_L, "nbjets_L/I");	
    
    // Different flags and control regions   
 
@@ -1119,6 +1122,9 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
    fChain->SetBranchAddress("Tau_rawiso", Tau_rawiso, &b_Tau_rawiso);
    fChain->SetBranchAddress("Tau_rawisodR03", Tau_rawisodR03, &b_Tau_rawisodR03);
    fChain->SetBranchAddress("Tau_puCorr", Tau_puCorr, &b_Tau_puCorr);
+   
+   if(isMC){
+   
    fChain->SetBranchAddress("Generator_weight", &Generator_weight, &b_Generator_weight);
    fChain->SetBranchAddress("Generator_qscale", &Generator_qscale, &b_Generator_qscale);
    fChain->SetBranchAddress("Generator_x1", &Generator_x1, &b_Generator_x1);
@@ -1177,12 +1183,14 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
    fChain->SetBranchAddress("nLHEPSWeights", &nLHEPSWeights, &b_nLHEPSWeights);
    fChain->SetBranchAddress("LHEPSWeights", LHEPSWeights, &b_LHEPSWeights);
    
+   }
+   
    gRandom = new TRandom3();
    
    int nentries = fChain->GetEntries();
    cout<<"nentries "<<nentries<<endl;
    
-   isMC = true;
+   isMC = false;
    isFastSIM = false;
    
    for (int ij=0; ij<nentries; ij++) {
@@ -1191,60 +1199,78 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 	f->cd();
 
 	double event_weight;
-	if(fabs(LHE_weight)>1.e-12) { event_weight = LHE_weight; }
-	else { event_weight = Generator_weight;	}
+	if(isMC){
+		if(fabs(LHE_weight)>1.e-12) { event_weight = LHE_weight; }
+		else { event_weight = Generator_weight;	}
+	}
+	else{
+		event_weight = 1.;
+	}
 
 	fChain->GetEntry(ij);
     
-    h_PU->Fill(npu_vert,event_weight);
-    h_TPU->Fill(npu_vert_true,event_weight);
-    h_PV->Fill(npvert,event_weight);
+    
+    if(isMC){
+		h_PU->Fill(npu_vert,event_weight);
+		h_TPU->Fill(npu_vert_true,event_weight);
+	}
+	
+	h_PV->Fill(npvert,event_weight);
 	
 	//cout<<"Before: "<<nPFJetAK8<<" "<<nPFJetAK4<<" "<<nMuon<<" "<<nElectron<<" "<<nPhoton<<endl;
 	
-	//Here you get gen particles
 	vector<GenParton> genpartons;
-	getPartons(genpartons);
-	
 	vector<GenParton> genleps;
-	for(unsigned ig=0; ig<(genpartons).size(); ig++){
-		if((abs(genpartons[ig].pdgId)==11||abs(genpartons[ig].pdgId)==13) && ((genpartons[ig].status)==1||(genpartons[ig].status)==23) && ((abs(genpartons[ig].mompdgId)==15 && abs(genpartons[ig].grmompdgId)==24) || abs(genpartons[ig].mompdgId)==24 || abs(genpartons[ig].mompdgId)==25)){
-			genleps.push_back(genpartons[ig]);
-		}
-	}
-	
 	vector<GenParton> gennus;
-	for(unsigned ig=0; ig<(genpartons).size(); ig++){
-		if((abs(genpartons[ig].pdgId)==12||abs(genpartons[ig].pdgId)==14||abs(genpartons[ig].pdgId)==16) && ((genpartons[ig].status)==1||(genpartons[ig].status)==23)){
-			gennus.push_back(genpartons[ig]);
-		}
-	}
-	
 	vector<GenParton> genbs;
-	for(unsigned ig=0; ig<(genpartons).size(); ig++){
-		if((abs(genpartons[ig].pdgId)==5) && (genpartons[ig].status==23) && (abs(genpartons[ig].mompdgId)==25||abs(genpartons[ig].mompdgId)==6||abs(genpartons[ig].mompdgId)==35)){
-			genbs.push_back(genpartons[ig]);
-		}
-	}
-	
 	vector<GenParton> genVs;
-	for(unsigned ig=0; ig<(genpartons).size(); ig++){
-		if(abs(genpartons[ig].pdgId)==23||abs(genpartons[ig].pdgId)==24||abs(genpartons[ig].pdgId)==25||abs(genpartons[ig].pdgId)==35){
-			genVs.push_back(genpartons[ig]);
-		}
-	}
-	
-	//Here you get top quarks (along with its daughters) from GEN paeticles 
 	vector<HeavyParticle> gentops;
-    getGENTops(gentops, genpartons);
-    
-    //Here you get W bosons (along with its daughters) from GEN paeticles 
-    vector<HeavyParticle> genwhads;
-    getGENWHads(genwhads, genpartons);
-	
-	//Here you get LHE particles 
+	vector<HeavyParticle> genwhads;
 	vector<GenParton> lheparts;
-	getLHEParts(lheparts);
+	
+	if(isMC){
+	
+		//Here you get gen particles
+	
+		getPartons(genpartons);
+	
+		for(unsigned ig=0; ig<(genpartons).size(); ig++){
+			if((abs(genpartons[ig].pdgId)==11||abs(genpartons[ig].pdgId)==13) && ((genpartons[ig].status)==1||(genpartons[ig].status)==23) && ((abs(genpartons[ig].mompdgId)==15 && abs(genpartons[ig].grmompdgId)==24) || abs(genpartons[ig].mompdgId)==24 || abs(genpartons[ig].mompdgId)==25)){
+				genleps.push_back(genpartons[ig]);
+			}
+		}
+	
+		for(unsigned ig=0; ig<(genpartons).size(); ig++){
+			if((abs(genpartons[ig].pdgId)==12||abs(genpartons[ig].pdgId)==14||abs(genpartons[ig].pdgId)==16) && ((genpartons[ig].status)==1||(genpartons[ig].status)==23)){
+				gennus.push_back(genpartons[ig]);
+			}
+		}
+
+		for(unsigned ig=0; ig<(genpartons).size(); ig++){
+			if((abs(genpartons[ig].pdgId)==5) && (genpartons[ig].status==23) && (abs(genpartons[ig].mompdgId)==25||abs(genpartons[ig].mompdgId)==6||abs(genpartons[ig].mompdgId)==35)){
+				genbs.push_back(genpartons[ig]);
+			}
+		}
+	
+		for(unsigned ig=0; ig<(genpartons).size(); ig++){
+			if(abs(genpartons[ig].pdgId)==23||abs(genpartons[ig].pdgId)==24||abs(genpartons[ig].pdgId)==25||abs(genpartons[ig].pdgId)==35){
+				genVs.push_back(genpartons[ig]);
+			}
+		}
+	
+		//Here you get top quarks (along with its daughters) from GEN paeticles 
+	
+		getGENTops(gentops, genpartons);
+    
+		//Here you get W bosons (along with its daughters) from GEN paeticles 
+    
+		getGENWHads(genwhads, genpartons);
+	
+		//Here you get LHE particles 
+
+		getLHEParts(lheparts);
+	
+	}
 	
 	//Here you get electrons with your criteria
 	vector <Electron> velectrons;
@@ -1266,22 +1292,40 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
     // Add b tag SF (if not in ntuple)//
     for(auto & jet: Jets){
 		
-		BTagEntry::JetFlavor btv_flav;
-		if(abs(jet.hadronFlavour)==5){ btv_flav = BTagEntry::FLAV_B; }
-		else if (abs(jet.hadronFlavour)==4){ btv_flav = BTagEntry::FLAV_C; }
-		else { btv_flav = BTagEntry::FLAV_UDSG; }
+		if(isMC){
 		
-		jet.btag_DeepFlav_SF = reader_deepflav.eval_auto_bounds("central",btv_flav,fabs(jet.eta),jet.pt); 
-		jet.btag_DeepFlav_SF_up = reader_deepflav.eval_auto_bounds("up",btv_flav,fabs(jet.eta),jet.pt);
-		jet.btag_DeepFlav_SF_dn = reader_deepflav.eval_auto_bounds("down",btv_flav,fabs(jet.eta),jet.pt);
+			BTagEntry::JetFlavor btv_flav;
+			if(abs(jet.hadronFlavour)==5){ btv_flav = BTagEntry::FLAV_B; }
+			else if (abs(jet.hadronFlavour)==4){ btv_flav = BTagEntry::FLAV_C; }
+			else { btv_flav = BTagEntry::FLAV_UDSG; }
+		
+			jet.btag_DeepFlav_SF = reader_deepflav.eval_auto_bounds("central",btv_flav,fabs(jet.eta),jet.pt); 
+			jet.btag_DeepFlav_SF_up = reader_deepflav.eval_auto_bounds("up",btv_flav,fabs(jet.eta),jet.pt);
+			jet.btag_DeepFlav_SF_dn = reader_deepflav.eval_auto_bounds("down",btv_flav,fabs(jet.eta),jet.pt);
+		
+		}
+		
+		else{
+			
+			jet.btag_DeepFlav_SF = jet.btag_DeepFlav_SF_up = jet.btag_DeepFlav_SF_dn = 0;
+			
+			}
 	
 	}
 	    
     //Get b-tagged jets from AK4 jets
-    vector <AK4Jet> BJets;
+    
+    vector <AK4Jet> BJets_M;
     for(auto & jet: Jets){
-		if(isBJet(jet,deep_btag_cut)){
-			BJets.push_back(jet);
+		if(isBJet(jet,DAK4_M)){
+			BJets_M.push_back(jet);
+		}
+    }
+    
+    vector <AK4Jet> BJets_L;
+    for(auto & jet: Jets){
+		if(isBJet(jet,DAK4_L)){
+			BJets_L.push_back(jet);
 		}
     }
     
@@ -1291,11 +1335,13 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
     //LeptonJet_cleaning(LJets,vleptons,AK8jet_pt_cut,absetacut);
     
     //Matching to AK8 jets to heavy particle products (GEN level)
-	Match_AK8_TopDaughters(LJets,gentops);
-	Match_AK8_TwoProngDaughters(LJets,genwhads);
+    if(isMC){
+		Match_AK8_TopDaughters(LJets,gentops);
+		Match_AK8_TwoProngDaughters(LJets,genwhads);
+	}
 	
-    nleptons = (vleptons.size());
-	nfatjets = (LJets.size());
+    nleptons = (int)vleptons.size();
+	nfatjets = (int)LJets.size();
     
     ////trigger object along with pdgid////
     vector<TrigObj> trigobjects;
@@ -1394,9 +1440,11 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 		}
     //*****************************************************************************************
     //                            AK4 histogram filling for btag SF                          //
-    //*****************************************************************************************                            
-    if(anytrig_pass && trig_threshold_pass && trig_matching_pass && !(muon_trig_pass && electron_trig_pass))
+    //*****************************************************************************************          
+                      
+    if(anytrig_pass && trig_threshold_pass && trig_matching_pass && !(muon_trig_pass && electron_trig_pass) && isMC)
     {
+	
     vector <AK4GenJet> genJets;
     getAK4Genjets(genJets,AK4GenJet_pt_cut,absetacut,isMC);
 
@@ -1447,16 +1495,18 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 	 if(dR < 0.6) 
 	   { 
               h_Ak8_DeepTag_PNetMD_WvsQCD->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);
-	      h_Ak8_DeepTag_PNetMD_XbbvsQCD->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);
-	      if(LJets[ijet].DeepTag_PNetMD_WvsQCD>PNetW_cut_T) {h_Ak8_DeepTag_PNetMD_WvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
-	      if(LJets[ijet].DeepTag_PNetMD_WvsQCD>PNetW_cut_M) {h_Ak8_DeepTag_PNetMD_WvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
+			  h_Ak8_DeepTag_PNetMD_XbbvsQCD->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);
+			  if(LJets[ijet].DeepTag_PNetMD_WvsQCD>PNetW_cut_T) {h_Ak8_DeepTag_PNetMD_WvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
+			  if(LJets[ijet].DeepTag_PNetMD_WvsQCD>PNetW_cut_M) {h_Ak8_DeepTag_PNetMD_WvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
               if(LJets[ijet].DeepTag_PNetMD_WvsQCD>PNetW_cut_L) {h_Ak8_DeepTag_PNetMD_WvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);  }
               if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNetbb_cut_T){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);}
               if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNetbb_cut_M){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);}
               if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNetbb_cut_L){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);}
            }
-    }
-    }
+           
+	   }
+    
+    }//selection condition
     
     // Assinging MET values //
     
@@ -1520,58 +1570,63 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
     
     // store gen particles first //
     
-    nGenLep = int(genleps.size());
-    for(unsigned ig=0; ig<(genleps.size()); ig++){
-		GenLep_pt[ig] = genleps[ig].pt;
-		GenLep_eta[ig] = genleps[ig].eta;
-		GenLep_phi[ig] = genleps[ig].phi;
-		GenLep_mass[ig] = genleps[ig].mass;
-		GenLep_pdgId[ig] = genleps[ig].pdgId;
-		GenLep_mompdgId[ig] = genleps[ig].mompdgId;
-		GenLep_grmompdgId[ig] = genleps[ig].grmompdgId;
+    if(isMC){
+    
+		nGenLep = int(genleps.size());
+		for(unsigned ig=0; ig<(genleps.size()); ig++){
+			GenLep_pt[ig] = genleps[ig].pt;
+			GenLep_eta[ig] = genleps[ig].eta;
+			GenLep_phi[ig] = genleps[ig].phi;
+			GenLep_mass[ig] = genleps[ig].mass;
+			GenLep_pdgId[ig] = genleps[ig].pdgId;
+			GenLep_mompdgId[ig] = genleps[ig].mompdgId;
+			GenLep_grmompdgId[ig] = genleps[ig].grmompdgId;
 		}
     
-    nGenNu = int(gennus.size());
-    for(unsigned ig=0; ig<(gennus.size()); ig++){
-		GenNu_pt[ig] = gennus[ig].pt;
-		GenNu_eta[ig] = gennus[ig].eta;
-		GenNu_phi[ig] = gennus[ig].phi;
-		GenNu_mass[ig] = gennus[ig].mass;
-		GenNu_pdgId[ig] = gennus[ig].pdgId;
-		GenNu_mompdgId[ig] = gennus[ig].mompdgId;
-		GenNu_grmompdgId[ig] = gennus[ig].grmompdgId;
+		nGenNu = int(gennus.size());
+		for(unsigned ig=0; ig<(gennus.size()); ig++){
+			GenNu_pt[ig] = gennus[ig].pt;
+			GenNu_eta[ig] = gennus[ig].eta;
+			GenNu_phi[ig] = gennus[ig].phi;
+			GenNu_mass[ig] = gennus[ig].mass;
+			GenNu_pdgId[ig] = gennus[ig].pdgId;
+			GenNu_mompdgId[ig] = gennus[ig].mompdgId;
+			GenNu_grmompdgId[ig] = gennus[ig].grmompdgId;
 		}
     
-    nGenBPart = int(genbs.size());
-    for(unsigned ig=0; ig<(genbs.size()); ig++){
-		GenBPart_pt[ig] = genbs[ig].pt;
-		GenBPart_eta[ig] = genbs[ig].eta;
-		GenBPart_phi[ig] = genbs[ig].phi;
-		GenBPart_mass[ig] = genbs[ig].mass;
-		GenBPart_pdgId[ig] = genbs[ig].pdgId;
-		GenBPart_mompdgId[ig] = genbs[ig].mompdgId;
-		GenBPart_grmompdgId[ig] = genbs[ig].grmompdgId;
+		nGenBPart = int(genbs.size());
+		for(unsigned ig=0; ig<(genbs.size()); ig++){
+			GenBPart_pt[ig] = genbs[ig].pt;
+			GenBPart_eta[ig] = genbs[ig].eta;
+			GenBPart_phi[ig] = genbs[ig].phi;
+			GenBPart_mass[ig] = genbs[ig].mass;
+			GenBPart_pdgId[ig] = genbs[ig].pdgId;
+			GenBPart_mompdgId[ig] = genbs[ig].mompdgId;
+			GenBPart_grmompdgId[ig] = genbs[ig].grmompdgId;
 		}
     
-    nGenV = int(genVs.size());
-    for(unsigned ig=0; ig<(genVs.size()); ig++){
-		GenV_pt[ig] = genVs[ig].pt;
-		GenV_eta[ig] = genVs[ig].eta;
-		GenV_phi[ig] = genVs[ig].phi;
-		GenV_mass[ig] = genVs[ig].mass;
-		GenV_pdgId[ig] = genVs[ig].pdgId;
-		GenV_mompdgId[ig] = genVs[ig].mompdgId;
-		GenV_grmompdgId[ig] = genVs[ig].grmompdgId;
+		nGenV = int(genVs.size());
+		for(unsigned ig=0; ig<(genVs.size()); ig++){
+			GenV_pt[ig] = genVs[ig].pt;
+			GenV_eta[ig] = genVs[ig].eta;
+			GenV_phi[ig] = genVs[ig].phi;
+			GenV_mass[ig] = genVs[ig].mass;
+			GenV_pdgId[ig] = genVs[ig].pdgId;
+			GenV_mompdgId[ig] = genVs[ig].mompdgId;
+			GenV_grmompdgId[ig] = genVs[ig].grmompdgId;
 		}
+  
+    }//osMC
     
     // check for reco objects //
 		
 	int Y_cand = -1;
 	int W_cand_opt1 = -1;
-        int W_cand_opt2 = -1;
+    int W_cand_opt2 = -1;
 
 	float max_PNet_bb = -100;
 	float max_PNet_W = -100;
+	
 	// Y candidate
 	for(unsigned ijet=0; ijet<LJets.size(); ijet++){
 		
@@ -1583,7 +1638,8 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 		}
 		
 	}
-        //W candidate option 1
+    
+    //W candidate option 1
 	for(unsigned ijet=0; ijet<LJets.size(); ijet++){
 		
 		if(LJets[ijet].DeepTag_PNetMD_WvsQCD > max_PNet_W && int(ijet)!=Y_cand){
@@ -1593,22 +1649,22 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 			
 		}
 	}
+	
 	if(Y_cand==-1 || W_cand_opt1==-1) continue;
 
 	// W candidate option 2
 	double dR_LJet_lep =  9999.9;
 	for(unsigned ijet=0; ijet<LJets.size(); ijet++){
-	        if (int(ijet) == Y_cand) continue;
-                double temp_dR = delta2R(LJets[ijet].y,LJets[ijet].phi,vleptons[0].eta,vleptons[0].phi);
+		if (int(ijet) == Y_cand) continue;
+		double temp_dR = delta2R(LJets[ijet].y,LJets[ijet].phi,vleptons[0].eta,vleptons[0].phi);
 		if( temp_dR < dR_LJet_lep )
-                  {
-      		      dR_LJet_lep =  temp_dR;
-	              W_cand_opt2 =  int(ijet);
-	          }
-         }  		
-         if(Y_cand==-1 || W_cand_opt2==-1) continue;
-
-
+        {
+			dR_LJet_lep =  temp_dR;
+	        W_cand_opt2 =  int(ijet);
+		}
+    }  		
+         
+    if(Y_cand==-1 || W_cand_opt2==-1) continue;
 
 	TLorentzVector pnu_opt1, pnu_opt2;
 	double random_no = gRandom->Uniform(0,1);
@@ -1671,9 +1727,10 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 			l_minisoph = velectrons[vleptons[0].indexemu].minisoph;
 			l_minisoall = velectrons[vleptons[0].indexemu].minisoall;
 			}
-			
-		l_genindex = get_nearest_Parton(genleps,vleptons[0].p4,0.4);
-		
+	
+	
+		l_genindex = (isMC)?get_nearest_Parton(genleps,vleptons[0].p4,0.4):-1;
+
 	}
 	
 	_s_PFJetAK8_Y_index = Y_cand;
@@ -1726,26 +1783,35 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 		Y_sub2_mass = LJets[Y_cand].sub2_mass;
 		Y_sub2_btag = LJets[Y_cand].sub2_btag;
 		
-		Y_genbindex[0] = get_nearest_Parton(genbs,LJets[Y_cand].p4,0.8);
-		if(Y_genbindex[0]>=0){
-			genbs.erase(genbs.begin()+Y_genbindex[0]);
-			Y_genbindex[1] = get_nearest_Parton(genbs,LJets[Y_cand].p4,0.8);
-		}
-		else{
-			Y_genbindex[1] = -1;
+		if(isMC){
+			
+			Y_genbindex[0] = get_nearest_Parton(genbs,LJets[Y_cand].p4,0.8);
+			if(Y_genbindex[0]>=0){
+				genbs.erase(genbs.begin()+Y_genbindex[0]);
+				Y_genbindex[1] = get_nearest_Parton(genbs,LJets[Y_cand].p4,0.8);
+			}
+			else{
+				Y_genbindex[1] = -1;
 			}
 		
-		int gen_match = get_nearest_Parton(genVs,LJets[Y_cand].p4,0.8);
-		if(gen_match>=0 && abs(genVs[gen_match].pdgId)==35){
-			Y_genindex = gen_match; 
-		}else{
-			Y_genindex = -1;
+			int gen_match = get_nearest_Parton(genVs,LJets[Y_cand].p4,0.8);
+			if(gen_match>=0 && abs(genVs[gen_match].pdgId)==35){
+				Y_genindex = gen_match; 
+			}else{
+				Y_genindex = -1;
 			}
+		}
+		else { Y_genbindex[0] = Y_genbindex[1] = Y_genindex = -1; }
 		
 		Y_JESup = LJets[Y_cand].jesup_Total;
 		Y_JESdn = LJets[Y_cand].jesdn_Total;
-		Y_JERup = LJets[Y_cand].JERup/LJets[Y_cand].JER;
-		Y_JERdn = LJets[Y_cand].JERdn/LJets[Y_cand].JER;
+		if(isMC){
+			Y_JERup = LJets[Y_cand].JERup/LJets[Y_cand].JER;
+			Y_JERdn = LJets[Y_cand].JERdn/LJets[Y_cand].JER;
+		}
+		else{
+			Y_JERup = Y_JERdn = -1;
+			}
 				
 		if(vleptons.size()>0){
 			
@@ -1785,8 +1851,13 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 		W_DAK8_W_opt1 = LJets[W_cand_opt1].DeepTag_DAK8MD_WvsQCD;
 		W_PN_W_opt1 = LJets[W_cand_opt1].DeepTag_PNetMD_WvsQCD;
 		
-		W_label_W_cq_opt1 = LJets[W_cand_opt1].label_W_cq;
-		W_label_W_qq_opt1 = LJets[W_cand_opt1].label_W_qq;
+		if(isMC){
+			W_label_W_cq_opt1 = LJets[W_cand_opt1].label_W_cq;
+			W_label_W_qq_opt1 = LJets[W_cand_opt1].label_W_qq;
+		}
+		else{
+			W_label_W_cq_opt1 = W_label_W_qq_opt1 = false;
+			}
 		
 		W_sub1_pt_opt1 = LJets[W_cand_opt1].sub1_pt;
 		W_sub1_eta_opt1 = LJets[W_cand_opt1].sub1_eta;
@@ -1799,12 +1870,15 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 		W_sub2_mass_opt1 = LJets[W_cand_opt1].sub2_mass;
 		W_sub2_btag_opt1 = LJets[W_cand_opt1].sub2_btag;
 		
-		int gen_match = get_nearest_Parton(genVs,LJets[W_cand_opt1].p4,0.8);
-		if(gen_match>=0 && abs(genVs[gen_match].pdgId)==24){
-			W_genindex_opt1 = gen_match; 
-		}else{
-			W_genindex_opt1 = -1;
+		if(isMC){
+			int gen_match = get_nearest_Parton(genVs,LJets[W_cand_opt1].p4,0.8);
+			if(gen_match>=0 && abs(genVs[gen_match].pdgId)==24){
+				W_genindex_opt1 = gen_match; 
+			}else{
+				W_genindex_opt1 = -1;
 			}
+		}
+		else { W_genindex_opt1 = -1; }
 		
 		W_JESup_opt1 = LJets[W_cand_opt1].jesup_Total;
 		W_JESdn_opt1 = LJets[W_cand_opt1].jesdn_Total;
@@ -1822,12 +1896,16 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 			H_phi_opt1 = H_mom.Phi();
 			H_mass_opt1 = H_mom.M();
 			
-			int gen_match = get_nearest_Parton(genVs,H_mom,0.8);
-			if(gen_match>=0 && abs(genVs[gen_match].pdgId)==25){
-				H_genindex_opt1 = gen_match; 
-			}else{
-				H_genindex_opt1 = -1;
+			if(isMC){
+			
+				int gen_match = get_nearest_Parton(genVs,H_mom,0.8);
+				if(gen_match>=0 && abs(genVs[gen_match].pdgId)==25){
+					H_genindex_opt1 = gen_match; 
+				}else{
+					H_genindex_opt1 = -1;
+				}
 			}
+			else {  H_genindex_opt1 = -1;  }
 			
 			W_mom.SetPtEtaPhiM(LJets[W_cand_opt1].jesup_Total*LJets[W_cand_opt1].p4.Pt(),LJets[W_cand_opt1].p4.Eta(),LJets[W_cand_opt1].p4.Phi(),LJets[W_cand_opt1].jesup_Total*LJets[W_cand_opt1].p4.M());
 			H_JESup_opt1 = (W_mom + vleptons[0].p4 + pnu_opt1).Pt()/H_mom.Pt();
@@ -1835,11 +1913,14 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 			W_mom.SetPtEtaPhiM(LJets[W_cand_opt1].jesdn_Total*LJets[W_cand_opt1].p4.Pt(),LJets[W_cand_opt1].p4.Eta(),LJets[W_cand_opt1].p4.Phi(),LJets[W_cand_opt1].jesdn_Total*LJets[W_cand_opt1].p4.M());
 			H_JESdn_opt1 = (W_mom + vleptons[0].p4 + pnu_opt1).Pt()/H_mom.Pt();
 			
-			W_mom.SetPtEtaPhiM(LJets[W_cand_opt1].JERup*LJets[W_cand_opt1].p4.Pt(),LJets[W_cand_opt1].p4.Eta(),LJets[W_cand_opt1].p4.Phi(),LJets[W_cand_opt1].p4.M());
-			H_JERup_opt1 = (W_mom + vleptons[0].p4 + pnu_opt1).Pt()/H_mom.Pt();
+			if(isMC){
 			
-			W_mom.SetPtEtaPhiM(LJets[W_cand_opt1].JERdn*LJets[W_cand_opt1].p4.Pt(),LJets[W_cand_opt1].p4.Eta(),LJets[W_cand_opt1].p4.Phi(),LJets[W_cand_opt1].p4.M());
-			H_JERdn_opt1 = (W_mom + vleptons[0].p4 + pnu_opt1).Pt()/H_mom.Pt();
+				W_mom.SetPtEtaPhiM(LJets[W_cand_opt1].JERup*LJets[W_cand_opt1].p4.Pt(),LJets[W_cand_opt1].p4.Eta(),LJets[W_cand_opt1].p4.Phi(),LJets[W_cand_opt1].p4.M());
+				H_JERup_opt1 = (W_mom + vleptons[0].p4 + pnu_opt1).Pt()/H_mom.Pt();
+			
+				W_mom.SetPtEtaPhiM(LJets[W_cand_opt1].JERdn*LJets[W_cand_opt1].p4.Pt(),LJets[W_cand_opt1].p4.Eta(),LJets[W_cand_opt1].p4.Phi(),LJets[W_cand_opt1].p4.M());
+				H_JERdn_opt1 = (W_mom + vleptons[0].p4 + pnu_opt1).Pt()/H_mom.Pt();
+			}
 			
 			if(Y_cand>=0) {
 				X_mass_opt1 = (LJets[Y_cand].p4 + LJets[W_cand_opt1].p4 + vleptons[0].p4 + pnu_opt1).M();
@@ -1876,9 +1957,14 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
             W_DAK8_W_opt2 = LJets[W_cand_opt2].DeepTag_DAK8MD_WvsQCD;
             W_PN_W_opt2 = LJets[W_cand_opt2].DeepTag_PNetMD_WvsQCD;
             
-            W_label_W_cq_opt2 = LJets[W_cand_opt2].label_W_cq;
-			W_label_W_qq_opt2 = LJets[W_cand_opt2].label_W_qq;
-            
+            if(isMC){
+				W_label_W_cq_opt2 = LJets[W_cand_opt2].label_W_cq;
+				W_label_W_qq_opt2 = LJets[W_cand_opt2].label_W_qq;
+			}
+			else{
+				W_label_W_cq_opt2 = W_label_W_qq_opt2 = false;
+			}
+			
             W_sub1_pt_opt2 = LJets[W_cand_opt2].sub1_pt;
 			W_sub1_eta_opt2 = LJets[W_cand_opt2].sub1_eta;
 			W_sub1_phi_opt2 = LJets[W_cand_opt2].sub1_phi;
@@ -1889,19 +1975,29 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 			W_sub2_phi_opt2 = LJets[W_cand_opt2].sub2_phi;
 			W_sub2_mass_opt2 = LJets[W_cand_opt2].sub2_mass;
 			W_sub2_btag_opt2 = LJets[W_cand_opt2].sub2_btag;
-                
-            int gen_match = get_nearest_Parton(genVs,LJets[W_cand_opt2].p4,0.8);
-			if(gen_match>=0 && abs(genVs[gen_match].pdgId)==24){
-				W_genindex_opt2 = gen_match; 
-			}else{
-				W_genindex_opt2 = -1;
+            
+               
+            int gen_match = (isMC)?get_nearest_Parton(genVs,LJets[W_cand_opt2].p4,0.8):-1;
+           
+            if(isMC){
+				if(gen_match>=0 && abs(genVs[gen_match].pdgId)==24){
+					W_genindex_opt2 = gen_match; 
+				}else{
+					W_genindex_opt2 = -1;
+				}
 			}
+			else{  W_genindex_opt2 = -1;  }
                 
             W_JESup_opt2 = LJets[W_cand_opt2].jesup_Total;
 			W_JESdn_opt2 = LJets[W_cand_opt2].jesdn_Total;
-			W_JERup_opt2 = LJets[W_cand_opt2].JERup/LJets[W_cand_opt2].JER;
-			W_JERdn_opt2 = LJets[W_cand_opt2].JERdn/LJets[W_cand_opt2].JER;
-
+			if(isMC){
+				W_JERup_opt2 = LJets[W_cand_opt2].JERup/LJets[W_cand_opt2].JER;
+				W_JERdn_opt2 = LJets[W_cand_opt2].JERdn/LJets[W_cand_opt2].JER;
+			}
+			else{
+				W_JERup_opt2 = W_JERdn_opt2 = 0;
+				}
+				
             if(vleptons.size()>0 && pnu_opt2.Eta()>-100){
 
 				TLorentzVector W_mom = LJets[W_cand_opt2].p4;
@@ -1913,25 +2009,31 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
                 H_phi_opt2 = H_mom.Phi();
                 H_mass_opt2 = H_mom.M();
                         
-                int gen_match = get_nearest_Parton(genVs,H_mom,0.8);
-				if(gen_match>=0 && abs(genVs[gen_match].pdgId)==25){
-					H_genindex_opt2 = gen_match; 
-				}else{
-					H_genindex_opt2 = -1;
+                int gen_match = (isMC)?get_nearest_Parton(genVs,H_mom,0.8):-1;
+                if(isMC){
+					if(gen_match>=0 && abs(genVs[gen_match].pdgId)==25){
+						H_genindex_opt2 = gen_match; 
+					}else{
+						H_genindex_opt2 = -1;
+					}
 				}
+				else{ H_genindex_opt2 = -1;  }
                         
                 W_mom.SetPtEtaPhiM(LJets[W_cand_opt2].jesup_Total*LJets[W_cand_opt2].p4.Pt(),LJets[W_cand_opt2].p4.Eta(),LJets[W_cand_opt2].p4.Phi(),LJets[W_cand_opt2].jesup_Total*LJets[W_cand_opt2].p4.M());
 				H_JESup_opt2 = (W_mom + vleptons[0].p4 + pnu_opt2).Pt()/H_mom.Pt();
 						
 				W_mom.SetPtEtaPhiM(LJets[W_cand_opt2].jesdn_Total*LJets[W_cand_opt2].p4.Pt(),LJets[W_cand_opt2].p4.Eta(),LJets[W_cand_opt2].p4.Phi(),LJets[W_cand_opt2].jesdn_Total*LJets[W_cand_opt2].p4.M());
 				H_JESdn_opt2 = (W_mom + vleptons[0].p4 + pnu_opt2).Pt()/H_mom.Pt();
+				
+				if(isMC){
+					
+					W_mom.SetPtEtaPhiM(LJets[W_cand_opt2].JERup*LJets[W_cand_opt2].p4.Pt(),LJets[W_cand_opt2].p4.Eta(),LJets[W_cand_opt2].p4.Phi(),LJets[W_cand_opt2].p4.M());
+					H_JERup_opt2 = (W_mom + vleptons[0].p4 + pnu_opt2).Pt()/H_mom.Pt();
 						
-				W_mom.SetPtEtaPhiM(LJets[W_cand_opt2].JERup*LJets[W_cand_opt2].p4.Pt(),LJets[W_cand_opt2].p4.Eta(),LJets[W_cand_opt2].p4.Phi(),LJets[W_cand_opt2].p4.M());
-				H_JERup_opt2 = (W_mom + vleptons[0].p4 + pnu_opt2).Pt()/H_mom.Pt();
-						
-				W_mom.SetPtEtaPhiM(LJets[W_cand_opt2].JERdn*LJets[W_cand_opt2].p4.Pt(),LJets[W_cand_opt2].p4.Eta(),LJets[W_cand_opt2].p4.Phi(),LJets[W_cand_opt2].p4.M());
-				H_JERdn_opt2 = (W_mom + vleptons[0].p4 + pnu_opt2).Pt()/H_mom.Pt();
-
+					W_mom.SetPtEtaPhiM(LJets[W_cand_opt2].JERdn*LJets[W_cand_opt2].p4.Pt(),LJets[W_cand_opt2].p4.Eta(),LJets[W_cand_opt2].p4.Phi(),LJets[W_cand_opt2].p4.M());
+					H_JERdn_opt2 = (W_mom + vleptons[0].p4 + pnu_opt2).Pt()/H_mom.Pt();
+				}
+				
                 if(Y_cand>=0) {
 					X_mass_opt2 = (LJets[Y_cand].p4 + LJets[W_cand_opt2].p4 + vleptons[0].p4 + pnu_opt2).M();
                 }
@@ -1944,23 +2046,33 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 	dy_lW_opt1 = (LJets[W_cand_opt1].eta - vleptons[0].eta);
 	dphi_lW_opt1 = PhiInRange(LJets[W_cand_opt1].phi - vleptons[0].p4.Phi());
 
-        dR_lW_opt2 = delta2R(LJets[W_cand_opt2].y,LJets[W_cand_opt2].phi,vleptons[0].eta,vleptons[0].phi);
-        dy_lW_opt2 = (LJets[W_cand_opt2].eta - vleptons[0].eta);
-        dphi_lW_opt2 = PhiInRange(LJets[W_cand_opt2].phi - vleptons[0].p4.Phi());
+    dR_lW_opt2 = delta2R(LJets[W_cand_opt2].y,LJets[W_cand_opt2].phi,vleptons[0].eta,vleptons[0].phi);
+    dy_lW_opt2 = (LJets[W_cand_opt2].eta - vleptons[0].eta);
+    dphi_lW_opt2 = PhiInRange(LJets[W_cand_opt2].phi - vleptons[0].p4.Phi());
 
 	nbjets_other = 0;
-	for(auto & bjet: BJets){
+	for(auto & bjet: BJets_M){
 		if(delta2R(bjet.y,bjet.phi,LJets[W_cand_opt2].y,LJets[W_cand_opt2].phi)>0.6 && delta2R(bjet.y,bjet.phi,LJets[Y_cand].y,LJets[Y_cand].phi)>0.6){
 			nbjets_other++;
 			}
 	}
 	
 	nbjets_outY = 0;
-	for(auto & bjet: BJets){
+	for(auto & bjet: BJets_M){
 		if(delta2R(bjet.y,bjet.phi,LJets[Y_cand].y,LJets[Y_cand].phi)>1.2){
 			nbjets_outY++;
 			}
 	}
+	
+	nbjets_outY_L = 0;
+	for(auto & bjet: BJets_L){
+		if(delta2R(bjet.y,bjet.phi,LJets[Y_cand].y,LJets[Y_cand].phi)>1.2){
+			nbjets_outY_L++;
+			}
+	}
+	
+	nbjets_L = (int)BJets_L.size();
+	nbjets = (int)BJets_M.size();
 
 	Flag_Y_bb_pass_T = Y_bb_pass_T;
     Flag_Y_bb_pass_M = Y_bb_pass_M;
@@ -2010,8 +2122,14 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 		_s_PFJetAK8_DeepTag_DAK8MD_bbvsQCD[_s_nPFJetAK8] = LJets[ijet].DeepTag_DAK8MD_bbvsQCD;
 		_s_PFJetAK8_JESup[ijet] = LJets[_s_nPFJetAK8].jesup_Total;
 		_s_PFJetAK8_JESdn[ijet] = LJets[_s_nPFJetAK8].jesdn_Total;
-		_s_PFJetAK8_JERup[ijet] = LJets[_s_nPFJetAK8].JERup/LJets[ijet].JER;
-		_s_PFJetAK8_JERdn[ijet] = LJets[_s_nPFJetAK8].JERdn/LJets[ijet].JER;
+		if(isMC){
+			_s_PFJetAK8_JERup[ijet] = LJets[_s_nPFJetAK8].JERup/LJets[ijet].JER;
+			_s_PFJetAK8_JERdn[ijet] = LJets[_s_nPFJetAK8].JERdn/LJets[ijet].JER;
+		}
+		else{
+			_s_PFJetAK8_JERup[ijet] = 0;
+			_s_PFJetAK8_JERdn[ijet] = 0;
+			}
 		
 		_s_nPFJetAK8++;
 		
@@ -2051,76 +2169,93 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
 
     for(unsigned ijet=0; ijet<Jets.size(); ijet++){
 
-                _s_JetAK4_pt[_s_nJetAK4] = Jets[ijet].pt;
-                _s_JetAK4_eta[_s_nJetAK4] = Jets[ijet].eta;
-                _s_JetAK4_phi[_s_nJetAK4] = Jets[ijet].phi;
-                _s_JetAK4_mass[_s_nJetAK4] = Jets[ijet].mass;
-                _s_JetAK4_btag_DeepFlav[_s_nJetAK4] = Jets[ijet].btag_DeepFlav;
-                _s_JetAK4_btag_DeepCSV[_s_nJetAK4] = Jets[ijet].btag_DeepCSV;
-                _s_JetAK4_hadronflav[_s_nJetAK4] = Jets[ijet].hadronFlavour;
-                _s_JetAK4_partonflav[_s_nJetAK4] = Jets[ijet].partonFlavour;
-                _s_JetAK4_qgl[_s_nJetAK4] = Jets[ijet].qgl;
-                _s_JetAK4_PUID[_s_nJetAK4] = Jets[ijet].PUID;
-                _s_JetAK4_JESup[_s_nJetAK4] = Jets[ijet].jesup_Total;
-                _s_JetAK4_JESdn[_s_nJetAK4] = Jets[ijet].jesdn_Total;
-                _s_JetAK4_JERup[_s_nJetAK4] = Jets[ijet].JERup/Jets[ijet].JER;
-                _s_JetAK4_JERdn[_s_nJetAK4] = Jets[ijet].JERdn/Jets[ijet].JER;
-                _s_JetAK4_btag_DeepFlav_SF[_s_nJetAK4] = Jets[ijet].btag_DeepFlav_SF;
-                _s_JetAK4_btag_DeepFlav_SF_up[_s_nJetAK4] = Jets[ijet].btag_DeepFlav_SF_up;
-                _s_JetAK4_btag_DeepFlav_SF_dn[_s_nJetAK4] = Jets[ijet].btag_DeepFlav_SF_dn;
+		_s_JetAK4_pt[_s_nJetAK4] = Jets[ijet].pt;
+        _s_JetAK4_eta[_s_nJetAK4] = Jets[ijet].eta;
+        _s_JetAK4_phi[_s_nJetAK4] = Jets[ijet].phi;
+        _s_JetAK4_mass[_s_nJetAK4] = Jets[ijet].mass;
+        _s_JetAK4_btag_DeepFlav[_s_nJetAK4] = Jets[ijet].btag_DeepFlav;
+        _s_JetAK4_btag_DeepCSV[_s_nJetAK4] = Jets[ijet].btag_DeepCSV;
+        _s_JetAK4_qgl[_s_nJetAK4] = Jets[ijet].qgl;
+        _s_JetAK4_PUID[_s_nJetAK4] = Jets[ijet].PUID;
+        _s_JetAK4_JESup[_s_nJetAK4] = Jets[ijet].jesup_Total;
+        _s_JetAK4_JESdn[_s_nJetAK4] = Jets[ijet].jesdn_Total;
+        if(isMC){
+			_s_JetAK4_JERup[_s_nJetAK4] = Jets[ijet].JERup/Jets[ijet].JER;
+			_s_JetAK4_JERdn[_s_nJetAK4] = Jets[ijet].JERdn/Jets[ijet].JER;
+			_s_JetAK4_btag_DeepFlav_SF[_s_nJetAK4] = Jets[ijet].btag_DeepFlav_SF;
+			_s_JetAK4_btag_DeepFlav_SF_up[_s_nJetAK4] = Jets[ijet].btag_DeepFlav_SF_up;
+			_s_JetAK4_btag_DeepFlav_SF_dn[_s_nJetAK4] = Jets[ijet].btag_DeepFlav_SF_dn;
+			_s_JetAK4_hadronflav[_s_nJetAK4] = Jets[ijet].hadronFlavour;
+			_s_JetAK4_partonflav[_s_nJetAK4] = Jets[ijet].partonFlavour;
+		}
+		else{
+			_s_JetAK4_JERup[_s_nJetAK4] = 0;
+			_s_JetAK4_JERdn[_s_nJetAK4] = 0;
+			_s_JetAK4_btag_DeepFlav_SF[_s_nJetAK4] = 0;
+			_s_JetAK4_btag_DeepFlav_SF_up[_s_nJetAK4] = 0;
+			_s_JetAK4_btag_DeepFlav_SF_dn[_s_nJetAK4] = 0;
+			_s_JetAK4_hadronflav[_s_nJetAK4] = 0;
+			_s_JetAK4_partonflav[_s_nJetAK4] = 0;
+		}
 
-                _s_nJetAK4++;
+        _s_nJetAK4++;
 
-                if(_s_nJetAK4>5) break;
+        if(_s_nJetAK4>5) break;
 
-        }
-
-    if(npu_vert_true>=0 && npu_vert_true<100){
-		/*
-		puWeight = pu_rat18[npu_vert_true];
-		puWeightup = pu_rat18_up[npu_vert_true];
-		puWeightdown = pu_rat18_dn[npu_vert_true];
-		*/
-		float *puweights = Get_PU_Weights(file_pu_ratio, npu_vert_true);
-		puWeight = puweights[0];
-		puWeightup = puweights[1];
-		puWeightdown = puweights[2];
-	}
-	
-	leptonsf_weight = 1.0;
+   }    
+        
+    weight = 1;
+    
+    leptonsf_weight = 1.0;
 	leptonsf_weight_up = 1.0;
 	leptonsf_weight_dn = 1.0;
 	leptonsf_weight_stat = 1.0;
 	leptonsf_weight_syst = 1.0;
 	
-	for(unsigned lep=0; lep<vleptons.size(); lep++){
-		if(abs(vleptons[lep].pdgId)==11) { 
-			float *sfvalues = Electron_SF(file_el_sf, vleptons[lep].pt, vleptons[lep].eta);
-			leptonsf_weight *= sfvalues[0];
-			leptonsf_weight_up *= sfvalues[1];
-			leptonsf_weight_dn *= sfvalues[2];
-			leptonsf_weight_stat *= (sfvalues[0] + sqrt(sfvalues[3]*sfvalues[3] + sfvalues[4]*sfvalues[4]));  // like this for time being 
-			leptonsf_weight_syst *= (sfvalues[0] + sqrt(sfvalues[5]*sfvalues[5] + sfvalues[6]*sfvalues[6] + sfvalues[7]*sfvalues[7] + sfvalues[8]*sfvalues[8]));  // like this for time being 
+	puWeight = puWeightup = puWeightdown = 1.0;
+        
+    if(isMC){    
+
+		if(npu_vert_true>=0 && npu_vert_true<100){
+			/*
+			puWeight = pu_rat18[npu_vert_true];
+			puWeightup = pu_rat18_up[npu_vert_true];
+			puWeightdown = pu_rat18_dn[npu_vert_true];
+			*/
+			float *puweights = Get_PU_Weights(file_pu_ratio, npu_vert_true);
+			puWeight = puweights[0];
+			puWeightup = puweights[1];
+			puWeightdown = puweights[2];
 		}
-		if(abs(vleptons[lep].pdgId)==13) { 
-			float *sfvalues;
-			sfvalues = Muon_SF(file_mu_sf, muon_id_name, vleptons[lep].pt, vleptons[lep].eta);
-			leptonsf_weight *= *(sfvalues+0);
-			leptonsf_weight_up *= *(sfvalues+1);
-			leptonsf_weight_dn *= *(sfvalues+2);
-			leptonsf_weight_stat *= *(sfvalues+3);
-			leptonsf_weight_syst *= *(sfvalues+4);
+	
+		for(unsigned lep=0; lep<vleptons.size(); lep++){
+			if(abs(vleptons[lep].pdgId)==11) { 
+				float *sfvalues = Electron_SF(file_el_sf, vleptons[lep].pt, vleptons[lep].eta);
+				leptonsf_weight *= sfvalues[0];
+				leptonsf_weight_up *= sfvalues[1];
+				leptonsf_weight_dn *= sfvalues[2];
+				leptonsf_weight_stat *= (sfvalues[0] + sqrt(sfvalues[3]*sfvalues[3] + sfvalues[4]*sfvalues[4]));  // like this for time being 
+				leptonsf_weight_syst *= (sfvalues[0] + sqrt(sfvalues[5]*sfvalues[5] + sfvalues[6]*sfvalues[6] + sfvalues[7]*sfvalues[7] + sfvalues[8]*sfvalues[8]));  // like this for time being 
+			}
+			if(abs(vleptons[lep].pdgId)==13) { 
+				float *sfvalues;
+				sfvalues = Muon_SF(file_mu_sf, muon_id_name, vleptons[lep].pt, vleptons[lep].eta);
+				leptonsf_weight *= *(sfvalues+0);
+				leptonsf_weight_up *= *(sfvalues+1);
+				leptonsf_weight_dn *= *(sfvalues+2);
+				leptonsf_weight_stat *= *(sfvalues+3);
+				leptonsf_weight_syst *= *(sfvalues+4);
+			}
 		}
-	}
 	
-	weight = 1;
-	if(!isFastSIM){
-		weight *= Generator_weight;
-	}
-	weight *= puWeight;
-	weight *= leptonsf_weight;
-	weight *= prefiringweight;
+		if(!isFastSIM){
+			weight *= Generator_weight;
+		}
+		weight *= puWeight;
+		weight *= leptonsf_weight;
+		weight *= prefiringweight;
 	
+	}//isMC
 	// LHE story //
 	/*
 	for(unsigned ilhe=0; ilhe<lheparts.size(); ++ilhe){

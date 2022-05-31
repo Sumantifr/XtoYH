@@ -1013,7 +1013,7 @@
    float dR_lW_opt2, dphi_lW_opt2, dy_lW_opt2;
 
    float dR_lY, dphi_lY, dy_lY;
-   int nbjets_other, nbjets_outY;
+   int nbjets_other, nbjets_outY, nbjets_outY_L, nbjets, nbjets_L;
    
    bool Flag_Y_bb_pass_T, Flag_Y_bb_pass_M, Flag_Y_bb_pass_L, Flag_H_W_pass_T_opt1, Flag_H_W_pass_M_opt1, Flag_H_W_pass_L_opt1, Flag_H_m_pass_opt1, Flag_dR_lW_pass_opt1, Flag_MET_pass;
    bool Flag_H_W_pass_T_opt2, Flag_H_W_pass_M_opt2, Flag_H_W_pass_L_opt2, Flag_H_m_pass_opt2, Flag_dR_lW_pass_opt2;
