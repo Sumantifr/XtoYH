@@ -661,6 +661,8 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
    Tout->Branch("JetAK4_btag_DeepFlav_SF_up",_s_JetAK4_btag_DeepFlav_SF_up,"_s_JetAK4_btag_DeepFlav_SF_up[_s_nJetAK4]/F");
    Tout->Branch("JetAK4_btag_DeepFlav_SF_dn",_s_JetAK4_btag_DeepFlav_SF_dn,"_s_JetAK4_btag_DeepFlav_SF_dn[_s_nJetAK4]/F");
    
+   if(isMC){
+   
    // GEN particles //
    
    Tout->Branch("nGenLep",&nGenLep, "nGenLep/I");
@@ -707,6 +709,8 @@ else if(inputFile=="FILELIST_2018_NEW/NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_50
    Tout->Branch("LHEAlpsWeights", LHEAlpsWeights, "LHEAlpsWeights[nLHEAlpsWeights]/F");
    Tout->Branch("nLHEPSWeights", &nLHEPSWeights, "nLHEPSWeights/I");
    Tout->Branch("LHEPSWeights", LHEPSWeights, "LHEPSWeights[nLHEPSWeights]/F");
+   
+   }
    
    calib_deepflav = BTagCalibration("DeepJet", "BtagRecommendation106XUL18/DeepJet_106XUL18SF_WPonly_V1p1.csv");
    reader_deepflav = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"}); 
