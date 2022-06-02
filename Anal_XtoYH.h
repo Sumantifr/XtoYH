@@ -912,10 +912,18 @@
    TBranch        *b_nLHEPSWeights;   //!
    TBranch        *b_LHEPSWeights;   //!
    
-   double pu_rat18[100] =    {15.0025,9.25619,7.25497,5.06682,3.81133,3.00109,2.47446,2.15125,1.91921,1.76245,1.65799,1.5848,1.53433,1.49373,1.46908,1.44313,1.42046,1.40154,1.37988,1.35679,1.3361,1.31139,1.28604,1.26065,1.23868,1.21481,1.19261,1.17143,1.15268,1.13366,1.11664,1.10102,1.08379,1.06829,1.05251,1.03584,1.01745,1.00004,0.980328,0.958154,0.935215,0.910953,0.885202,0.856835,0.827565,0.797445,0.765605,0.733814,0.701484,0.668361,0.634682,0.60224,0.570207,0.537462,0.505992,0.475353,0.445231,0.417069,0.390368,0.363391,0.339587,0.316478,0.293616,0.272703,0.253076,0.23398,0.216635,0.200789,0.185823,0.171907,0.159236,0.148382,0.13732,0.127015,0.11736,0.108589,0.0994979,0.0923745,0.0861297,0.0803695,0.0741731,0.0689201,0.0636846,0.0574831,0.053418,0.0491854,0.0468157,0.0431244,0.0407697,0.0352331,0.0327207,0.0311201,0.0284833,0.0257933,0.0234082,0.0200422,0.0199332,0.0189272,0.020733,0.0166171};
-   double pu_rat18_up[100] = {0,11.3701,49.1593,16.3978,10.4484,7.79227,5.70396,4.15872,3.02768,2.28549,1.82582,1.52983,1.3595,1.2554,1.19605,1.1684,1.16115,1.17185,1.18964,1.20936,1.22873,1.23491,1.23159,1.21107,1.18259,1.14644,1.11133,1.08136,1.05384,1.03331,1.01987,1.01367,1.01107,1.01298,1.01865,1.02593,1.03512,1.0447,1.05099,1.0554,1.05447,1.04466,1.02824,1.00332,0.965566,0.923431,0.871249,0.814665,0.752156,0.689408,0.624858,0.564,0.505617,0.452167,0.402,0.359344,0.321227,0.285921,0.258403,0.233682,0.210464,0.192413,0.174424,0.159861,0.146181,0.131623,0.119227,0.10899,0.0963316,0.086803,0.0773651,0.0712667,0.0629173,0.0552031,0.0481823,0.0455058,0.0376989,0.0339163,0.0298286,0.0264131,0.0255965,0.0179475,0.0169746,0.0136435,0.0117583,0.00988318,0.00674005,0.00661599,0.00316237,0.00149674,0.0010104,0.00106782,0.000384941,0.000591271,0.000423128,0.000165822,7.60044e-05,4.96232e-05,7.51979e-05,1.05862e-05};
-   double pu_rat18_dn[100] = {0,15.0557,67.8751,22.3278,14.1211,10.4821,7.88069,5.86513,4.31762,3.35551,2.78627,2.40097,2.16428,2.00485,1.9056,1.85092,1.82051,1.80608,1.78719,1.75544,1.71117,1.64481,1.57234,1.49261,1.42092,1.35612,1.3043,1.26517,1.23118,1.20443,1.18302,1.16596,1.14834,1.13047,1.11055,1.08517,1.05388,1.01479,0.96502,0.907499,0.841466,0.767187,0.68971,0.610695,0.530471,0.45611,0.385995,0.32355,0.268127,0.221267,0.181416,0.149012,0.122387,0.100955,0.0832931,0.0694147,0.0579993,0.0482614,0.0406839,0.0341693,0.0284128,0.0238208,0.0196651,0.0163071,0.0134164,0.0108213,0.00875349,0.00713274,0.00561523,0.00450669,0.00357902,0.00293888,0.00231295,0.00180802,0.00140385,0.00117654,0.000861839,0.000682485,0.000525487,0.000404909,0.00033922,0.000204219,0.000164688,0.000112084,8.12391e-05,5.70485e-05,3.2298e-05,2.61592e-05,1.02574e-05,3.96059e-06,2.16985e-06,1.85204e-06,5.36884e-07,6.60936e-07,3.78607e-07,1.19189e-07,4.4536e-08,2.4673e-08,3.47283e-08,5.35281e-09};
-
+   // YEAR //
+   
+   int year = 2018; 
+   
+   // Files to read for SFs //
+   
+   TFile *file_mu_sf;
+   TFile *file_el_sf;
+   TFile *file_pu_ratio;
+   
+   //// cuts & WPs for object selection ////
+   
    float muon_pt_cut = 25;
    float electron_pt_cut = 25;
    float lepton_pt_cut = 30;
@@ -924,10 +932,12 @@
    float AK8jet_pt_cut = 200;
    float AK8GenJet_pt_cut = 50;
    float absetacut = 2.5;
-   
-   float deep_btag_cut = 0.2783; 
-   //for UL18 => 0.0490: loose, 0.2783: medium, 0.7100: tight 
 
+   // all numbers are for UL2018 //
+   
+   string muon_id_name = "Tight";
+   string electron_id_name = "wp90noiso";
+	
    //DeepTag_PNetMD_XbbvsQCD
    float PNetbb_cut_T = 0.98;
    float PNetbb_cut_M = 0.94;
@@ -944,6 +954,11 @@
    float DAK4_T = 0.71;
    float DAK4_M = 0.2783;
    float DAK4_L = 0.0490;
+   float deep_btag_cut = 0.2783; 
+   //for UL18 => 0.0490: loose, 0.2783: medium, 0.7100: tight 
+   
+   BTagCalibration calib_deepcsv, calib_deepflav;
+   BTagCalibrationReader reader_deepcsv, reader_deepflav;
 
    bool isMC;
    bool isFastSIM;
@@ -952,6 +967,8 @@
    bool channel_DL = false;
    
    TRandom3* gxRandom;
+   
+   // new variables (to store in output tree) //
    
    TTree *Tout ;
    TTree *Tout_presel; 
@@ -976,49 +993,31 @@
    float Y_sub2_pt, Y_sub2_eta, Y_sub2_phi, Y_sub2_mass, Y_sub2_btag;
    int Y_genindex, Y_genbindex[2];
    float Y_JESup, Y_JESdn, Y_JERup, Y_JERdn;
+ 
+   float W_pt[2], W_y[2], W_eta[2], W_phi[2], W_mass[2];
+   float W_msoftdrop[2], W_tau21[2], W_tau32[2];
+   float W_DeepTag_DAK8MD_TvsQCD[2], W_DeepTag_DAK8MD_WvsQCD[2], W_DeepTag_DAK8MD_ZvsQCD[2], W_DeepTag_DAK8MD_HvsQCD[2], W_DeepTag_DAK8MD_bbvsQCD[2]; 
+   float W_DeepTag_PNet_TvsQCD[2], W_DeepTag_PNet_WvsQCD[2], W_DeepTag_PNet_ZvsQCD[2], W_DeepTag_PNetMD_XbbvsQCD[2], W_DeepTag_PNetMD_XccvsQCD[2], W_DeepTag_PNetMD_XqqvsQCD[2], W_DeepTag_PNetMD_QCD[2], W_DeepTag_PNetMD_WvsQCD[2]; 
+   float W_DAK8_W[2], W_PN_W[2];
+   bool W_label_W_qq[2], W_label_W_cq[2];
+   float W_sub1_pt[2], W_sub1_eta[2], W_sub1_phi[2], W_sub1_mass[2], W_sub1_btag[2];
+   float W_sub2_pt[2], W_sub2_eta[2], W_sub2_phi[2], W_sub2_mass[2], W_sub2_btag[2];
+   int W_genindex[2];
+   float W_JESup[2], W_JESdn[2], W_JERup[2], W_JERdn[2];
    
-   float W_pt_opt1, W_y_opt1, W_eta_opt1, W_phi_opt1, W_mass_opt1; 
-   float W_msoftdrop_opt1, W_tau21_opt1, W_tau32_opt1;
-   float W_DeepTag_DAK8MD_TvsQCD_opt1, W_DeepTag_DAK8MD_WvsQCD_opt1, W_DeepTag_DAK8MD_ZvsQCD_opt1, W_DeepTag_DAK8MD_HvsQCD_opt1, W_DeepTag_DAK8MD_bbvsQCD_opt1; 
-   float W_DeepTag_PNet_TvsQCD_opt1, W_DeepTag_PNet_WvsQCD_opt1, W_DeepTag_PNet_ZvsQCD_opt1, W_DeepTag_PNetMD_XbbvsQCD_opt1, W_DeepTag_PNetMD_XccvsQCD_opt1, W_DeepTag_PNetMD_XqqvsQCD_opt1, W_DeepTag_PNetMD_QCD_opt1, W_DeepTag_PNetMD_WvsQCD_opt1; 
-   float W_DAK8_W_opt1, W_PN_W_opt1;
-   bool W_label_W_qq_opt1, W_label_W_cq_opt1;
-   float W_sub1_pt_opt1, W_sub1_eta_opt1, W_sub1_phi_opt1, W_sub1_mass_opt1, W_sub1_btag_opt1;
-   float W_sub2_pt_opt1, W_sub2_eta_opt1, W_sub2_phi_opt1, W_sub2_mass_opt1, W_sub2_btag_opt1;
-   int W_genindex_opt1;
-   float W_JESup_opt1, W_JESdn_opt1, W_JERup_opt1, W_JERdn_opt1;
+   float H_pt[2], H_y[2], H_eta[2], H_phi[2], H_mass[2];
+   int H_genindex[2];
+   float H_JESup[2], H_JESdn[2], H_JERup[2], H_JERdn[2];
    
-   float W_pt_opt2, W_y_opt2, W_eta_opt2, W_phi_opt2, W_mass_opt2;
-   float W_msoftdrop_opt2, W_tau21_opt2, W_tau32_opt2;
-   float W_DeepTag_DAK8MD_TvsQCD_opt2, W_DeepTag_DAK8MD_WvsQCD_opt2, W_DeepTag_DAK8MD_ZvsQCD_opt2, W_DeepTag_DAK8MD_HvsQCD_opt2, W_DeepTag_DAK8MD_bbvsQCD_opt2; 
-   float W_DeepTag_PNet_TvsQCD_opt2, W_DeepTag_PNet_WvsQCD_opt2, W_DeepTag_PNet_ZvsQCD_opt2, W_DeepTag_PNetMD_XbbvsQCD_opt2, W_DeepTag_PNetMD_XccvsQCD_opt2, W_DeepTag_PNetMD_XqqvsQCD_opt2, W_DeepTag_PNetMD_QCD_opt2, W_DeepTag_PNetMD_WvsQCD_opt2; 
-   float W_DAK8_W_opt2, W_PN_W_opt2;
-   bool W_label_W_qq_opt2, W_label_W_cq_opt2;
-   float W_sub1_pt_opt2, W_sub1_eta_opt2, W_sub1_phi_opt2, W_sub1_mass_opt2, W_sub1_btag_opt2;
-   float W_sub2_pt_opt2, W_sub2_eta_opt2, W_sub2_phi_opt2, W_sub2_mass_opt2, W_sub2_btag_opt2;
-   int W_genindex_opt2;
-   float W_JESup_opt2, W_JESdn_opt2, W_JERup_opt2, W_JERdn_opt2;
+   float X_mass[2]; 
    
-   float H_pt_opt1, H_y_opt1, H_eta_opt1, H_phi_opt1, H_mass_opt1;
-   int H_genindex_opt1;
-   float H_JESup_opt1, H_JESdn_opt1, H_JERup_opt1, H_JERdn_opt1;
-   
-   float H_pt_opt2, H_y_opt2, H_eta_opt2, H_phi_opt2, H_mass_opt2;
-   int H_genindex_opt2;
-   float H_JESup_opt2, H_JESdn_opt2, H_JERup_opt2, H_JERdn_opt2;
-
-   float X_mass_opt1, X_mass_opt2; 
-   
-   float dR_lW_opt1, dphi_lW_opt1, dy_lW_opt1;
-   float dR_lW_opt2, dphi_lW_opt2, dy_lW_opt2;
+   float dR_lW[2], dphi_lW[2], dy_lW[2];
 
    float dR_lY, dphi_lY, dy_lY;
    int nbjets_other, nbjets_outY, nbjets_outY_L, nbjets, nbjets_L;
    
    bool Flag_Y_bb_pass_T, Flag_Y_bb_pass_M, Flag_Y_bb_pass_L, Flag_H_W_pass_T_opt1, Flag_H_W_pass_M_opt1, Flag_H_W_pass_L_opt1, Flag_H_m_pass_opt1, Flag_dR_lW_pass_opt1, Flag_MET_pass;
    bool Flag_H_W_pass_T_opt2, Flag_H_W_pass_M_opt2, Flag_H_W_pass_L_opt2, Flag_H_m_pass_opt2, Flag_dR_lW_pass_opt2;
-   bool Reg_SR_opt1, Reg_Wj_CR_opt1;
-   bool Reg_SR_opt2, Reg_Wj_CR_opt2;
    
    int _s_nPFJetAK8; 
    float _s_PFJetAK8_pt[njetmxAK8], _s_PFJetAK8_eta[njetmxAK8], _s_PFJetAK8_phi[njetmxAK8], _s_PFJetAK8_mass[njetmxAK8];
@@ -1065,10 +1064,3 @@
    
    float puWeight, puWeightup, puWeightdown;
    float leptonsf_weight, leptonsf_weight_up, leptonsf_weight_dn, leptonsf_weight_stat, leptonsf_weight_syst;
-   
-   BTagCalibration calib_deepcsv, calib_deepflav;
-   BTagCalibrationReader reader_deepcsv, reader_deepflav;
-   
-   int year = 2018; 
-   string muon_id_name = "Tight";
-   string electron_id_name = "wp90noiso";

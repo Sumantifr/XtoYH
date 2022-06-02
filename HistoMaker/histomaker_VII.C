@@ -95,10 +95,11 @@ float PN_Top_med = 0.8;
 float deep_btag_cut = 0.2783; 
 
 //int main()
-void histomaker_VI()
+void histomaker_VII()
 {
 Bool_t isDATA = false;
 TString proc_Name[] = {
+/*
 "DYBJetsToLL_M-50_Zpt-100to200_XtoYH.root",
 "DYBJetsToLL_M-50_Zpt-200toInf_XtoYH.root",
 "DYJetsToLL_M-10to50_XtoYH.root",
@@ -119,7 +120,9 @@ TString proc_Name[] = {
 "ST_t-channel_top_XtoYH.root",
 "ST_tW_antitop_XtoYH.root",
 "ST_tW_top_XtoYH.root",
+*/
 "TTTo2L2Nu_XtoYH.root",
+/*
 "TTToHadronic_XtoYH.root",
 "TTToSemiLeptonic_XtoYH.root",
 "WBJetsToLNu_Wpt-100to200_XtoYH.root",
@@ -151,7 +154,9 @@ TString proc_Name[] = {
 "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_200_XtoYH_Nov_2021_v2.root",
 "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2400_MY_300_XtoYH_Nov_2021_v2.root",
 "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_100_XtoYH_Nov_2021_v2.root",
-"NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_500_XtoYH_Nov_2021_v2.root"
+"NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_500_XtoYH_Nov_2021_v2.root",
+"NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_125_XtoYH_Nov_2021_v2.root"
+*/
 };
  int nproc = sizeof(proc_Name)/sizeof(proc_Name[0]);
  for (int ii=0;ii<nproc;ii++)
@@ -278,8 +283,8 @@ TString proc_Name[] = {
    Float_t         W_DeepTag_PNetMD_QCD_opt1;
    Float_t         W_DAK8_W_opt1;
    Float_t         W_PN_W_opt1;
-   Float_t		   W_label_W_qq_opt1;
-   Float_t		   W_label_W_cq_opt1;
+   Bool_t		   W_label_W_qq_opt1;
+   Bool_t		   W_label_W_cq_opt1;
    Float_t         W_sub1_pt_opt1;
    Float_t         W_sub1_eta_opt1;
    Float_t         W_sub1_phi_opt1;
@@ -332,8 +337,8 @@ TString proc_Name[] = {
    Float_t         W_DeepTag_PNetMD_QCD_opt2;
    Float_t         W_DAK8_W_opt2;
    Float_t         W_PN_W_opt2;
-   Float_t		   W_label_W_qq_opt2;
-   Float_t		   W_label_W_cq_opt2;
+   Bool_t		   W_label_W_qq_opt2;
+   Bool_t		   W_label_W_cq_opt2;
    Float_t         W_sub1_pt_opt2;
    Float_t         W_sub1_eta_opt2;
    Float_t         W_sub1_phi_opt2;
@@ -368,6 +373,9 @@ TString proc_Name[] = {
    Float_t         dphi_lY;
    Int_t           nbjets_other;
    Int_t		   nbjets_outY;
+   Int_t		   nbjets_outY_L;
+   Int_t		   nbjets;
+   Int_t		   nbjets_L;
    Bool_t          Flag_Y_bb_pass_T;
    Bool_t          Flag_Y_bb_pass_M;
    Bool_t          Flag_Y_bb_pass_L;
@@ -533,7 +541,7 @@ TString proc_Name[] = {
    TBranch		  *b_Y_label_Top_bcq;
    TBranch		  *b_Y_label_Top_bqq;
    TBranch		  *b_Y_label_W_qq;
-   TBranch		   Y_label_W_cq;
+   TBranch		  *b_Y_label_W_cq;
    TBranch        *b_Y_sub1_pt;   //!
    TBranch        *b_Y_sub1_eta;   //!
    TBranch        *b_Y_sub1_phi;   //!
@@ -663,6 +671,9 @@ TString proc_Name[] = {
    TBranch        *b_dphi_lY;   //!
    TBranch        *b_nbjets_other;   //!
    TBranch        *b_nbjets_outY;   //!
+   TBranch        *b_nbjets_outY_L;   //!
+   TBranch        *b_nbjets;   //!
+   TBranch        *b_nbjets_L;   //!
    TBranch        *b_Flag_Y_bb_pass_T;   //!
    TBranch        *b_Flag_Y_bb_pass_M;   //!
    TBranch        *b_Flag_Y_bb_pass_L;   //!
@@ -769,14 +780,6 @@ TString proc_Name[] = {
    tree->SetBranchAddress("nleptons", &nleptons);
    tree->SetBranchAddress("nfatjets", &nfatjets);
    tree->SetBranchAddress("Flag_event_cuts", &Flag_event_cuts);
-   tree->SetBranchAddress("puWeight", &puWeight);
-   tree->SetBranchAddress("puWeightup", &puWeightup);
-   tree->SetBranchAddress("puWeightdown", &puWeightdown);
-   tree->SetBranchAddress("leptonsf_weight", &leptonsf_weight);
-   tree->SetBranchAddress("leptonsf_weight_up", &leptonsf_weight_up, &b_leptonsf_weight_up);
-   tree->SetBranchAddress("leptonsf_weight_dn", &leptonsf_weight_dn, &b_leptonsf_weight_dn);
-   tree->SetBranchAddress("leptonsf_weight_stat", &leptonsf_weight_stat, &b_leptonsf_weight_stat);
-   tree->SetBranchAddress("leptonsf_weight_syst", &leptonsf_weight_syst, &b_leptonsf_weight_syst);
    tree->SetBranchAddress("l_pt", &l_pt, &b_l_pt);
    tree->SetBranchAddress("l_eta", &l_eta, &b_l_eta);
    tree->SetBranchAddress("l_phi", &l_phi, &b_l_phi);
@@ -960,6 +963,9 @@ TString proc_Name[] = {
    tree->SetBranchAddress("dphi_lY", &dphi_lY, &b_dphi_lY);
    tree->SetBranchAddress("nbjets_other", &nbjets_other, &b_nbjets_other);
    tree->SetBranchAddress("nbjets_outY", &nbjets_outY, &b_nbjets_outY);
+   tree->SetBranchAddress("nbjets_outY_L", &nbjets_outY_L, &nbjets_outY_L);
+   tree->SetBranchAddress("nbjets", &nbjets, &b_nbjets);
+   tree->SetBranchAddress("nbjets_L", &nbjets_L, &nbjets_L);
    tree->SetBranchAddress("Flag_Y_bb_pass_T", &Flag_Y_bb_pass_T, &b_Flag_Y_bb_pass_T);
    tree->SetBranchAddress("Flag_Y_bb_pass_M", &Flag_Y_bb_pass_M, &b_Flag_Y_bb_pass_M);
    tree->SetBranchAddress("Flag_Y_bb_pass_L", &Flag_Y_bb_pass_L, &b_Flag_Y_bb_pass_L);
@@ -978,12 +984,6 @@ TString proc_Name[] = {
    tree->SetBranchAddress("Reg_Wj_CR_opt1", &Reg_Wj_CR_opt1, &b_Reg_Wj_CR_opt1);
    tree->SetBranchAddress("Reg_SR_opt2", &Reg_SR_opt2, &b_Reg_SR_opt2);
    tree->SetBranchAddress("Reg_Wj_CR_opt2", &Reg_Wj_CR_opt2, &b_Reg_Wj_CR_opt2);
-   tree->SetBranchAddress("LHE_weight", &LHE_weight, &b_LHE_weight);
-   tree->SetBranchAddress("Generator_weight", &Generator_weight, &b_Generator_weight);
-   tree->SetBranchAddress("Event_weight", &Event_weight, &b_weight);
-   tree->SetBranchAddress("prefiringweight", &prefiringweight, &b_prefiringweight);
-   tree->SetBranchAddress("prefiringweightup", &prefiringweightup, &b_prefiringweightup);
-   tree->SetBranchAddress("prefiringweightdown", &prefiringweightdown, &b_prefiringweightdown);
    tree->SetBranchAddress("nPFJetAK8", &nPFJetAK8, &b__s_nPFJetAK8);
    tree->SetBranchAddress("PFJetAK8_pt", PFJetAK8_pt, &b_PFJetAK8_pt);
    tree->SetBranchAddress("PFJetAK8_eta", PFJetAK8_eta, &b_PFJetAK8_eta);
@@ -1026,39 +1026,59 @@ TString proc_Name[] = {
    tree->SetBranchAddress("JetAK4_btag_DeepFlav_SF", JetAK4_btag_DeepFlav_SF, &b_JetAK4_btag_DeepFlav_SF);
    tree->SetBranchAddress("JetAK4_btag_DeepFlav_SF_up", JetAK4_btag_DeepFlav_SF_up, &b_JetAK4_btag_DeepFlav_SF_up);
    tree->SetBranchAddress("JetAK4_btag_DeepFlav_SF_dn", JetAK4_btag_DeepFlav_SF_dn, &b_JetAK4_btag_DeepFlav_SF_dn);
-   tree->SetBranchAddress("nGenLep", &nGenLep, &b_nGenLep);
-   tree->SetBranchAddress("GenLep_pt", GenLep_pt, &b_GenLep_pt);
-   tree->SetBranchAddress("GenLep_eta", GenLep_eta, &b_GenLep_eta);
-   tree->SetBranchAddress("GenLep_phi", GenLep_phi, &b_GenLep_phi);
-   tree->SetBranchAddress("GenLep_mass", GenLep_mass, &b_GenLep_mass);
-   tree->SetBranchAddress("GenLep_pdgId", GenLep_pdgId, &b_GenLep_pdgId);
-   tree->SetBranchAddress("GenLep_mompdgId", GenLep_mompdgId, &b_GenLep_mompdgId);
-   tree->SetBranchAddress("GenLep_grmompdgId", GenLep_grmompdgId, &b_GenLep_grmompdgId);
-   tree->SetBranchAddress("nGenNu", &nGenNu, &b_nGenNu);
-   tree->SetBranchAddress("GenNu_pt", GenNu_pt, &b_GenNu_pt);
-   tree->SetBranchAddress("GenNu_eta", GenNu_eta, &b_GenNu_eta);
-   tree->SetBranchAddress("GenNu_phi", GenNu_phi, &b_GenNu_phi);
-   tree->SetBranchAddress("GenNu_mass", GenNu_mass, &b_GenNu_mass);
-   tree->SetBranchAddress("GenNu_pdgId", GenNu_pdgId, &b_GenNu_pdgId);
-   tree->SetBranchAddress("GenNu_mompdgId", GenNu_mompdgId, &b_GenNu_mompdgId);
-   tree->SetBranchAddress("GenNu_grmompdgId", GenNu_grmompdgId, &b_GenNu_grmompdgId);
-   tree->SetBranchAddress("nGenBPart", &nGenBPart, &b_nGenBPart);
-   tree->SetBranchAddress("GenBPart_pt", &GenBPart_pt, &b_GenBPart_pt);
-   tree->SetBranchAddress("GenBPart_eta", &GenBPart_eta, &b_GenBPart_eta);
-   tree->SetBranchAddress("GenBPart_phi", &GenBPart_phi, &b_GenBPart_phi);
-   tree->SetBranchAddress("GenBPart_mass", &GenBPart_mass, &b_GenBPart_mass);
-   tree->SetBranchAddress("GenBPart_pdgId", &GenBPart_pdgId, &b_GenBPart_pdgId);
-   tree->SetBranchAddress("GenBPart_mompdgId", &GenBPart_mompdgId, &b_GenBPart_mompdgId);
-   tree->SetBranchAddress("GenBPart_grmompdgId", GenBPart_grmompdgId, &b_GenBPart_grmompdgId);
-   tree->SetBranchAddress("nGenV", &nGenV, &b_nGenV);
-   tree->SetBranchAddress("GenV_pt", GenV_pt, &b_GenV_pt);
-   tree->SetBranchAddress("GenV_eta", GenV_eta, &b_GenV_eta);
-   tree->SetBranchAddress("GenV_phi", GenV_phi, &b_GenV_phi);
-   tree->SetBranchAddress("GenV_mass", GenV_mass, &b_GenV_mass);
-   tree->SetBranchAddress("GenV_pdgId", GenV_pdgId, &b_GenV_pdgId);
-   tree->SetBranchAddress("GenV_mompdgId", GenV_mompdgId, &b_GenV_mompdgId);
-   tree->SetBranchAddress("GenV_grmompdgId", GenV_grmompdgId, &b_GenV_grmompdgId);
+   
+   if(!isDATA){
+	
+	tree->SetBranchAddress("LHE_weight", &LHE_weight, &b_LHE_weight);
+	tree->SetBranchAddress("Generator_weight", &Generator_weight, &b_Generator_weight);
+	tree->SetBranchAddress("Event_weight", &Event_weight, &b_weight);
+	
+	tree->SetBranchAddress("puWeight", &puWeight);
+	tree->SetBranchAddress("puWeightup", &puWeightup);
+	tree->SetBranchAddress("puWeightdown", &puWeightdown);
+	tree->SetBranchAddress("leptonsf_weight", &leptonsf_weight);
+	tree->SetBranchAddress("leptonsf_weight_up", &leptonsf_weight_up, &b_leptonsf_weight_up);
+	tree->SetBranchAddress("leptonsf_weight_dn", &leptonsf_weight_dn, &b_leptonsf_weight_dn);
+	tree->SetBranchAddress("leptonsf_weight_stat", &leptonsf_weight_stat, &b_leptonsf_weight_stat);
+	tree->SetBranchAddress("leptonsf_weight_syst", &leptonsf_weight_syst, &b_leptonsf_weight_syst);
+	tree->SetBranchAddress("prefiringweight", &prefiringweight, &b_prefiringweight);
+	tree->SetBranchAddress("prefiringweightup", &prefiringweightup, &b_prefiringweightup);
+	tree->SetBranchAddress("prefiringweightdown", &prefiringweightdown, &b_prefiringweightdown);
+   
+	tree->SetBranchAddress("nGenLep", &nGenLep, &b_nGenLep);
+	tree->SetBranchAddress("GenLep_pt", GenLep_pt, &b_GenLep_pt);
+	tree->SetBranchAddress("GenLep_eta", GenLep_eta, &b_GenLep_eta);
+	tree->SetBranchAddress("GenLep_phi", GenLep_phi, &b_GenLep_phi);
+	tree->SetBranchAddress("GenLep_mass", GenLep_mass, &b_GenLep_mass);
+	tree->SetBranchAddress("GenLep_pdgId", GenLep_pdgId, &b_GenLep_pdgId);
+	tree->SetBranchAddress("GenLep_mompdgId", GenLep_mompdgId, &b_GenLep_mompdgId);
+	tree->SetBranchAddress("GenLep_grmompdgId", GenLep_grmompdgId, &b_GenLep_grmompdgId);
+	tree->SetBranchAddress("nGenNu", &nGenNu, &b_nGenNu);
+	tree->SetBranchAddress("GenNu_pt", GenNu_pt, &b_GenNu_pt);
+	tree->SetBranchAddress("GenNu_eta", GenNu_eta, &b_GenNu_eta);
+	tree->SetBranchAddress("GenNu_phi", GenNu_phi, &b_GenNu_phi);
+	tree->SetBranchAddress("GenNu_mass", GenNu_mass, &b_GenNu_mass);
+	tree->SetBranchAddress("GenNu_pdgId", GenNu_pdgId, &b_GenNu_pdgId);
+	tree->SetBranchAddress("GenNu_mompdgId", GenNu_mompdgId, &b_GenNu_mompdgId);
+	tree->SetBranchAddress("GenNu_grmompdgId", GenNu_grmompdgId, &b_GenNu_grmompdgId);
+	tree->SetBranchAddress("nGenBPart", &nGenBPart, &b_nGenBPart);
+	tree->SetBranchAddress("GenBPart_pt", &GenBPart_pt, &b_GenBPart_pt);
+	tree->SetBranchAddress("GenBPart_eta", &GenBPart_eta, &b_GenBPart_eta);
+	tree->SetBranchAddress("GenBPart_phi", &GenBPart_phi, &b_GenBPart_phi);
+	tree->SetBranchAddress("GenBPart_mass", &GenBPart_mass, &b_GenBPart_mass);
+	tree->SetBranchAddress("GenBPart_pdgId", &GenBPart_pdgId, &b_GenBPart_pdgId);
+	tree->SetBranchAddress("GenBPart_mompdgId", &GenBPart_mompdgId, &b_GenBPart_mompdgId);
+	tree->SetBranchAddress("GenBPart_grmompdgId", GenBPart_grmompdgId, &b_GenBPart_grmompdgId);
+	tree->SetBranchAddress("nGenV", &nGenV, &b_nGenV);
+	tree->SetBranchAddress("GenV_pt", GenV_pt, &b_GenV_pt);
+	tree->SetBranchAddress("GenV_eta", GenV_eta, &b_GenV_eta);
+	tree->SetBranchAddress("GenV_phi", GenV_phi, &b_GenV_phi);
+	tree->SetBranchAddress("GenV_mass", GenV_mass, &b_GenV_mass);
+	tree->SetBranchAddress("GenV_pdgId", GenV_pdgId, &b_GenV_pdgId);
+	tree->SetBranchAddress("GenV_mompdgId", GenV_mompdgId, &b_GenV_mompdgId);
+	tree->SetBranchAddress("GenV_grmompdgId", GenV_grmompdgId, &b_GenV_grmompdgId);
    //tree->SetBranchAddress("event_weight_LHE", &event_weight_LHE);
+	}
 
   float ptedges[] = {20, 25, 30, 37, 43, 49, 56, 64, 74, 84, 97, 114, 133, 153, 174, 196, 220, 245, 272, 300, 330, 362, 395, 430, 468, 507, 548, 592, 638, 686, 737, 790, 846, 905, 967, 1101, 1248, 1410, 1588, 1784, 2000, 2366, 2787, 3450};
   const int nptbins = sizeof(ptedges)/sizeof(ptedges[0])-1;
@@ -1139,6 +1159,9 @@ TString proc_Name[] = {
   TH1F* h_X_mass[nrgn][nbcat][nWop][nlid]; 
   TH1F* h_nbjets_other[nrgn][nbcat][nWop][nlid]; 
   TH1F* h_nbjets_outY[nrgn][nbcat][nWop][nlid]; 
+  TH1F* h_nbjets_outY_L[nrgn][nbcat][nWop][nlid]; 
+  TH1F* h_nbjets[nrgn][nbcat][nWop][nlid]; 
+  TH1F* h_nbjets_L[nrgn][nbcat][nWop][nlid]; 
   
   TH2F* h_X_Y_mass[nrgn][nbcat][nWop][nlid];   
   
@@ -1224,6 +1247,9 @@ TString proc_Name[] = {
 				
 				h_nbjets_other[ij][jk][kl][lm]		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"nbjets_other","",5 ,0.0, 5.0 );
 				h_nbjets_outY[ij][jk][kl][lm]		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"nbjets_outY","",5 ,0.0, 5.0 );
+				h_nbjets_outY_L[ij][jk][kl][lm]		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"nbjets_outY_L","",5 ,0.0, 5.0 );
+				h_nbjets[ij][jk][kl][lm]		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"nbjets","",5 ,0.0, 5.0 );
+				h_nbjets_L[ij][jk][kl][lm]		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"nbjets_L","",5 ,0.0, 5.0 );
                
 				h_X_Y_mass[ij][jk][kl][lm] 		     = new TH2F("h_Y_"+Ytype[y_wp]+"_W_"+Wtype[w_wp]+"_X_Y_mass_"+Wops[kl]+"_"+rgn[ij]+bcats[jk]+lepids[lm], "", 40, 0.0, 4000.0, 40, 0.0, 600.0);
 				
@@ -1241,14 +1267,14 @@ TString proc_Name[] = {
 					char name[50];
 					//up systematics
 					sprintf(name,"_%s_up",sysnames[isys].Data());
-					h_Y_msoftdrop_sys[ij][jk][kl][lm][2*(isys+1)-1] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop",name,40,0,600);
+					h_Y_msoftdrop_sys[ij][jk][kl][lm][2*(isys+1)-1] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop",name,38,30,600);
 					h_X_mass_sys[ij][jk][kl][lm][2*(isys+1)-1]			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"X_mass",name,40, 0.0, 4000.0);
 					h_for_limit_X_mass_sys[ij][jk][kl][lm][2*(isys+1)-1] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin1_X_mass",name,260,0,52000);
                     h_for_limit_X_mass_sys_v2[ij][jk][kl][lm][2*(isys+1)-1] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin2_X_mass",name,216,400,43600);
 
                     //dn systematics
 					sprintf(name,"_%s_dn",sysnames[isys].Data());
-					h_Y_msoftdrop_sys[ij][jk][kl][lm][2*(isys+1)] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop",name,40,0,600);
+					h_Y_msoftdrop_sys[ij][jk][kl][lm][2*(isys+1)] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop",name,38,30,600);
 					h_X_mass_sys[ij][jk][kl][lm][2*(isys+1)]			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"X_mass",name,40, 0.0, 4000.0);
                     h_for_limit_X_mass_sys[ij][jk][kl][lm][2*(isys+1)] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin1_X_mass",name,260,0,52000);
                     h_for_limit_X_mass_sys_v2[ij][jk][kl][lm][2*(isys+1)] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin2_X_mass",name,216,400,43600);
@@ -1262,8 +1288,10 @@ TString proc_Name[] = {
    file->cd();
  
    Long64_t nn = tree->GetEntries();
+   
    for(Long64_t j =0; j < nn ; j++)
    {
+   
    tree->GetEntry(j);
    if( j % 10000 == 0) { std::cout <<j<<" events processed" << std::endl;}
 
@@ -1271,6 +1299,7 @@ TString proc_Name[] = {
    if((string(proc_Name[ii].Data()).find("SingleMuon")!=string::npos) && (abs(l_pdgId)!=13)) continue;
    if((string(proc_Name[ii].Data()).find("EGamma")!=string::npos) && (abs(l_pdgId)!=11)) continue;
    // end of condition
+   //<- do we need it anymore?
 
    // Tagger scale factors // (simplified version for time being)
    double b_SF, b_SF_up, b_SF_dn;
@@ -1283,6 +1312,7 @@ TString proc_Name[] = {
    bb_SF = bb_SF_up = bb_SF_dn = 1.;
    W_SF = W_SF_up = W_SF_dn = 1.;
    Top_SF = Top_SF_up = Top_SF_dn = 1.;
+   
    /*
    int nbjets_outY = 0;
    
@@ -1356,7 +1386,7 @@ TString proc_Name[] = {
 	if(W_pt_bin>=0 && W_pt_bin<PNW_SF_nptbins) { 
 	//if(W_msoftdrop_opt2>=65. && W_msoftdrop_opt2<=105.){
 		if(W_label_W_qq_opt2||W_label_W_cq_opt2){// use only GEN-matched W for applying SFs 
-			if(Flag_H_W_pass){
+			if(Flag_H_W_pass_T_opt2){
 				W_SF = PNW_SF_T[W_pt_bin]; 
 				W_SF_up = PNW_SF_T_up[W_pt_bin]; 
 				W_SF_dn = PNW_SF_T_dn[W_pt_bin]; 
@@ -1402,7 +1432,7 @@ TString proc_Name[] = {
    if(isDATA) {weight_nom = 1.0;}
    else 
    {
-   if ( proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1000_MY_100_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1500_MY_200_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_200_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2400_MY_300_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_100_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_500_XtoYH_Nov_2021_v2.root")
+   if ( proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1000_MY_100_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1500_MY_200_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_200_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2400_MY_300_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_100_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_500_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_125_XtoYH_Nov_2021_v2.root" )
    {
      weight_nom = 1.0;
    }
@@ -1421,7 +1451,6 @@ TString proc_Name[] = {
    // Selections so that regions where SFs are not application are not used //
 
    if(Y_msoftdrop<30.) continue;
-
 	
    // looping over choices of W candidate
    for(int kl=0; kl<nWop; kl++)
@@ -1632,6 +1661,9 @@ TString proc_Name[] = {
 		
 				h_nbjets_other[ireg][jk][kl][lm]->Fill(nbjets_other,weight);
 				h_nbjets_outY[ireg][jk][kl][lm]->Fill(nbjets_outY,weight);
+				h_nbjets_outY_L[ireg][jk][kl][lm]->Fill(nbjets_outY_L,weight);
+				h_nbjets[ireg][jk][kl][lm]->Fill(nbjets,weight);
+				h_nbjets_L[ireg][jk][kl][lm]->Fill(nbjets_L,weight);
 		
 				float X_mass;
 				if(kl==0) { X_mass = X_mass_opt1; }
