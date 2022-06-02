@@ -111,18 +111,17 @@ int main(int argc, char *argv[])
    //5: isMC boolean: Enter 1 or 0 (NOT true or false)
    //6: isFastSIM: Enter 1 or 0  (NOT true or false)
 	
-   std::istringstream(argv[5]) >> isMC;  					//(for true/false): std::boolalpha >> isMC;
-   std::istringstream(argv[6]) >> isFastSIM; 				//(for true/false): std::boolalpha >> isFastSIM; 
-	
    cout<<"Program started with isMC : "<< isMC << " &  isFastSIM: " << isFastSIM <<" input file: "<<argv[3]<<" line numbers: initial-"<<argv[1]<<" final-"<<argv[2]<<endl;
    cout<<"Output will be saved in: "<<argv[4]<<endl;
-   cout<<"LL "<<int(sizeof(argv)/sizeof(char))<<endl;
-   if(int(sizeof(argv)/sizeof(char))!=8){
+   
+   if((argc-1)!=6){
 	cout<<"Need exactly 6 arguments. Exiting!"<<endl;
 	return 0;
    }
    
-   return 0;
+   std::istringstream(argv[5]) >> isMC;  					//(for true/false): std::boolalpha >> isMC;
+   std::istringstream(argv[6]) >> isFastSIM; 				//(for true/false): std::boolalpha >> isFastSIM;
+      
    string inputFile=argv[3];
   
    char fOut[200], outfilx[200], str[200];
