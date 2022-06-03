@@ -97,9 +97,9 @@ float deep_btag_cut = 0.2783;
 //int main()
 void histomaker_VII()
 {
-Bool_t isDATA = false;
-TString proc_Name[] = {
+Bool_t isDATA = true;
 /*
+TString proc_Name[] = {
 "DYBJetsToLL_M-50_Zpt-100to200_XtoYH.root",
 "DYBJetsToLL_M-50_Zpt-200toInf_XtoYH.root",
 "DYJetsToLL_M-10to50_XtoYH.root",
@@ -120,9 +120,7 @@ TString proc_Name[] = {
 "ST_t-channel_top_XtoYH.root",
 "ST_tW_antitop_XtoYH.root",
 "ST_tW_top_XtoYH.root",
-*/
 "TTTo2L2Nu_XtoYH.root",
-/*
 "TTToHadronic_XtoYH.root",
 "TTToSemiLeptonic_XtoYH.root",
 "WBJetsToLNu_Wpt-100to200_XtoYH.root",
@@ -156,19 +154,39 @@ TString proc_Name[] = {
 "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_100_XtoYH_Nov_2021_v2.root",
 "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_500_XtoYH_Nov_2021_v2.root",
 "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_125_XtoYH_Nov_2021_v2.root"
-*/
 };
+*/
+TString proc_Name[] = {
+"EGamma_UL2018A_XtoYH_Nov_2021.root",
+"EGamma_UL2018B_XtoYH_Nov_2021.root",
+"EGamma_UL2018C_XtoYH_Nov_2021.root",
+"EGamma_UL2018D_XtoYH_Nov_2021.root",
+"SingleMuon_UL2018A_XtoYH_Nov_2021.root",
+"SingleMuon_UL2018B_XtoYH_Nov_2021.root",
+"SingleMuon_UL2018C_XtoYH_Nov_2021.root",
+"SingleMuon_UL2018D_XtoYH_Nov_2021.root",
+"JetHT_UL2018A_XtoYH_Nov_2021.root",
+"JetHT_UL2018B_XtoYH_Nov_2021.root",
+"JetHT_UL2018C_XtoYH_Nov_2021.root",
+"JetHT_UL2018D_XtoYH_Nov_2021.root"
+};
+
  int nproc = sizeof(proc_Name)/sizeof(proc_Name[0]);
  for (int ii=0;ii<nproc;ii++)
   {
   //Calling efficiency files 
-   TFile *FEff = TFile::Open("Efficiency/Efficiency_"+ proc_Name[ii] );
-   TH2F *h_AK4M_flv_b_eff = (TH2F*)FEff->Get("Efficiency_h_Ak4_b_flv_pass_M");
-   TH2F *h_AK4M_flv_c_eff = (TH2F*)FEff->Get("Efficiency_h_Ak4_c_flv_pass_M");
-   TH2F *h_AK4M_flv_l_eff = (TH2F*)FEff->Get("Efficiency_h_Ak4_l_flv_pass_M");
-   TH2F *h_YtagT_eff = (TH2F*)FEff->Get("Efficiency_h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T");
-   TH2F *h_WtagT_eff = (TH2F*)FEff->Get("Efficiency_h_Ak8_DeepTag_PNetMD_WvsQCD_pass_T");
+   TFile *FEff; TH2F *h_AK4M_flv_b_eff; TH2F *h_AK4M_flv_c_eff; TH2F *h_AK4M_flv_l_eff;
+   TH2F *h_YtagT_eff; TH2F *h_WtagT_eff;
 
+   if(!isDATA)
+   {
+   	TFile *FEff = TFile::Open("Efficiency/Efficiency_"+ proc_Name[ii] );
+   	TH2F *h_AK4M_flv_b_eff = (TH2F*)FEff->Get("Efficiency_h_Ak4_b_flv_pass_M");
+   	TH2F *h_AK4M_flv_c_eff = (TH2F*)FEff->Get("Efficiency_h_Ak4_c_flv_pass_M");
+   	TH2F *h_AK4M_flv_l_eff = (TH2F*)FEff->Get("Efficiency_h_Ak4_l_flv_pass_M");
+   	TH2F *h_YtagT_eff = (TH2F*)FEff->Get("Efficiency_h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T");
+   	TH2F *h_WtagT_eff = (TH2F*)FEff->Get("Efficiency_h_Ak8_DeepTag_PNetMD_WvsQCD_pass_T");
+   }
 
 
    std::cout << proc_Name[ii] << std::endl;
@@ -179,6 +197,27 @@ TString proc_Name[] = {
 
    int narray = 20;
    int njetmx = 6;
+   Bool_t          hlt_IsoMu24;
+   Bool_t          hlt_Mu50;
+   Bool_t          hlt_Ele50_CaloIdVT_GsfTrkIdT_PFJet165;
+   Bool_t          hlt_Ele115_CaloIdVT_GsfTrkIdT;
+   Bool_t          hlt_Ele40_WPTight_Gsf;
+   Bool_t          hlt_Ele32_WPTight_Gsf;
+   Bool_t          hlt_Ele28_eta2p1_WPTight_Gsf_HT150;
+   Bool_t          hlt_Mu37_Ele27_CaloIdL_MW;
+   Bool_t          hlt_Mu27_Ele37_CaloIdL_MW;
+   Bool_t          hlt_Mu37_TkMu27;
+   Bool_t          hlt_DoubleEle25_CaloIdL_MW;
+   Bool_t          hlt_AK8PFJet500;
+   Bool_t          hlt_PFJet500;
+   Bool_t          hlt_HT1050;
+   Bool_t          hlt_AK8PFJet400_TrimMass30;
+   Bool_t          hlt_AK8PFHT800_TrimMass50;
+   Bool_t          hlt_Photon200;
+   Bool_t          hlt_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60;
+   Bool_t          hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60;
+   Bool_t          hlt_PFMETNoMu140_PFMHTNoMu140_IDTight;
+   Bool_t          hlt_PFMETTypeOne140_PFMHT140_IDTight;
    Int_t           nleptons;
    Int_t           nfatjets;
    Bool_t          Flag_event_cuts;
@@ -477,6 +516,27 @@ TString proc_Name[] = {
 
 
   // List of branches
+   TBranch        *b_hlt_IsoMu24;   //!
+   TBranch        *b_hlt_Mu50;   //!
+   TBranch        *b_hlt_Ele50_CaloIdVT_GsfTrkIdT_PFJet165;   //!
+   TBranch        *b_hlt_Ele115_CaloIdVT_GsfTrkIdT;   //!
+   TBranch        *b_hlt_Ele40_WPTight_Gsf;   //!
+   TBranch        *b_hlt_Ele32_WPTight_Gsf;   //!
+   TBranch        *b_hlt_Ele28_eta2p1_WPTight_Gsf_HT150;   //!
+   TBranch        *b_hlt_Mu37_Ele27_CaloIdL_MW;   //!
+   TBranch        *b_hlt_Mu27_Ele37_CaloIdL_MW;   //!
+   TBranch        *b_hlt_Mu37_TkMu27;   //!
+   TBranch        *b_hlt_DoubleEle25_CaloIdL_MW;   //!
+   TBranch        *b_hlt_AK8PFJet500;   //!
+   TBranch        *b_hlt_PFJet500;   //!
+   TBranch        *b_hlt_HT1050;   //!
+   TBranch        *b_hlt_AK8PFJet400_TrimMass30;   //!
+   TBranch        *b_hlt_AK8PFHT800_TrimMass50;   //!
+   TBranch        *b_hlt_Photon200;   //!
+   TBranch        *b_hlt_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60;   //!
+   TBranch        *b_hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60;   //!
+   TBranch        *b_hlt_PFMETNoMu140_PFMHTNoMu140_IDTight;   //!
+   TBranch        *b_hlt_PFMETTypeOne140_PFMHT140_IDTight;   //!
    TBranch        *b_nleptons;   //!
    TBranch        *b_nfatjets;   //!
    TBranch        *b_Flag_event_cuts;   //!
@@ -963,9 +1023,9 @@ TString proc_Name[] = {
    tree->SetBranchAddress("dphi_lY", &dphi_lY, &b_dphi_lY);
    tree->SetBranchAddress("nbjets_other", &nbjets_other, &b_nbjets_other);
    tree->SetBranchAddress("nbjets_outY", &nbjets_outY, &b_nbjets_outY);
-   tree->SetBranchAddress("nbjets_outY_L", &nbjets_outY_L, &nbjets_outY_L);
+   tree->SetBranchAddress("nbjets_outY_L", &nbjets_outY_L, &b_nbjets_outY_L);
    tree->SetBranchAddress("nbjets", &nbjets, &b_nbjets);
-   tree->SetBranchAddress("nbjets_L", &nbjets_L, &nbjets_L);
+   tree->SetBranchAddress("nbjets_L", &nbjets_L, &b_nbjets_L);
    tree->SetBranchAddress("Flag_Y_bb_pass_T", &Flag_Y_bb_pass_T, &b_Flag_Y_bb_pass_T);
    tree->SetBranchAddress("Flag_Y_bb_pass_M", &Flag_Y_bb_pass_M, &b_Flag_Y_bb_pass_M);
    tree->SetBranchAddress("Flag_Y_bb_pass_L", &Flag_Y_bb_pass_L, &b_Flag_Y_bb_pass_L);
@@ -1077,11 +1137,43 @@ TString proc_Name[] = {
 	tree->SetBranchAddress("GenV_pdgId", GenV_pdgId, &b_GenV_pdgId);
 	tree->SetBranchAddress("GenV_mompdgId", GenV_mompdgId, &b_GenV_mompdgId);
 	tree->SetBranchAddress("GenV_grmompdgId", GenV_grmompdgId, &b_GenV_grmompdgId);
+
+    }
+   tree->SetBranchAddress("hlt_IsoMu24", &hlt_IsoMu24, &b_hlt_IsoMu24);
+   tree->SetBranchAddress("hlt_Mu50", &hlt_Mu50, &b_hlt_Mu50);
+   tree->SetBranchAddress("hlt_Ele50_CaloIdVT_GsfTrkIdT_PFJet165", &hlt_Ele50_CaloIdVT_GsfTrkIdT_PFJet165, &b_hlt_Ele50_CaloIdVT_GsfTrkIdT_PFJet165);
+   tree->SetBranchAddress("hlt_Ele115_CaloIdVT_GsfTrkIdT", &hlt_Ele115_CaloIdVT_GsfTrkIdT, &b_hlt_Ele115_CaloIdVT_GsfTrkIdT);
+   tree->SetBranchAddress("hlt_Ele40_WPTight_Gsf", &hlt_Ele40_WPTight_Gsf, &b_hlt_Ele40_WPTight_Gsf);
+   tree->SetBranchAddress("hlt_Ele32_WPTight_Gsf", &hlt_Ele32_WPTight_Gsf, &b_hlt_Ele32_WPTight_Gsf);
+   tree->SetBranchAddress("hlt_Ele28_eta2p1_WPTight_Gsf_HT150", &hlt_Ele28_eta2p1_WPTight_Gsf_HT150, &b_hlt_Ele28_eta2p1_WPTight_Gsf_HT150);
+   tree->SetBranchAddress("hlt_Mu37_Ele27_CaloIdL_MW", &hlt_Mu37_Ele27_CaloIdL_MW, &b_hlt_Mu37_Ele27_CaloIdL_MW);
+   tree->SetBranchAddress("hlt_Mu27_Ele37_CaloIdL_MW", &hlt_Mu27_Ele37_CaloIdL_MW, &b_hlt_Mu27_Ele37_CaloIdL_MW);
+   tree->SetBranchAddress("hlt_Mu37_TkMu27", &hlt_Mu37_TkMu27, &b_hlt_Mu37_TkMu27);
+   tree->SetBranchAddress("hlt_DoubleEle25_CaloIdL_MW", &hlt_DoubleEle25_CaloIdL_MW, &b_hlt_DoubleEle25_CaloIdL_MW);
+   tree->SetBranchAddress("hlt_AK8PFJet500", &hlt_AK8PFJet500, &b_hlt_AK8PFJet500);
+   tree->SetBranchAddress("hlt_PFJet500", &hlt_PFJet500, &b_hlt_PFJet500);
+   tree->SetBranchAddress("hlt_HT1050", &hlt_HT1050, &b_hlt_HT1050);
+   tree->SetBranchAddress("hlt_AK8PFJet400_TrimMass30", &hlt_AK8PFJet400_TrimMass30, &b_hlt_AK8PFJet400_TrimMass30);
+   tree->SetBranchAddress("hlt_AK8PFHT800_TrimMass50", &hlt_AK8PFHT800_TrimMass50, &b_hlt_AK8PFHT800_TrimMass50);
+   tree->SetBranchAddress("hlt_Photon200", &hlt_Photon200, &b_hlt_Photon200);
+   tree->SetBranchAddress("hlt_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60", &hlt_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60, &b_hlt_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60);
+   tree->SetBranchAddress("hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60", &hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60, &b_hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60);
+   tree->SetBranchAddress("hlt_PFMETNoMu140_PFMHTNoMu140_IDTight", &hlt_PFMETNoMu140_PFMHTNoMu140_IDTight, &b_hlt_PFMETNoMu140_PFMHTNoMu140_IDTight);
+   tree->SetBranchAddress("hlt_PFMETTypeOne140_PFMHT140_IDTight", &hlt_PFMETTypeOne140_PFMHT140_IDTight, &b_hlt_PFMETTypeOne140_PFMHT140_IDTight);
+
+
    //tree->SetBranchAddress("event_weight_LHE", &event_weight_LHE);
-	}
 
   float ptedges[] = {20, 25, 30, 37, 43, 49, 56, 64, 74, 84, 97, 114, 133, 153, 174, 196, 220, 245, 272, 300, 330, 362, 395, 430, 468, 507, 548, 592, 638, 686, 737, 790, 846, 905, 967, 1101, 1248, 1410, 1588, 1784, 2000, 2366, 2787, 3450};
   const int nptbins = sizeof(ptedges)/sizeof(ptedges[0])-1;
+
+  float msdbins[] = {30,45,65,90,120,160,205,255,310,370,430,500,600}; //roughly 3 sigma bin width
+  const int nmsdbins = sizeof(msdbins)/sizeof(msdbins[0])-1;
+  
+  float invmassbins[] = {400, 500, 625, 750, 900, 1100, 1300, 1500, 1750, 1950, 2200, 2400, 2650, 2900, 3400, 4000};
+  const int ninvmassbins = sizeof(invmassbins)/sizeof(invmassbins[0])-1;
+
+  const int nunrollbins = nmsdbins*ninvmassbins;
 
   TString rgn[] = {"SR","CR1","CR2","CR3","CR4","CR5","CR6","CR7","CR8"};
   int nrgn = sizeof(rgn)/sizeof(rgn[0]);
@@ -1132,6 +1224,7 @@ TString proc_Name[] = {
   
   TH1F *h_Y_pt[nrgn][nbcat][nWop][nlid];
   TH1F *h_Y_msoftdrop[nrgn][nbcat][nWop][nlid];
+  TH1F *h_Y_msoftdrop_xbin[nrgn][nbcat][nWop][nlid];
   TH1F *h_Y_PNetMD_XbbvsQCD[nrgn][nbcat][nWop][nlid];
   TH1F *h_Y_PNetMD_WvsQCD[nrgn][nbcat][nWop][nlid];
   TH1F *h_Y_PNet_TvsQCD[nrgn][nbcat][nWop][nlid];
@@ -1157,6 +1250,7 @@ TString proc_Name[] = {
 				
   TH1F* h_H_mass[nrgn][nbcat][nWop][nlid]; 
   TH1F* h_X_mass[nrgn][nbcat][nWop][nlid]; 
+  TH1F* h_X_mass_xbin[nrgn][nbcat][nWop][nlid]; 
   TH1F* h_nbjets_other[nrgn][nbcat][nWop][nlid]; 
   TH1F* h_nbjets_outY[nrgn][nbcat][nWop][nlid]; 
   TH1F* h_nbjets_outY_L[nrgn][nbcat][nWop][nlid]; 
@@ -1164,9 +1258,13 @@ TString proc_Name[] = {
   TH1F* h_nbjets_L[nrgn][nbcat][nWop][nlid]; 
   
   TH2F* h_X_Y_mass[nrgn][nbcat][nWop][nlid];   
+  TH2F* h_X_Y_mass_xbin[nrgn][nbcat][nWop][nlid];   
   
   TH1F *h_Y_msoftdrop_sys[nrgn][nbcat][nWop][nlid][1+2*nsys];
+  TH1F *h_Y_msoftdrop_xbin_sys[nrgn][nbcat][nWop][nlid][1+2*nsys];
+  
   TH1F* h_X_mass_sys[nrgn][nbcat][nWop][nlid][1+2*nsys];
+  TH1F* h_X_mass_xbin_sys[nrgn][nbcat][nWop][nlid][1+2*nsys];
 
   TH1F *h_for_limit_X_mass[nrgn][nbcat][nWop][nlid];
   TH1F *h_for_limit_X_mass_sys[nrgn][nbcat][nWop][nlid][1+2*nsys];
@@ -1218,6 +1316,7 @@ TString proc_Name[] = {
 				
 				h_Y_pt[ij][jk][kl][lm] 				= get_histo_asymbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_pt","",nptbins, ptedges);
 				h_Y_msoftdrop[ij][jk][kl][lm] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop","",38,30,600);
+				h_Y_msoftdrop_xbin[ij][jk][kl][lm]  = get_histo_asymbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop_xbin","",nmsdbins, msdbins);
 				h_Y_PNetMD_XbbvsQCD[ij][jk][kl][lm] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_PNetMD_XbbvsQCD","", 100, 0.0, 1.0 );
 				h_Y_PNetMD_WvsQCD[ij][jk][kl][lm] 	= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_PNetMD_WvsQCD","", 100, 0.0, 1.0 );
 				h_Y_PNet_TvsQCD[ij][jk][kl][lm] 	= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_PNet_TvsQCD","", 100, 0.0, 1.0 );
@@ -1244,6 +1343,7 @@ TString proc_Name[] = {
 				h_H_mass[ij][jk][kl][lm] 			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"H_mass","",35, 0.0, 350.0);
 				
 				h_X_mass[ij][jk][kl][lm] 			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"X_mass","",40, 0.0, 4000.0);
+				h_X_mass_xbin[ij][jk][kl][lm] 	     = get_histo_asymbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"X_mass_xbin","",ninvmassbins,invmassbins);
 				
 				h_nbjets_other[ij][jk][kl][lm]		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"nbjets_other","",5 ,0.0, 5.0 );
 				h_nbjets_outY[ij][jk][kl][lm]		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"nbjets_outY","",5 ,0.0, 5.0 );
@@ -1252,33 +1352,39 @@ TString proc_Name[] = {
 				h_nbjets_L[ij][jk][kl][lm]		 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"nbjets_L","",5 ,0.0, 5.0 );
                
 				h_X_Y_mass[ij][jk][kl][lm] 		     = new TH2F("h_Y_"+Ytype[y_wp]+"_W_"+Wtype[w_wp]+"_X_Y_mass_"+Wops[kl]+"_"+rgn[ij]+bcats[jk]+lepids[lm], "", 40, 0.0, 4000.0, 40, 0.0, 600.0);
+				h_X_Y_mass_xbin[ij][jk][kl][lm] 		     = new TH2F("h_Y_"+Ytype[y_wp]+"_W_"+Wtype[w_wp]+"_X_Y_mass_"+Wops[kl]+"_"+rgn[ij]+bcats[jk]+lepids[lm]+"_xbin", "", ninvmassbins, invmassbins, nmsdbins, msdbins);
 				
 				h_Y_msoftdrop_sys[ij][jk][kl][lm][0] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop","_nom",38,30,600);
+				h_Y_msoftdrop_xbin_sys[ij][jk][kl][lm][0]  = get_histo_asymbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop_xbin","_nom",nmsdbins, msdbins);
+				
 				h_X_mass_sys[ij][jk][kl][lm][0] 			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"X_mass","_nom",40, 0.0, 4000.0);
+				h_X_mass_xbin_sys[ij][jk][kl][lm][0] 	     = get_histo_asymbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"X_mass_xbin","_nom",ninvmassbins,invmassbins);
 
                 h_for_limit_X_mass[ij][jk][kl][lm]                 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin1_X_mass","",260,0,52000);
-                h_for_limit_X_mass_v2[ij][jk][kl][lm]              = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin2_X_mass","",216,400,43600);
+                h_for_limit_X_mass_v2[ij][jk][kl][lm]              = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin2_X_mass","",nunrollbins,float(0.0),float(nunrollbins));
 
 				h_for_limit_X_mass_sys[ij][jk][kl][lm][0] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin1_X_mass","_nom",260,0,52000);
-                h_for_limit_X_mass_sys_v2[ij][jk][kl][lm][0] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin2_X_mass","_nom",216,400,43600);
+                h_for_limit_X_mass_sys_v2[ij][jk][kl][lm][0] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin2_X_mass","_nom",nunrollbins,float(0.0),float(nunrollbins));
 	
 				for(int isys=0; isys<nsys; isys++){
 					
-					char name[50];
+					char name[100];
 					//up systematics
 					sprintf(name,"_%s_up",sysnames[isys].Data());
 					h_Y_msoftdrop_sys[ij][jk][kl][lm][2*(isys+1)-1] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop",name,38,30,600);
 					h_X_mass_sys[ij][jk][kl][lm][2*(isys+1)-1]			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"X_mass",name,40, 0.0, 4000.0);
 					h_for_limit_X_mass_sys[ij][jk][kl][lm][2*(isys+1)-1] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin1_X_mass",name,260,0,52000);
-                    h_for_limit_X_mass_sys_v2[ij][jk][kl][lm][2*(isys+1)-1] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin2_X_mass",name,216,400,43600);
-
+                    h_for_limit_X_mass_sys_v2[ij][jk][kl][lm][2*(isys+1)-1] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin2_X_mass",name,nunrollbins,float(0.0),float(nunrollbins));
+					h_Y_msoftdrop_xbin_sys[ij][jk][kl][lm][2*(isys+1)-1]  	= get_histo_asymbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop_xbin",name,nmsdbins, msdbins);
+                    h_X_mass_xbin_sys[ij][jk][kl][lm][2*(isys+1)-1]  	    = get_histo_asymbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"X_mass_xbin",name,ninvmassbins,invmassbins);
                     //dn systematics
 					sprintf(name,"_%s_dn",sysnames[isys].Data());
 					h_Y_msoftdrop_sys[ij][jk][kl][lm][2*(isys+1)] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop",name,38,30,600);
 					h_X_mass_sys[ij][jk][kl][lm][2*(isys+1)]			 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"X_mass",name,40, 0.0, 4000.0);
                     h_for_limit_X_mass_sys[ij][jk][kl][lm][2*(isys+1)] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin1_X_mass",name,260,0,52000);
-                    h_for_limit_X_mass_sys_v2[ij][jk][kl][lm][2*(isys+1)] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin2_X_mass",name,216,400,43600);
-
+                    h_for_limit_X_mass_sys_v2[ij][jk][kl][lm][2*(isys+1)] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_bin2_X_mass",name,nunrollbins,float(0.0),float(nunrollbins));
+					h_Y_msoftdrop_xbin_sys[ij][jk][kl][lm][2*(isys+1)]  	= get_histo_asymbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"Y_msoftdrop_xbin",name,nmsdbins, msdbins);
+                    h_X_mass_xbin_sys[ij][jk][kl][lm][2*(isys+1)]  	        = get_histo_asymbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"X_mass_xbin",name,ninvmassbins,invmassbins);
 				}
 			}
 	      }
@@ -1296,8 +1402,27 @@ TString proc_Name[] = {
    if( j % 10000 == 0) { std::cout <<j<<" events processed" << std::endl;}
 
    // Condition to avoid double counting in data //
-   if((string(proc_Name[ii].Data()).find("SingleMuon")!=string::npos) && (abs(l_pdgId)!=13)) continue;
-   if((string(proc_Name[ii].Data()).find("EGamma")!=string::npos) && (abs(l_pdgId)!=11)) continue;
+   bool mu_trig = hlt_Mu50;
+   bool el_trig = hlt_Ele32_WPTight_Gsf || hlt_Ele40_WPTight_Gsf || hlt_Ele115_CaloIdVT_GsfTrkIdT || hlt_Ele50_CaloIdVT_GsfTrkIdT_PFJet165;
+   bool jet_trig = hlt_AK8PFJet500 || hlt_PFJet500;
+   if(isDATA){
+     if (string(proc_Name[ii].Data()).find("SingleMuon")!=string::npos)
+     {
+	if(!mu_trig) continue;
+     }
+     else if (string(proc_Name[ii].Data()).find("EGamma")!=string::npos)
+     {
+	if(mu_trig || !el_trig) continue;
+     }
+     else if (string(proc_Name[ii].Data()).find("JetHT")!=string::npos)
+     {
+	if(mu_trig || el_trig || !jet_trig) continue;
+     }
+     else{
+	continue;
+     }
+
+   }
    // end of condition
    //<- do we need it anymore?
 
@@ -1594,6 +1719,7 @@ TString proc_Name[] = {
 	        
 				h_Y_pt[ireg][jk][kl][lm]->Fill(Y_pt,weight); 
 				h_Y_msoftdrop[ireg][jk][kl][lm]->Fill(Y_msoftdrop,weight);
+				h_Y_msoftdrop_xbin[ireg][jk][kl][lm]->Fill(Y_msoftdrop,weight);
 				h_Y_PNetMD_XbbvsQCD[ireg][jk][kl][lm]->Fill(Y_DeepTag_PNetMD_XbbvsQCD,weight);
 				h_Y_PNetMD_WvsQCD[ireg][jk][kl][lm]->Fill(Y_DeepTag_PNetMD_WvsQCD,weight);
 				h_Y_PNet_TvsQCD[ireg][jk][kl][lm]->Fill(Y_DeepTag_PNet_TvsQCD,weight);
@@ -1603,6 +1729,14 @@ TString proc_Name[] = {
 				h_Y_sub2_btag[ireg][jk][kl][lm]->Fill(Y_sub2_btag,weight);
                         
 				float X_conv_mass;
+				
+				float X_mass;
+				if(kl==0) { X_mass = X_mass_opt1; }
+				else { X_mass = X_mass_opt2; }
+				float unrol_mass = -1.0;
+				if(X_mass>=invmassbins[0] && X_mass<invmassbins[ninvmassbins] && Y_msoftdrop>=msdbins[0] && Y_msoftdrop<msdbins[nmsdbins]){
+					unrol_mass = float(1.0*getbinid(Y_msoftdrop,nmsdbins,msdbins)*getbinid(X_mass,ninvmassbins,invmassbins));
+				}
 
 				if(kl==0){           
 			
@@ -1622,13 +1756,15 @@ TString proc_Name[] = {
 					h_dphi_lW[ireg][jk][kl][lm]->Fill(dphi_lW_opt1,weight);
 			
 					h_H_mass[ireg][jk][kl][lm]->Fill(H_mass_opt1,weight); 
-					h_X_mass[ireg][jk][kl][lm]->Fill(X_mass_opt1,weight); 
+					h_X_mass[ireg][jk][kl][lm]->Fill(X_mass,weight); 
+					h_X_mass_xbin[ireg][jk][kl][lm]->Fill(X_mass,weight); 
 					
-					h_X_Y_mass[ireg][jk][kl][lm]->Fill(X_mass_opt1, Y_msoftdrop, weight);
+					h_X_Y_mass[ireg][jk][kl][lm]->Fill(X_mass, Y_msoftdrop, weight);
+					h_X_Y_mass_xbin[ireg][jk][kl][lm]->Fill(X_mass, Y_msoftdrop, weight);
 			        
-					X_conv_mass = X_mass_opt1 + 4000.0 * get_Y_id(Y_msoftdrop);
+					X_conv_mass = X_mass + 4000.0 * get_Y_id(Y_msoftdrop);
 					h_for_limit_X_mass[ireg][jk][kl][lm]->Fill(X_conv_mass,weight);
-					if(X_mass_opt1>400) {h_for_limit_X_mass_v2[ireg][jk][kl][lm]->Fill(X_mass_opt1 + (4000.0 - 400.0) * get_Y_id(Y_msoftdrop)   ,weight);}
+					h_for_limit_X_mass_v2[ireg][jk][kl][lm]->Fill(unrol_mass,weight);
 
 				}
 				else
@@ -1650,12 +1786,15 @@ TString proc_Name[] = {
 					h_dphi_lW[ireg][jk][kl][lm]->Fill(dphi_lW_opt2,weight);
 			
 					h_H_mass[ireg][jk][kl][lm]->Fill(H_mass_opt2,weight); 
-					h_X_mass[ireg][jk][kl][lm]->Fill(X_mass_opt2,weight); 
+					h_X_mass[ireg][jk][kl][lm]->Fill(X_mass,weight); 
+					h_X_mass_xbin[ireg][jk][kl][lm]->Fill(X_mass,weight); 
 					
-					h_X_Y_mass[ireg][jk][kl][lm]->Fill(X_mass_opt2, Y_msoftdrop, weight);
-					X_conv_mass = X_mass_opt2 + 4000.0 * get_Y_id(Y_msoftdrop);
+					h_X_Y_mass[ireg][jk][kl][lm]->Fill(X_mass, Y_msoftdrop, weight);
+					h_X_Y_mass_xbin[ireg][jk][kl][lm]->Fill(X_mass, Y_msoftdrop, weight);
+					
+					X_conv_mass = X_mass + 4000.0 * get_Y_id(Y_msoftdrop);
 					h_for_limit_X_mass[ireg][jk][kl][lm]->Fill(X_conv_mass,weight);
-					if(X_mass_opt2>400){h_for_limit_X_mass_v2[ireg][jk][kl][lm]->Fill(X_mass_opt2 + (4000.0 - 400.0) * get_Y_id(Y_msoftdrop)   ,weight);}
+					h_for_limit_X_mass_v2[ireg][jk][kl][lm]->Fill(unrol_mass,weight);
 
 				}
 		
@@ -1664,15 +1803,15 @@ TString proc_Name[] = {
 				h_nbjets_outY_L[ireg][jk][kl][lm]->Fill(nbjets_outY_L,weight);
 				h_nbjets[ireg][jk][kl][lm]->Fill(nbjets,weight);
 				h_nbjets_L[ireg][jk][kl][lm]->Fill(nbjets_L,weight);
-		
-				float X_mass;
-				if(kl==0) { X_mass = X_mass_opt1; }
-				else { X_mass = X_mass_opt2; }
 			
 				h_X_mass_sys[ireg][jk][kl][lm][0]->Fill(X_mass,weight); 
 				h_Y_msoftdrop_sys[ireg][jk][kl][lm][0]->Fill(Y_msoftdrop,weight);
+				
+				h_X_mass_xbin_sys[ireg][jk][kl][lm][0]->Fill(X_mass,weight); 
+				h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][0]->Fill(Y_msoftdrop,weight);
+				
 				h_for_limit_X_mass_sys[ireg][jk][kl][lm][0]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight);
-				if(X_mass>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][0]->Fill(X_mass + (4000.0 -400.0) * get_Y_id(Y_msoftdrop),weight);}
+				h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][0]->Fill(unrol_mass,weight);
 		
 				float X_JESup, X_JESdn, X_JERup, X_JERdn;
 		
@@ -1717,11 +1856,19 @@ TString proc_Name[] = {
 				
 						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop*Y_JESup,weight);
 						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop*Y_JESdn,weight);
+						
+						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass*X_JESup,weight); 
+						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass*X_JESdn,weight); 
+				
+						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop*Y_JESup,weight);
+						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop*Y_JESdn,weight);
 
 						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass*X_JESup + 4000.0 * get_Y_id(Y_msoftdrop*Y_JESup),weight);
 						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass*X_JESdn + 4000.0 * get_Y_id(Y_msoftdrop*Y_JESdn),weight);
-						if(X_mass*X_JESup>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass*X_JESup + (4000.0 -400.0) * get_Y_id(Y_msoftdrop*Y_JESup),weight);}
-						if(X_mass*X_JESdn>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass*X_JESdn + (4000.0 -400.0) * get_Y_id(Y_msoftdrop*Y_JESdn),weight);}
+						if(X_mass*X_JESup>=invmassbins[0] && X_mass*X_JESup<invmassbins[ninvmassbins] && Y_msoftdrop*Y_JESup>=msdbins[0] && Y_msoftdrop*Y_JESup<msdbins[nmsdbins])
+						{h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(float(getbinid(Y_msoftdrop*Y_JESup,nmsdbins,msdbins)*getbinid(X_mass*X_JESup,ninvmassbins,invmassbins)),weight);}
+						if(X_mass*X_JESdn>=invmassbins[0] && X_mass*X_JESdn<invmassbins[ninvmassbins] && Y_msoftdrop*Y_JESup>=msdbins[0] && Y_msoftdrop*Y_JESup<msdbins[nmsdbins])
+						{h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]	->Fill(float(getbinid(Y_msoftdrop*Y_JESdn,nmsdbins,msdbins)*getbinid(X_mass*X_JESdn,ninvmassbins,invmassbins)),weight);}
 					}
 					if(isys==1) // JER
 					{
@@ -1730,11 +1877,19 @@ TString proc_Name[] = {
 				
 						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight);
 						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight);
+						
+						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass*X_JERup,weight); 
+						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass*X_JERdn,weight); 
+				
+						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight);
+						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight);
 
 						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass*X_JERup + 4000.0 * get_Y_id(Y_msoftdrop),weight);
 						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass*X_JERdn + 4000.0 * get_Y_id(Y_msoftdrop),weight);
-						if(X_mass*X_JERup>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass*X_JERup + (4000.0-400.0) * get_Y_id(Y_msoftdrop),weight);}
-						if(X_mass*X_JERdn>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass*X_JERdn + (4000.0-400.0) * get_Y_id(Y_msoftdrop),weight);}
+						if(X_mass*X_JERup>=invmassbins[0] && X_mass*X_JERup<invmassbins[ninvmassbins] && Y_msoftdrop>=msdbins[0] && Y_msoftdrop<msdbins[nmsdbins])
+						{h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(float(getbinid(Y_msoftdrop,nmsdbins,msdbins)*getbinid(X_mass*X_JERup,ninvmassbins,invmassbins)),weight);}
+						if(X_mass*X_JERdn>=invmassbins[0] && X_mass*X_JERdn<invmassbins[ninvmassbins] && Y_msoftdrop>=msdbins[0] && Y_msoftdrop<msdbins[nmsdbins])
+						{h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]	->Fill(float(getbinid(Y_msoftdrop,nmsdbins,msdbins)*getbinid(X_mass*X_JERdn,ninvmassbins,invmassbins)),weight);}					
 					}
 					if(isys==2)  // PU reweighting 
 					{
@@ -1743,11 +1898,17 @@ TString proc_Name[] = {
 				
 						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*puWeightup/TMath::Max(float(1.e-6),puWeight));
 						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*puWeightdown/TMath::Max(float(1.e-6),puWeight));
+						
+						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*puWeightup/TMath::Max(float(1.e-6),puWeight)); 
+						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*puWeightdown/TMath::Max(float(1.e-6),puWeight)); 
+				
+						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*puWeightup/TMath::Max(float(1.e-6),puWeight));
+						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*puWeightdown/TMath::Max(float(1.e-6),puWeight));
 
 						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*puWeightup/TMath::Max(float(1.e-6),puWeight));
 						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*puWeightdown/TMath::Max(float(1.e-6),puWeight));
-						if(X_mass>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + (4000.0-400.0) * get_Y_id(Y_msoftdrop),weight*puWeightup/TMath::Max(float(1.e-6),puWeight));}
-						if(X_mass>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + (4000.0-400.0) * get_Y_id(Y_msoftdrop),weight*puWeightdown/TMath::Max(float(1.e-6),puWeight));}
+						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*puWeightup/TMath::Max(float(1.e-6),puWeight));
+						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*puWeightdown/TMath::Max(float(1.e-6),puWeight));
 					}
 					if(isys==3) // LeptonSF stat & syst
 					{
@@ -1756,11 +1917,17 @@ TString proc_Name[] = {
 				
 						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight));
 						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight));
+						
+						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight)); 
+						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight)); 
+				
+						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight));
+						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight));
 
 						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight));
 						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight));
-						if(X_mass>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + (4000.0-400.0) * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight));}
-						if(X_mass>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + (4000.0-400.0) * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight));}
+						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight));
+						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight));
 					}
 					if(isys==4) // Lepton SF statistical component only
 					{
@@ -1769,11 +1936,17 @@ TString proc_Name[] = {
 
 						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
 						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
+						
+						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
+						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
+
+						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
+						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
 
 						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
 						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
-						if(X_mass>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + (4000.0-400.0) * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));}
-						if(X_mass>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + (4000.0-400.0) * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));}
+						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
+						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
 					}
 					if(isys==5) // Prefiring weight 
 					{
@@ -1782,11 +1955,17 @@ TString proc_Name[] = {
 				
 						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));
 						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));
+						
+						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight)); 
+						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight)); 
+				
+						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));
+						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));
 
 						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));
 						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));
-						if(X_mass>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + (4000.0-400.0) * get_Y_id(Y_msoftdrop),weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));}
-						if(X_mass>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + (4000.0-400.0) * get_Y_id(Y_msoftdrop),weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));}
+						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));
+						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));
 					}
 					if(isys==6) // Xbb tagging scale factors
 					{
@@ -1795,11 +1974,17 @@ TString proc_Name[] = {
 				
 						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF));
 						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF));
+						
+						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF)); 
+						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF)); 
+				
+						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF));
+						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF));
 
 						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF));
 						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF));
-						if(X_mass>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + (4000.0-400.0) * get_Y_id(Y_msoftdrop),weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF));}
-						if(X_mass>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + (4000.0-400.0) * get_Y_id(Y_msoftdrop),weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF));}
+						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF));
+						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF));
 					}
 					if(isys==7) // W tagging scale factors
 					{
@@ -1808,11 +1993,17 @@ TString proc_Name[] = {
 				
 						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*W_SF_up/TMath::Max(double(1.e-6),W_SF));
 						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*W_SF_dn/TMath::Max(double(1.e-6),W_SF));
+						
+						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*W_SF_up/TMath::Max(double(1.e-6),W_SF)); 
+						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*W_SF_dn/TMath::Max(double(1.e-6),W_SF)); 
+				
+						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*W_SF_up/TMath::Max(double(1.e-6),W_SF));
+						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*W_SF_dn/TMath::Max(double(1.e-6),W_SF));
 
 						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*W_SF_up/TMath::Max(double(1.e-6),W_SF));
 						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*W_SF_dn/TMath::Max(double(1.e-6),W_SF));
-						if(X_mass>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + (4000.0-400.0) * get_Y_id(Y_msoftdrop),weight*W_SF_up/TMath::Max(double(1.e-6),W_SF));}
-						if(X_mass>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + (4000.0-400.0) * get_Y_id(Y_msoftdrop),weight*W_SF_dn/TMath::Max(double(1.e-6),W_SF));}
+						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*W_SF_up/TMath::Max(double(1.e-6),W_SF));
+						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*W_SF_dn/TMath::Max(double(1.e-6),W_SF));
 					}
 					if(isys==8) // B tagging scale factors
 					{
@@ -1822,11 +2013,17 @@ TString proc_Name[] = {
 
 							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
 							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
+							
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
+
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
 
 							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
 							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
-							if(X_mass>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + (4000.0-400.0) * get_Y_id(Y_msoftdrop),weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));}
-							if(X_mass>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + (4000.0-400.0) * get_Y_id(Y_msoftdrop),weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));}
+							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
+							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
 						}
 						else{
 							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight);
@@ -1834,11 +2031,17 @@ TString proc_Name[] = {
 
 							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight);
 							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight);
+							
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight);
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight);
+
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight);
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight);
 
 							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight);
 							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight);
-							if(X_mass>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + (4000.0-400.0) * get_Y_id(Y_msoftdrop),weight);}
-							if(X_mass>400){h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + (4000.0-400.0) * get_Y_id(Y_msoftdrop),weight);}
+							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight);
+							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight);
 						}
 					}	
                                 
@@ -1858,6 +2061,9 @@ TString proc_Name[] = {
     final_file->cd();
    
     final_file->Close();
-    FEff->Close();
+    if(!isDATA)
+    {
+    	FEff->Close();
+    }
   }
 }
