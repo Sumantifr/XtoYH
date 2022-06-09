@@ -491,6 +491,7 @@ int main(int argc, char *argv[])
    Tout->Branch("Flag_Y_bb_pass_T", &Flag_Y_bb_pass_T, "Flag_Y_bb_pass_T/O");	
    Tout->Branch("Flag_Y_bb_pass_M", &Flag_Y_bb_pass_M, "Flag_Y_bb_pass_M/O");
    Tout->Branch("Flag_Y_bb_pass_L", &Flag_Y_bb_pass_L, "Flag_Y_bb_pass_L/O");	
+   /*
    Tout->Branch("Flag_H_W_pass_T_opt1", &Flag_H_W_pass_T_opt1, "Flag_H_W_pass_T_opt1/O");	
    Tout->Branch("Flag_H_W_pass_M_opt1", &Flag_H_W_pass_M_opt1, "Flag_H_W_pass_M_opt1/O");
    Tout->Branch("Flag_H_W_pass_L_opt1", &Flag_H_W_pass_L_opt1, "Flag_H_W_pass_L_opt1/O");
@@ -504,7 +505,7 @@ int main(int argc, char *argv[])
    
    Tout->Branch("Flag_dR_lW_pass_opt1", &Flag_dR_lW_pass_opt1, "Flag_dR_lW_pass_opt1/O");	
    Tout->Branch("Flag_dR_lW_pass_opt2", &Flag_dR_lW_pass_opt2, "Flag_dR_lW_pass_opt2/O");
-  
+   */
    Tout->Branch("Flag_MET_pass", &Flag_MET_pass, "Flag_MET_pass/O");	
    
    // all AK8 jets passing selection condition //
@@ -1477,7 +1478,7 @@ int main(int argc, char *argv[])
 	event_cuts.push_back(anytrig_pass);		// At least one trigger should be fired 
 	event_cuts.push_back(trig_threshold_pass);	// Offline objects should pass trigger threshold 
 	event_cuts.push_back(trig_matching_pass);	// Offline objects should match to trigger object
-	event_cuts.push_back(!(muon_trig_pass && electron_trig_pass && emucross_trig_pass));   // reject if both mu & el triggers are fired (for single lepton channel)
+	event_cuts.push_back(!(muon_trig_pass && electron_trig_pass && emucross_trig_pass));   // reject if mu- & el- & x-triggers are fired (for di-lepton channel)
 
 	/*
     if(isMC){

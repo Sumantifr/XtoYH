@@ -1154,63 +1154,69 @@ void Match_double_trigger(vector<bool> double_hlts, vector<vector<float>> double
 	bool trig_matching_pass_lep1 = false;
 	bool trig_matching_pass_lep2 = false;
 	
+	cout<<"pass_hlt.size() "<<pass_hlt.size()<<endl;
+	
 	if(trig_threshold_pass && pass_hlt.size()>0){
 		
-		//if(get<0>(pass_hlt[0])==0){
+		for(unsigned ihlt=0; ihlt<pass_hlt.size(); ihlt++){
+		
+			//if(get<0>(pass_hlt[0])==0){
 				
-		if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[0])][0])==11 && abs(double_pids[get<1>(pass_hlt[0])][1])==11 && velectrons.size()>1){
-			for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
-				if(delta2R(velectrons[0].eta,velectrons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { 
-					trig_matching_pass_lep1 = true; 
-					for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
-						if(delta2R(velectrons[1].eta,velectrons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)!=13) { trig_matching_pass_lep2 = true; }
-					}	
-				}
-				trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;
-				if(trig_matching_pass) break;
-			}			
-		}
-		
-		if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[0])][0])==13 && abs(double_pids[get<1>(pass_hlt[0])][1])==13 && vmuons.size()>1){
-			for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
-				if(delta2R(vmuons[0].eta,vmuons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=11) { 
-					trig_matching_pass_lep1 = true; 
-					for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
-						if(delta2R(vmuons[1].eta,vmuons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)!=11) { trig_matching_pass_lep2 = true; }
-					}	
-				}
-				trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;		
-				if(trig_matching_pass) break;
-			}	
-		}
-		
-		if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[0])][0])==11 && abs(double_pids[get<1>(pass_hlt[0])][1])==13 && velectrons.size()>0 && vmuons.size()>0){
-			for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
-				if(delta2R(velectrons[0].eta,velectrons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=11) { 
-					trig_matching_pass_lep1 = true; 
-					for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
-						if(delta2R(vmuons[1].eta,vmuons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)!=13) { trig_matching_pass_lep2 = true; }
+			if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[ihlt])][0])==11 && abs(double_pids[get<1>(pass_hlt[ihlt])][1])==11 && velectrons.size()>1){
+				for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
+					if(delta2R(velectrons[0].eta,velectrons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { 
+						trig_matching_pass_lep1 = true; 
+						for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
+							if(delta2R(velectrons[1].eta,velectrons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)!=13) { trig_matching_pass_lep2 = true; }
+						}	
 					}
-				}	
-				trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;
-				if(trig_matching_pass) break;
-			}			
-		}
+					trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;
+					if(trig_matching_pass) break;
+				}			
+			}
 		
-		if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[0])][0])==13 && abs(double_pids[get<1>(pass_hlt[0])][1])==11 && velectrons.size()>0 && vmuons.size()>0){
-			for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
-				if(delta2R(vmuons[0].eta,vmuons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { 
-					trig_matching_pass_lep1 = true; 
-					for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
-						if(delta2R(velectrons[1].eta,velectrons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)!=11) { trig_matching_pass_lep2 = true; }
+			if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[ihlt])][0])==13 && abs(double_pids[get<1>(pass_hlt[ihlt])][1])==13 && vmuons.size()>1){
+				for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
+					if(delta2R(vmuons[0].eta,vmuons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=11) { 
+						trig_matching_pass_lep1 = true; 
+						for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
+							if(delta2R(vmuons[1].eta,vmuons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)!=11) { trig_matching_pass_lep2 = true; }
+						}	
 					}
+					trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;		
+					if(trig_matching_pass) break;
 				}	
-				trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;
-				if(trig_matching_pass) break;
-			}			
-		}
+			}
 		
-		//}
+			if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[ihlt])][0])==11 && abs(double_pids[get<1>(pass_hlt[ihlt])][1])==13 && velectrons.size()>0 && vmuons.size()>0){
+				for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
+					if(delta2R(velectrons[0].eta,velectrons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=11) { 
+						trig_matching_pass_lep1 = true; 
+						for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
+							if(delta2R(vmuons[1].eta,vmuons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)!=13) { trig_matching_pass_lep2 = true; }
+						}
+					}	
+					trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;
+					if(trig_matching_pass) break;
+				}			
+			}
+		
+			if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[ihlt])][0])==13 && abs(double_pids[get<1>(pass_hlt[ihlt])][1])==11 && velectrons.size()>0 && vmuons.size()>0){
+				for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
+					if(delta2R(vmuons[0].eta,vmuons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { 
+						trig_matching_pass_lep1 = true; 
+						for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
+							if(delta2R(velectrons[1].eta,velectrons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)!=11) { trig_matching_pass_lep2 = true; }
+						}
+					}	
+					trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;
+					if(trig_matching_pass) break;
+				}			
+			}
+		
+			if(trig_matching_pass) break;
+		
+		}//ihlt
 	}
 	
 	// end of trigger object matching //
