@@ -22,18 +22,6 @@
 
 #include "Objects.h"
 
-# include <vector>
-
-#ifdef __MAKECINT__
-    
-    #pragma link C++ class std::vector+;
-    #pragma link C++ class std::vector<float>+;
-    #pragma link C++ class std::vector<int>+;
-    #pragma link C++ class std::vector<bool>+;
-    #pragma link C++ class std::vector<std::vector<float> >+;
-    
-#endif
-
    static const int njetmx = 20; 
    static const int njetmxAK8 =10;
    static const int npartmx = 50; 
@@ -966,6 +954,7 @@
    float DAK4_T = 0.71;
    float DAK4_M = 0.2783;
    float DAK4_L = 0.0490;
+   float deep_btag_cut = 0.2783; 
    //for UL18 => 0.0490: loose, 0.2783: medium, 0.7100: tight 
    
    BTagCalibration calib_deepcsv, calib_deepflav;
@@ -973,7 +962,6 @@
 
    bool isMC;
    bool isFastSIM;
-   bool isDL;
    
    bool channel_SL = true;
    bool channel_DL = false;
@@ -984,23 +972,16 @@
    
    TTree *Tout ;
    TTree *Tout_presel; 
-   
    int nleptons, nfatjets;
    
-   static const int nmaxleptons = 2;
-   static const int nmaxWcands = 2;
-   static const int njecmax = 24;
-   
-   float l_pt[nmaxleptons], l_eta[nmaxleptons], l_phi[nmaxleptons], l_mass[nmaxleptons];
-   int l_pdgId[nmaxleptons];
-   float l_minisoch[nmaxleptons], l_minisonh[nmaxleptons], l_minisoph[nmaxleptons], l_minisoall[nmaxleptons]; 
-   int l_genindex[nmaxleptons];
+   float l_pt, l_eta, l_phi, l_mass;
+   int l_pdgId;
+   float l_minisoch, l_minisonh, l_minisoph, l_minisoall; 
+   int l_genindex;
    
    float MET_pt, MET_phi, MET_sig, MET_sumEt;
    float MET_pt_JESup, MET_pt_JESdn, MET_pt_JERup, MET_pt_JERdn, MET_pt_UnclusEup, MET_pt_UnclusEdn;
    float MET_phi_JESup, MET_phi_JESdn, MET_phi_JERup, MET_phi_JERdn, MET_phi_UnclusEup, MET_phi_UnclusEdn;
-   vector<float> MET_pt_JESup_split, MET_pt_JESdn_split;
-   vector<float> MET_phi_JESup_split, MET_phi_JESdn_split;
    
    float Y_pt, Y_y, Y_eta, Y_phi, Y_mass;
    float Y_msoftdrop, Y_tau21, Y_tau32;
@@ -1012,45 +993,31 @@
    float Y_sub2_pt, Y_sub2_eta, Y_sub2_phi, Y_sub2_mass, Y_sub2_btag;
    int Y_genindex, Y_genbindex[2];
    float Y_JESup, Y_JESdn, Y_JERup, Y_JERdn;
-   vector<float> Y_JESup_split, Y_JESdn_split;
  
-   float W_pt[nmaxWcands], W_y[nmaxWcands], W_eta[nmaxWcands], W_phi[nmaxWcands], W_mass[nmaxWcands];
-   float W_msoftdrop[nmaxWcands], W_tau21[nmaxWcands], W_tau32[nmaxWcands];
-   float W_DeepTag_DAK8MD_TvsQCD[nmaxWcands], W_DeepTag_DAK8MD_WvsQCD[nmaxWcands], W_DeepTag_DAK8MD_ZvsQCD[nmaxWcands], W_DeepTag_DAK8MD_HvsQCD[nmaxWcands], W_DeepTag_DAK8MD_bbvsQCD[nmaxWcands]; 
-   float W_DeepTag_PNet_TvsQCD[nmaxWcands], W_DeepTag_PNet_WvsQCD[nmaxWcands], W_DeepTag_PNet_ZvsQCD[nmaxWcands], W_DeepTag_PNetMD_XbbvsQCD[nmaxWcands], W_DeepTag_PNetMD_XccvsQCD[nmaxWcands], W_DeepTag_PNetMD_XqqvsQCD[nmaxWcands], W_DeepTag_PNetMD_QCD[nmaxWcands], W_DeepTag_PNetMD_WvsQCD[nmaxWcands]; 
-   float W_DAK8_W[nmaxWcands], W_PN_W[nmaxWcands];
-   bool W_label_W_qq[nmaxWcands], W_label_W_cq[nmaxWcands];
-   float W_sub1_pt[nmaxWcands], W_sub1_eta[nmaxWcands], W_sub1_phi[nmaxWcands], W_sub1_mass[nmaxWcands], W_sub1_btag[nmaxWcands];
-   float W_sub2_pt[nmaxWcands], W_sub2_eta[nmaxWcands], W_sub2_phi[nmaxWcands], W_sub2_mass[nmaxWcands], W_sub2_btag[nmaxWcands];
-   int W_genindex[nmaxWcands];
-   float W_JESup[nmaxWcands], W_JESdn[nmaxWcands], W_JERup[nmaxWcands], W_JERdn[nmaxWcands];
-   vector<float> W_JESup_split[nmaxWcands], W_JESdn_split[nmaxWcands];
+   float W_pt[2], W_y[2], W_eta[2], W_phi[2], W_mass[2];
+   float W_msoftdrop[2], W_tau21[2], W_tau32[2];
+   float W_DeepTag_DAK8MD_TvsQCD[2], W_DeepTag_DAK8MD_WvsQCD[2], W_DeepTag_DAK8MD_ZvsQCD[2], W_DeepTag_DAK8MD_HvsQCD[2], W_DeepTag_DAK8MD_bbvsQCD[2]; 
+   float W_DeepTag_PNet_TvsQCD[2], W_DeepTag_PNet_WvsQCD[2], W_DeepTag_PNet_ZvsQCD[2], W_DeepTag_PNetMD_XbbvsQCD[2], W_DeepTag_PNetMD_XccvsQCD[2], W_DeepTag_PNetMD_XqqvsQCD[2], W_DeepTag_PNetMD_QCD[2], W_DeepTag_PNetMD_WvsQCD[2]; 
+   float W_DAK8_W[2], W_PN_W[2];
+   bool W_label_W_qq[2], W_label_W_cq[2];
+   float W_sub1_pt[2], W_sub1_eta[2], W_sub1_phi[2], W_sub1_mass[2], W_sub1_btag[2];
+   float W_sub2_pt[2], W_sub2_eta[2], W_sub2_phi[2], W_sub2_mass[2], W_sub2_btag[2];
+   int W_genindex[2];
+   float W_JESup[2], W_JESdn[2], W_JERup[2], W_JERdn[2];
    
-   float H_pt[nmaxWcands], H_y[nmaxWcands], H_eta[nmaxWcands], H_phi[nmaxWcands], H_mass[nmaxWcands];
-   int H_genindex[nmaxWcands];
-   float H_JESup[nmaxWcands], H_JESdn[nmaxWcands], H_JERup[nmaxWcands], H_JERdn[nmaxWcands];
-   vector<float> H_JESup_split[nmaxWcands], H_JESdn_split[nmaxWcands];
+   float H_pt[2], H_y[2], H_eta[2], H_phi[2], H_mass[2];
+   int H_genindex[2];
+   float H_JESup[2], H_JESdn[2], H_JERup[2], H_JERdn[2];
    
-   float X_mass[nmaxWcands]; 
+   float X_mass[2]; 
    
-   float dR_lW[nmaxWcands], dphi_lW[nmaxWcands], dy_lW[nmaxWcands];
+   float dR_lW[2], dphi_lW[2], dy_lW[2];
 
-   float dR_lY[nmaxleptons], dphi_lY[nmaxleptons], dy_lY[nmaxleptons];
-   
-   float l1l2_mass, l1l2_dR, l1l2_deta, l1l2_dphi, dphi_MET_l1l2;
-   
-   float HTlep_pt, HTlep_pt_JESup, HTlep_pt_JESdn, HTlep_pt_JERup, HTlep_pt_JERdn;
-   vector<float>  HTlep_pt_JESup_split, HTlep_pt_JESdn_split;
-   
-   float ST, ST_JESup, ST_JESdn, ST_JERup, ST_JERdn;
-   vector<float> ST_JESup_split, ST_JESdn_split;
-   
+   float dR_lY, dphi_lY, dy_lY;
    int nbjets_other, nbjets_outY, nbjets_outY_L, nbjets, nbjets_L;
    
-   bool Flag_Y_bb_pass_T, Flag_Y_bb_pass_M, Flag_Y_bb_pass_L;
-   bool Flag_H_W_pass_T_opt1, Flag_H_W_pass_M_opt1, Flag_H_W_pass_L_opt1, Flag_H_m_pass_opt1, Flag_dR_lW_pass_opt1;
+   bool Flag_Y_bb_pass_T, Flag_Y_bb_pass_M, Flag_Y_bb_pass_L, Flag_H_W_pass_T_opt1, Flag_H_W_pass_M_opt1, Flag_H_W_pass_L_opt1, Flag_H_m_pass_opt1, Flag_dR_lW_pass_opt1, Flag_MET_pass;
    bool Flag_H_W_pass_T_opt2, Flag_H_W_pass_M_opt2, Flag_H_W_pass_L_opt2, Flag_H_m_pass_opt2, Flag_dR_lW_pass_opt2;
-   bool Flag_MET_pass;
    
    int _s_nPFJetAK8; 
    float _s_PFJetAK8_pt[njetmxAK8], _s_PFJetAK8_eta[njetmxAK8], _s_PFJetAK8_phi[njetmxAK8], _s_PFJetAK8_mass[njetmxAK8];

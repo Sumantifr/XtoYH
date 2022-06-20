@@ -1,1 +1,4 @@
 BTagCalibrationStandalone.h
+*.exe
+outputs/
+FILELIST_2018_NEW/

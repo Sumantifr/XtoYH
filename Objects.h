@@ -503,6 +503,14 @@ void sorted_by_pt(vector<AK4GenJet> & objs) {
   sort(objs.begin(), objs.end(), AK4GenJet_sort_by_pt);
 }
 
+bool AK8GenJet_sort_by_pt(AK8GenJet i1, AK8GenJet i2)
+{                        
+  return (i1.pt > i2.pt);
+}
+void sorted_by_pt(vector<AK8GenJet> & objs) {
+  sort(objs.begin(), objs.end(), AK8GenJet_sort_by_pt);
+}
+
 bool Muon_sort_by_pt(Muon i1, Muon i2)                                                                           
 {                                                                                                                
   return (i1.pt > i2.pt);                                                                                        
@@ -540,7 +548,6 @@ bool Top_sort_by_pt(TopQuark i1, TopQuark i2)
 void sorted_by_pt(vector<TopQuark> & objs) {
   sort(objs.begin(), objs.end(), Top_sort_by_pt);
 }
-
 
 float compute_HT(vector<AK4Jet>  & objs, float ptcut, float etacut){
   float HT = 0;
@@ -671,3 +678,11 @@ class TrigObj {
   
   TLorentzVector p4;
 };
+
+bool TrigObj_sort_by_pt(TrigObj i1, TrigObj i2)
+{
+  return (i1.p4.Pt() > i2.p4.Pt());
+}
+void sorted_by_pt(vector<TrigObj> & objs) {
+  sort(objs.begin(), objs.end(), TrigObj_sort_by_pt);
+}

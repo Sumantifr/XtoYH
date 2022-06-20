@@ -1,23 +1,24 @@
 #include "Anal_XtoYH.h"
 //#include "Functions.h"
 
-void getmuons(std::vector<Muon> &vmuons, float ptcut=25, float etacut=2.5, string ID_str="", int maxsize=njetmx, float dxy_cut=0.2, float dz_cut=0.5)
+void getmuons(std::vector<Muon> &vmuons, float ptcut=25, float etacut=2.5, int id=-1, int maxsize=njetmx, float dxy_cut=0.2, float dz_cut=0.5)
 {
 
 for(int mu=0; mu<(nMuon); mu++){
  
     if(Muon_pt[mu]<ptcut) continue; 
     if(fabs(Muon_eta[mu])>etacut)  continue; 
+
 	/*
+    bool mu_id = Muon_TightID(Muon_isGL[mu],Muon_isPF[mu],
+			      Muon_chi[mu],Muon_hit[mu],Muon_mst[mu],
+			      Muon_dxy[mu],Muon_dz[mu],Muon_pixhit[mu],Muon_trklay[mu]);
+    if(!mu_id) continue;
+    */
     if(id==0 && !Muon_isLoose[mu]) 	continue;
     if(id==1 && !Muon_isMed[mu]) 	continue;
     if(id==2 && !Muon_TightID[mu]) continue;  // Muon_TightID & Muon_isTight should be the same
-    */
     
-    if(ID_str.find("Loose")!=string::npos && !Muon_isLoose[mu]) continue;
-    else if (ID_str.find("Medium")!=string::npos && !Muon_isMed[mu]) continue;
-    else if (ID_str.find("Tight")!=string::npos && !Muon_TightID[mu]) continue;
-   
     //bool mu_iso = Muon_Iso_ID(Muon_pfiso[mu]);
     //if(!mu_iso) continue;
     
@@ -76,29 +77,18 @@ for(int mu=0; mu<(nMuon); mu++){
 	
 }
 
-void getelectrons(std::vector<Electron> &velectrons, float ptcut=25, float etacut=2.5, string ID_str="", int maxsize=njetmx, float dxy_cut=0.05, float dz_cut=0.1)
+void getelectrons(std::vector<Electron> &velectrons, float ptcut=25, float etacut=2.5, int id=-1, int maxsize=njetmx, float dxy_cut=0.05, float dz_cut=0.1)
 {
 
  for(int ie=0; ie<(nElectron); ie++) {
 		
     if (Electron_pt[ie]<ptcut) continue;
     if(fabs(Electron_eta[ie])>etacut)  continue; 
-    /*
+    
     if(id==0 && !Electron_mvaid_Fallv2WP80[ie]) continue;
     if(id==1 && !Electron_mvaid_Fallv2WP80_noIso[ie]) continue;
     if(id==2 && !Electron_mvaid_Fallv2WP90[ie]) continue;
     if(id==3 && !Electron_mvaid_Fallv2WP90_noIso[ie]) continue;
-    */
-    
-    bool found = (ID_str.find("wp90noiso")!=string::npos);
-    //cout<<"electron"<<ie+1<<" "<<ID_str<<" got? "<<found<<" bool "<<Electron_mvaid_Fallv2WP90_noIso[ie]<<endl;
-    
-    if(ID_str.find("wp80noiso")!=string::npos && !Electron_mvaid_Fallv2WP80_noIso[ie]) continue;
-    else if(ID_str.find("wp80iso")!=string::npos && !Electron_mvaid_Fallv2WP80[ie]) continue;
-    else if(ID_str.find("wp90noiso")!=string::npos && !Electron_mvaid_Fallv2WP90_noIso[ie]) continue;
-    else if(ID_str.find("wp90iso")!=string::npos && !Electron_mvaid_Fallv2WP90[ie]) continue;
-    
-    //cout<<"pass"<<endl;
     
     bool impact_pass = 	((fabs(Electron_supcl_eta[ie])<1.4442 && fabs(Electron_dxy[ie])<dxy_cut && fabs(Electron_dz[ie])<dz_cut)
 					   ||(fabs(Electron_supcl_eta[ie])>1.5660 && fabs(Electron_dxy[ie])<(2*dxy_cut) && fabs(Electron_dz[ie])<(2*dz_cut)));
@@ -219,48 +209,49 @@ void getLeptons(std::vector<Lepton> &vleptons, std::vector<Muon> vmuons, std::ve
   sorted_by_pt(vleptons);
 }
 
-void getAK4Genjets(std::vector<AK4GenJet> &genJets, float ptcut = 8.0, float etacut=2.5, bool isMC=true, int maxsize=njetmx)
+void getAK4Genjets(std::vector<AK4GenJet> &genJets, float ptcut = 8.0, float etacut=2.5, bool isMC=false, int maxsize=njetmx)
 {
 	for(int ijet=0; ijet<(nGenJetAK4); ijet++){
 		AK4GenJet gJet;
 		if (fabs(GenJetAK4_eta[ijet]) >etacut) continue;
-        if (GenJetAK4_pt[ijet] < ptcut) continue;
+                if (GenJetAK4_pt[ijet] < ptcut) continue;
 
 		gJet.pt = GenJetAK4_pt[ijet];
 		gJet.eta = GenJetAK4_eta[ijet];
-		gJet.phi = GenJetAK4_phi[ijet];
-		gJet.mass = GenJetAK4_mass[ijet];
+                gJet.phi = GenJetAK4_phi[ijet];
+                gJet.mass = GenJetAK4_mass[ijet];
 		gJet.hadronFlavor = GenJetAK4_hadronflav[ijet];
 		gJet.partonFlavor = GenJetAK4_partonflav[ijet];
-		gJet.p4.SetPtEtaPhiM(gJet.pt,gJet.eta,gJet.phi,gJet.mass);
+                gJet.p4.SetPtEtaPhiM(gJet.pt,gJet.eta,gJet.phi,gJet.mass);
 
-		genJets.push_back(gJet);
-		if(int(genJets.size())>=maxsize) break;
+   genJets.push_back(gJet);
+   if(int(genJets.size())>=maxsize) break;
   }
   sorted_by_pt(genJets);
 }
 
-void getAK8Genjets(std::vector<AK8GenJet> &Jets, float ptcut=50, float etacut=2.5, bool isMC=true, int maxsize=njetmx)
+void getAK8Genjets(std::vector<AK8GenJet> &Jets, float ptcut=50, float etacut=2.5, bool isMC=false, int maxsize=njetmx)
 {
     for(int ijet=0; ijet<(nGenJetAK8); ijet++){
-		AK8GenJet lJet; 
+    AK8GenJet lJet; 
 	  
-		if(fabs(GenJetAK8_eta[ijet])>etacut) continue;
-		if(GenJetAK8_pt[ijet]<ptcut) continue;
+    if(fabs(GenJetAK8_eta[ijet])>etacut) continue;
+    if(GenJetAK8_pt[ijet]<ptcut) continue;
     
-		lJet.pt = GenJetAK8_pt[ijet];
-		lJet.mass = GenJetAK8_mass[ijet];
-		lJet.eta = GenJetAK8_eta[ijet];
-		lJet.phi = GenJetAK8_phi[ijet];
-		lJet.p4.SetPtEtaPhiM(lJet.pt,lJet.eta,lJet.phi,lJet.mass);
+    lJet.pt = GenJetAK8_pt[ijet];
+    lJet.mass = GenJetAK8_mass[ijet];
+    lJet.eta = GenJetAK8_eta[ijet];
+    lJet.phi = GenJetAK8_phi[ijet];
+    lJet.p4.SetPtEtaPhiM(lJet.pt,lJet.eta,lJet.phi,lJet.mass);
     
-		Jets.push_back(lJet);
-		if(int(Jets.size())>=maxsize) break;
+    Jets.push_back(lJet);
+    
+    if(int(Jets.size())>=maxsize) break;
+    
   }
-  sorted_by_pt(Jets);
 }
 
-void getAK4jets(std::vector<AK4Jet> &Jets, float ptcut=30, float etacut=2.5, bool isMC=false, float PUptcut=50, int PUIDWP=7, int maxsize=njetmx)
+void getAK4jets(std::vector<AK4Jet> &Jets, float ptcut=30, float etacut=2.5, bool isMC=false, int maxsize=njetmx)
 {
   
   for(int ijet=0; ijet<(nPFJetAK4); ijet++){
@@ -269,22 +260,16 @@ void getAK4jets(std::vector<AK4Jet> &Jets, float ptcut=30, float etacut=2.5, boo
 	  
     if(!PFJetAK4_jetID[ijet]) continue;
     
-    // JES correction //
     PFJetAK4_pt[ijet] *= PFJetAK4_JEC[ijet] ;
     PFJetAK4_mass[ijet] *= PFJetAK4_JEC[ijet];
     
-    // JER correction //
     if(isMC){
       PFJetAK4_pt[ijet] *= (1+PFJetAK4_JER[ijet]) ;
       PFJetAK4_mass[ijet] *= (1+PFJetAK4_JER[ijet]) ;
     }
-	 
-	// pt eta condition //  
+	  
     if(fabs(PFJetAK4_eta[ijet])>etacut) continue;
     if(PFJetAK4_pt[ijet]<ptcut) continue;
-    
-    // pileup ID condition for low pt jets //
-    if(PFJetAK4_pt[ijet]<PUptcut && PFJetAK4_PUID[ijet]<PUIDWP) continue; 
     
     sJet.pt = PFJetAK4_pt[ijet];
     sJet.mass = PFJetAK4_mass[ijet];
@@ -374,11 +359,9 @@ void getAK8jets(std::vector<AK8Jet> &LJets, float ptcut=200, float etacut=2.5, b
   
     if(!PFJetAK8_jetID[ijet]) continue;
     
-    // JES correction //
     PFJetAK8_pt[ijet] *= PFJetAK8_JEC[ijet] ;
     PFJetAK8_mass[ijet] *= PFJetAK8_JEC[ijet];
     
-    // JER correction //
     if(isMC){
       PFJetAK8_pt[ijet] *= (1+PFJetAK8_JER[ijet]) ;
       PFJetAK8_mass[ijet] *= (1+PFJetAK8_JER[ijet]);
@@ -678,8 +661,6 @@ void getTrigObjs(std::vector<TrigObj> &trigobjects, int maxsize=njetmx)
     if(int(trigobjects.size())>=maxsize) break;
     
   }
-  
-  sorted_by_pt(trigobjects);
 	
 }
 
@@ -802,7 +783,6 @@ void getGENWHads(vector<HeavyParticle> &genWs, vector<GenParton> genpartons)  //
 		 
 	}
 }
-
 
 void TopAssignment_toJet(std::vector<AK8Jet> &LJets, std::vector<GenParton> lhetops, std::vector<HeavyParticle> gentops)
 {
@@ -962,7 +942,8 @@ else{
 	}	
 }
 
-void Match_single_trigger(vector<bool> single_hlts, vector<float> single_pt_cuts, vector<int> single_pids, vector<float> single_other_pt_cuts, vector<int> single_other_pids,
+void Match_trigger(vector<bool> double_hlts, vector<vector<float>> double_pt_cuts, vector<vector<int>> double_pids,
+				   vector<bool> single_hlts, vector<float> single_pt_cuts, vector<int> single_pids, vector<float> single_other_pt_cuts, vector<int> single_other_pids,
 				   vector<bool> jet_hlts, vector<float> jet_pt_cuts, vector<int> jet_pids,
 				   vector<TrigObj> trigobj,
 				   vector<Muon> vmuons, vector<Electron> velectrons, vector<Lepton> vleptons, vector<AK4Jet> Jets, vector<AK8Jet> LJets,
@@ -976,6 +957,16 @@ void Match_single_trigger(vector<bool> single_hlts, vector<float> single_pt_cuts
 	trig_threshold_pass = false;
 	trig_matching_pass = false;
 	
+	/*
+	if(channel_DL){
+		if(double_hlts.size()>0){
+			for(unsigned ihlt=0; ihlt<double_hlts.size(); ihlt++){
+				if(double_hlts[ihlt]){ anytrig_pass = true; break; }
+			}
+		}
+	}
+    */
+    
     vector<tuple<int, unsigned, bool> > pass_hlt;
     
     if(!anytrig_pass && single_hlts.size()>0){
@@ -989,23 +980,22 @@ void Match_single_trigger(vector<bool> single_hlts, vector<float> single_pt_cuts
 				bool trig_cut = false;
 				
 				for(unsigned ilep=0; ilep<vleptons.size(); ilep++){
-					if(vleptons[ilep].pt>=single_pt_cuts[ihlt] && abs(vleptons[ilep].pdgId)==single_pids[ihlt]){
+					if(vleptons[ilep].pt>single_pt_cuts[ihlt] && abs(vleptons[ilep].pdgId)==single_pids[ihlt]){
 						if(single_other_pids[ihlt]==0){
 							trig_threshold_pass = true;
 							trig_cut = true;
-							break;
-						}
+							}
 						else if(single_other_pids[ihlt]==1){
 							for(unsigned ijet=0; ijet<Jets.size(); ijet++){
-								if(Jets[ilep].pt>=single_other_pt_cuts[ihlt]){
+								if(Jets[ilep].pt>single_other_pt_cuts[ihlt]){
 									trig_threshold_pass = true;
 									trig_cut = true;
 									break;
+									}
 								}
 							}
 						}
 					}
-				}
 				
 				pass_hlt.push_back(make_tuple(0,ihlt,trig_cut));
 				
@@ -1056,54 +1046,51 @@ void Match_single_trigger(vector<bool> single_hlts, vector<float> single_pt_cuts
 	
 	if(trig_threshold_pass && pass_hlt.size()>0){
 		
-		for(unsigned ihlt=0; ihlt<pass_hlt.size(); ihlt++){
-		
-			if(get<0>(pass_hlt[ihlt])==0){
+		if(get<0>(pass_hlt[0])==0){
 				
-				if(!trig_matching_pass && single_pids[get<1>(pass_hlt[ihlt])]==11 && velectrons.size()>0){
-					for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
+			if(!trig_matching_pass && single_pids[get<1>(pass_hlt[0])]==11 && velectrons.size()>0){
+				for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
 				
-						//float ptvar = fabs(velectrons[0].pt - trigobj[iobj].pt)/velectrons[0].pt;
-						if(/*ptvar<ptvar_min &&*/ delta2R(velectrons[0].eta,velectrons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { trig_matching_pass = true; break; }
+					float ptvar = fabs(velectrons[0].pt - trigobj[iobj].pt)/velectrons[0].pt;
+					if(ptvar<ptvar_min && delta2R(velectrons[0].eta,velectrons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { trig_matching_pass = true; }
 
-					}				
-				}
-				
-				if(!trig_matching_pass && single_pids[get<1>(pass_hlt[ihlt])]==13 && vmuons.size()>0){
-					for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
-				
-						//float ptvar = fabs(vmuons[0].pt - trigobj[iobj].pt)/vmuons[0].pt;
-						if(/*ptvar<ptvar_min &&*/ delta2R(vmuons[0].eta,vmuons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)==13) { trig_matching_pass = true; break; }
-
-					}				
-				}
+				}				
 			}
-		
-			else if(!trig_matching_pass && get<0>(pass_hlt[ihlt])==1){
-			
-				if(Jets.size()>0){
-					for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
 				
-						//float ptvar = fabs(Jets[0].pt - trigobj[iobj].pt)/Jets[0].pt;
-						if(/*ptvar<ptvar_min &&*/ delta2R(Jets[0].eta,Jets[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { trig_matching_pass = true; break; }
-
-					}				
-				}
-			}
-			
-			else if(!trig_matching_pass && get<0>(pass_hlt[ihlt])==2){
-			
-				if( LJets.size()>0){
-					for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
+			if(!trig_matching_pass && single_pids[get<1>(pass_hlt[0])]==13 && vmuons.size()>0){
+				for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
 				
-						//float ptvar = fabs(LJets[0].pt - trigobj[iobj].pt)/LJets[0].pt;
-						if(/*ptvar<ptvar_min &&*/ delta2R(LJets[0].eta,LJets[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { trig_matching_pass = true; break; }
+					float ptvar = fabs(vmuons[0].pt - trigobj[iobj].pt)/vmuons[0].pt;
+					if(ptvar<ptvar_min && delta2R(vmuons[0].eta,vmuons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)==13) { trig_matching_pass = true; }
 
-					}				
-				}
+				}				
 			}
+		}
 		
-		}//ihlt
+		else if(!trig_matching_pass && get<0>(pass_hlt[0])==1){
+			
+			if(Jets.size()>0){
+				for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
+				
+					float ptvar = fabs(Jets[0].pt - trigobj[iobj].pt)/Jets[0].pt;
+					if(ptvar<ptvar_min && delta2R(Jets[0].eta,Jets[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { trig_matching_pass = true; }
+
+				}				
+			}
+		}
+			
+		else if(!trig_matching_pass && get<0>(pass_hlt[0])==2){
+			
+			if( LJets.size()>0){
+				for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
+				
+					float ptvar = fabs(LJets[0].pt - trigobj[iobj].pt)/LJets[0].pt;
+					if(ptvar<ptvar_min && delta2R(LJets[0].eta,LJets[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { trig_matching_pass = true; }
+
+				}				
+			}
+		}
+		
 	}
 	
 	// end of trigger object matching //
@@ -1115,6 +1102,7 @@ void Match_single_trigger(vector<bool> single_hlts, vector<float> single_pt_cuts
 		}
 	}
 }
+
 
 void Match_double_trigger(vector<bool> double_hlts, vector<vector<float>> double_pt_cuts, vector<vector<int>> double_pids,
 				   vector<TrigObj> trigobj,
@@ -1147,7 +1135,7 @@ void Match_double_trigger(vector<bool> double_hlts, vector<vector<float>> double
 				
 				bool trig_cut = false;
 					
-				if(vleptons[0].pt>=double_pt_cuts[ihlt][0] && abs(vleptons[0].pdgId)==double_pids[ihlt][0] && vleptons[1].pt>=double_pt_cuts[ihlt][1] && abs(vleptons[1].pdgId)==double_pids[ihlt][1]){
+				if(vleptons[0].pt>double_pt_cuts[ihlt][0] && abs(vleptons[0].pdgId)==double_pids[ihlt][0] && vleptons[1].pt>double_pt_cuts[ihlt][1] && abs(vleptons[1].pdgId)==double_pids[ihlt][1]){
 						trig_threshold_pass = true;
 						trig_cut = true;
 					}
@@ -1165,68 +1153,64 @@ void Match_double_trigger(vector<bool> double_hlts, vector<vector<float>> double
 	
 	bool trig_matching_pass_lep1 = false;
 	bool trig_matching_pass_lep2 = false;
-		
+	
 	if(trig_threshold_pass && pass_hlt.size()>0){
 		
-		for(unsigned ihlt=0; ihlt<pass_hlt.size(); ihlt++){
-		
-			//if(get<0>(pass_hlt[0])==0){
+		//if(get<0>(pass_hlt[0])==0){
 				
-			if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[ihlt])][0])==11 && abs(double_pids[get<1>(pass_hlt[ihlt])][1])==11 && velectrons.size()>1){
-				for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
-					if(delta2R(velectrons[0].eta,velectrons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { 
-						trig_matching_pass_lep1 = true; 
-						for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
-							if(delta2R(velectrons[1].eta,velectrons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)!=13) { trig_matching_pass_lep2 = true; }
-						}	
-					}
-					trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;
-					if(trig_matching_pass) break;
-				}			
-			}
+		if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[0])][0])==11 && abs(double_pids[get<1>(pass_hlt[0])][1])==11 && velectrons.size()>1){
+			for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
+				if(delta2R(velectrons[0].eta,velectrons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { 
+					trig_matching_pass_lep1 = true; 
+					for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
+						if(delta2R(velectrons[1].eta,velectrons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)!=13) { trig_matching_pass_lep2 = true; }
+					}	
+				}
+				trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;
+				if(trig_matching_pass) break;
+			}			
+		}
 		
-			if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[ihlt])][0])==13 && abs(double_pids[get<1>(pass_hlt[ihlt])][1])==13 && vmuons.size()>1){
-				for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
-					if(delta2R(vmuons[0].eta,vmuons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)==13) { 
-						trig_matching_pass_lep1 = true; 
-						for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
-							if(delta2R(vmuons[1].eta,vmuons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)==13) { trig_matching_pass_lep2 = true; }
-						}	
+		if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[0])][0])==13 && abs(double_pids[get<1>(pass_hlt[0])][1])==13 && vmuons.size()>1){
+			for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
+				if(delta2R(vmuons[0].eta,vmuons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=11) { 
+					trig_matching_pass_lep1 = true; 
+					for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
+						if(delta2R(vmuons[1].eta,vmuons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)!=11) { trig_matching_pass_lep2 = true; }
+					}	
+				}
+				trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;		
+				if(trig_matching_pass) break;
+			}	
+		}
+		
+		if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[0])][0])==11 && abs(double_pids[get<1>(pass_hlt[0])][1])==13 && velectrons.size()>0 && vmuons.size()>0){
+			for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
+				if(delta2R(velectrons[0].eta,velectrons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=11) { 
+					trig_matching_pass_lep1 = true; 
+					for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
+						if(delta2R(vmuons[1].eta,vmuons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)!=13) { trig_matching_pass_lep2 = true; }
 					}
-					trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;		
-					if(trig_matching_pass) break;
 				}	
-			}
+				trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;
+				if(trig_matching_pass) break;
+			}			
+		}
 		
-			if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[ihlt])][0])==11 && abs(double_pids[get<1>(pass_hlt[ihlt])][1])==13 && velectrons.size()>0 && vmuons.size()>0){
-				for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
-					if(delta2R(velectrons[0].eta,velectrons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { 
-						trig_matching_pass_lep1 = true; 
-						for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
-							if(delta2R(vmuons[1].eta,vmuons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)==13) { trig_matching_pass_lep2 = true; }
-						}
-					}	
-					trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;
-					if(trig_matching_pass) break;
-				}			
-			}
+		if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[0])][0])==13 && abs(double_pids[get<1>(pass_hlt[0])][1])==11 && velectrons.size()>0 && vmuons.size()>0){
+			for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
+				if(delta2R(vmuons[0].eta,vmuons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { 
+					trig_matching_pass_lep1 = true; 
+					for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
+						if(delta2R(velectrons[1].eta,velectrons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)!=11) { trig_matching_pass_lep2 = true; }
+					}
+				}	
+				trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;
+				if(trig_matching_pass) break;
+			}			
+		}
 		
-			if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[ihlt])][0])==13 && abs(double_pids[get<1>(pass_hlt[ihlt])][1])==11 && velectrons.size()>0 && vmuons.size()>0){
-				for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
-					if(delta2R(vmuons[0].eta,vmuons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)==13) { 
-						trig_matching_pass_lep1 = true; 
-						for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
-							if(delta2R(velectrons[1].eta,velectrons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)!=13) { trig_matching_pass_lep2 = true; }
-						}
-					}	
-					trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;
-					if(trig_matching_pass) break;
-				}			
-			}
-		
-			if(trig_matching_pass) break;
-		
-		}//ihlt
+		//}
 	}
 	
 	// end of trigger object matching //
@@ -1238,244 +1222,4 @@ void Match_double_trigger(vector<bool> double_hlts, vector<vector<float>> double
 		if((double_pids[get<1>(pass_hlt[ihlt])][0]==11 && double_pids[get<1>(pass_hlt[ihlt])][1]==13) || (double_pids[get<1>(pass_hlt[ihlt])][0]==13 && double_pids[get<1>(pass_hlt[ihlt])][1]==11)) {  emucross_trig_pass = true;  }
 		//}
 	}
-}
-
-
-void get_JES_sys(AK8Jet Jet, vector<float> &jecvalues, string var="up")
-{
-	if(var=="down"){
-		jecvalues.push_back(Jet.jesdn_AbsoluteStat) ;
-		jecvalues.push_back(Jet.jesdn_AbsoluteScale)  ;
-		jecvalues.push_back(Jet.jesdn_AbsoluteMPFBias) ;
-		jecvalues.push_back(Jet.jesdn_FlavorQCD)  ;
-		jecvalues.push_back(Jet.jesdn_Fragmentation) ; 
-		jecvalues.push_back(Jet.jesdn_PileUpDataMC)  ;
-		jecvalues.push_back(Jet.jesdn_PileUpPtBB)  ;
-		jecvalues.push_back(Jet.jesdn_PileUpPtEC1) ;
-		jecvalues.push_back(Jet.jesdn_PileUpPtEC2) ;
-		jecvalues.push_back(Jet.jesdn_PileUpPtRef)  ;
-		jecvalues.push_back(Jet.jesdn_RelativeFSR) ;
-		jecvalues.push_back(Jet.jesdn_RelativeJEREC1) ;
-		jecvalues.push_back(Jet.jesdn_RelativeJEREC2) ;
-		jecvalues.push_back(Jet.jesdn_RelativePtBB)  ;
-		jecvalues.push_back(Jet.jesdn_RelativePtEC1)  ;
-		jecvalues.push_back(Jet.jesdn_RelativePtEC2)  ;
-		jecvalues.push_back(Jet.jesdn_RelativeBal) ;
-		jecvalues.push_back(Jet.jesdn_RelativeSample) ; 
-		jecvalues.push_back(Jet.jesdn_RelativeStatEC) ;
-		jecvalues.push_back(Jet.jesdn_RelativeStatFSR) ;
-		jecvalues.push_back(Jet.jesdn_SinglePionECAL)  ;
-		jecvalues.push_back(Jet.jesdn_SinglePionHCAL)  ;
-		jecvalues.push_back(Jet.jesdn_TimePtEta)  ;
-		jecvalues.push_back(Jet.jesdn_Total);
-	}
-	else if(var=="up"){
-		jecvalues.push_back(Jet.jesup_AbsoluteStat) ;
-		jecvalues.push_back(Jet.jesup_AbsoluteScale)  ;
-		jecvalues.push_back(Jet.jesup_AbsoluteMPFBias) ;
-		jecvalues.push_back(Jet.jesup_FlavorQCD)  ;
-		jecvalues.push_back(Jet.jesup_Fragmentation) ; 
-		jecvalues.push_back(Jet.jesup_PileUpDataMC)  ;
-		jecvalues.push_back(Jet.jesup_PileUpPtBB)  ;
-		jecvalues.push_back(Jet.jesup_PileUpPtEC1) ;
-		jecvalues.push_back(Jet.jesup_PileUpPtEC2) ;
-		jecvalues.push_back(Jet.jesup_PileUpPtRef)  ;
-		jecvalues.push_back(Jet.jesup_RelativeFSR) ;
-		jecvalues.push_back(Jet.jesup_RelativeJEREC1) ;
-		jecvalues.push_back(Jet.jesup_RelativeJEREC2) ;
-		jecvalues.push_back(Jet.jesup_RelativePtBB)  ;
-		jecvalues.push_back(Jet.jesup_RelativePtEC1)  ;
-		jecvalues.push_back(Jet.jesup_RelativePtEC2)  ;
-		jecvalues.push_back(Jet.jesup_RelativeBal) ;
-		jecvalues.push_back(Jet.jesup_RelativeSample) ; 
-		jecvalues.push_back(Jet.jesup_RelativeStatEC) ;
-		jecvalues.push_back(Jet.jesup_RelativeStatFSR) ;
-		jecvalues.push_back(Jet.jesup_SinglePionECAL)  ;
-		jecvalues.push_back(Jet.jesup_SinglePionHCAL)  ;
-		jecvalues.push_back(Jet.jesup_TimePtEta)  ;
-		jecvalues.push_back(Jet.jesup_Total);
-	}	
-}
-
-void get_JES_sys(AK4Jet Jet, vector<float> &jecvalues, string var="up")
-{
-	if(var=="down"){
-		jecvalues.push_back(Jet.jesdn_AbsoluteStat) ;
-		jecvalues.push_back(Jet.jesdn_AbsoluteScale)  ;
-		jecvalues.push_back(Jet.jesdn_AbsoluteMPFBias) ;
-		jecvalues.push_back(Jet.jesdn_FlavorQCD)  ;
-		jecvalues.push_back(Jet.jesdn_Fragmentation) ; 
-		jecvalues.push_back(Jet.jesdn_PileUpDataMC)  ;
-		jecvalues.push_back(Jet.jesdn_PileUpPtBB)  ;
-		jecvalues.push_back(Jet.jesdn_PileUpPtEC1) ;
-		jecvalues.push_back(Jet.jesdn_PileUpPtEC2) ;
-		jecvalues.push_back(Jet.jesdn_PileUpPtRef)  ;
-		jecvalues.push_back(Jet.jesdn_RelativeFSR) ;
-		jecvalues.push_back(Jet.jesdn_RelativeJEREC1) ;
-		jecvalues.push_back(Jet.jesdn_RelativeJEREC2) ;
-		jecvalues.push_back(Jet.jesdn_RelativePtBB)  ;
-		jecvalues.push_back(Jet.jesdn_RelativePtEC1)  ;
-		jecvalues.push_back(Jet.jesdn_RelativePtEC2)  ;
-		jecvalues.push_back(Jet.jesdn_RelativeBal) ;
-		jecvalues.push_back(Jet.jesdn_RelativeSample) ; 
-		jecvalues.push_back(Jet.jesdn_RelativeStatEC) ;
-		jecvalues.push_back(Jet.jesdn_RelativeStatFSR) ;
-		jecvalues.push_back(Jet.jesdn_SinglePionECAL)  ;
-		jecvalues.push_back(Jet.jesdn_SinglePionHCAL)  ;
-		jecvalues.push_back(Jet.jesdn_TimePtEta)  ;
-		jecvalues.push_back(Jet.jesdn_Total);
-	}
-	else if(var=="up"){
-		jecvalues.push_back(Jet.jesup_AbsoluteStat) ;
-		jecvalues.push_back(Jet.jesup_AbsoluteScale)  ;
-		jecvalues.push_back(Jet.jesup_AbsoluteMPFBias) ;
-		jecvalues.push_back(Jet.jesup_FlavorQCD)  ;
-		jecvalues.push_back(Jet.jesup_Fragmentation) ; 
-		jecvalues.push_back(Jet.jesup_PileUpDataMC)  ;
-		jecvalues.push_back(Jet.jesup_PileUpPtBB)  ;
-		jecvalues.push_back(Jet.jesup_PileUpPtEC1) ;
-		jecvalues.push_back(Jet.jesup_PileUpPtEC2) ;
-		jecvalues.push_back(Jet.jesup_PileUpPtRef)  ;
-		jecvalues.push_back(Jet.jesup_RelativeFSR) ;
-		jecvalues.push_back(Jet.jesup_RelativeJEREC1) ;
-		jecvalues.push_back(Jet.jesup_RelativeJEREC2) ;
-		jecvalues.push_back(Jet.jesup_RelativePtBB)  ;
-		jecvalues.push_back(Jet.jesup_RelativePtEC1)  ;
-		jecvalues.push_back(Jet.jesup_RelativePtEC2)  ;
-		jecvalues.push_back(Jet.jesup_RelativeBal) ;
-		jecvalues.push_back(Jet.jesup_RelativeSample) ; 
-		jecvalues.push_back(Jet.jesup_RelativeStatEC) ;
-		jecvalues.push_back(Jet.jesup_RelativeStatFSR) ;
-		jecvalues.push_back(Jet.jesup_SinglePionECAL)  ;
-		jecvalues.push_back(Jet.jesup_SinglePionHCAL)  ;
-		jecvalues.push_back(Jet.jesup_TimePtEta)  ;
-		jecvalues.push_back(Jet.jesup_Total);
-	}	
-}
-
-void get_corrected_MET(vector<AK4Jet> Jets, vector<float> &MET_pt_var, vector<float> &MET_phi_var, float met_pt,float met_phi, string var="up", int nmax=njecmax)
-{
-	TLorentzVector varied_p4[nmax];
-	TLorentzVector nom_p4;
-	TLorentzVector MET_p4_org;
-	
-	MET_p4_org.SetPtEtaPhiM(met_pt,0,met_phi,0);
-	
-	for(unsigned ijet=0; ijet<Jets.size(); ijet++){
-		
-		nom_p4  += Jets[ijet].p4;
-		
-		TLorentzVector tmp4v;
-		
-		if(var=="up"){
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_AbsoluteStat,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_AbsoluteStat);
-			varied_p4[0] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_AbsoluteScale,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_AbsoluteScale);
-			varied_p4[1] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_AbsoluteMPFBias,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_AbsoluteMPFBias);
-			varied_p4[2] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_FlavorQCD,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_FlavorQCD);
-			varied_p4[3] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_Fragmentation,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_Fragmentation);
-			varied_p4[4] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_PileUpDataMC,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_PileUpDataMC);
-			varied_p4[5] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_PileUpPtBB,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_PileUpPtBB);
-			varied_p4[6] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_PileUpPtEC1,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_PileUpPtEC1);
-			varied_p4[7] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_PileUpPtEC2,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_PileUpPtEC2);
-			varied_p4[8] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_PileUpPtRef,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_PileUpPtRef);
-			varied_p4[9] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_RelativeFSR,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_RelativeFSR);
-			varied_p4[10] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_RelativeJEREC1,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_RelativeJEREC1);
-			varied_p4[11] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_RelativeJEREC2,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_RelativeJEREC2);
-			varied_p4[12] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_RelativePtBB,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_RelativePtBB);
-			varied_p4[13] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_RelativePtEC1,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_RelativePtEC1);
-			varied_p4[14] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_RelativePtEC2,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_RelativePtEC2);
-			varied_p4[15] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_RelativeBal,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_RelativeBal);
-			varied_p4[16] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_RelativeSample,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_RelativeSample);
-			varied_p4[17] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_RelativeStatEC,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_RelativeStatEC);
-			varied_p4[18] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_RelativeStatFSR,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_RelativeStatFSR);
-			varied_p4[19] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_SinglePionECAL,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_SinglePionECAL);
-			varied_p4[20] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_SinglePionHCAL,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_SinglePionHCAL);
-			varied_p4[21] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_TimePtEta,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_TimePtEta);
-			varied_p4[22] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_Total,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_Total);
-			varied_p4[23] += tmp4v;
-		}
-		else if(var=="down"){
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_AbsoluteStat,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_AbsoluteStat);
-			varied_p4[0] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_AbsoluteScale,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_AbsoluteScale);
-			varied_p4[1] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_AbsoluteMPFBias,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_AbsoluteMPFBias);
-			varied_p4[2] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_FlavorQCD,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_FlavorQCD);
-			varied_p4[3] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_Fragmentation,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_Fragmentation);
-			varied_p4[4] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_PileUpDataMC,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_PileUpDataMC);
-			varied_p4[5] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_PileUpPtBB,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_PileUpPtBB);
-			varied_p4[6] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_PileUpPtEC1,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_PileUpPtEC1);
-			varied_p4[7] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_PileUpPtEC2,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_PileUpPtEC2);
-			varied_p4[8] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_PileUpPtRef,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_PileUpPtRef);
-			varied_p4[9] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_RelativeFSR,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_RelativeFSR);
-			varied_p4[10] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_RelativeJEREC1,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_RelativeJEREC1);
-			varied_p4[11] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_RelativeJEREC2,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_RelativeJEREC2);
-			varied_p4[12] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_RelativePtBB,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_RelativePtBB);
-			varied_p4[13] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_RelativePtEC1,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_RelativePtEC1);
-			varied_p4[14] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_RelativePtEC2,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_RelativePtEC2);
-			varied_p4[15] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_RelativeBal,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_RelativeBal);
-			varied_p4[16] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_RelativeSample,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_RelativeSample);
-			varied_p4[17] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_RelativeStatEC,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_RelativeStatEC);
-			varied_p4[18] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_RelativeStatFSR,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_RelativeStatFSR);
-			varied_p4[19] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_SinglePionECAL,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_SinglePionECAL);
-			varied_p4[20] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_SinglePionHCAL,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_SinglePionHCAL);
-			varied_p4[21] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_TimePtEta,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_TimePtEta);
-			varied_p4[22] += tmp4v;
-			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_Total,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_Total);
-			varied_p4[23] += tmp4v;
-		}
-	}
-	
-	for(int ijec=0; ijec<nmax; ijec++){
-	
-		TLorentzVector MET_p4;
-		MET_p4 = MET_p4_org - varied_p4[ijec] + nom_p4;
-		MET_pt_var.push_back(MET_p4.Pt());
-		MET_phi_var.push_back(MET_p4.Phi());
-		
-	}
-		
 }
