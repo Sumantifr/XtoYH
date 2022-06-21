@@ -312,6 +312,8 @@ void getAK4jets(std::vector<AK4Jet> &Jets, float ptcut=30, float etacut=2.5, boo
     sJet.JER = (1+PFJetAK4_JER[ijet]);
     sJet.JERup = (1+PFJetAK4_JERup[ijet]);
     sJet.JERdn = (1+PFJetAK4_JERdn[ijet]);
+    sJet.JERup = sJet.JERup/sJet.JER;
+    sJet.JERdn = sJet.JERdn/sJet.JER;
     
     sJet.JEC = PFJetAK4_JEC[ijet];
     sJet.jesup_AbsoluteStat = PFJetAK4_jesup_AbsoluteStat[ijet];
@@ -467,6 +469,8 @@ void getAK8jets(std::vector<AK8Jet> &LJets, float ptcut=200, float etacut=2.5, b
     LJet.JER = (1.+PFJetAK8_JER[ijet]);
     LJet.JERup = (1.+PFJetAK8_JERup[ijet]);
     LJet.JERdn = (1.+PFJetAK8_JERdn[ijet]);
+    LJet.JERup = LJet.JERup/LJet.JER;
+    LJet.JERdn = LJet.JERdn/LJet.JER;
     
     LJet.JEC = PFJetAK8_JEC[ijet];
     LJet.jesup_AbsoluteStat = PFJetAK8_jesup_AbsoluteStat[ijet];
@@ -1252,6 +1256,7 @@ void get_JES_sys(AK8Jet Jet, vector<float> &jecvalues, string var="up")
 		jecvalues.push_back(Jet.jesdn_SinglePionHCAL)  ;
 		jecvalues.push_back(Jet.jesdn_TimePtEta)  ;
 		jecvalues.push_back(Jet.jesdn_Total);
+		jecvalues.push_back(Jet.JERdn);
 	}
 	else if(var=="up"){
 		jecvalues.push_back(Jet.jesup_AbsoluteStat) ;
@@ -1278,6 +1283,7 @@ void get_JES_sys(AK8Jet Jet, vector<float> &jecvalues, string var="up")
 		jecvalues.push_back(Jet.jesup_SinglePionHCAL)  ;
 		jecvalues.push_back(Jet.jesup_TimePtEta)  ;
 		jecvalues.push_back(Jet.jesup_Total);
+		jecvalues.push_back(Jet.JERup);
 	}	
 }
 
@@ -1308,6 +1314,7 @@ void get_JES_sys(AK4Jet Jet, vector<float> &jecvalues, string var="up")
 		jecvalues.push_back(Jet.jesdn_SinglePionHCAL)  ;
 		jecvalues.push_back(Jet.jesdn_TimePtEta)  ;
 		jecvalues.push_back(Jet.jesdn_Total);
+		jecvalues.push_back(Jet.JERdn);
 	}
 	else if(var=="up"){
 		jecvalues.push_back(Jet.jesup_AbsoluteStat) ;
@@ -1334,6 +1341,7 @@ void get_JES_sys(AK4Jet Jet, vector<float> &jecvalues, string var="up")
 		jecvalues.push_back(Jet.jesup_SinglePionHCAL)  ;
 		jecvalues.push_back(Jet.jesup_TimePtEta)  ;
 		jecvalues.push_back(Jet.jesup_Total);
+		jecvalues.push_back(Jet.JERup);
 	}	
 }
 
@@ -1400,6 +1408,8 @@ void get_corrected_MET(vector<AK4Jet> Jets, vector<float> &MET_pt_var, vector<fl
 			varied_p4[22] += tmp4v;
 			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesup_Total,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesup_Total);
 			varied_p4[23] += tmp4v;
+			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].JERup,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].JERup);
+			varied_p4[24] += tmp4v;
 		}
 		else if(var=="down"){
 			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_AbsoluteStat,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_AbsoluteStat);
@@ -1450,6 +1460,8 @@ void get_corrected_MET(vector<AK4Jet> Jets, vector<float> &MET_pt_var, vector<fl
 			varied_p4[22] += tmp4v;
 			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].jesdn_Total,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].jesdn_Total);
 			varied_p4[23] += tmp4v;
+			tmp4v.SetPtEtaPhiM(Jets[ijet].pt*Jets[ijet].JERdn,Jets[ijet].eta,Jets[ijet].phi,Jets[ijet].mass*Jets[ijet].JERdn);
+			varied_p4[24] += tmp4v;
 		}
 	}
 	

@@ -1337,6 +1337,8 @@ int main(int argc, char *argv[])
 		W_JESup_split[imax].clear(); W_JESdn_split[imax].clear();
 		H_JESup_split[imax].clear(); H_JESdn_split[imax].clear();
 	}
+	HTlep_pt_JESup_split.clear(); HTlep_pt_JESdn_split.clear();
+	ST_JESup_split.clear(); ST_JESdn_split.clear();
 	
 	// Assinging MET values //
     
@@ -1715,8 +1717,8 @@ int main(int argc, char *argv[])
 		_s_PFJetAK8_JESup[_s_nPFJetAK8] = LJets[_s_nPFJetAK8].jesup_Total;
 		_s_PFJetAK8_JESdn[_s_nPFJetAK8] = LJets[_s_nPFJetAK8].jesdn_Total;
 		if(isMC){
-			_s_PFJetAK8_JERup[_s_nPFJetAK8] = LJets[_s_nPFJetAK8].JERup/LJets[ijet].JER;
-			_s_PFJetAK8_JERdn[_s_nPFJetAK8] = LJets[_s_nPFJetAK8].JERdn/LJets[ijet].JER;
+			_s_PFJetAK8_JERup[_s_nPFJetAK8] = LJets[_s_nPFJetAK8].JERup;//LJets[ijet].JER;
+			_s_PFJetAK8_JERdn[_s_nPFJetAK8] = LJets[_s_nPFJetAK8].JERdn;//LJets[ijet].JER;
 		}
 		else{
 			_s_PFJetAK8_JERup[_s_nPFJetAK8] = 0;
@@ -1772,8 +1774,8 @@ int main(int argc, char *argv[])
         _s_JetAK4_JESup[_s_nJetAK4] = Jets[ijet].jesup_Total;
         _s_JetAK4_JESdn[_s_nJetAK4] = Jets[ijet].jesdn_Total;
         if(isMC){
-			_s_JetAK4_JERup[_s_nJetAK4] = Jets[ijet].JERup/Jets[ijet].JER;
-			_s_JetAK4_JERdn[_s_nJetAK4] = Jets[ijet].JERdn/Jets[ijet].JER;
+			_s_JetAK4_JERup[_s_nJetAK4] = Jets[ijet].JERup;//Jets[ijet].JER;
+			_s_JetAK4_JERdn[_s_nJetAK4] = Jets[ijet].JERdn;//Jets[ijet].JER;
 			_s_JetAK4_btag_DeepFlav_SF[_s_nJetAK4] = Jets[ijet].btag_DeepFlav_SF;
 			_s_JetAK4_btag_DeepFlav_SF_up[_s_nJetAK4] = Jets[ijet].btag_DeepFlav_SF_up;
 			_s_JetAK4_btag_DeepFlav_SF_dn[_s_nJetAK4] = Jets[ijet].btag_DeepFlav_SF_dn;
@@ -1998,8 +2000,8 @@ int main(int argc, char *argv[])
 		get_JES_sys(LJets[Y_cand],Y_JESdn_split,"down");
 		
 		if(isMC){
-			Y_JERup = LJets[Y_cand].JERup/LJets[Y_cand].JER;
-			Y_JERdn = LJets[Y_cand].JERdn/LJets[Y_cand].JER;
+			Y_JERup = LJets[Y_cand].JERup;//LJets[Y_cand].JER;
+			Y_JERdn = LJets[Y_cand].JERdn;//LJets[Y_cand].JER;
 		}
 		else{
 			Y_JERup = Y_JERdn = 0;
@@ -2083,8 +2085,8 @@ int main(int argc, char *argv[])
 			get_JES_sys(LJets[W_cand[jw]],W_JESup_split[jw],"up");
 			get_JES_sys(LJets[W_cand[jw]],W_JESdn_split[jw],"down");
 			
-			W_JERup[jw] = LJets[W_cand[jw]].JERup/LJets[W_cand[jw]].JER;
-			W_JERdn[jw] = LJets[W_cand[jw]].JERdn/LJets[W_cand[jw]].JER;
+			W_JERup[jw] = LJets[W_cand[jw]].JERup;//LJets[W_cand[jw]].JER;
+			W_JERdn[jw] = LJets[W_cand[jw]].JERdn;//LJets[W_cand[jw]].JER;
 		
 			if(vleptons.size()>0 && pnu[jw].Eta()>-100){
 			

@@ -993,7 +993,7 @@
    
    static const int nmaxleptons = 2;
    static const int nmaxWcands = 2;
-   static const int njecmax = 24;
+   static const int njecmax = 25;
    
    float l_pt[nmaxleptons], l_eta[nmaxleptons], l_phi[nmaxleptons], l_mass[nmaxleptons];
    int l_pdgId[nmaxleptons];
