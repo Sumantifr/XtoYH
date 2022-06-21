@@ -944,6 +944,10 @@
    float AK8jet_pt_cut = 200;
    float AK8GenJet_pt_cut = 50;
    float absetacut = 2.5;
+   float lepetacut = 2.4;
+   
+   float MET_cut_final = 100;
+   float dR_cut = 1.2;
 
    // all numbers are for UL2018 //
    
@@ -973,10 +977,8 @@
 
    bool isMC;
    bool isFastSIM;
-   bool isDL;
    
-   bool channel_SL = true;
-   bool channel_DL = false;
+   bool isDL;
    
    TRandom3* gxRandom;
    
@@ -1099,3 +1101,10 @@
    
    float puWeight, puWeightup, puWeightdown;
    float leptonsf_weight, leptonsf_weight_up, leptonsf_weight_dn, leptonsf_weight_stat, leptonsf_weight_syst;
+   
+   static const int npuptbins = 4;
+   float puptbins[npuptbins+1] = {10,20,30,40,50};
+   float puidcuts[npuptbins];
+   float puidcuts_default[npuptbins] = {0.77,0.90,0.96,0.98};
+   //{0.77,0.90,0.96,0.98}; // 2018 & 2017
+   //{0.71,0.87,0.94,0.97}; // 2016

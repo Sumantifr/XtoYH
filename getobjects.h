@@ -260,7 +260,7 @@ void getAK8Genjets(std::vector<AK8GenJet> &Jets, float ptcut=50, float etacut=2.
   sorted_by_pt(Jets);
 }
 
-void getAK4jets(std::vector<AK4Jet> &Jets, float ptcut=30, float etacut=2.5, bool isMC=false, float PUptcut=50, int PUIDWP=7, int maxsize=njetmx)
+void getAK4jets(std::vector<AK4Jet> &Jets, float ptcut=30, float etacut=2.5, bool isMC=false, float puIDcuts[]=puidcuts_default, float PUptcut=50, int maxsize=njetmx)
 {
   
   for(int ijet=0; ijet<(nPFJetAK4); ijet++){
@@ -283,9 +283,15 @@ void getAK4jets(std::vector<AK4Jet> &Jets, float ptcut=30, float etacut=2.5, boo
     if(fabs(PFJetAK4_eta[ijet])>etacut) continue;
     if(PFJetAK4_pt[ijet]<ptcut) continue;
     
-    // pileup ID condition for low pt jets //
-    if(PFJetAK4_pt[ijet]<PUptcut && PFJetAK4_PUID[ijet]<PUIDWP) continue; 
-    
+    // pileup ID condition for low pt jets (tight condition) //
+    bool PUID_pass = false;
+    if(PFJetAK4_pt[ijet]>=PUptcut) { PUID_pass = true; }
+    else{
+		int ipuptbin = getbinid(PFJetAK4_pt[ijet],npuptbins,puptbins);
+		PUID_pass = (ipuptbin>=0 && ipuptbin<npuptbins)?(PFJetAK4_PUID[ijet]>=puIDcuts[ipuptbin]):false;
+	} 
+    if(!PUID_pass) continue;
+   
     sJet.pt = PFJetAK4_pt[ijet];
     sJet.mass = PFJetAK4_mass[ijet];
     sJet.eta = PFJetAK4_eta[ijet];

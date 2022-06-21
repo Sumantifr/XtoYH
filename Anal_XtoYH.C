@@ -155,6 +155,16 @@ int main(int argc, char *argv[])
 	DAK4_M = 0.2783;
 	DAK4_L = 0.0490;
    }
+   
+   if(year==2016){ absetacut = 2.4; }
+   else{ absetacut = 2.5; }
+   
+   if(year==2016){
+		puidcuts[0]=0.71; puidcuts[1]=0.87; puidcuts[2]=0.94; puidcuts[3]=0.97;
+   }
+   else{
+	    puidcuts[0]=0.77; puidcuts[1]=0.90; puidcuts[2]=0.96; puidcuts[3]=0.98;
+    }
 
    ////////////// Histograms ////////////////////////
 
@@ -1176,7 +1186,7 @@ int main(int argc, char *argv[])
 	if(ij%100==0){ cout<<"event "<<ij+1<<endl; }
 	fl->cd();
 	
-	if(ij>5000) break;
+	//if(ij>5000) break;
 	
 	fChain->GetEntry(ij);
 
@@ -1248,11 +1258,11 @@ int main(int argc, char *argv[])
 	
 	//Here you get electrons with your criteria
 	vector <Electron> velectrons;
-	getelectrons(velectrons,electron_pt_cut,absetacut,electron_id_name);
+	getelectrons(velectrons,electron_pt_cut,lepetacut,electron_id_name);
 	
 	//Here you get muons with your criteria (no iso used by default)
     vector <Muon> vmuons;
-    getmuons(vmuons,muon_pt_cut,absetacut,muon_id_name);
+    getmuons(vmuons,muon_pt_cut,lepetacut,muon_id_name);
     
     //Make lepton collection from electrons & muons (using only common variables)
     vector <Lepton> vleptons;
@@ -1260,7 +1270,7 @@ int main(int argc, char *argv[])
     
     //Here you get AK4 jets with your criteria
     vector <AK4Jet> Jets;
-    getAK4jets(Jets,AK4jet_pt_cut,absetacut,isMC);
+    getAK4jets(Jets,AK4jet_pt_cut,absetacut,isMC,puidcuts,50);
     //LeptonJet_cleaning(Jets,vleptons,AK4jet_pt_cut,absetacut);
     
     // Add b tag SF (if not in ntuple)//
@@ -1357,15 +1367,24 @@ int main(int argc, char *argv[])
     getTrigObjs(trigobjects);
     
     for (unsigned tr=0; tr<trigobjects.size(); tr++) {
-		
+	
         int trig_id = -1;
-        if(*(decToBinary(trigobjects[tr].type)) == 1) { trig_id = 11; }
+        /*
+        if(*(decToBinary(trigobjects[tr].type)) == 1 ) { trig_id = 11; }
         else if (*(decToBinary(trigobjects[tr].type)+1)==1) { trig_id = 11; }
         else if (*(decToBinary(trigobjects[tr].type)+2)==1 || *(decToBinary(trigobjects[tr].type)+3)==1) { trig_id = 13; }
         else if (*(decToBinary(trigobjects[tr].type)+4)==1 || *(decToBinary(trigobjects[tr].type)+5)==1) { trig_id = 15; }
         else if (*(decToBinary(trigobjects[tr].type)+6)==1) { trig_id = 0; }
         else if (*(decToBinary(trigobjects[tr].type)+7)==1 || *(decToBinary(trigobjects[tr].type)+8)==1) { trig_id = 1; }
-        //cout<<"pdg "<<TrigObj_pdgId[tr]<<" id "<<trig_id<<endl;
+        */
+         
+        if(abs(TrigObj_pdgId[tr])==13) { trig_id = 13; } 
+        else if(*(decToBinary(trigobjects[tr].type))==1 && *(decToBinary(trigobjects[tr].type)+1)==1 ) { trig_id = 11; }
+        else if (*(decToBinary(trigobjects[tr].type)+2)==1 && *(decToBinary(trigobjects[tr].type)+3)==1) { trig_id = 13; }
+        else if (*(decToBinary(trigobjects[tr].type)+4)==1 && *(decToBinary(trigobjects[tr].type)+5)==1) { trig_id = 15; }
+        else if (*(decToBinary(trigobjects[tr].type)+6)==1) { trig_id = 0; }
+        else if (*(decToBinary(trigobjects[tr].type)+7)==1 || *(decToBinary(trigobjects[tr].type)+8)==1) { trig_id = 1; } 
+                 
         trigobjects[tr].ID = trig_id;
     }
 
@@ -1450,7 +1469,8 @@ int main(int argc, char *argv[])
 	}
 	else{
 		if(isDL){
-			Match_double_trigger(double_hlts, double_pt_cuts, double_pids,
+			Match_double_trigger(
+					  double_hlts, double_pt_cuts, double_pids,
 					  trigobjects,
 					  vmuons, velectrons, vleptons, 
 					  anytrig_pass, trig_threshold_pass, trig_matching_pass, muon_trig_pass, electron_trig_pass, emucross_trig_pass
@@ -1458,7 +1478,8 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			Match_single_trigger(single_hlts, single_pt_cuts, single_pids, single_other_pt_cuts, single_other_pids,
+			Match_single_trigger(
+			          single_hlts, single_pt_cuts, single_pids, single_other_pt_cuts, single_other_pids,
 					  jet_hlts, jet_pt_cuts, jet_pids,
 					  trigobjects,
 					  vmuons, velectrons, vleptons, Jets, LJets,
@@ -1778,7 +1799,7 @@ int main(int argc, char *argv[])
     // Now store RECO objects for different candidates//
 		
 	int Y_cand = -1;
-    int W_cand[2] = {-1,-1};
+    int W_cand[nmaxWcands] = {-1,-1};
     
 	float max_PNet_bb = -100;
 	float max_PNet_W = -100;
@@ -1827,7 +1848,7 @@ int main(int argc, char *argv[])
 	_s_PFJetAK8_W_index_opt1 = W_cand[0];
 	_s_PFJetAK8_W_index_opt2 = W_cand[1];
 
-	TLorentzVector pnu[2];
+	TLorentzVector pnu[nmaxWcands];
 	double random_no = gRandom->Uniform(0,1);
 	
 	// regions can be constructed using: 
@@ -1842,7 +1863,7 @@ int main(int argc, char *argv[])
     Flag_Y_bb_pass_M = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD >= PNetbb_cut_M);
 	Flag_Y_bb_pass_L = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD >= PNetbb_cut_L);
 	
-	Flag_MET_pass = (MET_pt > 50);
+	Flag_MET_pass = (MET_pt > MET_cut_final);
 
 	if(!isDL){
 
@@ -1852,7 +1873,7 @@ int main(int argc, char *argv[])
 	
 		pnu[0] = neutrino_mom_fromH(vleptons[0].p4+LJets[W_cand[0]].p4, MET_pt, MET_phi, random_no);
 		Flag_H_m_pass_opt1 = ((vleptons[0].p4+LJets[W_cand[0]].p4+pnu[0]).M()>90. && (vleptons[0].p4+LJets[W_cand[0]].p4+pnu[0]).M()<150.);
-		Flag_dR_lW_pass_opt1 = (delta2R(LJets[W_cand[0]].y,LJets[W_cand[0]].phi,vleptons[0].eta,vleptons[0].phi) < 1.2);
+		Flag_dR_lW_pass_opt1 = (delta2R(LJets[W_cand[0]].y,LJets[W_cand[0]].phi,vleptons[0].eta,vleptons[0].phi) < dR_cut);
 
 		Flag_H_W_pass_T_opt2 = (LJets[W_cand[1]].DeepTag_PNetMD_WvsQCD >= PNetW_cut_T);
 		Flag_H_W_pass_M_opt2 = (LJets[W_cand[1]].DeepTag_PNetMD_WvsQCD >= PNetW_cut_M);
@@ -1860,7 +1881,7 @@ int main(int argc, char *argv[])
 		
 		pnu[1] = neutrino_mom_fromH(vleptons[0].p4+LJets[W_cand[1]].p4, MET_pt, MET_phi, random_no);
 		Flag_H_m_pass_opt2 = ((vleptons[0].p4+LJets[W_cand[1]].p4+pnu[1]).M()>90. && (vleptons[0].p4+LJets[W_cand[1]].p4+pnu[1]).M()<150.);
-		Flag_dR_lW_pass_opt2 = (delta2R(LJets[W_cand[1]].y,LJets[W_cand[1]].phi,vleptons[0].eta,vleptons[0].phi) < 1.2);
+		Flag_dR_lW_pass_opt2 = (delta2R(LJets[W_cand[1]].y,LJets[W_cand[1]].phi,vleptons[0].eta,vleptons[0].phi) < dR_cut);
 		
 	}
 	
@@ -1907,7 +1928,7 @@ int main(int argc, char *argv[])
     if(Y_cand>=0) {
 		
 		Y_pt = LJets[Y_cand].pt;
-		Y_y = LJets[Y_cand].y;
+		Y_y =  LJets[Y_cand].y;
         Y_eta = LJets[Y_cand].eta;
 		Y_phi = LJets[Y_cand].phi;
 		Y_mass = LJets[Y_cand].mass;
@@ -2110,11 +2131,11 @@ int main(int argc, char *argv[])
 			
 				if(isMC){
 					
-					W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].JERup*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].p4.M());
+					W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].JERup*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].JERup*LJets[W_cand[jw]].p4.M());
 					pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JERup, MET_phi_JERup, random_no);
 					H_JERup[jw] = (W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt();
 			
-					W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].JERdn*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].p4.M());
+					W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].JERdn*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].JERdn*LJets[W_cand[jw]].p4.M());
 					pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JERdn, MET_phi_JERdn, random_no);
 					H_JERdn[jw] = (W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt();
 				}
@@ -2148,11 +2169,11 @@ int main(int argc, char *argv[])
 			HTlep_pt_JESdn_split.push_back((l_pt[0]+l_pt[1]+Y_pt*Y_JESdn_split[ijec])*1./(HTlep_pt));
 		}
 
-		ST = l_pt[0]+l_pt[1]+MET_pt+Y_pt;
-		ST_JESup = (l_pt[0]+l_pt[1]+MET_pt_JESup+Y_pt*Y_JESup)*1./(ST);
-		ST_JESdn = (l_pt[0]+l_pt[1]+MET_pt_JESdn+Y_pt*Y_JESdn)*1./(ST);
-		ST_JERup = (l_pt[0]+l_pt[1]+MET_pt_JERup+Y_pt*Y_JERup)*1./(ST);
-		ST_JERdn = (l_pt[0]+l_pt[1]+MET_pt_JERdn+Y_pt*Y_JERdn)*1./(ST);
+		ST = l_pt[0]+l_pt[1]+Y_pt+MET_pt;
+		ST_JESup = (l_pt[0]+l_pt[1]+Y_pt*Y_JESup+MET_pt_JESup)*1./(ST);
+		ST_JESdn = (l_pt[0]+l_pt[1]+Y_pt*Y_JESdn+MET_pt_JESdn)*1./(ST);
+		ST_JERup = (l_pt[0]+l_pt[1]+Y_pt*Y_JERup+MET_pt_JERup)*1./(ST);
+		ST_JERdn = (l_pt[0]+l_pt[1]+Y_pt*Y_JERdn+MET_pt_JERdn)*1./(ST);
 		
 		for(unsigned ijec=0; ijec<njecmax; ijec++){
 			ST_JESup_split.push_back((l_pt[0]+l_pt[1]+Y_pt*Y_JESup_split[ijec]+MET_pt_JESup_split[ijec])*1./(ST));
@@ -2173,15 +2194,15 @@ int main(int argc, char *argv[])
 			HTlep_pt_JESdn_split.push_back((l_pt[0]+Y_pt*Y_JESdn_split[ijec]+W_pt[1]*W_JESdn_split[1][ijec])*1./(HTlep_pt));
 		}
 
-		ST = l_pt[0]+MET_pt+Y_pt+W_pt[1];
-		ST_JESup = (l_pt[0]+MET_pt_JESup+Y_pt*Y_JESup+W_pt[1]*W_JESup[1])*1./(ST);
-		ST_JESdn = (l_pt[0]+MET_pt_JESdn+Y_pt*Y_JESdn+W_pt[1]*W_JESdn[1])*1./(ST);
-		ST_JERup = (l_pt[0]+MET_pt_JERup+Y_pt*Y_JERup+W_pt[1]*W_JERup[1])*1./(ST);
-		ST_JERdn = (l_pt[0]+MET_pt_JERdn+Y_pt*Y_JERdn+W_pt[1]*W_JERdn[1])*1./(ST);
+		ST = l_pt[0]+Y_pt+W_pt[1]+MET_pt;
+		ST_JESup = (l_pt[0]+Y_pt*Y_JESup+W_pt[1]*W_JESup[1]+MET_pt_JESup)*1./(ST);
+		ST_JESdn = (l_pt[0]+Y_pt*Y_JESdn+W_pt[1]*W_JESdn[1]+MET_pt_JESdn)*1./(ST);
+		ST_JERup = (l_pt[0]+Y_pt*Y_JERup+W_pt[1]*W_JERup[1]+MET_pt_JERup)*1./(ST);
+		ST_JERdn = (l_pt[0]+Y_pt*Y_JERdn+W_pt[1]*W_JERdn[1]+MET_pt_JERdn)*1./(ST);
 		
 		for(unsigned ijec=0; ijec<njecmax; ijec++){
-			ST_JESup_split.push_back((l_pt[0]+Y_pt*Y_JESup_split[ijec]+MET_pt_JESup_split[ijec]+W_pt[1]*W_JESup_split[1][ijec])*1./(ST));
-			ST_JESdn_split.push_back((l_pt[0]+Y_pt*Y_JESdn_split[ijec]+MET_pt_JESdn_split[ijec]+W_pt[1]*W_JESdn_split[1][ijec])*1./(ST));
+			ST_JESup_split.push_back((l_pt[0]+Y_pt*Y_JESup_split[ijec]+W_pt[1]*W_JESup_split[1][ijec]+MET_pt_JESup_split[ijec])*1./(ST));
+			ST_JESdn_split.push_back((l_pt[0]+Y_pt*Y_JESdn_split[ijec]+W_pt[1]*W_JESdn_split[1][ijec]+MET_pt_JESdn_split[ijec])*1./(ST));
 		}
 		
 	}
@@ -2211,6 +2232,9 @@ int main(int argc, char *argv[])
 	
 	nbjets_L = (int)BJets_L.size();
 	nbjets = (int)BJets_M.size();
+    
+    // calculate all the weights correspoding different scale factors //
+    // PU weight, Lepton SF weight, Prefire weight //
     
     weight = 1;
     
