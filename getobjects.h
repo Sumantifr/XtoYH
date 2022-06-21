@@ -1058,51 +1058,42 @@ void Match_single_trigger(vector<bool> single_hlts, vector<float> single_pt_cuts
 		
 		for(unsigned ihlt=0; ihlt<pass_hlt.size(); ihlt++){
 		
-			if(get<0>(pass_hlt[ihlt])==0){
-				
-				if(!trig_matching_pass && single_pids[get<1>(pass_hlt[ihlt])]==11 && velectrons.size()>0){
-					for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
-				
-						//float ptvar = fabs(velectrons[0].pt - trigobj[iobj].pt)/velectrons[0].pt;
-						if(/*ptvar<ptvar_min &&*/ delta2R(velectrons[0].eta,velectrons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { trig_matching_pass = true; break; }
-
-					}				
-				}
-				
-				if(!trig_matching_pass && single_pids[get<1>(pass_hlt[ihlt])]==13 && vmuons.size()>0){
-					for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
-				
-						//float ptvar = fabs(vmuons[0].pt - trigobj[iobj].pt)/vmuons[0].pt;
-						if(/*ptvar<ptvar_min &&*/ delta2R(vmuons[0].eta,vmuons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)==13) { trig_matching_pass = true; break; }
-
-					}				
-				}
-			}
+			if(get<2>(pass_hlt[ihlt])){
 		
-			else if(!trig_matching_pass && get<0>(pass_hlt[ihlt])==1){
-			
-				if(Jets.size()>0){
-					for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
+				if(get<0>(pass_hlt[ihlt])==0){
 				
-						//float ptvar = fabs(Jets[0].pt - trigobj[iobj].pt)/Jets[0].pt;
-						if(/*ptvar<ptvar_min &&*/ delta2R(Jets[0].eta,Jets[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { trig_matching_pass = true; break; }
-
-					}				
+					if(!trig_matching_pass){
+						for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
+						
+							if(delta2R(vleptons[0].eta,vleptons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].ID)==abs(vleptons[0].pdgId)) { trig_matching_pass = true; break; }
+						
+						}
+					}
+					
 				}
-			}
-			
-			else if(!trig_matching_pass && get<0>(pass_hlt[ihlt])==2){
-			
-				if( LJets.size()>0){
-					for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
-				
-						//float ptvar = fabs(LJets[0].pt - trigobj[iobj].pt)/LJets[0].pt;
-						if(/*ptvar<ptvar_min &&*/ delta2R(LJets[0].eta,LJets[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { trig_matching_pass = true; break; }
-
-					}				
-				}
-			}
 		
+				else if(!trig_matching_pass && get<0>(pass_hlt[ihlt])==1){
+			
+					if(Jets.size()>0){
+						for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
+				
+							if(delta2R(Jets[0].eta,Jets[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].ID)!=11 && abs(trigobj[iobj].ID)!=13 && abs(trigobj[iobj].ID)!=15) { trig_matching_pass = true; break; }
+
+						}				
+					}
+				}
+			
+				else if(!trig_matching_pass && get<0>(pass_hlt[ihlt])==2){
+			
+					if( LJets.size()>0){
+						for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
+				
+							if(delta2R(LJets[0].eta,LJets[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=11 && abs(trigobj[iobj].ID)!=13 && abs(trigobj[iobj].ID)!=15) { trig_matching_pass = true; break; }
+
+						}				
+					}
+				}
+			}// threshold pass for this trigger
 		}//ihlt
 	}
 	
@@ -1124,14 +1115,13 @@ void Match_double_trigger(vector<bool> double_hlts, vector<vector<float>> double
   				   bool &trig_matching_pass,
   				   bool &muon_trig_pass, bool &electron_trig_pass, bool &emucross_trig_pass)
 {
-	
 	anytrig_pass = false;
 	trig_threshold_pass = false;
 	trig_matching_pass = false;
     
-    vector<tuple<int, unsigned, bool> > pass_hlt;
-    
     if((int)vleptons.size()<2) return;
+    
+    vector<tuple<int, unsigned, bool, int> > pass_hlt;
     
     Lepton lepton1, lepton2;
     lepton1 = vleptons[0];
@@ -1146,13 +1136,19 @@ void Match_double_trigger(vector<bool> double_hlts, vector<vector<float>> double
 				anytrig_pass = true; 
 				
 				bool trig_cut = false;
+				int imatch_leadlep = -1;
 					
-				if(vleptons[0].pt>=double_pt_cuts[ihlt][0] && abs(vleptons[0].pdgId)==double_pids[ihlt][0] && vleptons[1].pt>=double_pt_cuts[ihlt][1] && abs(vleptons[1].pdgId)==double_pids[ihlt][1]){
-						trig_threshold_pass = true;
-						trig_cut = true;
-					}
+				if((vleptons[0].pt>=double_pt_cuts[ihlt][0] && abs(vleptons[0].pdgId)==double_pids[ihlt][0] && vleptons[1].pt>=double_pt_cuts[ihlt][1] && abs(vleptons[1].pdgId)==double_pids[ihlt][1])
+				|| (vleptons[1].pt>=double_pt_cuts[ihlt][0] && abs(vleptons[1].pdgId)==double_pids[ihlt][0] && vleptons[0].pt>=double_pt_cuts[ihlt][1] && abs(vleptons[0].pdgId)==double_pids[ihlt][1])
+				){
+					trig_threshold_pass = true;
+					trig_cut = true;
+					if(vleptons[0].pt>=double_pt_cuts[ihlt][0] && abs(vleptons[0].pdgId)==double_pids[ihlt][0] && vleptons[1].pt>=double_pt_cuts[ihlt][1] && abs(vleptons[1].pdgId)==double_pids[ihlt][1])
+					{ imatch_leadlep = 0; }
+					else { imatch_leadlep = 1; }
+				}
 				
-				pass_hlt.push_back(make_tuple(0,ihlt,trig_cut));
+				pass_hlt.push_back(make_tuple(0,ihlt,trig_cut,imatch_leadlep));
 				
 			}
 		}
@@ -1170,59 +1166,41 @@ void Match_double_trigger(vector<bool> double_hlts, vector<vector<float>> double
 		
 		for(unsigned ihlt=0; ihlt<pass_hlt.size(); ihlt++){
 		
-			//if(get<0>(pass_hlt[0])==0){
+			if(!trig_matching_pass && get<2>(pass_hlt[ihlt])){
 				
-			if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[ihlt])][0])==11 && abs(double_pids[get<1>(pass_hlt[ihlt])][1])==11 && velectrons.size()>1){
+				int itrig_lep1 = -1;
+				int itrig_lep2 = -1;
+				
+				float dRmin_1(0.4), dRmin_2(0.4);
+				
 				for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
-					if(delta2R(velectrons[0].eta,velectrons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { 
-						trig_matching_pass_lep1 = true; 
-						for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
-							if(delta2R(velectrons[1].eta,velectrons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)!=13) { trig_matching_pass_lep2 = true; }
-						}	
-					}
-					trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;
-					if(trig_matching_pass) break;
-				}			
-			}
-		
-			if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[ihlt])][0])==13 && abs(double_pids[get<1>(pass_hlt[ihlt])][1])==13 && vmuons.size()>1){
-				for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
-					if(delta2R(vmuons[0].eta,vmuons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)==13) { 
-						trig_matching_pass_lep1 = true; 
-						for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
-							if(delta2R(vmuons[1].eta,vmuons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)==13) { trig_matching_pass_lep2 = true; }
-						}	
-					}
-					trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;		
-					if(trig_matching_pass) break;
-				}	
-			}
-		
-			if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[ihlt])][0])==11 && abs(double_pids[get<1>(pass_hlt[ihlt])][1])==13 && velectrons.size()>0 && vmuons.size()>0){
-				for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
-					if(delta2R(velectrons[0].eta,velectrons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)!=13) { 
-						trig_matching_pass_lep1 = true; 
-						for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
-							if(delta2R(vmuons[1].eta,vmuons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)==13) { trig_matching_pass_lep2 = true; }
+					if(delta2R(vleptons[get<3>(pass_hlt[ihlt])].eta,vleptons[get<3>(pass_hlt[ihlt])].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dRmin_1){
+						//if( (abs(vleptons[get<3>(pass_hlt[ihlt])].pdgId)==13 && abs(trigobj[iobj].pdgId)==13) || (abs(vleptons[get<3>(pass_hlt[ihlt])].pdgId)==11 && abs(trigobj[iobj].pdgId)!=13) ){
+						  if(abs(vleptons[get<3>(pass_hlt[ihlt])].pdgId)==abs(trigobj[iobj].ID)){
+							dRmin_1 = delta2R(vleptons[get<3>(pass_hlt[ihlt])].eta,vleptons[get<3>(pass_hlt[ihlt])].phi,trigobj[iobj].eta,trigobj[iobj].phi);
+							itrig_lep1 = (int)iobj;
 						}
-					}	
-					trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;
-					if(trig_matching_pass) break;
-				}			
-			}
-		
-			if(!trig_matching_pass && abs(double_pids[get<1>(pass_hlt[ihlt])][0])==13 && abs(double_pids[get<1>(pass_hlt[ihlt])][1])==11 && velectrons.size()>0 && vmuons.size()>0){
+					} 
+				}
+				
 				for(unsigned iobj=0; iobj<trigobj.size(); iobj++){
-					if(delta2R(vmuons[0].eta,vmuons[0].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dR_min && abs(trigobj[iobj].pdgId)==13) { 
-						trig_matching_pass_lep1 = true; 
-						for(unsigned jobj=(iobj+1); jobj<trigobj.size(); jobj++){
-							if(delta2R(velectrons[1].eta,velectrons[1].phi,trigobj[jobj].eta,trigobj[jobj].phi)<dR_min && abs(trigobj[jobj].pdgId)!=13) { trig_matching_pass_lep2 = true; }
+					if(delta2R(vleptons[1-get<3>(pass_hlt[ihlt])].eta,vleptons[1-get<3>(pass_hlt[ihlt])].phi,trigobj[iobj].eta,trigobj[iobj].phi)<dRmin_2){
+						//if( (abs(vleptons[1-get<3>(pass_hlt[ihlt])].pdgId)==13 && abs(trigobj[iobj].pdgId)==13) || (abs(vleptons[1-get<3>(pass_hlt[ihlt])].pdgId)==11 && abs(trigobj[iobj].pdgId)!=13) ){
+						if(abs(vleptons[1-get<3>(pass_hlt[ihlt])].pdgId)==abs(trigobj[iobj].ID)){
+							dRmin_2 = delta2R(vleptons[1-get<3>(pass_hlt[ihlt])].eta,vleptons[1-get<3>(pass_hlt[ihlt])].phi,trigobj[iobj].eta,trigobj[iobj].phi);
+							itrig_lep2 = (int)iobj;
 						}
-					}	
-					trig_matching_pass = trig_matching_pass_lep1*trig_matching_pass_lep2;
-					if(trig_matching_pass) break;
-				}			
-			}
+					} 
+				}
+				
+				if(itrig_lep1>=0 && itrig_lep2>=0 && itrig_lep1!=itrig_lep2){
+					if(abs(trigobj[itrig_lep1].ID)==abs(double_pids[get<1>(pass_hlt[ihlt])][0]) && abs(trigobj[itrig_lep2].ID)==abs(double_pids[get<1>(pass_hlt[ihlt])][1])){
+						trig_matching_pass = true;
+						break;
+					}
+				}
+				
+			}//
 		
 			if(trig_matching_pass) break;
 		

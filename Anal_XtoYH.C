@@ -248,6 +248,10 @@ int main(int argc, char *argv[])
    Tout->Branch("hlt_AK8PFJet400_TrimMass30",&hlt_AK8PFJet400_TrimMass30,"hlt_AK8PFJet400_TrimMass30/O");
    Tout->Branch("hlt_AK8PFHT800_TrimMass50",&hlt_AK8PFHT800_TrimMass50,"hlt_AK8PFHT800_TrimMass50/O");
 
+   Tout->Branch("Muon_trig_pass",&Muon_trig_pass,"Muon_trig_pass/O");
+   Tout->Branch("Electron_trig_pass",&Electron_trig_pass,"Electron_trig_pass/O");
+   Tout->Branch("MuonElectron_trig_pass",&MuonElectron_trig_pass,"MuonElectron_trig_pass/O");
+
    // MET info //
    
    Tout->Branch("MET_pt", &MET_pt, "MET_pt/F");
@@ -1363,7 +1367,6 @@ int main(int argc, char *argv[])
         else if (*(decToBinary(trigobjects[tr].type)+7)==1 || *(decToBinary(trigobjects[tr].type)+8)==1) { trig_id = 1; }
         //cout<<"pdg "<<TrigObj_pdgId[tr]<<" id "<<trig_id<<endl;
         trigobjects[tr].ID = trig_id;
-    
     }
 
 	// trigger decisions //
@@ -1463,6 +1466,10 @@ int main(int argc, char *argv[])
 					);
 		}
 	}
+	
+	Muon_trig_pass = muon_trig_pass;
+	Electron_trig_pass = electron_trig_pass;
+	MuonElectron_trig_pass = emucross_trig_pass;
 
 	// Filling of histograms before event selection //	
 		

@@ -985,6 +985,8 @@
    TTree *Tout ;
    TTree *Tout_presel; 
    
+   bool Muon_trig_pass, Electron_trig_pass, MuonElectron_trig_pass;
+   
    int nleptons, nfatjets;
    
    static const int nmaxleptons = 2;
