@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
  
  for (int ii=0;ii<nproc;ii++)
   {
-  
+   
   //Calling efficiency files 
   
    TFile *FEff; TH2F *h_AK4M_flv_b_eff; TH2F *h_AK4M_flv_c_eff; TH2F *h_AK4M_flv_l_eff;
@@ -27,12 +27,13 @@ int main(int argc, char *argv[])
 
    if(!isDATA)
    {
-   	TFile *FEff = TFile::Open("Efficiency/Efficiency_"+ proc_Name[ii] );
-   	TH2F *h_AK4M_flv_b_eff = (TH2F*)FEff->Get("Efficiency_h_Ak4_b_flv_pass_M");
-   	TH2F *h_AK4M_flv_c_eff = (TH2F*)FEff->Get("Efficiency_h_Ak4_c_flv_pass_M");
-   	TH2F *h_AK4M_flv_l_eff = (TH2F*)FEff->Get("Efficiency_h_Ak4_l_flv_pass_M");
-   	TH2F *h_YtagT_eff = (TH2F*)FEff->Get("Efficiency_h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T");
-   	TH2F *h_WtagT_eff = (TH2F*)FEff->Get("Efficiency_h_Ak8_DeepTag_PNetMD_WvsQCD_pass_T");
+   	FEff = TFile::Open("Efficiency/Efficiency_"+ proc_Name[ii] );
+        std::cout << "We are taking the Efficiency/Efficiency_" << proc_Name[ii] << std::endl; 
+   	h_AK4M_flv_b_eff = (TH2F*)FEff->Get("Efficiency_h_Ak4_b_flv_pass_M");
+   	h_AK4M_flv_c_eff = (TH2F*)FEff->Get("Efficiency_h_Ak4_c_flv_pass_M");
+   	h_AK4M_flv_l_eff = (TH2F*)FEff->Get("Efficiency_h_Ak4_l_flv_pass_M");
+   	h_YtagT_eff = (TH2F*)FEff->Get("Efficiency_h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T");
+   	h_WtagT_eff = (TH2F*)FEff->Get("Efficiency_h_Ak8_DeepTag_PNetMD_WvsQCD_pass_T");
    }
    
    std::cout << proc_Name[ii] << std::endl;
@@ -79,6 +80,7 @@ int main(int argc, char *argv[])
   TH1F* h_l1l2_dR[nrgn][nbcat][nWop][nlid];
   TH1F* h_l1l2_deta[nrgn][nbcat][nWop][nlid];
   TH1F* h_l1l2_dphi[nrgn][nbcat][nWop][nlid];
+  TH1F* h_dphi_MET_l1l2[nrgn][nbcat][nWop][nlid];
   
   TH1F* h_MET_pt[nrgn][nbcat][nWop][nlid];
   TH1F* h_MET_sig[nrgn][nbcat][nWop][nlid]; 
@@ -208,6 +210,7 @@ int main(int argc, char *argv[])
 				h_l1l2_dR[ij][jk][kl][lm] 				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"l1l2_dR","",120,0,6);
 				h_l1l2_deta[ij][jk][kl][lm] 				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"l1l2_deta","",50,-5,5);
 				h_l1l2_dphi[ij][jk][kl][lm] 				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"l1l2_dphi","",65,-M_PI,M_PI);
+				h_dphi_MET_l1l2[ij][jk][kl][lm] 				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"dphi_MET_l1l2","",65,-M_PI,M_PI);
 	       	
 				h_MET_pt[ij][jk][kl][lm] 			= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"MET_pt","",40,0,1000);
 				h_MET_sig[ij][jk][kl][lm] 			= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"MET_sig","",50,0,300);				
@@ -281,7 +284,7 @@ int main(int argc, char *argv[])
 				h_for_limit_ST[ij][jk][kl][lm]                 = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_ST","",260,0,52000);
 
 				h_for_limit_HTlep_pt_sys[ij][jk][kl][lm][0] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_HTlep_pt","_nom",260,0,52000);
-				h_for_limit_ST_sys[ij][jk][kl][lm][0] = get_histo_symbin(Ytype[y_wp],rgn[ij],Wtype[w_wp],bcats[jk],Wops[kl],lepids[lm],"unrolled_ST","_nom",260,0,52000);
+				h_for_limit_ST_sys[ij][jk][kl][lm][0] = get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"unrolled_ST","_nom",260,0,52000);
 	
 				for(int isys=0; isys<nsys; isys++){
 					
@@ -324,7 +327,7 @@ int main(int argc, char *argv[])
    Long64_t nn = tree->GetEntries();
    
    //// Event loop ////
-   
+   std::cout << nn << std::endl;  
    for(Long64_t jentry =0; jentry < nn ; jentry++)
    {
 	      
@@ -332,16 +335,19 @@ int main(int argc, char *argv[])
 	if( jentry % 10000 == 0) { std::cout <<jentry<<" events processed" << std::endl;}
    
 	// Condition to avoid double counting in data //
-	
-	bool mu_trig = hlt_Mu50;
-	bool el_trig = hlt_Ele32_WPTight_Gsf || hlt_Ele40_WPTight_Gsf || hlt_Ele115_CaloIdVT_GsfTrkIdT || hlt_Ele50_CaloIdVT_GsfTrkIdT_PFJet165;
+        bool mu_trig = Muon_trig_pass;
+        bool el_trig = Electron_trig_pass;	
 	bool jet_trig = hlt_AK8PFJet500 || hlt_PFJet500;
-	
 	if(isDATA){
+                std::cout << "running on data" << std::endl; 
 		if (string(proc_Name[ii].Data()).find("SingleMuon")!=string::npos)
-		{
+		{                        
 			if(!mu_trig) continue;
 		}
+                if (string(proc_Name[ii].Data()).find("DoubleMuon")!=string::npos)
+                {
+                        if(!mu_trig) continue;
+                }
 		else if (string(proc_Name[ii].Data()).find("EGamma")!=string::npos)
 		{
 			if(mu_trig || !el_trig) continue;
@@ -392,19 +398,19 @@ int main(int argc, char *argv[])
 			else
 			{
 				if ( abs(JetAK4_hadronflav[jj]) == 5 ) {
-					b_SF *= std::max(1.e-6,(1.-JetAK4_btag_DeepFlav_SF[jj]*h_AK4M_flv_b_eff->GetBinContent(ptbin, etabin))/ ( 1.- h_AK4M_flv_b_eff->GetBinContent(ptbin, etabin)));
-                    b_SF_up *= std::max(1.e-6,(1.-JetAK4_btag_DeepFlav_SF_up[jj]*h_AK4M_flv_b_eff->GetBinContent(ptbin, etabin))/ ( 1.- h_AK4M_flv_b_eff->GetBinContent(ptbin, etabin)));
-					b_SF_dn *= std::max(1.e-6,(1.-JetAK4_btag_DeepFlav_SF_dn[jj]*h_AK4M_flv_b_eff->GetBinContent(ptbin, etabin))/ ( 1.- h_AK4M_flv_b_eff->GetBinContent(ptbin, etabin)));
+					b_SF *= std::max(1.e-6,(1.-JetAK4_btag_DeepFlav_SF[jj]*TMath::Max(float(1.e-3),float(h_AK4M_flv_b_eff->GetBinContent(ptbin, etabin)) ))/ ( 1.- TMath::Max(float(1.e-3),float(h_AK4M_flv_b_eff->GetBinContent(ptbin, etabin))) ));
+                                        b_SF_up *= std::max(1.e-6,(1.-JetAK4_btag_DeepFlav_SF_up[jj]*TMath::Max(float(1.e-3),float(h_AK4M_flv_b_eff->GetBinContent(ptbin, etabin))))/ ( 1.- TMath::Max(float(1.e-3),float(h_AK4M_flv_b_eff->GetBinContent(ptbin, etabin))) ));
+					b_SF_dn *= std::max(1.e-6,(1.-JetAK4_btag_DeepFlav_SF_dn[jj]*TMath::Max(float(1.e-3),float(h_AK4M_flv_b_eff->GetBinContent(ptbin, etabin))))/ ( 1.- TMath::Max(float(1.e-3),float(h_AK4M_flv_b_eff->GetBinContent(ptbin, etabin))) ));
                 }
                 else if ( abs(JetAK4_hadronflav[jj]) == 4 ) {
-					b_SF *= std::max(1.e-6,(1.-JetAK4_btag_DeepFlav_SF[jj]*h_AK4M_flv_c_eff->GetBinContent(ptbin, etabin))/ ( 1.- h_AK4M_flv_c_eff->GetBinContent(ptbin, etabin)));
-                    b_SF_up *= std::max(1.e-6,(1.-JetAK4_btag_DeepFlav_SF_up[jj]*h_AK4M_flv_c_eff->GetBinContent(ptbin, etabin))/ ( 1.- h_AK4M_flv_c_eff->GetBinContent(ptbin, etabin)));
-					b_SF_dn *= std::max(1.e-6,(1.-JetAK4_btag_DeepFlav_SF_dn[jj]*h_AK4M_flv_c_eff->GetBinContent(ptbin, etabin))/ ( 1.- h_AK4M_flv_c_eff->GetBinContent(ptbin, etabin)));
+					b_SF *= std::max(1.e-6,(1.-JetAK4_btag_DeepFlav_SF[jj]*TMath::Max(float(1.e-3),float(h_AK4M_flv_c_eff->GetBinContent(ptbin, etabin))))/ ( 1.- TMath::Max(float(1.e-3),float(h_AK4M_flv_c_eff->GetBinContent(ptbin, etabin))) ));
+                                        b_SF_up *= std::max(1.e-6,(1.-JetAK4_btag_DeepFlav_SF_up[jj]*TMath::Max(float(1.e-3),float(h_AK4M_flv_c_eff->GetBinContent(ptbin, etabin))))/ ( 1.- TMath::Max(float(1.e-3),float(h_AK4M_flv_c_eff->GetBinContent(ptbin, etabin))) ));
+					b_SF_dn *= std::max(1.e-6,(1.-JetAK4_btag_DeepFlav_SF_dn[jj]*TMath::Max(float(1.e-3),float(h_AK4M_flv_c_eff->GetBinContent(ptbin, etabin))))/ ( 1.- TMath::Max(float(1.e-3),float(h_AK4M_flv_c_eff->GetBinContent(ptbin, etabin))) ));
                 }
 				else {
-                    b_SF *= std::max(1.e-6,(1.-JetAK4_btag_DeepFlav_SF[jj]*h_AK4M_flv_l_eff->GetBinContent(ptbin, etabin))/ ( 1.- h_AK4M_flv_l_eff->GetBinContent(ptbin, etabin)));
-                    b_SF_up *= std::max(1.e-6,(1.-JetAK4_btag_DeepFlav_SF_up[jj]*h_AK4M_flv_l_eff->GetBinContent(ptbin, etabin))/ ( 1.- h_AK4M_flv_l_eff->GetBinContent(ptbin, etabin)));
-                    b_SF_dn *= std::max(1.e-6,(1.-JetAK4_btag_DeepFlav_SF_dn[jj]*h_AK4M_flv_l_eff->GetBinContent(ptbin, etabin))/ ( 1.- h_AK4M_flv_l_eff->GetBinContent(ptbin, etabin)));
+                    b_SF *= std::max(1.e-6,(1.-JetAK4_btag_DeepFlav_SF[jj]*TMath::Max(float(1.e-3),float(h_AK4M_flv_l_eff->GetBinContent(ptbin, etabin))))/ ( 1.- TMath::Max(float(1.e-3),float(h_AK4M_flv_l_eff->GetBinContent(ptbin, etabin)))));
+                    b_SF_up *= std::max(1.e-6,(1.-JetAK4_btag_DeepFlav_SF_up[jj]*TMath::Max(float(1.e-3),float(h_AK4M_flv_l_eff->GetBinContent(ptbin, etabin))))/ ( 1.- TMath::Max(float(1.e-3),float(h_AK4M_flv_l_eff->GetBinContent(ptbin, etabin)))));
+                    b_SF_dn *= std::max(1.e-6,(1.-JetAK4_btag_DeepFlav_SF_dn[jj]*TMath::Max(float(1.e-3),float(h_AK4M_flv_l_eff->GetBinContent(ptbin, etabin))))/ ( 1.- TMath::Max(float(1.e-3),float(h_AK4M_flv_l_eff->GetBinContent(ptbin, etabin)))));
                 }
             }
 		}
@@ -458,7 +464,7 @@ int main(int argc, char *argv[])
    if(isDATA) {weight_nom = 1.0;}
    else 
    {
-   if ( proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1000_MY_100_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1500_MY_200_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_200_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2400_MY_300_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_100_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_500_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_125_XtoYH_Nov_2021_v2.root" )
+   if ( proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1000_MY_100_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1500_MY_200_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_200_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2400_MY_300_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_100_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_3000_MY_500_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_2000_MY_125_XtoYH_Nov_2021_v2.root" || proc_Name[ii] == "NMSSM_XYH_YTobb_HToWWTo2L2Nu_MX_2000_MY_200_v3.root" )
    {
      weight_nom = 1.0;
    }
@@ -525,16 +531,19 @@ int main(int argc, char *argv[])
     bool Z_veto = ((l1l2_mass>10. && l1l2_mass<75.) || (l1l2_mass>120.));
   
 	if(isDL){
-		
-		isSR1 = (Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<1.0) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
-		isSR2 = (!Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<1.0) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
-		isCR2 = (!Flag_Y_bb_pass_T && Z_veto && !(l1l2_dR<1.0) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
-		isCR3 = (!Flag_Y_bb_pass_T && !Z_veto && !(l1l2_dR<1.0) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
-		isCR4 = (!Flag_Y_bb_pass_T && !Z_veto && (l1l2_dR<1.0) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
-		isCR5 = (!Flag_Y_bb_pass_T && !Z_veto && !(l1l2_dR<1.0) && !Flag_MET_pass && !lep_miniso && abs(dphi_MET_l1l2)>=0.5*M_PI);
-		isCR6 = (Flag_Y_bb_pass_T && !Z_veto && !(l1l2_dR<1.0) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
-		isCR7 = (Flag_Y_bb_pass_T && !Z_veto && !(l1l2_dR<1.0) && !Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
-		isCR8 = (Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<1.0) && Flag_MET_pass && !lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+		//signal regions//
+		isSR1 = (Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.4) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+		isSR2 = (!Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.4) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+		//TT CRs //
+		isCR2 = (!Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>0.4) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
+		isCR6 = ( Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>0.4) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
+		isCR8 = ( Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>0.4) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+		//DY+j CRs //
+		isCR3 = (!Flag_Y_bb_pass_T && !Z_veto && (l1l2_dR<1.0) && !Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)>0.5*M_PI);
+		isCR4 = (!Flag_Y_bb_pass_T && !Z_veto && (l1l2_dR<1.0) && !Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+		isCR7 = ( Flag_Y_bb_pass_T && !Z_veto && (l1l2_dR<1.0) && !Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
+		//QCD CR//
+		isCR5 = (!Flag_Y_bb_pass_T && !(l1l2_dR<0.4) && !Flag_MET_pass && !lep_miniso);// && abs(dphi_MET_l1l2)>=0.5*M_PI);
 	}
 	
 	else{
@@ -683,6 +692,8 @@ int main(int argc, char *argv[])
 					h_l1l2_dR[ireg][jk][kl][lm]->Fill(l1l2_dR,weight); 
 					h_l1l2_deta[ireg][jk][kl][lm]->Fill(l1l2_deta,weight); 
 					h_l1l2_dphi[ireg][jk][kl][lm]->Fill(l1l2_dphi,weight); 
+					
+					h_dphi_MET_l1l2[ireg][jk][kl][lm]->Fill(dphi_MET_l1l2,weight); 
 				
 				}
 					
@@ -780,7 +791,14 @@ int main(int argc, char *argv[])
 				
 				h_for_limit_X_mass_sys[ireg][jk][kl][lm][0]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight);
 				h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][0]->Fill(unrol_mass,weight);
-		
+	            h_HTlep_pt_sys[ireg][jk][kl][lm][0]->Fill(HTlep_pt,weight);
+                h_ST_sys[ireg][jk][kl][lm][0]->Fill(ST,weight); 
+                h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][0]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight);
+                h_for_limit_ST_sys[ireg][jk][kl][lm][0]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight);	
+                
+                h_for_limit_HTlep_pt[ireg][jk][kl][lm]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight);
+                h_for_limit_ST[ireg][jk][kl][lm]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight);	
+
 				float X_JESup, X_JESdn, X_JERup, X_JERdn;
 		
 				TLorentzVector Y_cand, H_cand;

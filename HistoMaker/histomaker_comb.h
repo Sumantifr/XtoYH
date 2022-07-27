@@ -123,7 +123,65 @@ float PN_Top_med = 0.8;
 float deep_btag_cut = 0.2783; 
 
 TString proc_Name[] = {
-"TTToSemiLeptonic_XtoYH_Nov_2021_500_501_DL.root"
+//"TTToSemiLeptonic_XtoYH_Nov_2021_500_501_DL.root"
+//unning on the MC samples
+/*
+"DYJetsToLL_M-10to50_XtoYH.root",
+"DYJetsToLL_M-50_HT-100To200_XtoYH.root",
+"DYJetsToLL_M-50_HT-1200To2500_XtoYH.root",
+"DYJetsToLL_M-50_HT-200To400_XtoYH.root",
+"DYJetsToLL_M-50_HT-2500ToInf_XtoYH.root",
+"DYJetsToLL_M-50_HT-400To600_XtoYH.root",
+"DYJetsToLL_M-50_HT-600To800_XtoYH.root",
+"DYJetsToLL_M-50_HT-70to100_XtoYH.root",
+"DYJetsToLL_M-50_HT-800To1200_XtoYH.root",
+"QCD_HT1000to1500_XtoYH.root",
+"QCD_HT1500to2000_XtoYH.root",
+"QCD_HT2000toInf_XtoYH.root",
+"QCD_HT700to1000_XtoYH.root",
+"QCD_HT300to500_XtoYH.root",
+"QCD_HT500to700_XtoYH.root",
+"ST_s-channel_XtoYH.root",
+"ST_t-channel_antitop_XtoYH.root",
+"ST_t-channel_top_XtoYH.root",
+"ST_tW_antitop_XtoYH.root",
+"ST_tW_top_XtoYH.root",
+"TTTo2L2Nu_XtoYH.root",
+"TTToHadronic_XtoYH.root",
+"TTToSemiLeptonic_XtoYH.root",
+"WJetsToLNu_HT-100To200_XtoYH.root",
+"WJetsToLNu_HT-1200To2500_XtoYH.root",
+"WJetsToLNu_HT-200To400_XtoYH.root",
+"WJetsToLNu_HT-2500ToInf_XtoYH.root",
+"WJetsToLNu_HT-400To600_XtoYH.root",
+"WJetsToLNu_HT-600To800_XtoYH.root",
+"WJetsToLNu_HT-70To100_XtoYH.root",
+"WJetsToLNu_HT-800To1200_XtoYH.root",
+"WWTo1L1Nu2Q_XtoYH.root",
+"WWTo2L2Nu_XtoYH.root",
+"WWTo4Q_XtoYH.root",
+"WZTo1L1Nu2Q_XtoYH.root",
+"WZTo2Q2L_XtoYH.root",
+"WZTo2Q2Nu_XtoYH.root",
+"WZTo3LNu_XtoYH.root",
+"ZZTo2L2Nu_XtoYH.root",
+"ZZTo2Q2L_XtoYH.root",
+"ZZTo2Q2Nu_XtoYH.root",
+"ZZTo4L_XtoYH.root",
+"ZZTo4Q_XtoYH.root"
+*/
+//Running on the data samples
+ 
+"EGamma_UL2018A_XtoYH_Nov_2021.root",
+"EGamma_UL2018B_XtoYH_Nov_2021.root",
+"EGamma_UL2018C_XtoYH_Nov_2021.root",
+"EGamma_UL2018D_XtoYH_Nov_2021.root",
+"DoubleMuon_UL2018A_XtoYH_Nov_2021.root",
+"DoubleMuon_UL2018B_XtoYH_Nov_2021.root",
+"DoubleMuon_UL2018C_XtoYH_Nov_2021.root",
+"DoubleMuon_UL2018D_XtoYH_Nov_2021.root",
+
+//"NMSSM_XYH_YTobb_HToWWTo2L2Nu_MX_2000_MY_200_v3.root"
 };
 ////
 
@@ -550,7 +608,7 @@ TString proc_Name[] = {
   TString Wops[] = {"opt2","opt1"};
   int nWop = sizeof(Wops)/sizeof(Wops[0]);
   
-  TString lepids[] = {"","_Mu","_El"};
+  TString lepids[] = {"","_Mu","_El","_EMu"};
   int nlid = sizeof(lepids)/sizeof(lepids[0]);
   
   TString sysnames[] = {"JES","JER","PU","LeptonSF","LeptonSF2","Prefire","PNbbSF","PNWSF","BTG"}; 
