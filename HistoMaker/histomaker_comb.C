@@ -529,19 +529,20 @@ int main(int argc, char *argv[])
 	else {  (lep_miniso = l1_minisoall<0.1)?true:false; }
 	 
     bool Z_veto = ((l1l2_mass>10. && l1l2_mass<75.) || (l1l2_mass>120.));
+    bool Z_pass = (l1l2_mass>=75. && l1l2_mass<=120.);
   
 	if(isDL){
 		//signal regions//
-		isSR1 = (Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.4) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
-		isSR2 = (!Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.4) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+		isSR1 = (Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.8) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+		isSR2 = (!Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.8) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
 		//TT CRs //
-		isCR2 = (!Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>0.4) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
-		isCR6 = ( Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>0.4) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
-		isCR8 = ( Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>0.4) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+		isCR2 = (!Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>0.8) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
+		isCR6 = ( Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>0.8) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
+		isCR8 = (!Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>0.8) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)>0.25*M_PI);
 		//DY+j CRs //
-		isCR3 = (!Flag_Y_bb_pass_T && !Z_veto && (l1l2_dR<1.0) && !Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)>0.5*M_PI);
-		isCR4 = (!Flag_Y_bb_pass_T && !Z_veto && (l1l2_dR<1.0) && !Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
-		isCR7 = ( Flag_Y_bb_pass_T && !Z_veto && (l1l2_dR<1.0) && !Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
+		isCR3 = (!Flag_Y_bb_pass_T && Z_pass && (l1l2_dR<1.0) && !Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)>0.5*M_PI);
+		isCR4 = (!Flag_Y_bb_pass_T && Z_pass && (l1l2_dR<1.0) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI); //dphi_MET_l1l2 cut does not have any impact (for CR3 & CR4)
+		isCR7 = ( Flag_Y_bb_pass_T && Z_pass && (l1l2_dR<1.0) && !Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
 		//QCD CR//
 		isCR5 = (!Flag_Y_bb_pass_T && !(l1l2_dR<0.4) && !Flag_MET_pass && !lep_miniso);// && abs(dphi_MET_l1l2)>=0.5*M_PI);
 	}
