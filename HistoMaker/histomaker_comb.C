@@ -597,7 +597,7 @@ int main(int argc, char *argv[])
 	
 	for(unsigned ir=0; ir<regs.size(); ir++){
    
-		ireg = regs[ir];
+		int ireg = regs[ir];
    
 		if(ireg<0||ireg>=nrgn) continue;
 	
