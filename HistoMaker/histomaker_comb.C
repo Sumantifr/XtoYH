@@ -27,8 +27,8 @@ int main(int argc, char *argv[])
 
    if(!isDATA)
    {
-   	FEff = TFile::Open("Efficiency/Efficiency_"+ proc_Name[ii] );
-        std::cout << "We are taking the Efficiency/Efficiency_" << proc_Name[ii] << std::endl; 
+   	FEff = TFile::Open("Efficiency/Efficiency_TTTo2L2Nu_XtoYH.root" );
+        std::cout << "We are taking the Efficiency/Efficiency_TTTo2L2Nu_XtoYH.root" << std::endl; 
    	h_AK4M_flv_b_eff = (TH2F*)FEff->Get("Efficiency_h_Ak4_b_flv_pass_M");
    	h_AK4M_flv_c_eff = (TH2F*)FEff->Get("Efficiency_h_Ak4_c_flv_pass_M");
    	h_AK4M_flv_l_eff = (TH2F*)FEff->Get("Efficiency_h_Ak4_l_flv_pass_M");
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
       
    // read branches //
    
-   read_branches(tree, isDL);
+  read_branches(tree, isDL);
    
   // Declaration of histograms //
   
@@ -338,13 +338,13 @@ int main(int argc, char *argv[])
         bool mu_trig = Muon_trig_pass;
         bool el_trig = Electron_trig_pass;	
 	bool jet_trig = hlt_AK8PFJet500 || hlt_PFJet500;
+        bool emu_trig = hlt_Mu37_Ele27_CaloIdL_MW || hlt_Mu27_Ele37_CaloIdL_MW;
 	if(isDATA){
-                std::cout << "running on data" << std::endl; 
 		if (string(proc_Name[ii].Data()).find("SingleMuon")!=string::npos)
 		{                        
 			if(!mu_trig) continue;
 		}
-                if (string(proc_Name[ii].Data()).find("DoubleMuon")!=string::npos)
+                else if (string(proc_Name[ii].Data()).find("DoubleMuon")!=string::npos)
                 {
                         if(!mu_trig) continue;
                 }
@@ -356,6 +356,10 @@ int main(int argc, char *argv[])
 		{
 			if(mu_trig || el_trig || !jet_trig) continue;
 		}
+                else if (string(proc_Name[ii].Data()).find("MuonEG")!=string::npos)
+                {
+                        if(mu_trig || el_trig || !emu_trig) continue;
+                }
 		else{
 			continue;
 		}
@@ -536,15 +540,15 @@ int main(int argc, char *argv[])
 		isSR1 = (Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.8) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
 		isSR2 = (!Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.8) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
 		//TT CRs //
-		isCR2 = (!Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>0.8) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
-		isCR6 = ( Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>0.8) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
-		isCR8 = (!Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>0.8) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)>0.25*M_PI);
+		isCR2 = (!Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>1.0) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
+		isCR6 = ( Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>1.0) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
+		isCR8 = (					  Z_veto && (l1l2_dR>1.0) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
 		//DY+j CRs //
 		isCR3 = (!Flag_Y_bb_pass_T && Z_pass && (l1l2_dR<1.0) && !Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)>0.5*M_PI);
 		isCR4 = (!Flag_Y_bb_pass_T && Z_pass && (l1l2_dR<1.0) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI); //dphi_MET_l1l2 cut does not have any impact (for CR3 & CR4)
-		isCR7 = ( Flag_Y_bb_pass_T && Z_pass && (l1l2_dR<1.0) && !Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
-		//QCD CR//
-		isCR5 = (!Flag_Y_bb_pass_T && !(l1l2_dR<0.4) && !Flag_MET_pass && !lep_miniso);// && abs(dphi_MET_l1l2)>=0.5*M_PI);
+		isCR7 = ( Flag_Y_bb_pass_T && Z_pass && (l1l2_dR<1.0) && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
+		//QCD CR //
+		isCR5 = (!Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.8) && !Flag_MET_pass && !lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
 	}
 	
 	else{
@@ -585,649 +589,660 @@ int main(int argc, char *argv[])
 	reg_tags.push_back(isCR7);
 	reg_tags.push_back(isCR8);
 	
-	int ireg = get_region(reg_tags);
+	//int ireg = get_region(reg_tags);
+	
+	vector<int> regs;
+	regs = get_regions(reg_tags);
+	if(regs.size()<1) continue;
+	
+	for(unsigned ir=0; ir<regs.size(); ir++){
    
-	if(ireg<0||ireg>=nrgn) continue;
+		ireg = regs[ir];
+   
+		if(ireg<0||ireg>=nrgn) continue;
 	
-	// conditions to purify control regions //
+		// conditions to purify control regions //
 	
-	bool pure_pass = true;
+		bool pure_pass = true;
 	
-	if(isSR2){	pure_pass = (Y_DeepTag_PNetMD_XbbvsQCD>=0.4);	}
+		if(isSR2){	pure_pass = (Y_DeepTag_PNetMD_XbbvsQCD>=0.4);	}
 	
-	if(!isDL){
+		if(!isDL){
 		
-		if(isCR2){	pure_pass = (Y_DeepTag_PNetMD_XbbvsQCD>=0.1);	}
-		if(isCR3){										
-			if(kl==0) { pure_pass = (W_msoftdrop_opt2<=60.); }
-			if(kl==1) { pure_pass = (W_msoftdrop_opt1<=60.); }
+			if(isCR2){	pure_pass = (Y_DeepTag_PNetMD_XbbvsQCD>=0.1);	}
+			if(isCR3){										
+				if(kl==0) { pure_pass = (W_msoftdrop_opt2<=60.); }
+				if(kl==1) { pure_pass = (W_msoftdrop_opt1<=60.); }
+			}
+			if(isCR4){	pure_pass = (Y_DeepTag_PNetMD_XbbvsQCD>=0.1);	}
+			if(isCR6){	pure_pass = (MET_pt>=75.);	}
+	
 		}
-		if(isCR4){	pure_pass = (Y_DeepTag_PNetMD_XbbvsQCD>=0.1);	}
-		if(isCR6){	pure_pass = (MET_pt>=75.);	}
-	
-	}
 
-	// end of purification conditions //		
+		// end of purification conditions //		
 	
-	if(kl==1){
-		h_nom_reg[ireg]->Fill(0.0,1.0);
-		h_nom_reg[ireg]->Fill(1.0,b_SF);
-		h_nom_reg[ireg]->Fill(2.0,bb_SF);
-		h_nom_reg[ireg]->Fill(3.0,W_SF);
-		h_nom_reg[ireg]->Fill(4.0,bb_SF*W_SF);
-		h_nom_reg[ireg]->Fill(5.0,b_SF*W_SF*bb_SF);
-		h_nom_reg[ireg]->Fill(6.0,Top_SF);
-	}
+		if(kl==1){
+			h_nom_reg[ireg]->Fill(0.0,1.0);
+			h_nom_reg[ireg]->Fill(1.0,b_SF);
+			h_nom_reg[ireg]->Fill(2.0,bb_SF);
+			h_nom_reg[ireg]->Fill(3.0,W_SF);
+			h_nom_reg[ireg]->Fill(4.0,bb_SF*W_SF);
+			h_nom_reg[ireg]->Fill(5.0,b_SF*W_SF*bb_SF);
+			h_nom_reg[ireg]->Fill(6.0,Top_SF);
+		}
    
-	int jk_b = -1;
-	if(useBout){
-		jk_b = (nbjets_outY==0)?1:2;
-	}
-	else{
-		jk_b = (nbjets_other==0)?1:2;
-	}
-   
-	float MT = sqrt(2*l1_pt*MET_pt*(1-cos(PhiInRange(l1_phi-MET_phi))));
-   
-	bool lepid_info[nlid];
-	lepid_info[0] = true;
-	if(isDL){
-		if(abs(l1_pdgId)==13 && abs(l2_pdgId)==13) { lepid_info[1] = true;  }
-		if(abs(l1_pdgId)==11 && abs(l2_pdgId)==11) { lepid_info[2] = true;  }
-		if((abs(l1_pdgId)==11 && abs(l2_pdgId)==13) || (abs(l1_pdgId)==13 && abs(l2_pdgId)==11)) { lepid_info[3] = true;  }
-	}
-	else{
-		if(abs(l1_pdgId)==13) { lepid_info[1] = true;  }
-		if(abs(l1_pdgId)==11) { lepid_info[2] = true;  }
-	}
-	
-	// first fill few general histograms //
-   
-	h_reg->Fill(ireg,weight_nom);
-   
-	// now fill histograms binned in analysis categories //
-   
-    float weight = weight_nom;
-    
-    if(isCR4 && !isDL) { weight = weight_nom*Top_SF; } // since top tagging condition is used only in CR4
-   
-	for(int jk=0; jk<nbcat; jk++){
+		int jk_b = -1;
+		if(useBout){
+			jk_b = (nbjets_outY==0)?1:2;
+		}
+		else{
+			jk_b = (nbjets_other==0)?1:2;
+		}
 	   
-		if(!(jk==0 || jk==jk_b)) continue;
+		float MT = sqrt(2*l1_pt*MET_pt*(1-cos(PhiInRange(l1_phi-MET_phi))));
+	   
+		bool lepid_info[nlid];
+		lepid_info[0] = true;
+		if(isDL){
+			if(abs(l1_pdgId)==13 && abs(l2_pdgId)==13) { lepid_info[1] = true;  }
+			if(abs(l1_pdgId)==11 && abs(l2_pdgId)==11) { lepid_info[2] = true;  }
+			if((abs(l1_pdgId)==11 && abs(l2_pdgId)==13) || (abs(l1_pdgId)==13 && abs(l2_pdgId)==11)) { lepid_info[3] = true;  }
+		}
+		else{
+			if(abs(l1_pdgId)==13) { lepid_info[1] = true;  }
+			if(abs(l1_pdgId)==11) { lepid_info[2] = true;  }
+		}
 		
-		if(jk!=0) { weight = weight_nom*b_SF; } // applying b tagging SF only if any condition on number of b-tagged jets is used
+		// first fill few general histograms //
+	   
+		h_reg->Fill(ireg,weight_nom);
+	   
+		// now fill histograms binned in analysis categories //
+	   
+		float weight = weight_nom;
 		
-		for(int lm=0; lm<nlid; lm++){
+		if(isCR4 && !isDL) { weight = weight_nom*Top_SF; } // since top tagging condition is used only in CR4
+	   
+		for(int jk=0; jk<nbcat; jk++){
+		   
+			if(!(jk==0 || jk==jk_b)) continue;
 			
-			if(!lepid_info[lm]) continue;
+			if(jk!=0) { weight = weight_nom*b_SF; } // applying b tagging SF only if any condition on number of b-tagged jets is used
 			
-			// reference histograms corresponding to purity conditions //
-			
-			h_Y_PNetMD_XbbvsQCD_ref[ireg][jk][kl][lm]->Fill(Y_DeepTag_PNetMD_XbbvsQCD,weight);
-			h_MET_pt_ref[ireg][jk][kl][lm]->Fill(MET_pt,weight); 
-			if(kl==0){  
-				h_W_msoftdrop_ref[ireg][jk][kl][lm]->Fill(W_msoftdrop_opt2,weight); 
-			}
-			if(kl==1){  
-				h_W_msoftdrop_ref[ireg][jk][kl][lm]->Fill(W_msoftdrop_opt1,weight); 
-			}
-			
-			// ref end //
-			
-			// Now apply the purity condition & fill all histograms (including sys)
-			
-			if(pure_pass)
-			{
-   
-				h_l1_pt[ireg][jk][kl][lm]->Fill(l1_pt,weight); 
-				h_l1_eta[ireg][jk][kl][lm]->Fill(l1_eta,weight); 
-				h_l1_minisoall[ireg][jk][kl][lm]->Fill(l1_minisoall,weight); 
+			for(int lm=0; lm<nlid; lm++){
 				
-				if(isDL){
+				if(!lepid_info[lm]) continue;
 				
-					h_l2_pt[ireg][jk][kl][lm]->Fill(l2_pt,weight); 
-					h_l2_eta[ireg][jk][kl][lm]->Fill(l2_eta,weight); 
-					h_l2_minisoall[ireg][jk][kl][lm]->Fill(l2_minisoall,weight); 
+				// reference histograms corresponding to purity conditions //
 				
-					h_l1l2_mass[ireg][jk][kl][lm]->Fill(l1l2_mass,weight); 
-					h_l1l2_dR[ireg][jk][kl][lm]->Fill(l1l2_dR,weight); 
-					h_l1l2_deta[ireg][jk][kl][lm]->Fill(l1l2_deta,weight); 
-					h_l1l2_dphi[ireg][jk][kl][lm]->Fill(l1l2_dphi,weight); 
-					
-					h_dphi_MET_l1l2[ireg][jk][kl][lm]->Fill(dphi_MET_l1l2,weight); 
-				
+				h_Y_PNetMD_XbbvsQCD_ref[ireg][jk][kl][lm]->Fill(Y_DeepTag_PNetMD_XbbvsQCD,weight);
+				h_MET_pt_ref[ireg][jk][kl][lm]->Fill(MET_pt,weight); 
+				if(kl==0){  
+					h_W_msoftdrop_ref[ireg][jk][kl][lm]->Fill(W_msoftdrop_opt2,weight); 
 				}
-					
-				h_MET_pt[ireg][jk][kl][lm]->Fill(MET_pt,weight); 
-				h_MET_sig[ireg][jk][kl][lm]->Fill(MET_sig,weight); 
-				h_MT[ireg][jk][kl][lm]->Fill(MT,weight); 
-	        
-				h_Y_pt[ireg][jk][kl][lm]->Fill(Y_pt,weight); 
-				h_Y_msoftdrop[ireg][jk][kl][lm]->Fill(Y_msoftdrop,weight);
-				h_Y_msoftdrop_xbin[ireg][jk][kl][lm]->Fill(Y_msoftdrop,weight);
-				h_Y_PNetMD_XbbvsQCD[ireg][jk][kl][lm]->Fill(Y_DeepTag_PNetMD_XbbvsQCD,weight);
-				h_Y_PNetMD_WvsQCD[ireg][jk][kl][lm]->Fill(Y_DeepTag_PNetMD_WvsQCD,weight);
-				h_Y_PNet_TvsQCD[ireg][jk][kl][lm]->Fill(Y_DeepTag_PNet_TvsQCD,weight);
-				h_Y_sub1_mass[ireg][jk][kl][lm]->Fill(Y_sub1_mass,weight);
-				h_Y_sub2_mass[ireg][jk][kl][lm]->Fill(Y_sub2_mass,weight);
-				h_Y_sub1_btag[ireg][jk][kl][lm]->Fill(Y_sub1_btag,weight);
-				h_Y_sub2_btag[ireg][jk][kl][lm]->Fill(Y_sub2_btag,weight);
-				
-				h_HTlep_pt[ireg][jk][kl][lm]->Fill(HTlep_pt,weight); 
-				h_ST[ireg][jk][kl][lm]->Fill(ST,weight); 
-                        
-				float X_conv_mass;
-				
-				float X_mass;
-				if(kl==0) { X_mass = X_mass_opt2; }
-				else { X_mass = X_mass_opt1; }
-				float unrol_mass = -1.0;
-				if(X_mass>=invmassbins[0] && X_mass<invmassbins[ninvmassbins] && Y_msoftdrop>=msdbins[0] && Y_msoftdrop<msdbins[nmsdbins]){
-					unrol_mass = float(1.0*getbinid(Y_msoftdrop,nmsdbins,msdbins)*getbinid(X_mass,ninvmassbins,invmassbins));
+				if(kl==1){  
+					h_W_msoftdrop_ref[ireg][jk][kl][lm]->Fill(W_msoftdrop_opt1,weight); 
 				}
-
-				if(kl==0){           
-			
-					h_W_pt[ireg][jk][kl][lm]->Fill(W_pt_opt2,weight); 
-					h_W_msoftdrop[ireg][jk][kl][lm]->Fill(W_msoftdrop_opt2,weight); 
-					h_W_PNetMD_XbbvsQCD[ireg][jk][kl][lm]->Fill(W_DeepTag_PNetMD_XbbvsQCD_opt2,weight); 
-					h_W_PNetMD_WvsQCD[ireg][jk][kl][lm]->Fill(W_DeepTag_PNetMD_WvsQCD_opt2,weight); 
-					h_W_PNet_TvsQCD[ireg][jk][kl][lm]->Fill(W_DeepTag_PNet_TvsQCD_opt2,weight); 
-					h_W_DAK8MD_WvsQCD[ireg][jk][kl][lm]->Fill(W_DeepTag_DAK8MD_WvsQCD_opt2,weight); 
-					h_W_sub1_mass[ireg][jk][kl][lm]->Fill(W_sub1_mass_opt2,weight); 
-					h_W_sub2_mass[ireg][jk][kl][lm]->Fill(W_sub2_mass_opt2,weight); 
-					h_W_sub1_btag[ireg][jk][kl][lm]->Fill(W_sub1_btag_opt2,weight); 
-					h_W_sub2_btag[ireg][jk][kl][lm]->Fill(W_sub2_btag_opt2,weight); 
-			
-					h_dR_lW[ireg][jk][kl][lm]->Fill(dR_lW_opt2,weight); 
-					h_dy_lW[ireg][jk][kl][lm]->Fill(dy_lW_opt2,weight); 
-					h_dphi_lW[ireg][jk][kl][lm]->Fill(dphi_lW_opt2,weight);
-			
-					h_H_mass[ireg][jk][kl][lm]->Fill(H_mass_opt2,weight); 
-
-				}
-				else
+				
+				// ref end //
+				
+				// Now apply the purity condition & fill all histograms (including sys)
+				
+				if(pure_pass)
 				{
-			
-					h_W_pt[ireg][jk][kl][lm]->Fill(W_pt_opt1,weight); 
-					h_W_msoftdrop[ireg][jk][kl][lm]->Fill(W_msoftdrop_opt1,weight); 
-					h_W_PNetMD_XbbvsQCD[ireg][jk][kl][lm]->Fill(W_DeepTag_PNetMD_XbbvsQCD_opt1,weight); 
-					h_W_PNetMD_WvsQCD[ireg][jk][kl][lm]->Fill(W_DeepTag_PNetMD_WvsQCD_opt1,weight); 
-					h_W_PNet_TvsQCD[ireg][jk][kl][lm]->Fill(W_DeepTag_PNet_TvsQCD_opt1,weight); 
-					h_W_DAK8MD_WvsQCD[ireg][jk][kl][lm]->Fill(W_DeepTag_DAK8MD_WvsQCD_opt1,weight); 
-					h_W_sub1_mass[ireg][jk][kl][lm]->Fill(W_sub1_mass_opt1,weight); 
-					h_W_sub2_mass[ireg][jk][kl][lm]->Fill(W_sub2_mass_opt1,weight); 
-					h_W_sub1_btag[ireg][jk][kl][lm]->Fill(W_sub1_btag_opt1,weight); 
-					h_W_sub2_btag[ireg][jk][kl][lm]->Fill(W_sub2_btag_opt1,weight); 
-			
-					h_dR_lW[ireg][jk][kl][lm]->Fill(dR_lW_opt1,weight); 
-					h_dy_lW[ireg][jk][kl][lm]->Fill(dy_lW_opt1,weight); 
-					h_dphi_lW[ireg][jk][kl][lm]->Fill(dphi_lW_opt1,weight);
-			
-					h_H_mass[ireg][jk][kl][lm]->Fill(H_mass_opt1,weight); 
-			
-				}
-				
-				h_X_mass[ireg][jk][kl][lm]->Fill(X_mass,weight); 
-				h_X_mass_xbin[ireg][jk][kl][lm]->Fill(X_mass,weight); 
+	   
+					h_l1_pt[ireg][jk][kl][lm]->Fill(l1_pt,weight); 
+					h_l1_eta[ireg][jk][kl][lm]->Fill(l1_eta,weight); 
+					h_l1_minisoall[ireg][jk][kl][lm]->Fill(l1_minisoall,weight); 
 					
-				h_X_Y_mass[ireg][jk][kl][lm]->Fill(X_mass, Y_msoftdrop, weight);
-				h_X_Y_mass_xbin[ireg][jk][kl][lm]->Fill(X_mass, Y_msoftdrop, weight);
-			       
-				X_conv_mass = X_mass + 4000.0 * get_Y_id(Y_msoftdrop);
-				h_for_limit_X_mass[ireg][jk][kl][lm]->Fill(X_conv_mass,weight);
-				h_for_limit_X_mass_v2[ireg][jk][kl][lm]->Fill(unrol_mass,weight);
-		
-				h_nbjets_other[ireg][jk][kl][lm]->Fill(nbjets_other,weight);
-				h_nbjets_outY[ireg][jk][kl][lm]->Fill(nbjets_outY,weight);
-				h_nbjets_outY_L[ireg][jk][kl][lm]->Fill(nbjets_outY_L,weight);
-				h_nbjets[ireg][jk][kl][lm]->Fill(nbjets,weight);
-				h_nbjets_L[ireg][jk][kl][lm]->Fill(nbjets_L,weight);
-			
-				h_X_mass_sys[ireg][jk][kl][lm][0]->Fill(X_mass,weight); 
-				h_Y_msoftdrop_sys[ireg][jk][kl][lm][0]->Fill(Y_msoftdrop,weight);
-				
-				h_X_mass_xbin_sys[ireg][jk][kl][lm][0]->Fill(X_mass,weight); 
-				h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][0]->Fill(Y_msoftdrop,weight);
-				
-				h_for_limit_X_mass_sys[ireg][jk][kl][lm][0]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight);
-				h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][0]->Fill(unrol_mass,weight);
-	            h_HTlep_pt_sys[ireg][jk][kl][lm][0]->Fill(HTlep_pt,weight);
-                h_ST_sys[ireg][jk][kl][lm][0]->Fill(ST,weight); 
-                h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][0]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight);
-                h_for_limit_ST_sys[ireg][jk][kl][lm][0]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight);	
-                
-                h_for_limit_HTlep_pt[ireg][jk][kl][lm]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight);
-                h_for_limit_ST[ireg][jk][kl][lm]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight);	
-
-				float X_JESup, X_JESdn, X_JERup, X_JERdn;
-		
-				TLorentzVector Y_cand, H_cand;
-		
-				if(kl==0){
-					H_cand.SetPtEtaPhiM(H_pt_opt2*H_JESup_opt2,H_eta_opt2,H_phi_opt2,H_mass_opt2*H_JESup_opt2);
-					Y_cand.SetPtEtaPhiM(Y_pt*Y_JESup,Y_eta,Y_phi,Y_mass*Y_JESup);
-					X_JESup = (Y_cand+H_cand).M()/X_mass;
-					H_cand.SetPtEtaPhiM(H_pt_opt2*H_JESdn_opt2,H_eta_opt2,H_phi_opt2,H_mass_opt2*H_JESdn_opt2);
-					Y_cand.SetPtEtaPhiM(Y_pt*Y_JESdn,Y_eta,Y_phi,Y_mass*Y_JESdn);
-					X_JESdn = (Y_cand+H_cand).M()/X_mass;
-					H_cand.SetPtEtaPhiM(H_pt_opt2*H_JERup_opt2,H_eta_opt2,H_phi_opt2,H_mass_opt2*H_JERup_opt2);
-					Y_cand.SetPtEtaPhiM(Y_pt*Y_JERup,Y_eta,Y_phi,Y_mass);
-					X_JERup = (Y_cand+H_cand).M()/X_mass;
-					H_cand.SetPtEtaPhiM(H_pt_opt2*H_JERdn_opt2,H_eta_opt2,H_phi_opt2,H_mass_opt2*H_JERup_opt2);
-					Y_cand.SetPtEtaPhiM(Y_pt*Y_JERdn,Y_eta,Y_phi,Y_mass);
-					X_JERdn = (Y_cand+H_cand).M()/X_mass;
-				}
-				else
-				{
-					H_cand.SetPtEtaPhiM(H_pt_opt1*H_JESup_opt1,H_eta_opt1,H_phi_opt1,H_mass_opt1*H_JESup_opt1);
-					Y_cand.SetPtEtaPhiM(Y_pt*Y_JESup,Y_eta,Y_phi,Y_mass*Y_JESup);
-					X_JESup = (Y_cand+H_cand).M()/X_mass;
-					H_cand.SetPtEtaPhiM(H_pt_opt1*H_JESdn_opt1,H_eta_opt1,H_phi_opt1,H_mass_opt1*H_JESdn_opt1);
-					Y_cand.SetPtEtaPhiM(Y_pt*Y_JESdn,Y_eta,Y_phi,Y_mass*Y_JESdn);
-					X_JESdn = (Y_cand+H_cand).M()/X_mass;
-					H_cand.SetPtEtaPhiM(H_pt_opt1*H_JERup_opt1,H_eta_opt1,H_phi_opt1,H_mass_opt1*H_JERup_opt1);
-					Y_cand.SetPtEtaPhiM(Y_pt*Y_JERup,Y_eta,Y_phi,Y_mass);
-					X_JERup = (Y_cand+H_cand).M()/X_mass;
-					H_cand.SetPtEtaPhiM(H_pt_opt1*H_JERdn_opt1,H_eta_opt1,H_phi_opt1,H_mass_opt1*H_JERdn_opt1);
-					Y_cand.SetPtEtaPhiM(Y_pt*Y_JERdn,Y_eta,Y_phi,Y_mass);
-					X_JERdn = (Y_cand+H_cand).M()/X_mass;
-				}
-
-				for(int isys=0; isys<nsys; isys++){
-				
-					if(isys==0) // JES
-					{
-				
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop*Y_JESup,weight);
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop*Y_JESdn,weight);
-						
-						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop*Y_JESup,weight);
-						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop*Y_JESdn,weight);
-						
-						h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt*HTlep_pt_JESup,weight); 
-						h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt*HTlep_pt_JESdn,weight); 
-						
-						h_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST*ST_JESup,weight); 
-						h_ST_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(ST*ST_JESdn,weight); 
-				
-						h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt*HTlep_pt_JESup + 4000.0 * get_Y_id(Y_msoftdrop*Y_JESup),weight);
-						h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt*HTlep_pt_JESdn + 4000.0 * get_Y_id(Y_msoftdrop*Y_JESdn),weight);
-						
-						h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST*ST_JESup + 4000.0 * get_Y_id(Y_msoftdrop*Y_JESup),weight);
-						h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(ST*ST_JESdn + 4000.0 * get_Y_id(Y_msoftdrop*Y_JESdn),weight);
-						
-						if(!isDL){
-						
-						h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass*X_JESup,weight); 
-						h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass*X_JESdn,weight); 
-						
-						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass*X_JESup,weight); 
-						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass*X_JESdn,weight); 
-						
-						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass*X_JESup + 4000.0 * get_Y_id(Y_msoftdrop*Y_JESup),weight);
-						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass*X_JESdn + 4000.0 * get_Y_id(Y_msoftdrop*Y_JESdn),weight);
-						if(X_mass*X_JESup>=invmassbins[0] && X_mass*X_JESup<invmassbins[ninvmassbins] && Y_msoftdrop*Y_JESup>=msdbins[0] && Y_msoftdrop*Y_JESup<msdbins[nmsdbins])
-						{h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(float(getbinid(Y_msoftdrop*Y_JESup,nmsdbins,msdbins)*getbinid(X_mass*X_JESup,ninvmassbins,invmassbins)),weight);}
-						if(X_mass*X_JESdn>=invmassbins[0] && X_mass*X_JESdn<invmassbins[ninvmassbins] && Y_msoftdrop*Y_JESup>=msdbins[0] && Y_msoftdrop*Y_JESup<msdbins[nmsdbins])
-						{h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]	->Fill(float(getbinid(Y_msoftdrop*Y_JESdn,nmsdbins,msdbins)*getbinid(X_mass*X_JESdn,ninvmassbins,invmassbins)),weight);}
-							
-						}
-						
-					}
-					if(isys==1) // JER
-					{
-			
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight);
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight);
-				
-						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight);
-						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight);
-						
-						h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt*HTlep_pt_JERup,weight); 
-						h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt*HTlep_pt_JERdn,weight); 
-						
-						h_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST*ST_JERup,weight); 
-						h_ST_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(ST*ST_JERdn,weight); 
+					if(isDL){
 					
-						h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt*HTlep_pt_JERup + 4000.0 * get_Y_id(Y_msoftdrop),weight);
-						h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt*HTlep_pt_JERdn + 4000.0 * get_Y_id(Y_msoftdrop),weight);
+						h_l2_pt[ireg][jk][kl][lm]->Fill(l2_pt,weight); 
+						h_l2_eta[ireg][jk][kl][lm]->Fill(l2_eta,weight); 
+						h_l2_minisoall[ireg][jk][kl][lm]->Fill(l2_minisoall,weight); 
+					
+						h_l1l2_mass[ireg][jk][kl][lm]->Fill(l1l2_mass,weight); 
+						h_l1l2_dR[ireg][jk][kl][lm]->Fill(l1l2_dR,weight); 
+						h_l1l2_deta[ireg][jk][kl][lm]->Fill(l1l2_deta,weight); 
+						h_l1l2_dphi[ireg][jk][kl][lm]->Fill(l1l2_dphi,weight); 
 						
-						h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST*ST_JERup + 4000.0 * get_Y_id(Y_msoftdrop),weight);
-						h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(ST*ST_JERdn + 4000.0 * get_Y_id(Y_msoftdrop),weight);
-
-						if(!isDL){
-
-						h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass*X_JERup,weight); 
-						h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass*X_JERdn,weight); 
+						h_dphi_MET_l1l2[ireg][jk][kl][lm]->Fill(dphi_MET_l1l2,weight); 
+					
+					}
 						
-						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass*X_JERup,weight); 
-						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass*X_JERdn,weight); 
+					h_MET_pt[ireg][jk][kl][lm]->Fill(MET_pt,weight); 
+					h_MET_sig[ireg][jk][kl][lm]->Fill(MET_sig,weight); 
+					h_MT[ireg][jk][kl][lm]->Fill(MT,weight); 
+				
+					h_Y_pt[ireg][jk][kl][lm]->Fill(Y_pt,weight); 
+					h_Y_msoftdrop[ireg][jk][kl][lm]->Fill(Y_msoftdrop,weight);
+					h_Y_msoftdrop_xbin[ireg][jk][kl][lm]->Fill(Y_msoftdrop,weight);
+					h_Y_PNetMD_XbbvsQCD[ireg][jk][kl][lm]->Fill(Y_DeepTag_PNetMD_XbbvsQCD,weight);
+					h_Y_PNetMD_WvsQCD[ireg][jk][kl][lm]->Fill(Y_DeepTag_PNetMD_WvsQCD,weight);
+					h_Y_PNet_TvsQCD[ireg][jk][kl][lm]->Fill(Y_DeepTag_PNet_TvsQCD,weight);
+					h_Y_sub1_mass[ireg][jk][kl][lm]->Fill(Y_sub1_mass,weight);
+					h_Y_sub2_mass[ireg][jk][kl][lm]->Fill(Y_sub2_mass,weight);
+					h_Y_sub1_btag[ireg][jk][kl][lm]->Fill(Y_sub1_btag,weight);
+					h_Y_sub2_btag[ireg][jk][kl][lm]->Fill(Y_sub2_btag,weight);
+					
+					h_HTlep_pt[ireg][jk][kl][lm]->Fill(HTlep_pt,weight); 
+					h_ST[ireg][jk][kl][lm]->Fill(ST,weight); 
+							
+					float X_conv_mass;
+					
+					float X_mass;
+					if(kl==0) { X_mass = X_mass_opt2; }
+					else { X_mass = X_mass_opt1; }
+					float unrol_mass = -1.0;
+					if(X_mass>=invmassbins[0] && X_mass<invmassbins[ninvmassbins] && Y_msoftdrop>=msdbins[0] && Y_msoftdrop<msdbins[nmsdbins]){
+						unrol_mass = float(1.0*getbinid(Y_msoftdrop,nmsdbins,msdbins)*getbinid(X_mass,ninvmassbins,invmassbins));
+					}
 
-						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass*X_JERup + 4000.0 * get_Y_id(Y_msoftdrop),weight);
-						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass*X_JERdn + 4000.0 * get_Y_id(Y_msoftdrop),weight);
-						if(X_mass*X_JERup>=invmassbins[0] && X_mass*X_JERup<invmassbins[ninvmassbins] && Y_msoftdrop>=msdbins[0] && Y_msoftdrop<msdbins[nmsdbins])
-						{h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(float(getbinid(Y_msoftdrop,nmsdbins,msdbins)*getbinid(X_mass*X_JERup,ninvmassbins,invmassbins)),weight);}
-						if(X_mass*X_JERdn>=invmassbins[0] && X_mass*X_JERdn<invmassbins[ninvmassbins] && Y_msoftdrop>=msdbins[0] && Y_msoftdrop<msdbins[nmsdbins])
-						{h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]	->Fill(float(getbinid(Y_msoftdrop,nmsdbins,msdbins)*getbinid(X_mass*X_JERdn,ninvmassbins,invmassbins)),weight);}
-						
-						}					
+					if(kl==0){           
+				
+						h_W_pt[ireg][jk][kl][lm]->Fill(W_pt_opt2,weight); 
+						h_W_msoftdrop[ireg][jk][kl][lm]->Fill(W_msoftdrop_opt2,weight); 
+						h_W_PNetMD_XbbvsQCD[ireg][jk][kl][lm]->Fill(W_DeepTag_PNetMD_XbbvsQCD_opt2,weight); 
+						h_W_PNetMD_WvsQCD[ireg][jk][kl][lm]->Fill(W_DeepTag_PNetMD_WvsQCD_opt2,weight); 
+						h_W_PNet_TvsQCD[ireg][jk][kl][lm]->Fill(W_DeepTag_PNet_TvsQCD_opt2,weight); 
+						h_W_DAK8MD_WvsQCD[ireg][jk][kl][lm]->Fill(W_DeepTag_DAK8MD_WvsQCD_opt2,weight); 
+						h_W_sub1_mass[ireg][jk][kl][lm]->Fill(W_sub1_mass_opt2,weight); 
+						h_W_sub2_mass[ireg][jk][kl][lm]->Fill(W_sub2_mass_opt2,weight); 
+						h_W_sub1_btag[ireg][jk][kl][lm]->Fill(W_sub1_btag_opt2,weight); 
+						h_W_sub2_btag[ireg][jk][kl][lm]->Fill(W_sub2_btag_opt2,weight); 
+				
+						h_dR_lW[ireg][jk][kl][lm]->Fill(dR_lW_opt2,weight); 
+						h_dy_lW[ireg][jk][kl][lm]->Fill(dy_lW_opt2,weight); 
+						h_dphi_lW[ireg][jk][kl][lm]->Fill(dphi_lW_opt2,weight);
+				
+						h_H_mass[ireg][jk][kl][lm]->Fill(H_mass_opt2,weight); 
+
+					}
+					else
+					{
+				
+						h_W_pt[ireg][jk][kl][lm]->Fill(W_pt_opt1,weight); 
+						h_W_msoftdrop[ireg][jk][kl][lm]->Fill(W_msoftdrop_opt1,weight); 
+						h_W_PNetMD_XbbvsQCD[ireg][jk][kl][lm]->Fill(W_DeepTag_PNetMD_XbbvsQCD_opt1,weight); 
+						h_W_PNetMD_WvsQCD[ireg][jk][kl][lm]->Fill(W_DeepTag_PNetMD_WvsQCD_opt1,weight); 
+						h_W_PNet_TvsQCD[ireg][jk][kl][lm]->Fill(W_DeepTag_PNet_TvsQCD_opt1,weight); 
+						h_W_DAK8MD_WvsQCD[ireg][jk][kl][lm]->Fill(W_DeepTag_DAK8MD_WvsQCD_opt1,weight); 
+						h_W_sub1_mass[ireg][jk][kl][lm]->Fill(W_sub1_mass_opt1,weight); 
+						h_W_sub2_mass[ireg][jk][kl][lm]->Fill(W_sub2_mass_opt1,weight); 
+						h_W_sub1_btag[ireg][jk][kl][lm]->Fill(W_sub1_btag_opt1,weight); 
+						h_W_sub2_btag[ireg][jk][kl][lm]->Fill(W_sub2_btag_opt1,weight); 
+				
+						h_dR_lW[ireg][jk][kl][lm]->Fill(dR_lW_opt1,weight); 
+						h_dy_lW[ireg][jk][kl][lm]->Fill(dy_lW_opt1,weight); 
+						h_dphi_lW[ireg][jk][kl][lm]->Fill(dphi_lW_opt1,weight);
+				
+						h_H_mass[ireg][jk][kl][lm]->Fill(H_mass_opt1,weight); 
 				
 					}
-					if(isys==2)  // PU reweighting 
-					{
+					
+					h_X_mass[ireg][jk][kl][lm]->Fill(X_mass,weight); 
+					h_X_mass_xbin[ireg][jk][kl][lm]->Fill(X_mass,weight); 
 						
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*puWeightup/TMath::Max(float(1.e-6),puWeight));
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*puWeightdown/TMath::Max(float(1.e-6),puWeight));
-						
-						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*puWeightup/TMath::Max(float(1.e-6),puWeight));
-						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*puWeightdown/TMath::Max(float(1.e-6),puWeight));
-
-						h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt,weight*puWeightup/TMath::Max(float(1.e-6),puWeight)); 
-						h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt,weight*puWeightdown/TMath::Max(float(1.e-6),puWeight)); 
-						
-						h_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST,weight*puWeightup/TMath::Max(float(1.e-6),puWeight)); 
-						h_ST_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(ST,weight*puWeightdown/TMath::Max(float(1.e-6),puWeight)); 
-						
-						h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*puWeightup/TMath::Max(float(1.e-6),puWeight));
-						h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*puWeightdown/TMath::Max(float(1.e-6),puWeight));
-						
-						h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*puWeightup/TMath::Max(float(1.e-6),puWeight));
-						h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*puWeightdown/TMath::Max(float(1.e-6),puWeight));
-						
-						if(!isDL){
-						
-						h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*puWeightup/TMath::Max(float(1.e-6),puWeight)); 
-						h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*puWeightdown/TMath::Max(float(1.e-6),puWeight)); 
-				
-						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*puWeightup/TMath::Max(float(1.e-6),puWeight)); 
-						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*puWeightdown/TMath::Max(float(1.e-6),puWeight)); 
+					h_X_Y_mass[ireg][jk][kl][lm]->Fill(X_mass, Y_msoftdrop, weight);
+					h_X_Y_mass_xbin[ireg][jk][kl][lm]->Fill(X_mass, Y_msoftdrop, weight);
+					   
+					X_conv_mass = X_mass + 4000.0 * get_Y_id(Y_msoftdrop);
+					h_for_limit_X_mass[ireg][jk][kl][lm]->Fill(X_conv_mass,weight);
+					h_for_limit_X_mass_v2[ireg][jk][kl][lm]->Fill(unrol_mass,weight);
 			
-						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*puWeightup/TMath::Max(float(1.e-6),puWeight));
-						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*puWeightdown/TMath::Max(float(1.e-6),puWeight));
-						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*puWeightup/TMath::Max(float(1.e-6),puWeight));
-						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*puWeightdown/TMath::Max(float(1.e-6),puWeight));
-						
-						}
-						
-					}
-					if(isys==3) // LeptonSF stat & syst
-					{
+					h_nbjets_other[ireg][jk][kl][lm]->Fill(nbjets_other,weight);
+					h_nbjets_outY[ireg][jk][kl][lm]->Fill(nbjets_outY,weight);
+					h_nbjets_outY_L[ireg][jk][kl][lm]->Fill(nbjets_outY_L,weight);
+					h_nbjets[ireg][jk][kl][lm]->Fill(nbjets,weight);
+					h_nbjets_L[ireg][jk][kl][lm]->Fill(nbjets_L,weight);
+				
+					h_X_mass_sys[ireg][jk][kl][lm][0]->Fill(X_mass,weight); 
+					h_Y_msoftdrop_sys[ireg][jk][kl][lm][0]->Fill(Y_msoftdrop,weight);
+					
+					h_X_mass_xbin_sys[ireg][jk][kl][lm][0]->Fill(X_mass,weight); 
+					h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][0]->Fill(Y_msoftdrop,weight);
+					
+					h_for_limit_X_mass_sys[ireg][jk][kl][lm][0]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight);
+					h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][0]->Fill(unrol_mass,weight);
+					h_HTlep_pt_sys[ireg][jk][kl][lm][0]->Fill(HTlep_pt,weight);
+					h_ST_sys[ireg][jk][kl][lm][0]->Fill(ST,weight); 
+					h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][0]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight);
+					h_for_limit_ST_sys[ireg][jk][kl][lm][0]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight);	
+					
+					h_for_limit_HTlep_pt[ireg][jk][kl][lm]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight);
+					h_for_limit_ST[ireg][jk][kl][lm]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight);	
+
+					float X_JESup, X_JESdn, X_JERup, X_JERdn;
 			
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight));
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight));
-						
-						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight));
-						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight));
+					TLorentzVector Y_cand, H_cand;
+			
+					if(kl==0){
+						H_cand.SetPtEtaPhiM(H_pt_opt2*H_JESup_opt2,H_eta_opt2,H_phi_opt2,H_mass_opt2*H_JESup_opt2);
+						Y_cand.SetPtEtaPhiM(Y_pt*Y_JESup,Y_eta,Y_phi,Y_mass*Y_JESup);
+						X_JESup = (Y_cand+H_cand).M()/X_mass;
+						H_cand.SetPtEtaPhiM(H_pt_opt2*H_JESdn_opt2,H_eta_opt2,H_phi_opt2,H_mass_opt2*H_JESdn_opt2);
+						Y_cand.SetPtEtaPhiM(Y_pt*Y_JESdn,Y_eta,Y_phi,Y_mass*Y_JESdn);
+						X_JESdn = (Y_cand+H_cand).M()/X_mass;
+						H_cand.SetPtEtaPhiM(H_pt_opt2*H_JERup_opt2,H_eta_opt2,H_phi_opt2,H_mass_opt2*H_JERup_opt2);
+						Y_cand.SetPtEtaPhiM(Y_pt*Y_JERup,Y_eta,Y_phi,Y_mass);
+						X_JERup = (Y_cand+H_cand).M()/X_mass;
+						H_cand.SetPtEtaPhiM(H_pt_opt2*H_JERdn_opt2,H_eta_opt2,H_phi_opt2,H_mass_opt2*H_JERup_opt2);
+						Y_cand.SetPtEtaPhiM(Y_pt*Y_JERdn,Y_eta,Y_phi,Y_mass);
+						X_JERdn = (Y_cand+H_cand).M()/X_mass;
+					}
+					else
+					{
+						H_cand.SetPtEtaPhiM(H_pt_opt1*H_JESup_opt1,H_eta_opt1,H_phi_opt1,H_mass_opt1*H_JESup_opt1);
+						Y_cand.SetPtEtaPhiM(Y_pt*Y_JESup,Y_eta,Y_phi,Y_mass*Y_JESup);
+						X_JESup = (Y_cand+H_cand).M()/X_mass;
+						H_cand.SetPtEtaPhiM(H_pt_opt1*H_JESdn_opt1,H_eta_opt1,H_phi_opt1,H_mass_opt1*H_JESdn_opt1);
+						Y_cand.SetPtEtaPhiM(Y_pt*Y_JESdn,Y_eta,Y_phi,Y_mass*Y_JESdn);
+						X_JESdn = (Y_cand+H_cand).M()/X_mass;
+						H_cand.SetPtEtaPhiM(H_pt_opt1*H_JERup_opt1,H_eta_opt1,H_phi_opt1,H_mass_opt1*H_JERup_opt1);
+						Y_cand.SetPtEtaPhiM(Y_pt*Y_JERup,Y_eta,Y_phi,Y_mass);
+						X_JERup = (Y_cand+H_cand).M()/X_mass;
+						H_cand.SetPtEtaPhiM(H_pt_opt1*H_JERdn_opt1,H_eta_opt1,H_phi_opt1,H_mass_opt1*H_JERdn_opt1);
+						Y_cand.SetPtEtaPhiM(Y_pt*Y_JERdn,Y_eta,Y_phi,Y_mass);
+						X_JERdn = (Y_cand+H_cand).M()/X_mass;
+					}
 
-						h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt,weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight)); 
-						h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt,weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight)); 
-						
-						h_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST,weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight)); 
-						h_ST_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(ST,weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight)); 
-						
-						h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight));
-						h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight));
-						
-						h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight));
-						h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight));
+					for(int isys=0; isys<nsys; isys++){
 					
-						if(!isDL){
+						if(isys==0) // JES
+						{
 					
-						h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight)); 
-						h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight)); 
-						
-						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight)); 
-						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight)); 
-				
-						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight));
-						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight));
-						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight));
-						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight));
-						
-						}
-						
-					}
-					if(isys==4) // Lepton SF statistical component only
-					{
-						
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
-						
-						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
-						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
-
-						h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt,weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
-						h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt,weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
-						
-						h_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST,weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
-						h_ST_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(ST,weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
-						
-						h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
-						h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
-						
-						h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
-						h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
-						
-						if(!isDL){
-						
-						h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
-						h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
-						
-						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
-						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
-
-						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
-						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
-						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
-						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
-						
-						}
-						
-					}
-					if(isys==5) // Prefiring weight 
-					{
+							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop*Y_JESup,weight);
+							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop*Y_JESdn,weight);
+							
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop*Y_JESup,weight);
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop*Y_JESdn,weight);
+							
+							h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt*HTlep_pt_JESup,weight); 
+							h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt*HTlep_pt_JESdn,weight); 
+							
+							h_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST*ST_JESup,weight); 
+							h_ST_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(ST*ST_JESdn,weight); 
 					
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));
-						
-						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));
-						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));
-
-						h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt,weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight)); 
-						h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt,weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight)); 
-						
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));
-						
-						h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));
-						h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));
-						
-						h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));
-						h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));
-						
-						if(!isDL){
-						
-						h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight)); 
-						h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight)); 
-				
-						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight)); 
-						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight)); 
-
-						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));
-						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));
-						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));
-						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));
-						
-						}
-						
-					}
-					if(isys==6) // Xbb tagging scale factors
-					{
-						
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF));
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF));
-						
-						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF));
-						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF));
-
-						h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt,weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF)); 
-						h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt,weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF)); 
-						
-						h_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST,weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF)); 
-						h_ST_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(ST,weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF)); 
-						
-						h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF));
-						h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF));
-						
-						h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF));
-						h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF));
-						
-						if(!isDL){
-						
-						h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF)); 
-						h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF)); 
-				
-						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF)); 
-						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF)); 
-
-						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF));
-						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF));
-						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF));
-						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF));
-						
-						}
-						
-					}
-					if(isys==7) // W tagging scale factors
-					{
-				
-						
-						h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt,weight);
-						h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt,weight);
+							h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt*HTlep_pt_JESup + 4000.0 * get_Y_id(Y_msoftdrop*Y_JESup),weight);
+							h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt*HTlep_pt_JESdn + 4000.0 * get_Y_id(Y_msoftdrop*Y_JESdn),weight);
 							
-						h_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST,weight);
-						h_ST_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(ST,weight);
-
-						h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight);
-						h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight);
-						
-						h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight);
-						h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight);
-						
-						if(!isDL){
-							
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*W_SF_up/TMath::Max(double(1.e-6),W_SF));
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*W_SF_dn/TMath::Max(double(1.e-6),W_SF));
-						
-						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*W_SF_up/TMath::Max(double(1.e-6),W_SF));
-						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*W_SF_dn/TMath::Max(double(1.e-6),W_SF));	
-							
-						h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*W_SF_up/TMath::Max(double(1.e-6),W_SF)); 
-						h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*W_SF_dn/TMath::Max(double(1.e-6),W_SF)); 	
-						
-						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*W_SF_up/TMath::Max(double(1.e-6),W_SF)); 
-						h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*W_SF_dn/TMath::Max(double(1.e-6),W_SF));
-
-						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*W_SF_up/TMath::Max(double(1.e-6),W_SF));
-						h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*W_SF_dn/TMath::Max(double(1.e-6),W_SF));
-						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*W_SF_up/TMath::Max(double(1.e-6),W_SF));
-						h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*W_SF_dn/TMath::Max(double(1.e-6),W_SF));
-						
-						}
-						
-						else{
-						
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight);
-						h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight);
-						
-						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight);
-						h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight);
-							
-						}
-						
-					}
-					if(isys==8) // B tagging scale factors
-					{
-						if(jk!=0){
-							
-							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
-							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
-							
-							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
-							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
-							
-							h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt,weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
-							h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt,weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
-							
-							h_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST,weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
-							h_ST_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(ST,weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
-							
-							h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
-							h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
-						
-							h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
-							h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
+							h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST*ST_JESup + 4000.0 * get_Y_id(Y_msoftdrop*Y_JESup),weight);
+							h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(ST*ST_JESdn + 4000.0 * get_Y_id(Y_msoftdrop*Y_JESdn),weight);
 							
 							if(!isDL){
 							
-							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
-							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
-
-							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
-							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
-
-							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
-							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
-							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
-							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
-						
-							}
-						}
-						else{
+							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass*X_JESup,weight); 
+							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass*X_JESdn,weight); 
 							
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass*X_JESup,weight); 
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass*X_JESdn,weight); 
+							
+							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass*X_JESup + 4000.0 * get_Y_id(Y_msoftdrop*Y_JESup),weight);
+							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass*X_JESdn + 4000.0 * get_Y_id(Y_msoftdrop*Y_JESdn),weight);
+							if(X_mass*X_JESup>=invmassbins[0] && X_mass*X_JESup<invmassbins[ninvmassbins] && Y_msoftdrop*Y_JESup>=msdbins[0] && Y_msoftdrop*Y_JESup<msdbins[nmsdbins])
+							{h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(float(getbinid(Y_msoftdrop*Y_JESup,nmsdbins,msdbins)*getbinid(X_mass*X_JESup,ninvmassbins,invmassbins)),weight);}
+							if(X_mass*X_JESdn>=invmassbins[0] && X_mass*X_JESdn<invmassbins[ninvmassbins] && Y_msoftdrop*Y_JESup>=msdbins[0] && Y_msoftdrop*Y_JESup<msdbins[nmsdbins])
+							{h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]	->Fill(float(getbinid(Y_msoftdrop*Y_JESdn,nmsdbins,msdbins)*getbinid(X_mass*X_JESdn,ninvmassbins,invmassbins)),weight);}
+								
+							}
+							
+						}
+						if(isys==1) // JER
+						{
+				
 							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight);
 							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight);
-
+					
 							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight);
 							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight);
 							
+							h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt*HTlep_pt_JERup,weight); 
+							h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt*HTlep_pt_JERdn,weight); 
+							
+							h_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST*ST_JERup,weight); 
+							h_ST_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(ST*ST_JERdn,weight); 
+						
+							h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt*HTlep_pt_JERup + 4000.0 * get_Y_id(Y_msoftdrop),weight);
+							h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt*HTlep_pt_JERdn + 4000.0 * get_Y_id(Y_msoftdrop),weight);
+							
+							h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST*ST_JERup + 4000.0 * get_Y_id(Y_msoftdrop),weight);
+							h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(ST*ST_JERdn + 4000.0 * get_Y_id(Y_msoftdrop),weight);
+
+							if(!isDL){
+
+							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass*X_JERup,weight); 
+							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass*X_JERdn,weight); 
+							
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass*X_JERup,weight); 
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass*X_JERdn,weight); 
+
+							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass*X_JERup + 4000.0 * get_Y_id(Y_msoftdrop),weight);
+							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass*X_JERdn + 4000.0 * get_Y_id(Y_msoftdrop),weight);
+							if(X_mass*X_JERup>=invmassbins[0] && X_mass*X_JERup<invmassbins[ninvmassbins] && Y_msoftdrop>=msdbins[0] && Y_msoftdrop<msdbins[nmsdbins])
+							{h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(float(getbinid(Y_msoftdrop,nmsdbins,msdbins)*getbinid(X_mass*X_JERup,ninvmassbins,invmassbins)),weight);}
+							if(X_mass*X_JERdn>=invmassbins[0] && X_mass*X_JERdn<invmassbins[ninvmassbins] && Y_msoftdrop>=msdbins[0] && Y_msoftdrop<msdbins[nmsdbins])
+							{h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]	->Fill(float(getbinid(Y_msoftdrop,nmsdbins,msdbins)*getbinid(X_mass*X_JERdn,ninvmassbins,invmassbins)),weight);}
+							
+							}					
+					
+						}
+						if(isys==2)  // PU reweighting 
+						{
+							
+							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*puWeightup/TMath::Max(float(1.e-6),puWeight));
+							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*puWeightdown/TMath::Max(float(1.e-6),puWeight));
+							
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*puWeightup/TMath::Max(float(1.e-6),puWeight));
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*puWeightdown/TMath::Max(float(1.e-6),puWeight));
+
+							h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt,weight*puWeightup/TMath::Max(float(1.e-6),puWeight)); 
+							h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt,weight*puWeightdown/TMath::Max(float(1.e-6),puWeight)); 
+							
+							h_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST,weight*puWeightup/TMath::Max(float(1.e-6),puWeight)); 
+							h_ST_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(ST,weight*puWeightdown/TMath::Max(float(1.e-6),puWeight)); 
+							
+							h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*puWeightup/TMath::Max(float(1.e-6),puWeight));
+							h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*puWeightdown/TMath::Max(float(1.e-6),puWeight));
+							
+							h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*puWeightup/TMath::Max(float(1.e-6),puWeight));
+							h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*puWeightdown/TMath::Max(float(1.e-6),puWeight));
+							
+							if(!isDL){
+							
+							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*puWeightup/TMath::Max(float(1.e-6),puWeight)); 
+							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*puWeightdown/TMath::Max(float(1.e-6),puWeight)); 
+					
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*puWeightup/TMath::Max(float(1.e-6),puWeight)); 
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*puWeightdown/TMath::Max(float(1.e-6),puWeight)); 
+				
+							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*puWeightup/TMath::Max(float(1.e-6),puWeight));
+							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*puWeightdown/TMath::Max(float(1.e-6),puWeight));
+							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*puWeightup/TMath::Max(float(1.e-6),puWeight));
+							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*puWeightdown/TMath::Max(float(1.e-6),puWeight));
+							
+							}
+							
+						}
+						if(isys==3) // LeptonSF stat & syst
+						{
+				
+							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight));
+							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight));
+							
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight));
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight));
+
+							h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt,weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight)); 
+							h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt,weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight)); 
+							
+							h_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST,weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight)); 
+							h_ST_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(ST,weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight)); 
+							
+							h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight));
+							h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight));
+							
+							h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight));
+							h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight));
+						
+							if(!isDL){
+						
+							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight)); 
+							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight)); 
+							
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight)); 
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight)); 
+					
+							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight));
+							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight));
+							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*leptonsf_weight_stat/TMath::Max(float(1.e-6),leptonsf_weight));
+							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*leptonsf_weight_syst/TMath::Max(float(1.e-6),leptonsf_weight));
+							
+							}
+							
+						}
+						if(isys==4) // Lepton SF statistical component only
+						{
+							
+							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
+							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
+							
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
+
+							h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt,weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
+							h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt,weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
+							
+							h_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST,weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
+							h_ST_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(ST,weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
+							
+							h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
+							h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
+							
+							h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
+							h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
+							
+							if(!isDL){
+							
+							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
+							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
+							
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
+
+							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
+							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
+							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*leptonsf_weight_up/TMath::Max(float(1.e-6),leptonsf_weight));
+							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*leptonsf_weight_dn/TMath::Max(float(1.e-6),leptonsf_weight));
+							
+							}
+							
+						}
+						if(isys==5) // Prefiring weight 
+						{
+						
+							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));
+							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));
+							
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));
+
+							h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt,weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight)); 
+							h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt,weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight)); 
+							
+							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));
+							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));
+							
+							h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));
+							h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));
+							
+							h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));
+							h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));
+							
+							if(!isDL){
+							
+							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight)); 
+							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight)); 
+					
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight)); 
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight)); 
+
+							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));
+							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));
+							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*prefiringweightup/TMath::Max(double(1.e-6),prefiringweight));
+							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*prefiringweightdown/TMath::Max(double(1.e-6),prefiringweight));
+							
+							}
+							
+						}
+						if(isys==6) // Xbb tagging scale factors
+						{
+							
+							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF));
+							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF));
+							
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF));
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF));
+
+							h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt,weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF)); 
+							h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt,weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF)); 
+							
+							h_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST,weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF)); 
+							h_ST_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(ST,weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF)); 
+							
+							h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF));
+							h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF));
+							
+							h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF));
+							h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF));
+							
+							if(!isDL){
+							
+							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF)); 
+							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF)); 
+					
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF)); 
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF)); 
+
+							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF));
+							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF));
+							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*bb_SF_up/TMath::Max(double(1.e-6),bb_SF));
+							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*bb_SF_dn/TMath::Max(double(1.e-6),bb_SF));
+							
+							}
+							
+						}
+						if(isys==7) // W tagging scale factors
+						{
+					
+							
 							h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt,weight);
 							h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt,weight);
-							
+								
 							h_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST,weight);
 							h_ST_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(ST,weight);
 
 							h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight);
 							h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight);
-						
+							
 							h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight);
 							h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight);
 							
 							if(!isDL){
+								
+							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*W_SF_up/TMath::Max(double(1.e-6),W_SF));
+							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*W_SF_dn/TMath::Max(double(1.e-6),W_SF));
 							
-							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight);
-							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight);
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*W_SF_up/TMath::Max(double(1.e-6),W_SF));
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*W_SF_dn/TMath::Max(double(1.e-6),W_SF));	
+								
+							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*W_SF_up/TMath::Max(double(1.e-6),W_SF)); 
+							h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*W_SF_dn/TMath::Max(double(1.e-6),W_SF)); 	
 							
-							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight);
-							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight);
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*W_SF_up/TMath::Max(double(1.e-6),W_SF)); 
+							h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*W_SF_dn/TMath::Max(double(1.e-6),W_SF));
 
-							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight);
-							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight);
-							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight);
-							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight);
-						
+							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*W_SF_up/TMath::Max(double(1.e-6),W_SF));
+							h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*W_SF_dn/TMath::Max(double(1.e-6),W_SF));
+							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*W_SF_up/TMath::Max(double(1.e-6),W_SF));
+							h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*W_SF_dn/TMath::Max(double(1.e-6),W_SF));
+							
 							}
+							
+							else{
+							
+							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight);
+							h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight);
+							
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight);
+							h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight);
+								
+							}
+							
 						}
-					}	
-                                
-				}//sys loop
-		
-			}//purity condition
+						if(isys==8) // B tagging scale factors
+						{
+							if(jk!=0){
+								
+								h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
+								h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
+								
+								h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
+								h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
+								
+								h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt,weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
+								h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt,weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
+								
+								h_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST,weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
+								h_ST_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(ST,weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
+								
+								h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
+								h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
+							
+								h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
+								h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
+								
+								if(!isDL){
+								
+								h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
+								h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
+
+								h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
+								h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
+
+								h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
+								h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
+								h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight*b_SF_up/TMath::Max(double(1.e-6),b_SF));
+								h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight*b_SF_dn/TMath::Max(double(1.e-6),b_SF));
+							
+								}
+							}
+							else{
+								
+								h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight);
+								h_Y_msoftdrop_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight);
+
+								h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(Y_msoftdrop,weight);
+								h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	 ->Fill(Y_msoftdrop,weight);
+								
+								h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt,weight);
+								h_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(HTlep_pt,weight);
+								
+								h_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST,weight);
+								h_ST_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(ST,weight);
+
+								h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight);
+								h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight);
+							
+								h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight);
+								h_for_limit_ST_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight);
+								
+								if(!isDL){
+								
+								h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight);
+								h_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight);
+								
+								h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass,weight);
+								h_X_mass_xbin_sys[ireg][jk][kl][lm][2*(isys+1)]	->Fill(X_mass,weight);
+
+								h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight);
+								h_for_limit_X_mass_sys[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(X_mass + 4000.0 * get_Y_id(Y_msoftdrop),weight);
+								h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)-1]->Fill(unrol_mass,weight);
+								h_for_limit_X_mass_sys_v2[ireg][jk][kl][lm][2*(isys+1)]  ->Fill(unrol_mass,weight);
+							
+								}
+							}
+						}	
+									
+					}//sys loop
 			
-		}// lepid (lm)
-		
-	  }// b cat (jk)
+				}//purity condition
+				
+			}// lepid (lm)
+			
+		  }// b cat (jk)
+	  
+		}//ir (loop over regions)
+	  
 	}// W opt (kl)
 	
 	

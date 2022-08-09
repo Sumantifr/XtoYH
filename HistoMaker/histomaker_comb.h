@@ -52,6 +52,21 @@ int get_region(vector<bool> reg_tags){
   
 }
 
+vector<int> get_regions(vector<bool> reg_tags){
+
+  vector<int> regs;
+
+  int freg = -1;
+  for(unsigned ireg=0; ireg<reg_tags.size(); ireg++){
+	  if(reg_tags[ireg]){
+		  freg = int(ireg);
+		  regs.push_back(freg);
+		  }
+	  }
+  return regs;
+  
+}
+
 TH1F* get_histo_symbin(TString Y_op_name, TString W_op_name, TString reg_name, TString bcat_name, TString Wops_name, TString lep_name, string var, string addText, int nbins, float low_edge, float up_edge)
 {
 char name[200];
@@ -168,10 +183,11 @@ TString proc_Name[] = {
 "ZZTo2Q2L_XtoYH.root",
 "ZZTo2Q2Nu_XtoYH.root",
 "ZZTo4L_XtoYH.root",
-"ZZTo4Q_XtoYH.root"
+"ZZTo4Q_XtoYH.root",
+"NMSSM_XYH_YTobb_HToWWTo2L2Nu_MX_2000_MY_200_v3.root"
 */
 //Running on the data samples
- 
+
 "EGamma_UL2018A_XtoYH_Nov_2021.root",
 "EGamma_UL2018B_XtoYH_Nov_2021.root",
 "EGamma_UL2018C_XtoYH_Nov_2021.root",
@@ -180,6 +196,11 @@ TString proc_Name[] = {
 "DoubleMuon_UL2018B_XtoYH_Nov_2021.root",
 "DoubleMuon_UL2018C_XtoYH_Nov_2021.root",
 "DoubleMuon_UL2018D_XtoYH_Nov_2021.root",
+"MuonEG_UL2018A_XtoYH_Nov_2021.root",
+"MuonEG_UL2018B_XtoYH_Nov_2021.root",
+"MuonEG_UL2018C_XtoYH_Nov_2021.root",
+"MuonEG_UL2018D_XtoYH_Nov_2021.root"
+
 
 //"NMSSM_XYH_YTobb_HToWWTo2L2Nu_MX_2000_MY_200_v3.root"
 };
