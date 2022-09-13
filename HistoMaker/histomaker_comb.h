@@ -76,6 +76,16 @@ hout->Sumw2();
 return hout;
 }
 
+TH1F* get_histo_symbin_II(TString Y_op_name, TString W_op_name, TString reg_name, TString bcat_name, TString Wops_name, TString lep_name, TString top_name, string var, string addText, int nbins, float low_edge, float up_edge)
+{
+char name[500];
+sprintf(name,"h_Y_%s_W_%s_%s_%s_%s%s%s%s%s",Y_op_name.Data(),W_op_name.Data(),var.c_str(),Wops_name.Data(),reg_name.Data(),bcat_name.Data(),lep_name.Data(),top_name.Data(),addText.c_str());
+TH1F *hout = new TH1F(name, "",nbins,low_edge,up_edge);
+hout->Sumw2();
+return hout;
+}
+
+
 TH1F* get_histo_asymbin(TString Y_op_name, TString W_op_name, TString reg_name, TString bcat_name, TString Wops_name, TString lep_name, string var, string addText, int nbins, float *bins)
 {
 char name[200];
@@ -84,6 +94,17 @@ TH1F *hout = new TH1F(name, "",nbins,bins);
 hout->Sumw2();
 return hout;
 }
+
+TH1F* get_histo_asymbin_II(TString Y_op_name, TString W_op_name, TString reg_name, TString bcat_name, TString Wops_name, TString lep_name, TString top_name, string var, string addText, int nbins, float *bins)
+{
+char name[500];
+sprintf(name,"h_Y_%s_W_%s_%s_%s_%s%s%s%s%s",Y_op_name.Data(),W_op_name.Data(),var.c_str(),Wops_name.Data(),reg_name.Data(),bcat_name.Data(),lep_name.Data(),top_name.Data(),addText.c_str());
+TH1F *hout = new TH1F(name, "",nbins,bins);
+hout->Sumw2();
+return hout;
+}
+
+
 
 TH1F* getHisto1F(const char *name, const char *title, int nbins, float low_edge, float up_edge)
 {
@@ -139,7 +160,8 @@ float deep_btag_cut = 0.2783;
 
 TString proc_Name[] = {
 //"TTToSemiLeptonic_XtoYH_Nov_2021_500_501_DL.root"
-//unning on the MC samples
+//Running on the MC samples
+"TTTo2L2Nu_XtoYH.root"
 /*
 "DYJetsToLL_M-10to50_XtoYH.root",
 "DYJetsToLL_M-50_HT-100To200_XtoYH.root",
@@ -184,10 +206,13 @@ TString proc_Name[] = {
 "ZZTo2Q2Nu_XtoYH.root",
 "ZZTo4L_XtoYH.root",
 "ZZTo4Q_XtoYH.root",
-"NMSSM_XYH_YTobb_HToWWTo2L2Nu_MX_2000_MY_200_v3.root"
+"NMSSM_XYH_YTobb_HToWWTo2L2Nu_MX_2000_MY_200_v3.root",
+"NMSSM_XYH_YTobb_HToWWTo2L2Nu_MX_1500_MY_200_v3.root",
+"NMSSM_XYH_YTobb_HToWWTo2L2Nu_MX_3000_MY_100_v3.root",
+"NMSSM_XYH_YTobb_HToWWTo2L2Nu_MX_3000_MY_500_v3.root"
 */
 //Running on the data samples
-
+/*
 "EGamma_UL2018A_XtoYH_Nov_2021.root",
 "EGamma_UL2018B_XtoYH_Nov_2021.root",
 "EGamma_UL2018C_XtoYH_Nov_2021.root",
@@ -200,9 +225,7 @@ TString proc_Name[] = {
 "MuonEG_UL2018B_XtoYH_Nov_2021.root",
 "MuonEG_UL2018C_XtoYH_Nov_2021.root",
 "MuonEG_UL2018D_XtoYH_Nov_2021.root"
-
-
-//"NMSSM_XYH_YTobb_HToWWTo2L2Nu_MX_2000_MY_200_v3.root"
+*/
 };
 ////
 
@@ -611,6 +634,8 @@ TString proc_Name[] = {
   const int ninvmassbins = sizeof(invmassbins)/sizeof(invmassbins[0])-1;
 
   const int nunrollbins = nmsdbins*ninvmassbins;
+  
+  int njecmax = 0;
 
   TString rgn[] = {"SR1","SR2","CR2","CR3","CR4","CR5","CR6","CR7","CR8"};
   int nrgn = sizeof(rgn)/sizeof(rgn[0]);
@@ -628,11 +653,26 @@ TString proc_Name[] = {
   
   TString Wops[] = {"opt2","opt1"};
   int nWop = sizeof(Wops)/sizeof(Wops[0]);
-  
+ 
+  TString tops[] = {"","_Top_fullymerged","_Top_semimerged","_Top_unmerged"};
+  int ntop = sizeof(tops)/sizeof(tops[0]);
+ 
   TString lepids[] = {"","_Mu","_El","_EMu"};
   int nlid = sizeof(lepids)/sizeof(lepids[0]);
   
-  TString sysnames[] = {"JES","JER","PU","LeptonSF","LeptonSF2","Prefire","PNbbSF","PNWSF","BTG"}; 
+  TString sysnames[] = {
+	 "JES_AbsoluteStat", "JES_AbsoluteScale","JES_AbsoluteMPFBias", 
+	 "JES_FlavorQCD", "JES_Fragmentation", 
+	 "JES_PileUpDataMC",  "JES_PileUpPtBB", "JES_PileUpPtEC1", "JES_PileUpPtEC2", //"PileUpPtHF",
+	 "JES_PileUpPtRef",
+	 "JES_RelativeFSR", "JES_RelativeJEREC1", "JES_RelativeJEREC2", //"RelativeJERHF",
+	 "JES_RelativePtBB", "JES_RelativePtEC1", "JES_RelativePtEC2", //"RelativePtHF", 
+	 "JES_RelativeBal", "JES_RelativeSample", "JES_RelativeStatEC", "JES_RelativeStatFSR", //"RelativeStatHF", 
+	 "JES_SinglePionECAL", "JES_SinglePionHCAL","JES_TimePtEta",
+	 "JES_Total"
+	 "JER",
+	 "PU","LeptonSF","LeptonSF2","Prefire","PNbbSF","PNWSF","BTG","TrigSF1","TrigSF2"}; 
+	 
   int nsys = sizeof(sysnames)/sizeof(sysnames[0]);
   
   bool isDL = false;
