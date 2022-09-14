@@ -22,22 +22,23 @@
 
 using namespace std;
 
-int get_Y_id(float  Y_msoftdrop ) {
-                        int Y_id;
-                        if ( Y_msoftdrop < 50.0  )                               Y_id = 0;
-                        else if ( Y_msoftdrop >= 50.0 &&  Y_msoftdrop < 100.0 )  Y_id = 1;
-                        else if ( Y_msoftdrop >= 100.0 &&  Y_msoftdrop < 150.0 ) Y_id = 2;
-                        else if ( Y_msoftdrop >= 150.0 &&  Y_msoftdrop < 200.0 ) Y_id = 3;
-                        else if ( Y_msoftdrop >= 200.0 &&  Y_msoftdrop < 250.0 ) Y_id = 4;
-                        else if ( Y_msoftdrop >= 250.0 &&  Y_msoftdrop < 300.0 ) Y_id = 5;
-                        else if ( Y_msoftdrop >= 300.0 &&  Y_msoftdrop < 350.0 ) Y_id = 6;
-                        else if ( Y_msoftdrop >= 350.0 &&  Y_msoftdrop < 400.0 ) Y_id = 7;
-                        else if ( Y_msoftdrop >= 400.0 &&  Y_msoftdrop < 450.0 ) Y_id = 8;
-                        else if ( Y_msoftdrop >= 450.0 &&  Y_msoftdrop < 500.0 ) Y_id = 9;
-                        else if ( Y_msoftdrop >= 500.0 &&  Y_msoftdrop < 550.0 ) Y_id = 10;
-                        else if ( Y_msoftdrop >= 550.0 &&  Y_msoftdrop < 600.0 ) Y_id = 11;
-                        return Y_id;
-                      }
+int get_Y_id(float  Y_msoftdrop ) 
+{
+	int Y_id;
+    if ( Y_msoftdrop < 50.0  )                               Y_id = 0;
+    else if ( Y_msoftdrop >= 50.0  &&  Y_msoftdrop < 100.0 ) Y_id = 1;
+    else if ( Y_msoftdrop >= 100.0 &&  Y_msoftdrop < 150.0 ) Y_id = 2;
+    else if ( Y_msoftdrop >= 150.0 &&  Y_msoftdrop < 200.0 ) Y_id = 3;
+    else if ( Y_msoftdrop >= 200.0 &&  Y_msoftdrop < 250.0 ) Y_id = 4;
+    else if ( Y_msoftdrop >= 250.0 &&  Y_msoftdrop < 300.0 ) Y_id = 5;
+    else if ( Y_msoftdrop >= 300.0 &&  Y_msoftdrop < 350.0 ) Y_id = 6;
+    else if ( Y_msoftdrop >= 350.0 &&  Y_msoftdrop < 400.0 ) Y_id = 7;
+    else if ( Y_msoftdrop >= 400.0 &&  Y_msoftdrop < 450.0 ) Y_id = 8;
+    else if ( Y_msoftdrop >= 450.0 &&  Y_msoftdrop < 500.0 ) Y_id = 9;
+    else if ( Y_msoftdrop >= 500.0 &&  Y_msoftdrop < 550.0 ) Y_id = 10;
+    else if ( Y_msoftdrop >= 550.0 &&  Y_msoftdrop < 600.0 ) Y_id = 11;
+    return Y_id;
+}
 
 int get_region(vector<bool> reg_tags){
 
@@ -630,7 +631,8 @@ TString proc_Name[] = {
   float msdbins[] = {30,45,65,90,120,160,205,255,310,370,430,500,600}; //roughly 3 sigma bin width
   const int nmsdbins = sizeof(msdbins)/sizeof(msdbins[0])-1;
   
-  float invmassbins[] = {400, 500, 625, 750, 900, 1100, 1300, 1500, 1750, 1950, 2200, 2400, 2650, 2900, 3400, 4000};
+  //float invmassbins[] = {400, 500, 625, 750, 900, 1100, 1300, 1500, 1750, 1950, 2200, 2400, 2650, 2900, 3400, 4000};
+  float invmassbins[] = {400, 550, 700, 900, 1100, 1300, 1500, 1750, 2000, 2250, 2500, 2750, 3000, 3500, 4000};
   const int ninvmassbins = sizeof(invmassbins)/sizeof(invmassbins[0])-1;
 
   const int nunrollbins = nmsdbins*ninvmassbins;
