@@ -665,13 +665,13 @@ TString proc_Name[] = {
   TString sysnames[] = {
 	 "JES_AbsoluteStat", "JES_AbsoluteScale","JES_AbsoluteMPFBias", 
 	 "JES_FlavorQCD", "JES_Fragmentation", 
-	 "JES_PileUpDataMC",  "JES_PileUpPtBB", "JES_PileUpPtEC1", "JES_PileUpPtEC2", //"PileUpPtHF",
+	 "JES_PileUpDataMC",  "JES_PileUpPtBB", "JES_PileUpPtEC1", "JES_PileUpPtEC2", 
 	 "JES_PileUpPtRef",
-	 "JES_RelativeFSR", "JES_RelativeJEREC1", "JES_RelativeJEREC2", //"RelativeJERHF",
-	 "JES_RelativePtBB", "JES_RelativePtEC1", "JES_RelativePtEC2", //"RelativePtHF", 
-	 "JES_RelativeBal", "JES_RelativeSample", "JES_RelativeStatEC", "JES_RelativeStatFSR", //"RelativeStatHF", 
+	 "JES_RelativeFSR", "JES_RelativeJEREC1", "JES_RelativeJEREC2", 
+	 "JES_RelativePtBB", "JES_RelativePtEC1", "JES_RelativePtEC2", 
+	 "JES_RelativeBal", "JES_RelativeSample", "JES_RelativeStatEC", "JES_RelativeStatFSR", 
 	 "JES_SinglePionECAL", "JES_SinglePionHCAL","JES_TimePtEta",
-	 "JES_Total"
+	 "JES_Total",
 	 "JER",
 	 "PU","LeptonSF","LeptonSF2","Prefire","PNbbSF","PNWSF","BTG","TrigSF1","TrigSF2"}; 
 	 
