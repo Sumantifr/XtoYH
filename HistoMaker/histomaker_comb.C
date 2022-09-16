@@ -271,8 +271,8 @@ int main(int argc, char *argv[])
                                       h_for_limit_ST_sys[ij][jk][kl][lm][mn][0] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"unrolled_ST","_nom",240,0,48000);                                         
                                       h_for_limit_ST_sys_v2[ij][jk][kl][lm][mn][0] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"unrolled_ST_v2","_nom",nunrollbins,float(0.0),float(nunrollbins));                                         
                                           
-                                      h_X_Y_mass_sys[ij][jk][kl][lm][mn][0]              = new TH2F("h_Y_"+Ytype[y_wp]+"_W_"+Wtype[w_wp]+"_X_Y_mass_"+Wops[kl]+"_"+rgn[ij]+bcats[jk]+lepids[lm]+tops[mn], "", 40, 0.0, 4000.0, 40, 0.0, 600.0);
-                                      h_ST_Y_mass_sys[ij][jk][kl][lm][mn][0]              = new TH2F("h_Y_"+Ytype[y_wp]+"_W_"+Wtype[w_wp]+"_ST_Y_mass_"+Wops[kl]+"_"+rgn[ij]+bcats[jk]+lepids[lm]+tops[mn], "", 40, 0.0, 4000.0, 40, 0.0, 600.0);
+                                      h_X_Y_mass_sys[ij][jk][kl][lm][mn][0]              = new TH2F("h_Y_"+Ytype[y_wp]+"_W_"+Wtype[w_wp]+"_X_Y_mass_"+Wops[kl]+"_"+rgn[ij]+bcats[jk]+lepids[lm]+tops[mn]+"_nom", "",40, 0.0, 4000.0, 40, 0.0, 600.0);
+                                      h_ST_Y_mass_sys[ij][jk][kl][lm][mn][0]             = new TH2F("h_Y_"+Ytype[y_wp]+"_W_"+Wtype[w_wp]+"_ST_Y_mass_"+Wops[kl]+"_"+rgn[ij]+bcats[jk]+lepids[lm]+tops[mn]+"_nom","", 40, 0.0, 4000.0, 40, 0.0, 600.0);
                                         
                                       //Systematic uncertainties
 									  for(int isys=0; isys<nsys; isys++){
@@ -291,8 +291,8 @@ int main(int argc, char *argv[])
                                         h_for_limit_HTlep_pt_sys[ij][jk][kl][lm][mn][2*(isys+1)-1]   = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"unrolled_HTlep_pt",name,240,0,48000);
                                         h_for_limit_ST_sys[ij][jk][kl][lm][mn][2*(isys+1)-1]         = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"unrolled_ST",name,240,0,48000);
 										h_for_limit_ST_sys_v2[ij][jk][kl][lm][mn][2*(isys+1)-1]         = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"unrolled_ST_v2",name,nunrollbins,float(0.0),float(nunrollbins));
-										h_X_Y_mass_sys[ij][jk][kl][lm][mn][2*(isys+1)-1]             = new TH2F("h_Y_"+Ytype[y_wp]+"_W_"+Wtype[w_wp]+"_X_Y_mass_"+Wops[kl]+"_"+rgn[ij]+bcats[jk]+lepids[lm]+tops[mn]+"_"+name, "", 40, 0.0, 4000.0, 40, 0.0, 600.0);
-                                        h_ST_Y_mass_sys[ij][jk][kl][lm][mn][2*(isys+1)-1]            = new TH2F("h_Y_"+Ytype[y_wp]+"_W_"+Wtype[w_wp]+"_ST_Y_mass_"+Wops[kl]+"_"+rgn[ij]+bcats[jk]+lepids[lm]+tops[mn]+"_"+name, "", 40, 0.0, 4000.0, 40, 0.0, 600.0);
+										h_X_Y_mass_sys[ij][jk][kl][lm][mn][2*(isys+1)-1]             = new TH2F("h_Y_"+Ytype[y_wp]+"_W_"+Wtype[w_wp]+"_X_Y_mass_"+Wops[kl]+"_"+rgn[ij]+bcats[jk]+lepids[lm]+tops[mn]+name, "", 40, 0.0, 4000.0, 40, 0.0, 600.0);
+                                        h_ST_Y_mass_sys[ij][jk][kl][lm][mn][2*(isys+1)-1]            = new TH2F("h_Y_"+Ytype[y_wp]+"_W_"+Wtype[w_wp]+"_ST_Y_mass_"+Wops[kl]+"_"+rgn[ij]+bcats[jk]+lepids[lm]+tops[mn]+name, "", 40, 0.0, 4000.0, 40, 0.0, 600.0);
                                         
 										//dn systematics
                                         sprintf(name,"_%s_dn",sysnames[isys].Data());
@@ -418,7 +418,6 @@ int main(int argc, char *argv[])
    
 	// read number of JES+JER uncs. //
 	njecmax = (*Y_JESup_split).size();
-   
 	// Condition to avoid double counting in data //
         bool mu_trig = Muon_trig_pass;
         bool el_trig = Electron_trig_pass;	
@@ -488,7 +487,7 @@ int main(int argc, char *argv[])
 				SF_Trig    = TMath::Max(float(1.e-3),float(h_trigmumu->GetBinContent(pt1bin, pt2bin))) ;	
 				SF_Trig_stat    = TMath::Max(float(1.e-3),float(h_trigmumu->GetBinContent(pt1bin, pt2bin))) ;
 				SF_Trig_syst    = TMath::Max(float(1.e-3),float(h_trigmumu->GetBinContent(pt1bin, pt2bin))) ;
-				std::cout << fabs(l1_pdgId) << "\t" << fabs(l2_pdgId) << "\t" << l1_pt <<"\t" << l2_pt << "\t" << pt1bin << "\t" << pt2bin << "\t" << SF_Trig << std::endl;
+				//std::cout << fabs(l1_pdgId) << "\t" << fabs(l2_pdgId) << "\t" << l1_pt <<"\t" << l2_pt << "\t" << pt1bin << "\t" << pt2bin << "\t" << SF_Trig << std::endl;
             }
    		 } //mu-mu trigger
          else if( !mu_trig && el_trig && abs(l1_pdgId)==11 && abs(l2_pdgId)==11)
@@ -500,7 +499,7 @@ int main(int argc, char *argv[])
                 SF_Trig    = TMath::Max(float(1.e-3),float(h_trigmumu->GetBinContent(pt1bin, pt2bin))) ;
 				SF_Trig_stat    = TMath::Max(float(1.e-3),float(h_trigmumu->GetBinContent(pt1bin, pt2bin))) ;
 				SF_Trig_syst    = TMath::Max(float(1.e-3),float(h_trigmumu->GetBinContent(pt1bin, pt2bin))) ;
-                std::cout << fabs(l1_pdgId) << "\t" << fabs(l2_pdgId) << "\t" << l1_pt <<"\t" << l2_pt << "\t" << pt1bin << "\t" << pt2bin << "\t" << SF_Trig << std::endl;
+                //std::cout << fabs(l1_pdgId) << "\t" << fabs(l2_pdgId) << "\t" << l1_pt <<"\t" << l2_pt << "\t" << pt1bin << "\t" << pt2bin << "\t" << SF_Trig << std::endl;
              }
    		 } // e-e trigger
          else if(!mu_trig && !el_trig &&  emu_trig && ((abs(l1_pdgId)==11 && abs(l2_pdgId)==13) || (abs(l1_pdgId)==13 && abs(l2_pdgId)==11)) )
@@ -532,6 +531,8 @@ int main(int argc, char *argv[])
 
     double SF_Trig_2_up = SF_Trig + abs(SF_Trig-1);
     double SF_Trig_2_dn = SF_Trig - abs(SF_Trig-1);
+
+    cout << SF_Trig << "\t" << SF_Trig_stat << "\t" << SF_Trig_syst << "\t" << SF_Trig_1_up << "\t" << SF_Trig_1_dn << "\t" << SF_Trig_2_up << "\t" << SF_Trig_2_dn << endl;
 
 	// Tagger scale factors // (simplified version for time being)
 	
@@ -829,7 +830,6 @@ int main(int argc, char *argv[])
 		float weight = weight_nom;
 		
 		if(isCR4 && !isDL) { weight = weight_nom*Top_SF; } // since top tagging condition is used only in CR4
-	   
 		for(int jk=0; jk<nbcat; jk++){
 		   
 			if(!(jk==0 || jk==jk_b)) continue;
@@ -969,19 +969,19 @@ int main(int argc, char *argv[])
 					h_nbjets[ireg][jk][kl][lm]->Fill(nbjets,weight);
 					h_nbjets_L[ireg][jk][kl][lm]->Fill(nbjets_L,weight);
 				
-					
+	            //cout << "check! dude: 1" << endl;			
                     for(int mn = 0 ; mn < ntop ; mn++)
                     {
-						if( mn == 0 || ( mn == 1 && top_fullymerged) || ( mn == 2 && !top_fullymerged && top_semimerged) || ( mn == 3 && !top_fullymerged && !top_semimerged)  )
+			if( mn == 0 || ( mn == 1 && top_fullymerged) || ( mn == 2 && !top_fullymerged && top_semimerged) || ( mn == 3 && !top_fullymerged && !top_semimerged)  )
                         {
-							h_Y_msoftdrop[ireg][jk][kl][lm][mn]->Fill(Y_msoftdrop,weight);
-						    h_Y_mass[ireg][jk][kl][lm][mn]->Fill(Y_mass,weight);
+			    h_Y_msoftdrop[ireg][jk][kl][lm][mn]->Fill(Y_msoftdrop,weight);
+			    h_Y_mass[ireg][jk][kl][lm][mn]->Fill(Y_mass,weight);
                             h_Y_PNetMD_XbbvsQCD[ireg][jk][kl][lm][mn]->Fill(Y_DeepTag_PNetMD_XbbvsQCD,weight);
                             h_HTlep_pt[ireg][jk][kl][lm][mn]->Fill(HTlep_pt,weight);
                             h_ST[ireg][jk][kl][lm][mn]->Fill(ST,weight);
 							
                             h_Y_msoftdrop_xbin[ireg][jk][kl][lm][mn]->Fill(Y_msoftdrop,weight);
-						    h_Y_mass_xbin[ireg][jk][kl][lm][mn]->Fill(Y_msoftdrop,weight);
+			    h_Y_mass_xbin[ireg][jk][kl][lm][mn]->Fill(Y_msoftdrop,weight);
                             h_Y_msoftdrop_sys[ireg][jk][kl][lm][mn][0]->Fill(Y_msoftdrop,weight);
                             h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][mn][0]->Fill(Y_msoftdrop,weight);
 
@@ -1011,35 +1011,33 @@ int main(int argc, char *argv[])
                             
 								h_X_Y_mass_sys[ireg][jk][kl][lm][mn][0]->Fill(X_mass, Y_msoftdrop, weight);
 							
-							}
-                            
-
-						}
-                    }//mn
-					
+				    }
+			   }
+                       }//mn
 					vector<float> X_JESup_split, X_JESdn_split;
 					
 					TLorentzVector Y_cand, H_cand;
-					
-					for(int ijes=0; ijes<njecmax; ijes++){
-						if(kl==0){
-							H_cand.SetPtEtaPhiM(H_pt_opt2*(*H_JESup_split_opt2)[ijes],H_eta_opt2,H_phi_opt2,H_mass_opt2*(*H_JESup_split_opt2)[ijes]);
-							Y_cand.SetPtEtaPhiM(Y_pt*(*Y_JESup_split)[ijes],Y_eta,Y_phi,Y_mass*(*Y_JESup_split)[ijes]);
-							X_JESup_split.push_back((Y_cand+H_cand).M()/X_mass);
-							H_cand.SetPtEtaPhiM(H_pt_opt2*(*H_JESdn_split_opt2)[ijes],H_eta_opt2,H_phi_opt2,H_mass_opt2*(*H_JESdn_split_opt2)[ijes]);
-							Y_cand.SetPtEtaPhiM(Y_pt*(*Y_JESdn_split)[ijes],Y_eta,Y_phi,Y_mass*(*Y_JESdn_split)[ijes]);
-							X_JESdn_split.push_back((Y_cand+H_cand).M()/X_mass);
+		            if (!isDL){		        	
+						for(int ijes=0; ijes<njecmax; ijes++){
+							if(kl==0){
+								H_cand.SetPtEtaPhiM(H_pt_opt2*(*H_JESup_split_opt2)[ijes],H_eta_opt2,H_phi_opt2,H_mass_opt2*(*H_JESup_split_opt2)[ijes]);
+								Y_cand.SetPtEtaPhiM(Y_pt*(*Y_JESup_split)[ijes],Y_eta,Y_phi,Y_mass*(*Y_JESup_split)[ijes]);
+								X_JESup_split.push_back((Y_cand+H_cand).M()/X_mass);
+								H_cand.SetPtEtaPhiM(H_pt_opt2*(*H_JESdn_split_opt2)[ijes],H_eta_opt2,H_phi_opt2,H_mass_opt2*(*H_JESdn_split_opt2)[ijes]);
+								Y_cand.SetPtEtaPhiM(Y_pt*(*Y_JESdn_split)[ijes],Y_eta,Y_phi,Y_mass*(*Y_JESdn_split)[ijes]);
+								X_JESdn_split.push_back((Y_cand+H_cand).M()/X_mass);
+							}
+							else{
+								H_cand.SetPtEtaPhiM(H_pt_opt1*(*H_JESup_split_opt1)[ijes],H_eta_opt1,H_phi_opt1,H_mass_opt1*(*H_JESup_split_opt1)[ijes]);
+								Y_cand.SetPtEtaPhiM(Y_pt*(*Y_JESup_split)[ijes],Y_eta,Y_phi,Y_mass*(*Y_JESup_split)[ijes]);
+								X_JESup_split.push_back((Y_cand+H_cand).M()/X_mass);
+								H_cand.SetPtEtaPhiM(H_pt_opt1*(*H_JESdn_split_opt1)[ijes],H_eta_opt1,H_phi_opt1,H_mass_opt1*(*H_JESdn_split_opt1)[ijes]);
+								Y_cand.SetPtEtaPhiM(Y_pt*(*Y_JESdn_split)[ijes],Y_eta,Y_phi,Y_mass*(*Y_JESdn_split)[ijes]);
+								X_JESdn_split.push_back((Y_cand+H_cand).M()/X_mass);
+							}
 						}
-						else{
-							H_cand.SetPtEtaPhiM(H_pt_opt1*(*H_JESup_split_opt1)[ijes],H_eta_opt1,H_phi_opt1,H_mass_opt1*(*H_JESup_split_opt1)[ijes]);
-							Y_cand.SetPtEtaPhiM(Y_pt*(*Y_JESup_split)[ijes],Y_eta,Y_phi,Y_mass*(*Y_JESup_split)[ijes]);
-							X_JESup_split.push_back((Y_cand+H_cand).M()/X_mass);
-							H_cand.SetPtEtaPhiM(H_pt_opt1*(*H_JESdn_split_opt1)[ijes],H_eta_opt1,H_phi_opt1,H_mass_opt1*(*H_JESdn_split_opt1)[ijes]);
-							Y_cand.SetPtEtaPhiM(Y_pt*(*Y_JESdn_split)[ijes],Y_eta,Y_phi,Y_mass*(*Y_JESdn_split)[ijes]);
-							X_JESdn_split.push_back((Y_cand+H_cand).M()/X_mass);
-						}
-					}
-					
+                    }
+				        //cout << "check! dude: 3" << endl;	
 					vector<float> shape_weight_up, shape_weight_dn, shape_weight_nom;
 					
 					shape_weight_up.push_back(puWeightup);				shape_weight_dn.push_back(puWeightdown);  			shape_weight_nom.push_back(puWeight);
@@ -1057,14 +1055,14 @@ int main(int argc, char *argv[])
 					shape_weight_up.push_back(SF_Trig_1_up);			shape_weight_dn.push_back(SF_Trig_1_dn);			shape_weight_nom.push_back(SF_Trig);
 					shape_weight_up.push_back(SF_Trig_2_up);			shape_weight_dn.push_back(SF_Trig_2_dn);			shape_weight_nom.push_back(SF_Trig);
 					
-					
+		                    //cout << "check! dude: 4 " << endl;			
    				    for(int isys=0; isys<nsys; isys++){
 						for(int mn = 0 ; mn < ntop ; mn++)
 						{
 							bool top_cond = false;
 							if( mn == 0 || ( mn == 1 && top_fullymerged) || ( mn == 2 && !top_fullymerged && top_semimerged) || ( mn == 3 && !top_fullymerged && !top_semimerged)  ) { top_cond = true; }
 							if(!top_cond) continue; 
-							
+				            //cout << "check! dude" << endl;			
      					    if(isys==0 || isys<njecmax) // JES + JER (splitted in sources)
 		 				    {
 								
@@ -1117,11 +1115,15 @@ int main(int argc, char *argv[])
 								}
 							
 							}
-							
+                                                        
+                            X_JESup_split.clear();
+                            X_JESdn_split.clear();  
+
+							//cout << "check! dude" << endl;
 							if(isys>=njecmax) // Weight-based systematics (SFs)
 							{
 							
-								int isys1 = isys-(njecmax+1);
+								int isys1 = isys-(njecmax);
 							
 								float weight_up = weight*shape_weight_up[isys1]/TMath::Max(float(1.e-6),shape_weight_nom[isys1]);
 								float weight_dn = weight*shape_weight_dn[isys1]/TMath::Max(float(1.e-6),shape_weight_nom[isys1]);
@@ -1169,6 +1171,10 @@ int main(int argc, char *argv[])
 									h_X_Y_mass_sys[ireg][jk][kl][lm][mn][2*(isys+1)]  ->Fill(X_mass, Y_msoftdrop, weight_dn);
 								}
 							}
+							
+							shape_weight_up.clear();
+							shape_weight_dn.clear();
+							shape_weight_nom.clear();
                             
                         }//top conditions 
 
