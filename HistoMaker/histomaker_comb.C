@@ -126,13 +126,7 @@ int main(int argc, char *argv[])
   TH1F* h_leadbjet_btag_DeepFlav[nrgn][nbcat][nWop][nlid];  
   
   TH1F *h_Y_pt[nrgn][nbcat][nWop][nlid];
-
-  TH1F *h_Y_msoftdrop[nrgn][nbcat][nWop][nlid][ntop];
-  TH1F *h_Y_mass[nrgn][nbcat][nWop][nlid][ntop];
-  TH1F *h_Y_msoftdrop_xbin[nrgn][nbcat][nWop][nlid][ntop];
-  TH1F *h_Y_mass_xbin[nrgn][nbcat][nWop][nlid][ntop];
-  TH1F *h_Y_PNetMD_XbbvsQCD[nrgn][nbcat][nWop][nlid][ntop];
-
+  
   TH1F *h_Y_PNetMD_WvsQCD[nrgn][nbcat][nWop][nlid];
   TH1F *h_Y_PNet_TvsQCD[nrgn][nbcat][nWop][nlid];
   TH1F *h_Y_sub1_mass[nrgn][nbcat][nWop][nlid];
@@ -173,6 +167,13 @@ int main(int argc, char *argv[])
   TH2F* h_X_Y_mass_xbin[nrgn][nbcat][nWop][nlid];   
   TH2F* h_X_Y_mass_sys[nrgn][nbcat][nWop][nlid][ntop][1+2*nsys];  
   TH2F* h_ST_Y_mass_sys[nrgn][nbcat][nWop][nlid][ntop][1+2*nsys];  
+  
+  
+  TH1F *h_Y_msoftdrop[nrgn][nbcat][nWop][nlid][ntop];
+  TH1F *h_Y_mass[nrgn][nbcat][nWop][nlid][ntop];
+  TH1F *h_Y_msoftdrop_xbin[nrgn][nbcat][nWop][nlid][ntop];
+  TH1F *h_Y_mass_xbin[nrgn][nbcat][nWop][nlid][ntop];
+  TH1F *h_Y_PNetMD_XbbvsQCD[nrgn][nbcat][nWop][nlid][ntop];
   
   TH1F *h_Y_msoftdrop_sys[nrgn][nbcat][nWop][nlid][ntop][1+2*nsys];
   TH1F *h_Y_msoftdrop_xbin_sys[nrgn][nbcat][nWop][nlid][ntop][1+2*nsys];
@@ -1051,7 +1052,12 @@ int main(int argc, char *argv[])
 					else{
 						shape_weight_up.push_back(1);					shape_weight_dn.push_back(1); 				shape_weight_nom.push_back(1); 
 					}
-					shape_weight_up.push_back(b_SF_up);					shape_weight_dn.push_back(b_SF_dn); 				shape_weight_nom.push_back(b_SF); // only with condition on # of b jets
+					if(jk!=0){
+						shape_weight_up.push_back(b_SF_up);					shape_weight_dn.push_back(b_SF_dn); 				shape_weight_nom.push_back(b_SF); // only with condition on # of b jets
+					}
+					else{
+						shape_weight_up.push_back(1);					shape_weight_dn.push_back(1); 				shape_weight_nom.push_back(1);
+					}
 					shape_weight_up.push_back(SF_Trig_1_up);			shape_weight_dn.push_back(SF_Trig_1_dn);			shape_weight_nom.push_back(SF_Trig);
 					shape_weight_up.push_back(SF_Trig_2_up);			shape_weight_dn.push_back(SF_Trig_2_dn);			shape_weight_nom.push_back(SF_Trig);
 					
