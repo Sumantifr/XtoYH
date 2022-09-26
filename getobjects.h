@@ -1,7 +1,7 @@
 #include "Anal_XtoYH.h"
 //#include "Functions.h"
 
-void getmuons(std::vector<Muon> &vmuons, float ptcut=25, float etacut=2.5, string ID_str="", int maxsize=njetmx, float dxy_cut=0.2, float dz_cut=0.5)
+void getmuons(std::vector<Muon> &vmuons, float ptcut=25, float etacut=2.5, string ID_str="", bool use_iso=false, bool use_miniiso=false, int maxsize=njetmx, float dxy_cut=0.2, float dz_cut=0.5)
 {
 
 for(int mu=0; mu<(nMuon); mu++){
@@ -18,8 +18,13 @@ for(int mu=0; mu<(nMuon); mu++){
     else if (ID_str.find("Medium")!=string::npos && !Muon_isMed[mu]) continue;
     else if (ID_str.find("Tight")!=string::npos && !Muon_TightID[mu]) continue;
    
-    //bool mu_iso = Muon_Iso_ID(Muon_pfiso[mu]);
-    //if(!mu_iso) continue;
+    if(use_iso){
+		if(Muon_pfiso[mu]>=0.15) continue;  // cut on relative PF-isolation (i.e. isolation divided by pt)
+	}
+	
+	if(use_miniiso){
+		if(Muon_minisoall[mu]>=0.1) continue; // cut on relative mini-isolation (i.e. mini-isolation divided by pt)
+	}
     
     if(fabs(Muon_dxy[mu])>dxy_cut || fabs(Muon_dz[mu])>dz_cut) continue;
     
@@ -76,7 +81,7 @@ for(int mu=0; mu<(nMuon); mu++){
 	
 }
 
-void getelectrons(std::vector<Electron> &velectrons, float ptcut=25, float etacut=2.5, string ID_str="", int maxsize=njetmx, float dxy_cut=0.05, float dz_cut=0.1)
+void getelectrons(std::vector<Electron> &velectrons, float ptcut=25, float etacut=2.5, string ID_str="", bool use_iso=false, bool use_miniiso=false, int maxsize=njetmx, float dxy_cut=0.05, float dz_cut=0.1)
 {
 
  for(int ie=0; ie<(nElectron); ie++) {
@@ -104,6 +109,14 @@ void getelectrons(std::vector<Electron> &velectrons, float ptcut=25, float etacu
 					   ||(fabs(Electron_supcl_eta[ie])>1.5660 && fabs(Electron_dxy[ie])<(2*dxy_cut) && fabs(Electron_dz[ie])<(2*dz_cut)));
 
 	if(!impact_pass) continue;
+	
+	if(use_iso){
+		if(Electron_pfiso_eacor[mu]>=0.12) continue;  // cut on relative PF-isolation (i.e. isolation divided by pt)
+	}
+	
+	if(use_miniiso){
+		if(Electron_minisoall[mu]>=0.1) continue;    // cut on relative mini-isolation (i.e. mini-isolation divided by pt)
+	}
         
     Electron velectron;
 
