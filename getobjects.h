@@ -111,11 +111,11 @@ void getelectrons(std::vector<Electron> &velectrons, float ptcut=25, float etacu
 	if(!impact_pass) continue;
 	
 	if(use_iso){
-		if(Electron_pfiso_eacor[mu]>=0.12) continue;  // cut on relative PF-isolation (i.e. isolation divided by pt)
+		if(Electron_pfiso_eacor[ie]>=0.12) continue;  // cut on relative PF-isolation (i.e. isolation divided by pt)
 	}
 	
 	if(use_miniiso){
-		if(Electron_minisoall[mu]>=0.1) continue;    // cut on relative mini-isolation (i.e. mini-isolation divided by pt)
+		if(Electron_minisoall[ie]>=0.1) continue;    // cut on relative mini-isolation (i.e. mini-isolation divided by pt)
 	}
         
     Electron velectron;
