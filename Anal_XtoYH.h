@@ -977,6 +977,7 @@
 
    bool isMC;
    bool isFastSIM;
+   bool isSignal;
    
    bool isDL;
    

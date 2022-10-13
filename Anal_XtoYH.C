@@ -110,17 +110,20 @@ int main(int argc, char *argv[])
    //4: directory to store output root files
    //5: isMC boolean: Enter 1 or 0 (NOT true or false)
    //6: isFastSIM: Enter 1 or 0  (NOT true or false)
+   //7: isDL: Enter 1 or 0  (NOT true or false)
+   //8: isSignal: Enter 1 or 0  (NOT true or false)
 	
-   if((argc-1)!=7){
-	cout<<"Need exactly 7 arguments. Exiting!"<<endl;
+   if((argc-1)!=8){
+	cout<<"Need exactly 8 arguments. Exiting!"<<endl;
 	return 0;
    }
    
    std::istringstream(argv[5]) >> isMC;  					//(for true/false): std::boolalpha >> isMC;
    std::istringstream(argv[6]) >> isFastSIM; 				//(for true/false): std::boolalpha >> isFastSIM;
    std::istringstream(argv[7]) >> isDL;						//(for true/false): std::boolalpha >> isDL;
+   std::istringstream(argv[8]) >> isSignal;					//(for true/false): std::boolalpha >> isSignal;
    
-   cout<<"Program started with isMC: "<< isMC << " & isFastSIM: " << isFastSIM <<" & isDiLepton: "<<isDL<<" input file: "<<argv[3]<<" line numbers: initial-"<<argv[1]<<" final-"<<argv[2]<<endl;
+   cout<<"Program started with isMC: "<< isMC << " & isFastSIM: " << isFastSIM <<" & isDiLepton: "<<isDL<<" & isSignal: "<<isSignal<<" input file: "<<argv[3]<<" line numbers: initial-"<<argv[1]<<" final-"<<argv[2]<<endl;
    cout<<"Output will be saved in: "<<argv[4]<<endl;
       
    string inputFile=argv[3];
@@ -2277,7 +2280,7 @@ int main(int argc, char *argv[])
 			}
 		}
 	
-		if(!isFastSIM){
+		if(!isSignal){
 			weight *= Generator_weight;
 		}
 		weight *= puWeight;
