@@ -159,6 +159,16 @@ double PNTop_SF_M_dn[PNTop_SF_nptbins] = {1.12-0.07,0.98-0.03,0.97-0.03,0.99-0.0
 float PN_Top_med = 0.8;
 float deep_btag_cut = 0.2783; 
 
+//masscut on AK8 jets //
+float msd_cut = 30;
+
+//Z veto window //
+float Z_mass_min = 75;
+float Z_mass_max = 120;
+
+//mini-isolation cut for lepton//
+float miniso_cut = 0.1;
+
 TString proc_Name[] = {
 //"TTToSemiLeptonic_XtoYH_Nov_2021_500_501_DL.root"
 //Running on the MC samples

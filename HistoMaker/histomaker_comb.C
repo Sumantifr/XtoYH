@@ -655,9 +655,9 @@ int main(int argc, char *argv[])
 	 }
    }
    
-   // Selections so that regions where SFs are not application are not used //
+   // Selections so that regions where ParticleNet bb tagger is not trianed or SFs are not derived are not used //
 
-   if(Y_msoftdrop<30.) continue;
+   if(Y_msoftdrop < msd_cut) continue;
    
    // inclusive histograms //
    
@@ -683,6 +683,9 @@ int main(int argc, char *argv[])
    // only run once for dileptonic channel
    if(isDL && kl>0) break; 
    
+   // Opposite-charge condition for dileptonic channel
+   if(isDL && l1_pdgId*l2_pdgId<0) continue;
+   
 	// Defining booleans for signal & control regions //
 	
 	vector<bool> reg_tags;
@@ -698,11 +701,18 @@ int main(int argc, char *argv[])
 	bool isCR8(false);
    
 	bool lep_miniso;
-	if(isDL) {  lep_miniso = (l1_minisoall<0.1 && l2_minisoall<0.1)?true:false; }
-	else {  (lep_miniso = l1_minisoall<0.1)?true:false; }
+	if(isDL) {  lep_miniso = (l1_minisoall<miniso_cut && l2_minisoall<miniso_cut)?true:false; }
+	else {  (lep_miniso = l1_minisoall<miniso_cut)?true:false; }
 	 
-    bool Z_veto = ((l1l2_mass>10. && l1l2_mass<75.) || (l1l2_mass>120.));
-    bool Z_pass = (l1l2_mass>=75. && l1l2_mass<=120.);
+    bool Z_veto = ((l1l2_mass>10. && l1l2_mass<Z_mass_min) || (l1l2_mass>Z_mass_max));
+    bool Z_pass = (l1l2_mass>=Z_mass_min && l1l2_mass<=Z_mass_max);
+  
+	// Apply 30 GeV cut on W candidate soft-drop mass in SL channel (PNet is trained only after mSD > 30 GeV) //
+	if(!isDL){	
+		if(kl==0) { if( W_msoftdrop_opt2 < msd_cut) continue; }
+		if(kl==1) { if( W_msoftdrop_opt1 < msd_cut) continue; }
+	}
+	// end of W candidate soft-drop mass cut //
   
 	if(isDL){
 		//signal regions//
