@@ -1006,6 +1006,7 @@
    float MET_phi_JESup, MET_phi_JESdn, MET_phi_JERup, MET_phi_JERdn, MET_phi_UnclusEup, MET_phi_UnclusEdn;
    vector<float> MET_pt_JESup_split, MET_pt_JESdn_split;
    vector<float> MET_phi_JESup_split, MET_phi_JESdn_split;
+   float MET_pt_HEMcor, MET_phi_HEMcor;
    
    float Y_pt, Y_y, Y_eta, Y_phi, Y_mass;
    float Y_msoftdrop, Y_tau21, Y_tau32;
@@ -1018,6 +1019,7 @@
    int Y_genindex, Y_genbindex[2];
    float Y_JESup, Y_JESdn, Y_JERup, Y_JERdn;
    vector<float> Y_JESup_split, Y_JESdn_split;
+   float Y_HEMcor;
  
    float W_pt[nmaxWcands], W_y[nmaxWcands], W_eta[nmaxWcands], W_phi[nmaxWcands], W_mass[nmaxWcands];
    float W_msoftdrop[nmaxWcands], W_tau21[nmaxWcands], W_tau32[nmaxWcands];
@@ -1030,13 +1032,16 @@
    int W_genindex[nmaxWcands];
    float W_JESup[nmaxWcands], W_JESdn[nmaxWcands], W_JERup[nmaxWcands], W_JERdn[nmaxWcands];
    vector<float> W_JESup_split[nmaxWcands], W_JESdn_split[nmaxWcands];
+   float W_HEMcor[nmaxWcands];
    
    float H_pt[nmaxWcands], H_y[nmaxWcands], H_eta[nmaxWcands], H_phi[nmaxWcands], H_mass[nmaxWcands];
    int H_genindex[nmaxWcands];
-   float H_JESup[nmaxWcands], H_JESdn[nmaxWcands], H_JERup[nmaxWcands], H_JERdn[nmaxWcands];
+   float H_JESup[nmaxWcands], H_JESdn[nmaxWcands], H_JERup[nmaxWcands], H_JERdn[nmaxWcands], H_HEMcor[nmaxWcands];
    vector<float> H_JESup_split[nmaxWcands], H_JESdn_split[nmaxWcands];
    
    float X_mass[nmaxWcands]; 
+   float X_mass_JESup[nmaxWcands], X_mass_JESdn[nmaxWcands], X_mass_JERup[nmaxWcands], X_mass_JERdn[nmaxWcands], X_mass_HEMcor[nmaxWcands];
+   vector<float> X_mass_JESup_split[nmaxWcands], X_mass_JESdn_split[nmaxWcands];
    
    float dR_lW[nmaxWcands], dphi_lW[nmaxWcands], dy_lW[nmaxWcands];
 
@@ -1044,13 +1049,14 @@
    
    float l1l2_mass, l1l2_dR, l1l2_deta, l1l2_dphi, dphi_MET_l1l2;
    
-   float HTlep_pt, HTlep_pt_JESup, HTlep_pt_JESdn, HTlep_pt_JERup, HTlep_pt_JERdn;
+   float HTlep_pt, HTlep_pt_JESup, HTlep_pt_JESdn, HTlep_pt_JERup, HTlep_pt_JERdn, HTlep_pt_HEMcor;
    vector<float>  HTlep_pt_JESup_split, HTlep_pt_JESdn_split;
    
-   float ST, ST_JESup, ST_JESdn, ST_JERup, ST_JERdn;
+   float ST, ST_JESup, ST_JESdn, ST_JERup, ST_JERdn, ST_HEMcor;
    vector<float> ST_JESup_split, ST_JESdn_split;
    
    int nbjets_other, nbjets_outY, nbjets_outY_L, nbjets, nbjets_L;
+   int nbjets_outY_HEMcor;
    
    bool Flag_Y_bb_pass_T, Flag_Y_bb_pass_M, Flag_Y_bb_pass_L;
    bool Flag_H_W_pass_T_opt1, Flag_H_W_pass_M_opt1, Flag_H_W_pass_L_opt1, Flag_H_m_pass_opt1, Flag_dR_lW_pass_opt1;

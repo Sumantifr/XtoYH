@@ -378,6 +378,12 @@ void getAK4jets(std::vector<AK4Jet> &Jets, float ptcut=30, float etacut=2.5, boo
     sJet.jesdn_TimePtEta = PFJetAK4_jesdn_TimePtEta[ijet];
     sJet.jesdn_Total = PFJetAK4_jesdn_Total[ijet];
     
+    if(isMC){
+		sJet.HEMcor = get_HEM_Correction(sJet.p4);
+	}else{
+		sJet.HEMcor = 1.;
+	}
+    
     Jets.push_back(sJet);
     
     if(int(Jets.size())>=maxsize) break;
@@ -534,6 +540,12 @@ void getAK8jets(std::vector<AK8Jet> &LJets, float ptcut=200, float etacut=2.5, b
     LJet.jesdn_SinglePionHCAL = PFJetAK8_jesdn_SinglePionHCAL[ijet];
     LJet.jesdn_TimePtEta = PFJetAK8_jesdn_TimePtEta[ijet];
     LJet.jesdn_Total = PFJetAK8_jesdn_Total[ijet];
+    
+    if(isMC){
+		LJet.HEMcor = get_HEM_Correction(LJet.p4);
+	}else{
+		LJet.HEMcor = 1.;
+	}
     
     LJet.haselectron = LJet.hasmuon = LJet.hastau = LJet.hasqg = LJet.hasb = LJet.hasleptop = LJet.hashadtop = LJet.hastop = LJet.hasmatchmu = LJet.hasmatche = false;
     LJet.hasleptop_alldecay = LJet.hashadtop_alldecay = false;
@@ -1358,7 +1370,28 @@ void get_JES_sys(AK4Jet Jet, vector<float> &jecvalues, string var="up")
 	}	
 }
 
-void get_corrected_MET(vector<AK4Jet> Jets, vector<float> &MET_pt_var, vector<float> &MET_phi_var, float met_pt,float met_phi, string var="up", int nmax=njecmax)
+void get_corrected_MET(vector<AK4Jet> Jets_old, vector<AK4Jet> Jets_new, float &MET_pt_var, float &MET_phi_var, float met_pt,float met_phi)
+{
+	TLorentzVector varied_p4;
+	TLorentzVector nom_p4;
+	
+	TLorentzVector MET_p4_org;
+	MET_p4_org.SetPtEtaPhiM(met_pt,0,met_phi,0);
+	
+	for(unsigned ijet=0; ijet<Jets_old.size(); ijet++){
+		
+		nom_p4  += Jets_old[ijet].p4;
+		varied_p4 += Jets_new[ijet].p4;
+	
+	}
+	
+	TLorentzVector MET_p4;
+	MET_p4 = MET_p4_org - varied_p4 + nom_p4;
+	MET_pt_var = MET_p4.Pt();
+	MET_phi_var = MET_p4.Phi();
+}
+
+void get_corrected_MET_JESVar(vector<AK4Jet> Jets, vector<float> &MET_pt_var, vector<float> &MET_phi_var, float met_pt,float met_phi, string var="up", int nmax=njecmax)
 {
 	TLorentzVector varied_p4[nmax];
 	TLorentzVector nom_p4;
@@ -1487,4 +1520,20 @@ void get_corrected_MET(vector<AK4Jet> Jets, vector<float> &MET_pt_var, vector<fl
 		
 	}
 		
+}
+
+void get_HEM_Corrected_MET(vector<AK4Jet> Jets, float &MET_pt_var, float &MET_phi_var, float met_pt,float met_phi)
+{
+
+vector<AK4Jet> Jets_HEMcor;
+
+for(auto & jet : Jets){	
+	AK4Jet jet_new = jet;
+	float HEMcor = get_HEM_Correction(jet_new.p4);
+	jet_new.p4 *= HEMcor;
+	Jets_HEMcor.push_back(jet_new);
+}
+
+get_corrected_MET(Jets, Jets_HEMcor, MET_pt_var, MET_phi_var, met_pt, met_phi);
+
 }

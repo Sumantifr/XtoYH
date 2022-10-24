@@ -96,6 +96,8 @@ class AK4Jet {
   float jesdn_TimePtEta;
   float jesdn_Total;
   
+  float HEMcor;
+  
   TLorentzVector p4;
 };
 
@@ -236,6 +238,8 @@ class AK8Jet {
   float jesdn_SinglePionHCAL;
   float jesdn_TimePtEta;
   float jesdn_Total;
+  
+  float HEMcor;
   
   bool  label_Top_bc;
   bool  label_Top_bcq;

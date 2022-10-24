@@ -233,3 +233,33 @@ if(normalize==1){
 }
 
 }
+
+void check_zero_bin(TH1D *hin)
+{
+        for(int bn=0; bn<hin->GetNbinsX(); bn++){
+          if((hin->GetBinContent(bn+1)) < 1.e-12){ hin->SetBinContent(bn+1,1.e-12);  }
+        }
+}
+
+void check_zero_bin_2D(TH2D *hin)
+{
+        for(int bx=0; bx<hin->GetNbinsX(); bx++){
+			for(int by=0; by<hin->GetNbinsX(); by++){
+				if((hin->GetBinContent(bx+1,by+1)) < 1.e-12){ hin->SetBinContent(bx+1,by+1,1.e-12);  }
+			}
+        }
+}
+
+float get_HEM_Correction(TLorentzVector p4)
+{
+
+TLorentzVector p4_old;
+float cor_factor = 1;
+p4_old = p4;
+if((p4_old.Phi()>-1.57) && (p4_old.Phi()<-0.87)){
+	if(p4_old.Eta()>=-2.5 && p4_old.Eta()<-1.3) { cor_factor = 0.8; }
+	else if(p4_old.Eta()>=-3.0 && p4_old.Eta()<-2.5) { cor_factor = 0.7; }
+}
+return cor_factor;
+
+}

@@ -280,6 +280,7 @@ int main(int argc, char *argv[])
    Tout->Branch("MET_pt_UnclusEdn", &MET_pt_UnclusEdn, "MET_pt_UnclusEdn/F");
    Tout->Branch("MET_pt_JESup_split", &MET_pt_JESup_split);
    Tout->Branch("MET_pt_JESdn_split", &MET_pt_JESdn_split);
+   Tout->Branch("MET_pt_HEMcor", &MET_pt_HEMcor, "MET_pt_HEMcor/F");
    
    Tout->Branch("MET_phi_JESup", &MET_phi_JESup, "MET_phi_JESup/F");
    Tout->Branch("MET_phi_JESdn", &MET_phi_JESdn, "MET_phi_JESdn/F");
@@ -289,6 +290,7 @@ int main(int argc, char *argv[])
    Tout->Branch("MET_phi_UnclusEdn", &MET_phi_UnclusEdn, "MET_phi_UnclusEdn/F");
    Tout->Branch("MET_phi_JESup_split", &MET_phi_JESup_split);
    Tout->Branch("MET_phi_JESdn_split", &MET_phi_JESdn_split);
+   Tout->Branch("MET_phi_HEMcor", &MET_phi_HEMcor, "MET_phi_HEMcor/F");
 
    // lepton info //
    
@@ -370,10 +372,10 @@ int main(int argc, char *argv[])
    Tout->Branch("Y_JESdn", &Y_JESdn, "Y_JESdn/F");	
    Tout->Branch("Y_JERup", &Y_JERup, "Y_JERup/F");	
    Tout->Branch("Y_JERdn", &Y_JERdn, "Y_JERdn/F");	
-   
+   Tout->Branch("Y_HEMcor", &Y_HEMcor, "Y_HEMcor/F");	
    Tout->Branch("Y_JESup_split",&Y_JESup_split);
    Tout->Branch("Y_JESdn_split",&Y_JESdn_split);
-   
+  
    if(!isDL){
 	   
 	// W boson related branches based on option -1    
@@ -421,7 +423,7 @@ int main(int argc, char *argv[])
 	Tout->Branch("W_JESdn_opt1", &W_JESdn[0], "W_JESdn/F");	
 	Tout->Branch("W_JERup_opt1", &W_JERup[0], "W_JERup/F");	
 	Tout->Branch("W_JERdn_opt1", &W_JERdn[0], "W_JERdn/F");	
-	
+	Tout->Branch("W_HEMcor_opt1", &W_HEMcor[0], "W_HEMcor/F");	
 	Tout->Branch("W_JESup_split_opt1",&W_JESup_split[0]);
     Tout->Branch("W_JESdn_split_opt1",&W_JESdn_split[0]);
    
@@ -436,9 +438,18 @@ int main(int argc, char *argv[])
 	Tout->Branch("H_JERup_opt1", &H_JERup[0], "H_JERup/F");	
 	Tout->Branch("H_JERdn_opt1", &H_JERdn[0], "H_JERdn/F");	
 	Tout->Branch("H_JESup_split_opt1",&H_JESup_split[0]);
-    Tout->Branch("H_JESdn_split_opt1",&H_JESdn_split[0]);	
+    Tout->Branch("H_JESdn_split_opt1",&H_JESdn_split[0]);
+    Tout->Branch("H_HEMcor_opt1", &H_HEMcor[0], "H_HEMcor/F");			
    
 	Tout->Branch("X_mass_opt1", &X_mass[0], "X_mass/F");	
+	Tout->Branch("X_mass_JESup_opt1", &X_mass_JESup[0], "X_mass_JESup/F");	
+	Tout->Branch("X_mass_JESdn_opt1", &X_mass_JESdn[0], "X_mass_JESdn/F");	
+	Tout->Branch("X_mass_JESup_split_opt1",&X_mass_JESup_split);
+    Tout->Branch("X_mass_JESdn_split_opt1",&X_mass_JESdn_split);	
+	Tout->Branch("X_mass_JERup_opt1", &X_mass_JERup[0], "X_mass_JERup/F");
+	Tout->Branch("X_mass_JERdn_opt1", &X_mass_JERdn[0], "X_mass_JERdn/F");
+	Tout->Branch("X_mass_JERdn_opt1", &X_mass_JERdn[0], "X_mass_JERdn/F");
+	Tout->Branch("X_mass_HEMcor_opt1", &X_mass_HEMcor[0], "X_mass_HEMcor/F");
    
 	Tout->Branch("dR_lW_opt1", &dR_lW[0], "dR_lW/F");	
 	Tout->Branch("dy_lW_opt1", &dy_lW[0], "dy_lW/F");	
@@ -489,7 +500,7 @@ int main(int argc, char *argv[])
 	Tout->Branch("W_JESdn_opt2", &W_JESdn[1], "W_JESdn[1]/F");	
 	Tout->Branch("W_JERup_opt2", &W_JERup[1], "W_JERup[1]/F");	
 	Tout->Branch("W_JERdn_opt2", &W_JERdn[1], "W_JERdn[1]/F");	
-	
+	Tout->Branch("W_HEMcor_opt2", &W_HEMcor[1], "W_HEMcor[1]/F");	
 	Tout->Branch("W_JESup_split_opt2",&W_JESup_split[1]);
     Tout->Branch("W_JESdn_split_opt2",&W_JESdn_split[1]);	
 
@@ -504,9 +515,17 @@ int main(int argc, char *argv[])
 	Tout->Branch("H_JERup_opt2", &H_JERup[1], "H_JERup[1]/F");	
 	Tout->Branch("H_JERdn_opt2", &H_JERdn[1], "H_JERdn[1]/F");	
 	Tout->Branch("H_JESup_split_opt2",&H_JESup_split[1]);
-    Tout->Branch("H_JESdn_split_opt2",&H_JESdn_split[1]);	
+    Tout->Branch("H_JESdn_split_opt2",&H_JESdn_split[1]);
+    Tout->Branch("H_HEMcor_opt2", &H_HEMcor[1], "H_HEMcor[1]/F");		
 
 	Tout->Branch("X_mass_opt2", &X_mass[1], "X_mass[1]/F");
+	Tout->Branch("X_mass_JESup_opt2", &X_mass_JESup[1], "X_mass_JESup[1]/F");	
+	Tout->Branch("X_mass_JESdn_opt2", &X_mass_JESdn[1], "X_mass_JESdn[1]/F");	
+	Tout->Branch("X_mass_JESup_split_opt2",&X_mass_JESup_split[1]);
+    Tout->Branch("X_mass_JESdn_split_opt2",&X_mass_JESdn_split[1]);	
+	Tout->Branch("X_mass_JERup_opt2", &X_mass_JERup[1], "X_mass_JERup[1]/F");
+	Tout->Branch("X_mass_JERdn_opt2", &X_mass_JERdn[1], "X_mass_JERdn[1]/F");
+	Tout->Branch("X_mass_HEMcor_opt2", &X_mass_HEMcor[1], "X_mass_HEMcor[1]/F");
 
 	Tout->Branch("dR_lW_opt2", &dR_lW[1], "dR_lW[1]/F");
 	Tout->Branch("dy_lW_opt2", &dy_lW[1], "dy_lW[1]/F");
@@ -541,7 +560,7 @@ int main(int argc, char *argv[])
    Tout->Branch("HTlep_pt_JERdn", &HTlep_pt_JERdn, "HTlep_pt_JERdn/F");
    Tout->Branch("HTlep_pt_JESup_split",&HTlep_pt_JESup_split);
    Tout->Branch("HTlep_pt_JESdn_split",&HTlep_pt_JESdn_split);	
-
+   Tout->Branch("HTlep_pt_HEMcor", &HTlep_pt_HEMcor, "HTlep_pt_HEMcor/F");
    
    Tout->Branch("ST", &ST, "ST/F");
    Tout->Branch("ST_JESup", &ST_JESup, "ST_JESup/F");
@@ -550,6 +569,7 @@ int main(int argc, char *argv[])
    Tout->Branch("ST_JERdn", &ST_JERdn, "ST_JERdn/F");
    Tout->Branch("ST_JESup_split",&ST_JESup_split);
    Tout->Branch("ST_JESdn_split",&ST_JESdn_split);	
+   Tout->Branch("ST_HEMcor", &ST_HEMcor, "ST_HEMcor/F");
    
    // # of b-tagged jets with different conditions //
    
@@ -557,7 +577,8 @@ int main(int argc, char *argv[])
    Tout->Branch("nbjets_outY", &nbjets_outY, "nbjets_outY/I");	
    Tout->Branch("nbjets_outY_L", &nbjets_outY_L, "nbjets_outY_L/I");	
    Tout->Branch("nbjets", &nbjets, "nbjets/I");	
-   Tout->Branch("nbjets_L", &nbjets_L, "nbjets_L/I");	
+   Tout->Branch("nbjets_L", &nbjets_L, "nbjets_L/I");
+   Tout->Branch("nbjets_outY_HEMcor", &nbjets_outY_HEMcor, "nbjets_outY_HEMcor/I");		
    
    // Different flags and control regions   
 
@@ -1364,8 +1385,10 @@ int main(int argc, char *argv[])
     MET_phi_UnclusEup = PuppiMET_phi_UnclusEup;
     MET_phi_UnclusEdn = PuppiMET_phi_UnclusEdn;
     
-    get_corrected_MET(Jets,MET_pt_JESup_split,MET_phi_JESup_split,MET_pt,MET_phi,"up");
-    get_corrected_MET(Jets,MET_pt_JESdn_split,MET_phi_JESdn_split,MET_pt,MET_phi,"down");
+    get_corrected_MET_JESVar(Jets,MET_pt_JESup_split,MET_phi_JESup_split,MET_pt,MET_phi,"up");
+    get_corrected_MET_JESVar(Jets,MET_pt_JESdn_split,MET_phi_JESdn_split,MET_pt,MET_phi,"down");
+    
+    get_HEM_Corrected_MET(Jets,MET_pt_HEMcor,MET_phi_HEMcor,MET_pt,MET_phi);
         
     ////trigger object along with pdgid////
     vector<TrigObj> trigobjects;
@@ -1996,19 +2019,23 @@ int main(int argc, char *argv[])
 		}
 		else { Y_genbindex[0] = Y_genbindex[1] = Y_genindex = -1; }
 		
+		//JES 
 		Y_JESup = LJets[Y_cand].jesup_Total;
 		Y_JESdn = LJets[Y_cand].jesdn_Total;
-		
 		get_JES_sys(LJets[Y_cand],Y_JESup_split,"up");
 		get_JES_sys(LJets[Y_cand],Y_JESdn_split,"down");
 		
+		//JER
 		if(isMC){
 			Y_JERup = LJets[Y_cand].JERup;//LJets[Y_cand].JER;
 			Y_JERdn = LJets[Y_cand].JERdn;//LJets[Y_cand].JER;
 		}
 		else{
 			Y_JERup = Y_JERdn = 0;
-			}
+		}
+		
+		//HEM
+		Y_HEMcor = LJets[Y_cand].HEMcor;
 				
 		if(vleptons.size()>0){
 			for(unsigned ilep=0; ilep<vleptons.size(); ilep++){
@@ -2025,6 +2052,10 @@ int main(int argc, char *argv[])
 	for(int jw=0; jw<nmaxWcands; jw++){
 	
 		if(W_cand[jw]>=0 && W_cand[jw]<int(LJets.size())) {
+			
+			if(Y_cand>=0) {
+				X_mass[jw] = (LJets[Y_cand].p4 + LJets[W_cand[jw]].p4 + vleptons[0].p4 + pnu[jw]).M();
+			}	
 		
 			W_pt[jw] = LJets[W_cand[jw]].pt;
 			W_y[jw] = LJets[W_cand[jw]].y;
@@ -2082,15 +2113,24 @@ int main(int argc, char *argv[])
 			}
 			else { W_genindex[jw] = -1; }
 		
+			//JES 
 			W_JESup[jw] = LJets[W_cand[jw]].jesup_Total;
 			W_JESdn[jw] = LJets[W_cand[jw]].jesdn_Total;
-			
 			get_JES_sys(LJets[W_cand[jw]],W_JESup_split[jw],"up");
 			get_JES_sys(LJets[W_cand[jw]],W_JESdn_split[jw],"down");
 			
-			W_JERup[jw] = LJets[W_cand[jw]].JERup;//LJets[W_cand[jw]].JER;
-			W_JERdn[jw] = LJets[W_cand[jw]].JERdn;//LJets[W_cand[jw]].JER;
-		
+			//JER
+			if(isMC){
+				W_JERup[jw] = LJets[W_cand[jw]].JERup;//LJets[W_cand[jw]].JER;
+				W_JERdn[jw] = LJets[W_cand[jw]].JERdn;//LJets[W_cand[jw]].JER;
+			}
+			else{
+				W_JERup[jw] = W_JERdn[jw] = 0;
+			}
+			
+			//HEM
+			W_HEMcor[jw] = LJets[W_cand[jw]].HEMcor;
+
 			if(vleptons.size()>0 && pnu[jw].Eta()>-100){
 			
 				TLorentzVector W_mom = LJets[W_cand[jw]].p4;
@@ -2118,20 +2158,32 @@ int main(int argc, char *argv[])
 				W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].jesup_Total*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].jesup_Total*LJets[W_cand[jw]].p4.M());
 				pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JESup, MET_phi_JESup, random_no);
 				H_JESup[jw] = (W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt();
-			
+				if(Y_cand>=0) {
+					X_mass_JESup[jw] = (LJets[Y_cand].p4 * Y_JESup + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw];
+				}
+				
 				W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].jesdn_Total*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].jesdn_Total*LJets[W_cand[jw]].p4.M());
 				pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JESdn, MET_phi_JESdn, random_no);
 				H_JESdn[jw] = (W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt();
+				if(Y_cand>=0) {
+					X_mass_JESdn[jw] = (LJets[Y_cand].p4 * Y_JESdn + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw];
+				}
 				
 				for(unsigned ijec=0; ijec<njecmax; ijec++){
 					
 					W_mom.SetPtEtaPhiM(W_JESup_split[jw][ijec]*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),W_JESup_split[jw][ijec]*LJets[W_cand[jw]].p4.M());
 					pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JESup_split[ijec], MET_phi_JESup_split[ijec], random_no);
 					H_JESup_split[jw].push_back((W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt());
+					if(Y_cand>=0) {
+						X_mass_JESup_split[jw].push_back((LJets[Y_cand].p4 * Y_JESup_split[ijec] + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw]);
+					}
 					
 					W_mom.SetPtEtaPhiM(W_JESdn_split[jw][ijec]*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),W_JESdn_split[jw][ijec]*LJets[W_cand[jw]].p4.M());
 					pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JESdn_split[ijec], MET_phi_JESdn_split[ijec], random_no);
 					H_JESdn_split[jw].push_back((W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt());
+					if(Y_cand>=0) {
+						X_mass_JESdn_split[jw].push_back((LJets[Y_cand].p4 * Y_JESdn_split[ijec] + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw]);
+					}
 				}
 			
 				if(isMC){
@@ -2139,17 +2191,32 @@ int main(int argc, char *argv[])
 					W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].JERup*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].JERup*LJets[W_cand[jw]].p4.M());
 					pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JERup, MET_phi_JERup, random_no);
 					H_JERup[jw] = (W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt();
-			
+					if(Y_cand>=0) {
+						X_mass_JERup[jw] = (LJets[Y_cand].p4 * Y_JERup + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw];
+					}
+					
 					W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].JERdn*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].JERdn*LJets[W_cand[jw]].p4.M());
 					pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JERdn, MET_phi_JERdn, random_no);
 					H_JERdn[jw] = (W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt();
+					if(Y_cand>=0) {
+						X_mass_JERdn[jw] = (LJets[Y_cand].p4 * Y_JERdn + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw];
+					}
+					
+					W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].HEMcor*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].HEMcor*LJets[W_cand[jw]].p4.M());
+					pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JERup, MET_phi_JERup, random_no);
+					H_HEMcor[jw] = (W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt();
+					if(Y_cand>=0) {
+						X_mass_HEMcor[jw] = (LJets[Y_cand].p4 * Y_HEMcor + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw];
+					}
+				}
+				else{
+					
+					H_JERup[jw] = 1.; X_mass_JERup[jw] = 1.;
+					H_JERdn[jw] = 1.; X_mass_JERdn[jw] = 1.;
+					H_HEMcor[jw] = 1.; X_mass_HEMcor[jw] = 1.;
+					
 				}
 			
-				if(Y_cand>=0) {
-					X_mass[jw] = (LJets[Y_cand].p4 + LJets[W_cand[jw]].p4 + vleptons[0].p4 + pnu[jw]).M();
-				}
-				
-				
 				dR_lW[jw] = delta2R(LJets[W_cand[jw]].y,LJets[W_cand[jw]].phi,vleptons[0].eta,vleptons[0].phi);
 				dy_lW[jw] = (LJets[W_cand[jw]].eta - vleptons[0].eta);
 				dphi_lW[jw] = PhiInRange(LJets[W_cand[jw]].phi - vleptons[0].p4.Phi());
@@ -2168,6 +2235,7 @@ int main(int argc, char *argv[])
 		HTlep_pt_JESdn = (l_pt[0]+l_pt[1]+Y_pt*Y_JESdn)*1./(HTlep_pt);
 		HTlep_pt_JERup = (l_pt[0]+l_pt[1]+Y_pt*Y_JERup)*1./(HTlep_pt);
 		HTlep_pt_JERdn = (l_pt[0]+l_pt[1]+Y_pt*Y_JERdn)*1./(HTlep_pt);
+		HTlep_pt_HEMcor = (l_pt[0]+l_pt[1]+Y_pt*Y_HEMcor)*1./(HTlep_pt);
 		
 		for(unsigned ijec=0; ijec<njecmax; ijec++){
 			HTlep_pt_JESup_split.push_back((l_pt[0]+l_pt[1]+Y_pt*Y_JESup_split[ijec])*1./(HTlep_pt));
@@ -2179,6 +2247,7 @@ int main(int argc, char *argv[])
 		ST_JESdn = (l_pt[0]+l_pt[1]+Y_pt*Y_JESdn+MET_pt_JESdn)*1./(ST);
 		ST_JERup = (l_pt[0]+l_pt[1]+Y_pt*Y_JERup+MET_pt_JERup)*1./(ST);
 		ST_JERdn = (l_pt[0]+l_pt[1]+Y_pt*Y_JERdn+MET_pt_JERdn)*1./(ST);
+		ST_HEMcor = (l_pt[0]+l_pt[1]+Y_pt*Y_HEMcor+MET_pt_HEMcor)*1./(ST);
 		
 		for(unsigned ijec=0; ijec<njecmax; ijec++){
 			ST_JESup_split.push_back((l_pt[0]+l_pt[1]+Y_pt*Y_JESup_split[ijec]+MET_pt_JESup_split[ijec])*1./(ST));
@@ -2232,6 +2301,13 @@ int main(int argc, char *argv[])
 	for(auto & bjet: BJets_L){
 		if(delta2R(bjet.y,bjet.phi,LJets[Y_cand].y,LJets[Y_cand].phi)>1.2){
 			nbjets_outY_L++;
+			}
+	}
+	
+	nbjets_outY_HEMcor = 0;
+	for(auto & bjet: BJets_M){
+		if(delta2R(bjet.y,bjet.phi,LJets[Y_cand].y,LJets[Y_cand].phi)>1.2 && bjet.pt>AK4jet_pt_cut){
+			nbjets_outY_HEMcor++;
 			}
 	}
 	
