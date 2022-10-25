@@ -948,6 +948,16 @@
    
    float MET_cut_final = 100;
    float dR_cut = 1.2;
+   
+   float msd_cut = 30.;
+   
+   float Z_mass_min = 75.;
+   float Z_mass_max = 120.;
+   
+   float H_mass_min = 90.;
+   float H_mass_max = 150.;
+   
+   float miniso_cut = 0.2;
 
    // all numbers are for UL2018 //
    
@@ -1126,13 +1136,3 @@
    float puidcuts_default[npuptbins] = {0.77,0.90,0.96,0.98};
    //{0.77,0.90,0.96,0.98}; // 2018 & 2017
    //{0.71,0.87,0.94,0.97}; // 2016
-
-   float msd_cut = 30.;
-   
-   float Z_mass_min = 75.;
-   float Z_mass_max = 120.;
-   
-   float H_mass_min = 90.;
-   float H_mass_max = 150.;
-   
-   float miniso_cut = 0.1;

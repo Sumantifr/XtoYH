@@ -1,29 +1,24 @@
 #include "Anal_XtoYH.h"
 //#include "Functions.h"
 
-void getmuons(std::vector<Muon> &vmuons, float ptcut=25, float etacut=2.5, string ID_str="", bool use_iso=false, bool use_miniiso=false, int maxsize=njetmx, float dxy_cut=0.2, float dz_cut=0.5)
+void getmuons(std::vector<Muon> &vmuons, float ptcut=25, float etacut=2.5, string ID_str="", bool use_pfiso=false, bool use_miniiso=false, float pfiso_cut=0.15, float miniiso_cut=0.1, int maxsize=njetmx, float dxy_cut=0.2, float dz_cut=0.5)
 {
 
 for(int mu=0; mu<(nMuon); mu++){
  
     if(Muon_pt[mu]<ptcut) continue; 
     if(fabs(Muon_eta[mu])>etacut)  continue; 
-	/*
-    if(id==0 && !Muon_isLoose[mu]) 	continue;
-    if(id==1 && !Muon_isMed[mu]) 	continue;
-    if(id==2 && !Muon_TightID[mu]) continue;  // Muon_TightID & Muon_isTight should be the same
-    */
     
     if(ID_str.find("Loose")!=string::npos && !Muon_isLoose[mu]) continue;
     else if (ID_str.find("Medium")!=string::npos && !Muon_isMed[mu]) continue;
     else if (ID_str.find("Tight")!=string::npos && !Muon_TightID[mu]) continue;
    
-    if(use_iso){
-		if(Muon_pfiso[mu]>=0.15) continue;  // cut on relative PF-isolation (i.e. isolation divided by pt)
+    if(use_pfiso){
+		if(Muon_pfiso[mu]>=pfiso_cut) continue;  // cut on relative PF-isolation (i.e. isolation divided by pt)
 	}
 	
 	if(use_miniiso){
-		if(Muon_minisoall[mu]>=0.1) continue; // cut on relative mini-isolation (i.e. mini-isolation divided by pt)
+		if(Muon_minisoall[mu]>=miniiso_cut) continue; // cut on relative mini-isolation (i.e. mini-isolation divided by pt)
 	}
     
     if(fabs(Muon_dxy[mu])>dxy_cut || fabs(Muon_dz[mu])>dz_cut) continue;
@@ -81,41 +76,30 @@ for(int mu=0; mu<(nMuon); mu++){
 	
 }
 
-void getelectrons(std::vector<Electron> &velectrons, float ptcut=25, float etacut=2.5, string ID_str="", bool use_iso=false, bool use_miniiso=false, int maxsize=njetmx, float dxy_cut=0.05, float dz_cut=0.1)
+void getelectrons(std::vector<Electron> &velectrons, float ptcut=25, float etacut=2.5, string ID_str="", bool use_pfiso=false, bool use_miniiso=false, float pfiso_cut=0.12, float miniiso_cut=0.1, int maxsize=njetmx, float dxy_cut=0.05, float dz_cut=0.1)
 {
 
  for(int ie=0; ie<(nElectron); ie++) {
 		
     if (Electron_pt[ie]<ptcut) continue;
     if(fabs(Electron_eta[ie])>etacut)  continue; 
-    /*
-    if(id==0 && !Electron_mvaid_Fallv2WP80[ie]) continue;
-    if(id==1 && !Electron_mvaid_Fallv2WP80_noIso[ie]) continue;
-    if(id==2 && !Electron_mvaid_Fallv2WP90[ie]) continue;
-    if(id==3 && !Electron_mvaid_Fallv2WP90_noIso[ie]) continue;
-    */
-    
-    bool found = (ID_str.find("wp90noiso")!=string::npos);
-    //cout<<"electron"<<ie+1<<" "<<ID_str<<" got? "<<found<<" bool "<<Electron_mvaid_Fallv2WP90_noIso[ie]<<endl;
-    
-    if(ID_str.find("wp80noiso")!=string::npos && !Electron_mvaid_Fallv2WP80_noIso[ie]) continue;
-    else if(ID_str.find("wp80iso")!=string::npos && !Electron_mvaid_Fallv2WP80[ie]) continue;
+   
+    if(     ID_str.find("wp80noiso")!=string::npos && !Electron_mvaid_Fallv2WP80_noIso[ie]) continue;
+    else if(ID_str.find("wp80iso")!=string::npos   && !Electron_mvaid_Fallv2WP80[ie]) continue;
     else if(ID_str.find("wp90noiso")!=string::npos && !Electron_mvaid_Fallv2WP90_noIso[ie]) continue;
-    else if(ID_str.find("wp90iso")!=string::npos && !Electron_mvaid_Fallv2WP90[ie]) continue;
-    
-    //cout<<"pass"<<endl;
-    
+    else if(ID_str.find("wp90iso")!=string::npos   && !Electron_mvaid_Fallv2WP90[ie]) continue;
+
     bool impact_pass = 	((fabs(Electron_supcl_eta[ie])<1.4442 && fabs(Electron_dxy[ie])<dxy_cut && fabs(Electron_dz[ie])<dz_cut)
 					   ||(fabs(Electron_supcl_eta[ie])>1.5660 && fabs(Electron_dxy[ie])<(2*dxy_cut) && fabs(Electron_dz[ie])<(2*dz_cut)));
 
 	if(!impact_pass) continue;
 	
-	if(use_iso){
-		if(Electron_pfiso_eacor[ie]>=0.12) continue;  // cut on relative PF-isolation (i.e. isolation divided by pt)
+	if(use_pfiso){
+		if(Electron_pfiso_eacor[ie]>=pfiso_cut) continue;  // cut on relative PF-isolation (i.e. isolation divided by pt)
 	}
 	
 	if(use_miniiso){
-		if(Electron_minisoall[ie]>=0.1) continue;    // cut on relative mini-isolation (i.e. mini-isolation divided by pt)
+		if(Electron_minisoall[ie]>=miniiso_cut) continue;    // cut on relative mini-isolation (i.e. mini-isolation divided by pt)
 	}
         
     Electron velectron;
