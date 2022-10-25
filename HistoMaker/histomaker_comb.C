@@ -684,7 +684,7 @@ int main(int argc, char *argv[])
    if(isDL && kl>0) break; 
    
    // Opposite-charge condition for dileptonic channel
-   if(isDL && l1_pdgId*l2_pdgId<0) continue;
+   if(isDL && l1_pdgId*l2_pdgId>0) continue;
    
 	// Defining booleans for signal & control regions //
 	
