@@ -972,6 +972,9 @@
    float DAK4_L = 0.0490;
    //for UL18 => 0.0490: loose, 0.2783: medium, 0.7100: tight 
    
+   //DeepTag_PNet_TvsQCD
+   float PN_Top_med = 0.8;
+   
    BTagCalibration calib_deepcsv, calib_deepflav;
    BTagCalibrationReader reader_deepcsv, reader_deepflav;
 
@@ -988,7 +991,7 @@
    TTree *Tout ;
    TTree *Tout_presel; 
    
-   bool Muon_trig_pass, Electron_trig_pass, MuonElectron_trig_pass;
+   bool Muon_trig_pass, Electron_trig_pass, MuonElectron_trig_pass, Jet_trig_pass;
    
    int nleptons, nfatjets;
    
@@ -997,7 +1000,7 @@
    static const int njecmax = 25;
    
    float l_pt[nmaxleptons], l_eta[nmaxleptons], l_phi[nmaxleptons], l_mass[nmaxleptons];
-   int l_pdgId[nmaxleptons];
+   int l_pdgId[nmaxleptons], l_id[nmaxleptons];
    float l_minisoch[nmaxleptons], l_minisonh[nmaxleptons], l_minisoph[nmaxleptons], l_minisoall[nmaxleptons]; 
    int l_genindex[nmaxleptons];
    
@@ -1058,10 +1061,18 @@
    int nbjets_other, nbjets_outY, nbjets_outY_L, nbjets, nbjets_L;
    int nbjets_outY_HEMcor;
    
+   // Booleans for different regions //
+   
    bool Flag_Y_bb_pass_T, Flag_Y_bb_pass_M, Flag_Y_bb_pass_L;
    bool Flag_H_W_pass_T_opt1, Flag_H_W_pass_M_opt1, Flag_H_W_pass_L_opt1, Flag_H_m_pass_opt1, Flag_dR_lW_pass_opt1;
    bool Flag_H_W_pass_T_opt2, Flag_H_W_pass_M_opt2, Flag_H_W_pass_L_opt2, Flag_H_m_pass_opt2, Flag_dR_lW_pass_opt2;
    bool Flag_MET_pass;
+   bool lep_miniso;
+   bool OS_DL, Z_veto, Z_pass;
+   
+   bool Flag_isSR1, Flag_isSR2, Flag_isCR2, Flag_isCR3, Flag_isCR4, Flag_isCR5, Flag_isCR6, Flag_isCR7, Flag_isCR8;
+   
+   // Vector of objects //
    
    int _s_nPFJetAK8; 
    float _s_PFJetAK8_pt[njetmxAK8], _s_PFJetAK8_eta[njetmxAK8], _s_PFJetAK8_phi[njetmxAK8], _s_PFJetAK8_mass[njetmxAK8];
@@ -1115,3 +1126,13 @@
    float puidcuts_default[npuptbins] = {0.77,0.90,0.96,0.98};
    //{0.77,0.90,0.96,0.98}; // 2018 & 2017
    //{0.71,0.87,0.94,0.97}; // 2016
+
+   float msd_cut = 30.;
+   
+   float Z_mass_min = 75.;
+   float Z_mass_max = 120.;
+   
+   float H_mass_min = 90.;
+   float H_mass_max = 150.;
+   
+   float miniso_cut = 0.1;
