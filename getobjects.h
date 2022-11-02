@@ -194,7 +194,7 @@ void getLeptons(std::vector<Lepton> &vleptons, std::vector<Muon> vmuons, std::ve
     vlepton.mass = vmuons[imu].mass;
     vlepton.charge = vmuons[imu].charge;
     vlepton.lepton_id = 1;
-    vlepton.pdgId = 13;
+    vlepton.pdgId = (vmuons[imu].charge>0)?-13:13;
     vlepton.p4 = vmuons[imu].p4;
 	vlepton.indexemu = imu; 
     vleptons.push_back(vlepton);
@@ -208,7 +208,7 @@ void getLeptons(std::vector<Lepton> &vleptons, std::vector<Muon> vmuons, std::ve
     vlepton.mass = velectrons[ie].mass;
     vlepton.charge = velectrons[ie].charge;
     vlepton.lepton_id = 2;
-    vlepton.pdgId = 11;
+    vlepton.pdgId = (velectrons[ie].charge>0)?-11:11;
     vlepton.p4 = velectrons[ie].p4;
     vlepton.indexemu=ie;
     vleptons.push_back(vlepton);
