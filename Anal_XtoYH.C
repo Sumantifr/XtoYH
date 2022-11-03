@@ -138,6 +138,9 @@ int main(int argc, char *argv[])
 
    TFile *fileout = new TFile(fOut,"recreate");
    
+   fileout->SetCompressionAlgorithm(4); //4-> kLZ4
+   fileout->SetCompressionLevel(4); 
+   
    Tout = new TTree("Tout", "Results");
    Tout_presel = new TTree("Tout_presel", "All");
 

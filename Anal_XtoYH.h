@@ -15,6 +15,8 @@
 #include <TF1.h>
 #include <math.h>
 
+#include "RtypesCore.h"
+
 #include <TRandom3.h>
 
 #include "BTagCalibrationStandalone.h"
