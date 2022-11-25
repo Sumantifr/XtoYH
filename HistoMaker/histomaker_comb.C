@@ -1162,14 +1162,14 @@ int main(int argc, char *argv[])
 				    
 				    if (!isDL){	
 						for(int ijes=0; ijes<njecmax; ijes++){
-							if(kl==0){
+						//	if(kl==0){
 								X_JESup_split.push_back((*X_mass_JESup_split_opt2)[ijes]);
 								X_JESdn_split.push_back((*X_mass_JESdn_split_opt2)[ijes]);
-							}
-							else{
-								X_JESup_split.push_back((*X_mass_JESup_split_opt1)[ijes]);
-								X_JESdn_split.push_back((*X_mass_JESdn_split_opt1)[ijes]);
-							}
+						//	}
+						//	else{
+						//		X_JESup_split.push_back((*X_mass_JESup_split_opt1)[ijes]);
+						//		X_JESdn_split.push_back((*X_mass_JESdn_split_opt1)[ijes]);
+						//	}
 						}
 					}
 				      
