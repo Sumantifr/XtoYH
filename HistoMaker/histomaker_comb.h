@@ -584,10 +584,12 @@ TString proc_Name[] = {
   vector<float>   *H_JESup_split_opt1;
   vector<float>   *H_JESdn_split_opt1;
   Float_t         X_mass_opt1;
+  vector<float>   *X_mass_JESup_split_opt1;
+  vector<float>   *X_mass_JESdn_split_opt1;
   Float_t         dR_lW_opt1;
   Float_t         dy_lW_opt1;
   Float_t         dphi_lW_opt1;
-   
+ 
   Float_t         W_pt_opt2;
   Float_t         W_y_opt2;
   Float_t         W_eta_opt2;
@@ -643,6 +645,8 @@ TString proc_Name[] = {
   vector<float>   *H_JESup_split_opt2;
   vector<float>   *H_JESdn_split_opt2;
   Float_t         X_mass_opt2;
+  vector<float>   *X_mass_JESup_split_opt2;
+  vector<float>   *X_mass_JESdn_split_opt2;
   Float_t         dR_lW_opt2;
   Float_t         dy_lW_opt2;
   Float_t         dphi_lW_opt2;
@@ -1008,6 +1012,8 @@ TString proc_Name[] = {
    tree->SetBranchAddress("H_JESup_split_opt1", &H_JESup_split_opt1);
    tree->SetBranchAddress("H_JESdn_split_opt1", &H_JESdn_split_opt1);
    tree->SetBranchAddress("X_mass_opt1", &X_mass_opt1);
+   tree->SetBranchAddress("X_mass_JESup_split_opt1", &X_mass_JESup_split_opt1);
+   tree->SetBranchAddress("X_mass_JESdn_split_opt1", &X_mass_JESdn_split_opt1);
    tree->SetBranchAddress("dR_lW_opt1", &dR_lW_opt1);
    tree->SetBranchAddress("dy_lW_opt1", &dy_lW_opt1);
    tree->SetBranchAddress("dphi_lW_opt1", &dphi_lW_opt1);
@@ -1066,6 +1072,8 @@ TString proc_Name[] = {
    tree->SetBranchAddress("H_JERdn_opt2", &H_JERdn_opt2);
    tree->SetBranchAddress("H_JESup_split_opt2", &H_JESup_split_opt2);
    tree->SetBranchAddress("H_JESdn_split_opt2", &H_JESdn_split_opt2);
+   tree->SetBranchAddress("X_mass_JESup_split_opt2", &X_mass_JESup_split_opt2);
+   tree->SetBranchAddress("X_mass_JESdn_split_opt2", &X_mass_JESdn_split_opt2);
    tree->SetBranchAddress("X_mass_opt2", &X_mass_opt2);
    tree->SetBranchAddress("dR_lW_opt2", &dR_lW_opt2);
    tree->SetBranchAddress("dy_lW_opt2", &dy_lW_opt2);

@@ -711,13 +711,13 @@ int main(int argc, char *argv[])
    if(isDATA) {weight_nom = 1.0;}
    else 
    {
-   if ( inputFile == "NMSSM_XYH_YTobb_HToWWTo2QLNu_MX_1000_MY_100_XtoYH_Nov_2021_v2.root")
+   if (isSignal)
    {
-     weight_nom = 1.0;
+     weight_nom = 1.0; std::cout << "signal event" << std::endl;
    }
    else
    {
-     weight_nom = 1.0;
+     weight_nom = Generator_weight; std::cout << "Background event" << std::endl;
    }
      weight_nom *= prefiringweight;
      weight_nom *= puWeight;
@@ -1133,8 +1133,10 @@ int main(int argc, char *argv[])
 				    }
 			   }
                        }//mn
+                    
 					vector<float> X_JESup_split, X_JESdn_split;
 					
+					/*
 					TLorentzVector Y_cand, H_cand;
 		            if (!isDL){		        	
 						for(int ijes=0; ijes<njecmax; ijes++){
@@ -1156,6 +1158,21 @@ int main(int argc, char *argv[])
 							}
 						}
                     }
+				    */
+				    
+				    if (!isDL){	
+						for(int ijes=0; ijes<njecmax; ijes++){
+							if(kl==0){
+								X_JESup_split.push_back((*X_mass_JESup_split_opt2)[ijes]);
+								X_JESdn_split.push_back((*X_mass_JESdn_split_opt2)[ijes]);
+							}
+							else{
+								X_JESup_split.push_back((*X_mass_JESup_split_opt1)[ijes]);
+								X_JESdn_split.push_back((*X_mass_JESdn_split_opt1)[ijes]);
+							}
+						}
+					}
+				      
 				        //cout << "check! dude: 3" << endl;	
 					vector<float> shape_weight_up, shape_weight_dn, shape_weight_nom;
 					
