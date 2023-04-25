@@ -25,6 +25,7 @@ JEC: https://twiki.cern.ch/twiki/bin/viewauth/CMS/JECUncertaintySources
 DeepAKX: https://twiki.cern.ch/twiki/bin/viewauth/CMS/DeepAKXTagging
 Btag SF (recipe): https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagCalibration
 Btag SF (2018UL): https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation106XUL18
+Rochester correction: https://gitlab.cern.ch/akhukhun/roccor
 */
 
 // system include files
@@ -162,6 +163,23 @@ Btag SF (2018UL): https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation106
 #include "fastjet/tools/Subtractor.hh"
 #include "fastjet/Selector.hh"
 #include "fastjet/tools/Subtractor.hh"
+
+// Rochester correction for muons //
+#include "RoccoR.h"
+
+//for storing vectors in tree//
+
+# include <vector>
+
+
+#ifdef __MAKECINT__
+    
+    #pragma link C++ class std::vector+;
+    #pragma link C++ class std::vector<float>+;
+    #pragma link C++ class std::vector<std::vector<float> >+;
+    
+#endif
+
 
 using namespace std;
 using namespace edm;
@@ -389,7 +407,7 @@ bool getJetID(JetIDVars vars, string jettype="CHS", int year=2018, double eta=0,
   
 }
 
-bool Muon_TightID(bool muonisGL,bool muonisPF, float muonchi, float muonhit, float muonmst, float muontrkvtx, float muondz, float muonpixhit, float muontrklay){
+bool Muon_Tight_ID(bool muonisGL,bool muonisPF, float muonchi, float muonhit, float muonmst, float muontrkvtx, float muondz, float muonpixhit, float muontrklay){
     //https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2#Tight_Muon
 	bool tightid = false;
 	if(muonisGL && muonisPF){
@@ -503,7 +521,7 @@ void Read_JEC(double &total_JEC,  double &tmprecpt,
 	return;     
 }
 
-void Read_JER(std::string mPtResoFile, std::string mPtSFFile, double tmprecpt, TLorentzVector pfjet4v, double Rho, edm::Handle<reco::GenJetCollection>  genjets, vector<double> &SFs)
+void Read_JER(std::string mPtResoFile, std::string mPtSFFile, double tmprecpt, TLorentzVector pfjet4v, double Rho, edm::Handle<reco::GenJetCollection>  genjets, double dRcut, vector<double> &SFs)
 {
  
 	JME::JetResolution resolution;
@@ -523,7 +541,7 @@ void Read_JER(std::string mPtResoFile, std::string mPtSFFile, double tmprecpt, T
 		
 	for (unsigned get = 0; get<(genjets->size()); get++) {
 		TLorentzVector genjet4v((*genjets)[get].px(),(*genjets)[get].py(),(*genjets)[get].pz(), (*genjets)[get].energy());
-		if((delta2R(pfjet4v.Rapidity(),pfjet4v.Phi(),genjet4v.Rapidity(),genjet4v.Phi()) < (0.5*0.8)) &&(fabs(tmprecpt-genjet4v.Pt())<(3*fabs(rp)*tmprecpt))){
+		if((delta2R(pfjet4v.Rapidity(),pfjet4v.Phi(),genjet4v.Rapidity(),genjet4v.Phi()) < (dRcut)) &&(fabs(tmprecpt-genjet4v.Pt())<(3*fabs(rp)*tmprecpt))){
 			match = true;
 			match_gen = get;
 			break;
@@ -625,7 +643,9 @@ private:
   bool isSoftDrop;
   bool add_prefireweights;
   bool store_electron_scalnsmear, store_electron_addvariabs;
+  bool store_fatjet_constituents;
   bool read_btagSF;
+  bool subtractLepton_fromAK4, subtractLepton_fromAK8;
   
   uint nPDFsets;
   
@@ -653,7 +673,6 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> tok_primaryVertices_;
   edm::EDGetTokenT<reco::VertexCompositePtrCandidateCollection> tok_sv;
   edm::EDGetTokenT<pat::METCollection>tok_mets_, tok_mets_PUPPI_;
-  edm::EDGetTokenT<pat::PackedCandidateCollection>tok_pfcands_;
   edm::EDGetTokenT<edm::View<pat::Jet>>tok_pfjetAK8s_;
   edm::EDGetTokenT<edm::View<pat::Jet>>tok_pfjetAK4s_;
   edm::EDGetTokenT<edm::View<pat::Muon>> tok_muons_;
@@ -709,6 +728,7 @@ private:
   TFile* theFile;
   
   TTree* T1;
+  TTree* T2;
   
   // HLTConfigProvider hltConfig_;
   
@@ -717,10 +737,16 @@ private:
   static const int njetmx = 20; 
   static const int njetmxAK8 =10;
   static const int npartmx = 50; 
-  
+  static const int nconsmax = 1000; 
+  static const int njetconsmax = 3; 
+    
   int irunold;
-  int irun, ilumi, ifltr, nprim, npvert, ibrnch;
-  double event_weight;
+  int irun, ilumi, ifltr, ibrnch;
+  
+  int nprim, npvert, PV_npvsGood, PV_ndof;
+  float PV_x, PV_y, PV_z, PV_chi2;
+  
+  double Generator_weight;
   double weights[njetmx];
   
   double Rho ;
@@ -742,8 +768,8 @@ private:
   float PFJetAK8_chrad[njetmxAK8], PFJetAK8_pTD[njetmxAK8]; 
   float PFJetAK8_sdmass[njetmxAK8], PFJetAK8_tau1[njetmxAK8], PFJetAK8_tau2[njetmxAK8], PFJetAK8_tau3[njetmxAK8];
   
-  float PFJetAK8_sub1pt[njetmxAK8], PFJetAK8_sub1eta[njetmxAK8], PFJetAK8_sub1phi[njetmxAK8], PFJetAK8_sub1mass[njetmxAK8], PFJetAK8_sub1btag[njetmxAK8]; 
-  float PFJetAK8_sub2pt[njetmxAK8], PFJetAK8_sub2eta[njetmxAK8], PFJetAK8_sub2phi[njetmxAK8], PFJetAK8_sub2mass[njetmxAK8], PFJetAK8_sub2btag[njetmxAK8];
+  float PFJetAK8_sub1pt[njetmxAK8], PFJetAK8_sub1eta[njetmxAK8], PFJetAK8_sub1phi[njetmxAK8], PFJetAK8_sub1mass[njetmxAK8], PFJetAK8_sub1JEC[njetmxAK8], PFJetAK8_sub1btag[njetmxAK8]; 
+  float PFJetAK8_sub2pt[njetmxAK8], PFJetAK8_sub2eta[njetmxAK8], PFJetAK8_sub2phi[njetmxAK8], PFJetAK8_sub2mass[njetmxAK8], PFJetAK8_sub2JEC[njetmxAK8], PFJetAK8_sub2btag[njetmxAK8];
   
   float PFJetAK8_JEC[njetmxAK8];
   float PFJetAK8_reso[njetmxAK8], PFJetAK8_resoup[njetmxAK8], PFJetAK8_resodn[njetmxAK8];
@@ -773,6 +799,10 @@ private:
   float PFJetAK8_jesup_SinglePionHCAL[njetmxAK8], PFJetAK8_jesdn_SinglePionHCAL[njetmxAK8];
   float PFJetAK8_jesup_TimePtEta[njetmxAK8], PFJetAK8_jesdn_TimePtEta[njetmxAK8];
   float PFJetAK8_jesup_Total[njetmxAK8], PFJetAK8_jesdn_Total[njetmxAK8];
+  
+  int nPFJetAK8_cons;
+  float PFJetAK8_cons_pt[nconsmax], PFJetAK8_cons_eta[nconsmax], PFJetAK8_cons_phi[nconsmax], PFJetAK8_cons_mass[nconsmax];
+  int PFJetAK8_cons_jetIndex[nconsmax], PFJetAK8_cons_pdgId[nconsmax];
   
   int nPFJetAK4;
   float PFJetAK4_pt[njetmx], PFJetAK4_eta[njetmx], PFJetAK4_y[njetmx], PFJetAK4_phi[njetmx], PFJetAK4_mass[njetmx];
@@ -821,19 +851,27 @@ private:
   float GenJetAK8_pt[njetmxAK8], GenJetAK8_eta[njetmxAK8], GenJetAK8_phi[njetmxAK8], GenJetAK8_mass[njetmxAK8], GenJetAK8_sdmass[njetmxAK8]; 
   int GenJetAK8_hadronflav[njetmxAK8], GenJetAK8_partonflav[njetmxAK8];
   
+  int nGenJetAK8_cons;
+  float GenJetAK8_cons_pt[nconsmax], GenJetAK8_cons_eta[nconsmax], GenJetAK8_cons_phi[nconsmax], GenJetAK8_cons_mass[nconsmax];
+  int GenJetAK8_cons_jetIndex[nconsmax], GenJetAK8_cons_pdgId[nconsmax];
+  
   int nGenJetAK4;
   float GenJetAK4_pt[njetmx], GenJetAK4_eta[njetmx], GenJetAK4_phi[njetmx], GenJetAK4_mass[njetmx];
   int GenJetAK4_hadronflav[njetmx], GenJetAK4_partonflav[njetmx];
   
   int nGenPart;
-  int GenPart_status[npartmx], GenPart_pdg[npartmx], GenPart_mompdg[npartmx], GenPart_grmompdg[npartmx], GenPart_momid[npartmx], GenPart_daugno[npartmx];
-  float GenPart_pt[npartmx], GenPart_eta[npartmx], GenPart_phi[npartmx], GenPart_m[npartmx]; //GenPart_q[npartmx];
-  bool GenPart_fromhard[npartmx], GenPart_fromhardbFSR[npartmx], GenPart_isPromptFinalState[npartmx], GenPart_isLastCopyBeforeFSR[npartmx];
+  int GenPart_status[npartmx], GenPart_pdg[npartmx], GenPart_mompdg[npartmx], GenPart_momstatus[npartmx], GenPart_grmompdg[npartmx], GenPart_momid[npartmx], GenPart_daugno[npartmx];
+  float GenPart_pt[npartmx], GenPart_eta[npartmx], GenPart_phi[npartmx], GenPart_mass[npartmx]; //GenPart_q[npartmx];
+  bool GenPart_fromhard[npartmx], GenPart_fromhardbFSR[npartmx], GenPart_isPromptFinalState[npartmx], GenPart_isLastCopyBeforeFSR[npartmx], GenPart_isDirectPromptTauDecayProductFinalState[npartmx];
   
   static const int nlhemax = 10;
   int nLHEPart;
   float LHEPart_pt[nlhemax], LHEPart_eta[nlhemax], LHEPart_phi[nlhemax], LHEPart_m[nlhemax];
   int LHEPart_pdg[nlhemax];
+  
+  static const int nlheweightmax = 250;
+  int nLHEWeights;
+  float LHEWeights[nlheweightmax];
   
   static const int nlhescalemax = 9;
   int nLHEScaleWeights;
@@ -843,17 +881,16 @@ private:
   int nLHEPDFWeights;
   float LHEPDFWeights[nlhepdfmax];
   
-  static const int nalpsmax = 3;
-  int nLHEAlpsWeights;
-  float LHEAlpsWeights[nalpsmax];
-  
   static const int nlhepsmax = 8;
   int nLHEPSWeights;
   float LHEPSWeights[nlhepsmax];
   
-  double event_weight_LHE;
+  double LHE_weight;
   
   float miset , misphi , sumEt, misetsig;
+  float miset_UnclusEup, miset_UnclusEdn;
+  float misphi_UnclusEup, misphi_UnclusEdn;
+  
   float miset_PUPPI , misphi_PUPPI , sumEt_PUPPI, misetsig_PUPPI;
   float miset_PUPPI_JESup, miset_PUPPI_JESdn, miset_PUPPI_JERup, miset_PUPPI_JERdn, miset_PUPPI_UnclusEup, miset_PUPPI_UnclusEdn;
   float misphi_PUPPI_JESup, misphi_PUPPI_JESdn, misphi_PUPPI_JERup, misphi_PUPPI_JERdn, misphi_PUPPI_UnclusEup, misphi_PUPPI_UnclusEdn;
@@ -862,20 +899,23 @@ private:
   int nMuon;
   
   float Muon_minchiso[njetmx], Muon_minnhiso[njetmx], Muon_minphiso[njetmx], Muon_minisoall[njetmx]; 
-  float Muon_charge[njetmx], Muon_p[njetmx], Muon_pt[njetmx], Muon_eta[njetmx], Muon_phi[njetmx], Muon_dz[njetmx], Muon_ip3d[njetmx], Muon_ptErr[njetmx], Muon_chi[njetmx], Muon_ecal[njetmx], Muon_hcal[njetmx]; //Muon_emiso[njetmx], Muon_hadiso[njetmx], Muon_tkpt03[njetmx], Muon_tkpt05[njetmx];
+  float Muon_charge[njetmx], Muon_p[njetmx], Muon_pt[njetmx], Muon_eta[njetmx], Muon_phi[njetmx], Muon_dz[njetmx], Muon_ip3d[njetmx], Muon_sip3d[njetmx], Muon_ptErr[njetmx], Muon_chi[njetmx], Muon_ecal[njetmx], Muon_hcal[njetmx]; //Muon_emiso[njetmx], Muon_hadiso[njetmx], Muon_tkpt03[njetmx], Muon_tkpt05[njetmx];
   
   float Muon_posmatch[njetmx], Muon_trkink[njetmx], Muon_segcom[njetmx], Muon_pfiso[njetmx], Muon_dxy[njetmx], Muon_dxyErr[njetmx], Muon_hit[njetmx], Muon_pixhit[njetmx], Muon_mst[njetmx], Muon_trklay[njetmx], Muon_valfrac[njetmx],Muon_dxy_sv[njetmx];
   int Muon_ndf[njetmx];
   
   bool Muon_isPF[njetmx], Muon_isGL[njetmx], Muon_isTRK[njetmx];
-  bool Muon_isGoodGL[njetmx], Muon_isTight[njetmx], Muon_isHighPt[njetmx], Muon_isHighPttrk[njetmx], Muon_isMed[njetmx], Muon_isMedPr[njetmx], Muon_isLoose[njetmx], Muon_MediumID[njetmx];
+  bool Muon_isGoodGL[njetmx], Muon_isTight[njetmx], Muon_isHighPt[njetmx], Muon_isHighPttrk[njetmx], Muon_isMed[njetmx], Muon_isMedPr[njetmx], Muon_isLoose[njetmx], Muon_TightID[njetmx];
+  
+  float Muon_corrected_pt[njetmx], Muon_correctedUp_pt[njetmx], Muon_correctedDown_pt[njetmx];
   
   int nElectron;
   bool Electron_mvaid_Fallv2WP90[njetmx], Electron_mvaid_Fallv2WP90_noIso[njetmx];
   bool Electron_mvaid_Fallv2WP80[njetmx], Electron_mvaid_Fallv2WP80_noIso[njetmx];
+  float Electron_mvaid_Fallv2_value[njetmx], Electron_mvaid_Fallv2noIso_value[njetmx];
 
   float Electron_charge[njetmx], Electron_pt[njetmx], Electron_eta[njetmx], Electron_phi[njetmx], Electron_e[njetmx], Electron_e_ECAL[njetmx], Electron_p[njetmx];
-  float Electron_dxy[njetmx],  Electron_dxyErr[njetmx], Electron_dxy_sv[njetmx], Electron_dz[njetmx], Electron_dzErr[njetmx], Electron_ip3d[njetmx];
+  float Electron_dxy[njetmx],  Electron_dxyErr[njetmx], Electron_dxy_sv[njetmx], Electron_dz[njetmx], Electron_dzErr[njetmx], Electron_ip3d[njetmx], Electron_sip3d[njetmx];
   float Electron_hovere[njetmx], Electron_qovrper[njetmx], Electron_chi[njetmx]; //Electron_emiso03[njetmx], Electron_hadiso03[njetmx], Electron_emiso04[njetmx], Electron_hadiso04[njetmx];
   float Electron_eoverp[njetmx], Electron_ietaieta[njetmx], Electron_etain[njetmx], Electron_phiin[njetmx], Electron_fbrem[njetmx]; 
   float Electron_nohits[njetmx], Electron_misshits[njetmx];
@@ -989,10 +1029,9 @@ private:
   
   // Collision Info //
   
-  float qscale, Generator_x1, Generator_x2, Generator_xpdf1, Generator_xpdf2, Generator_scalePDF;
+  float Generator_qscale, Generator_x1, Generator_x2, Generator_xpdf1, Generator_xpdf2, Generator_scalePDF;
   int Generator_id1, Generator_id2;
   
-  float wtfact;
   int npu_vert;
   int npu_vert_true;
   
@@ -1073,6 +1112,10 @@ private:
   
   // ---- B tagging scale factor files End --- //
   
+  // ---- Rochester correction files --- //
+  
+  std::string mRochcorFolder;
+  
   // Electron MVA ID //
   
   std::string melectronID_isowp90, melectronID_noisowp90;
@@ -1082,6 +1125,10 @@ private:
   
   std::string mPhoID_FallV2_WP90, mPhoID_FallV2_WP80;
   std::string mPhoID_SpringV1_WP90, mPhoID_SpringV1_WP80;
+  
+  // Rochester correction for muons//
+  
+  RoccoR roch_cor; 
   
 };
 
@@ -1103,95 +1150,7 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   //now do what ever initialization is needed
   
   edm::Service<TFileService> fs;
-  /*
-  isMC      = pset.getUntrackedParameter<bool>("MonteCarlo", false);
-  isData = !isMC;
-  year		= pset.getUntrackedParameter<int>("YEAR", 2018);
-  isUltraLegacy = pset.getUntrackedParameter<bool>("UltraLegacy", false);
-  isSoftDrop      = pset.getUntrackedParameter<bool>("SoftDrop_ON",false);
-  theHLTTag = pset.getUntrackedParameter<string>("HLTTag", "HLT");
   
-  theRootFileName = pset.getUntrackedParameter<string>("RootFileName");
-  
-  triggerBits_ = consumes<edm::TriggerResults> ( pset.getParameter<edm::InputTag>("bits"));
-  triggerObjects_ = consumes<pat::TriggerObjectStandAloneCollection>(pset.getParameter<edm::InputTag>("objects"));
-  triggerPrescales_ = consumes<pat::PackedTriggerPrescales>(pset.getParameter<edm::InputTag>("prescales"));
-  
-  minPt = pset.getUntrackedParameter<double>("minPt",25.);
-  minGenPt = pset.getUntrackedParameter<double>("minGenPt",15.);
-  maxEta = pset.getUntrackedParameter<double>("maxEta",3.);
-  maxgenEta = pset.getUntrackedParameter<double>("maxgenEta",3.);
-  AK8PtCut = pset.getUntrackedParameter<double>("AK8PtCut",180.);
-  AK8GenPtCut = pset.getUntrackedParameter<double>("AK8GenPtCut",150.);
-  
-  softdropmass = pset.getUntrackedParameter<string>("softdropmass");
-  tau1 = pset.getUntrackedParameter<string>("tau1");
-  tau_2 = pset.getUntrackedParameter<string>("tau_2");
-  tau_3 = pset.getUntrackedParameter<string>("tau_3");
-  subjets = pset.getUntrackedParameter<string>("subjets");
-  toptagger = pset.getUntrackedParameter<string>("toptagger");
-  Wtagger = pset.getUntrackedParameter<string>("Wtagger");
-  Ztagger = pset.getUntrackedParameter<string>("Ztagger");
-  Htagger = pset.getUntrackedParameter<string>("Htagger");
-  bbtagger = pset.getUntrackedParameter<string>("bbtagger");
- 
-  tok_beamspot_ = consumes<reco::BeamSpot> (pset.getParameter<edm::InputTag>("Beamspot"));
-  tok_primaryVertices_ =consumes<reco::VertexCollection>( pset.getParameter<edm::InputTag>("PrimaryVertices"));
-  tok_sv =consumes<reco::VertexCompositePtrCandidateCollection>( pset.getParameter<edm::InputTag>("SecondaryVertices"));
-  tok_Rho_ = consumes<double>(pset.getParameter<edm::InputTag>("PFRho"));
-  ea_miniiso_.reset(new EffectiveAreas((pset.getParameter<edm::FileInPath>("EAFile_MiniIso")).fullPath()));
-
-  relative_ = pset.getParameter<bool>("relative");
-  
-  tok_mets_= consumes<pat::METCollection> ( pset.getParameter<edm::InputTag>("PFMet"));
-  tok_pfcands_ = consumes<pat::PackedCandidateCollection>( pset.getParameter<edm::InputTag>("pfCands"));
-  tok_muons_ = consumes<edm::View<pat::Muon>> ( pset.getParameter<edm::InputTag>("Muons"));
-  tok_electrons_ = consumes<edm::View<pat::Electron>> ( pset.getParameter<edm::InputTag>("Electrons"));
-  //tok_photons_ = consumes<edm::View<pat::Photon>>  ( pset.getParameter<edm::InputTag>("Photons"));
-  tok_pfjetAK8s= consumes<edm::View<pat::Jet>>( pset.getParameter<edm::InputTag>("PFJetsAK8"));
-  tok_pfjetAK4s_= consumes<edm::View<pat::Jet>>( pset.getParameter<edm::InputTag>("PFJetsAK4"));
-  
-  if(isMC){
-	tok_genmets_= consumes<reco::GenMETCollection> ( pset.getParameter<edm::InputTag>("GENMet"));
-    tok_genjetAK8s_= consumes<reco::GenJetCollection>( pset.getParameter<edm::InputTag>("GENJetAK8"));
-    tok_genjetAK4s_= consumes<reco::GenJetCollection>( pset.getParameter<edm::InputTag>("GENJetAK4"));
-    tok_genparticles_ = consumes<std::vector<reco::GenParticle>>( pset.getParameter<edm::InputTag>("GenParticles"));
-    jetFlavourInfosToken_ = consumes<reco::JetFlavourInfoMatchingCollection>(pset.getParameter<edm::InputTag>("jetFlavourInfos"));
-  }
-  
-  melectronID_isowp90       = pset.getParameter<std::string>("electronID_isowp90");
-  melectronID_noisowp90     = pset.getParameter<std::string>("electronID_noisowp90");
-  melectronID_isowp80       = pset.getParameter<std::string>("electronID_isowp80");
-  melectronID_noisowp80     = pset.getParameter<std::string>("electronID_noisowp80");
-
-  mJECL1FastFileAK4         = pset.getParameter<std::string>("jecL1FastFileAK4");
-  mJECL1FastFileAK8         = pset.getParameter<std::string>("jecL1FastFileAK8");
-  mJECL2RelativeFileAK4     = pset.getParameter<std::string>("jecL2RelativeFileAK4");
-  mJECL2RelativeFileAK8     = pset.getParameter<std::string>("jecL2RelativeFileAK8");
-  mJECL3AbsoluteFileAK4     = pset.getParameter<std::string>("jecL3AbsoluteFileAK4");
-  mJECL3AbsoluteFileAK8     = pset.getParameter<std::string> ("jecL3AbsoluteFileAK8");
-  mJECL2L3ResidualFileAK4   = pset.getParameter<std::string> ("jecL2L3ResidualFileAK4");
-  mJECL2L3ResidualFileAK8   = pset.getParameter<std::string> ("jecL2L3ResidualFileAK8");
-  
-  mPtResoFileAK4  = pset.getParameter<std::string>("PtResoFileAK4");
-  mPtResoFileAK8  = pset.getParameter<std::string>("PtResoFileAK8");
-  mPtSFFileAK4  = pset.getParameter<std::string>("PtSFFileAK4");
-  mPtSFFileAK8  = pset.getParameter<std::string>("PtSFFileAK8");
-  
-  mJECUncFileAK4 = pset.getParameter<std::string>("JECUncFileAK4");
-  mJECUncFileAK8 = pset.getParameter<std::string>("JECUncFileAK8");
-  
-  if(isMC){    
-    tok_HepMC = consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("Generator"));
-    tok_wt_ = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("Generator")) ;
-    lheEventProductToken_ = consumes<LHEEventProduct>(pset.getParameter<edm::InputTag>("LHEEventProductInputTag")) ;
-    pileup_ = consumes<std::vector<PileupSummaryInfo> >(pset.getParameter<edm::InputTag>("slimmedAddPileupInfo"));
-  } 
-  
-  beta = pset.getUntrackedParameter<double>("beta",0.);
-  z_cut = pset.getUntrackedParameter<double>("z_cut",0.1); 
-  */
-  // old begin //
   isData    = pset.getUntrackedParameter<bool>("Data",false);
   isMC      = pset.getUntrackedParameter<bool>("MonteCarlo", false);
   isFastSIM      = pset.getUntrackedParameter<bool>("FastSIM", false);
@@ -1203,7 +1162,10 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   add_prefireweights = pset.getUntrackedParameter<bool>("add_prefireweights", false);
   store_electron_scalnsmear = pset.getUntrackedParameter<bool>("store_electron_scalnsmear", false);
   store_electron_addvariabs = pset.getUntrackedParameter<bool>("store_electron_addvariabs", false);
+  store_fatjet_constituents = pset.getUntrackedParameter<bool>("store_fatjet_constituents", false);
   read_btagSF = pset.getUntrackedParameter<bool>("Read_btagging_SF", false);
+  subtractLepton_fromAK8 = pset.getUntrackedParameter<bool>("Subtract_Lepton_fromAK8", false);
+  subtractLepton_fromAK4 = pset.getUntrackedParameter<bool>("Subtract_Lepton_fromAK4", false);
   
   minjPt = pset.getUntrackedParameter<double>("minjPt",25.);
   minGenPt = pset.getUntrackedParameter<double>("minGenPt",15.);
@@ -1248,9 +1210,7 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   tok_mets_= consumes<pat::METCollection> ( pset.getParameter<edm::InputTag>("PFMet"));
   tok_mets_PUPPI_ = consumes<pat::METCollection> ( pset.getParameter<edm::InputTag>("PuppiMet"));
   tok_genmets_= consumes<reco::GenMETCollection> ( pset.getParameter<edm::InputTag>("GENMet"));
-  
-  tok_pfcands_ = consumes<pat::PackedCandidateCollection>( pset.getParameter<edm::InputTag>("pfCands"));
-  
+    
   tok_muons_ = consumes<edm::View<pat::Muon>> ( pset.getParameter<edm::InputTag>("Muons"));
   tok_electrons_ = consumes<edm::View<pat::Electron>> ( pset.getParameter<edm::InputTag>("Electrons"));
   tok_photons_ = consumes<edm::View<pat::Photon>>  ( pset.getParameter<edm::InputTag>("Photons"));
@@ -1308,6 +1268,8 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   mBtagSF_DeepCSV = pset.getParameter<std::string>("BtagSFFile_DeepCSV");
   mBtagSF_DeepFlav = pset.getParameter<std::string>("BtagSFFile_DeepFlav");
   
+  mRochcorFolder = pset.getParameter<std::string>("RochcorFolder");
+  
   if(!isFastSIM){
 	triggerBits_ = consumes<edm::TriggerResults> ( pset.getParameter<edm::InputTag>("bits"));
 	triggerObjects_ = consumes<pat::TriggerObjectStandAloneCollection>(pset.getParameter<edm::InputTag>("objects"));
@@ -1319,22 +1281,26 @@ Leptop::Leptop(const edm::ParameterSet& pset):
 	prefweightup_token = consumes< double >(edm::InputTag("prefiringweight:nonPrefiringProbUp"));
 	prefweightdown_token = consumes< double >(edm::InputTag("prefiringweight:nonPrefiringProbDown"));
 	}
-
-  //old end //
   
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   theFile->cd();
-  
+ 
   T1 = new TTree("Events", "XtoYH");
  
   T1->Branch("irun", &irun, "irun/I");  
   T1->Branch("ilumi", &ilumi, "ilumi/I");  
+  T1->Branch("ievt", &ievt, "ievt/i");
   
   // primary vertices //
   
-  T1->Branch("ievt", &ievt, "ievt/i");
   T1->Branch("nprim", &nprim, "nprim/I");
   T1->Branch("npvert", &npvert, "npvert/I");
+  T1->Branch("PV_npvsGood", &PV_npvsGood, "PV_npvsGood/I");
+  T1->Branch("PV_ndof", &PV_ndof, "PV_ndof/I");
+  T1->Branch("PV_chi2", &PV_chi2, "PV_chi2/F");
+  T1->Branch("PV_x", &PV_x, "PV_x/F");
+  T1->Branch("PV_y", &PV_y, "PV_y/F");
+  T1->Branch("PV_z", &PV_z, "PV_z/F");
   
   // energy density //
   
@@ -1391,6 +1357,12 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("CHSMET_sig",&misetsig,"misetsig/F");
   T1->Branch("CHSMET_sumEt",&sumEt,"sumEt/F");
   
+  T1->Branch("CHSMET_pt_UnclusEup",&miset_UnclusEup,"miset_CHS_UnclusEup/F") ;
+  T1->Branch("CHSMET_pt_UnclusEdn",&miset_UnclusEdn,"miset_CHS_UnclusEdn/F") ;
+  T1->Branch("CHSMET_phi_UnclusEup",&misphi_UnclusEup,"CHSMET_phi_UnclusEup/F") ;
+  T1->Branch("CHSMET_phi_UnclusEdn",&misphi_UnclusEdn,"CHSMET_phi_UnclusEdn/F") ;
+  
+  
   T1->Branch("PuppiMET_pt",&miset_PUPPI,"miset_PUPPI/F") ;
   T1->Branch("PuppiMET_phi",&misphi_PUPPI,"misphi_PUPPI/F") ;
   T1->Branch("PuppiMET_sig",&misetsig_PUPPI,"misetsig_PUPPI/F");
@@ -1417,8 +1389,8 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("PFJetAK8_eta",PFJetAK8_eta,"PFJetAK8_eta[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_phi",PFJetAK8_phi,"PFJetAK8_phi[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_mass",PFJetAK8_mass,"PFJetAK8_mass[nPFJetAK8]/F");
-  T1->Branch("PFJetAK8_jetID_tightlepveto",PFJetAK8_jetID_tightlepveto,"PFJetAK8_jetID_tightlepveto[nPFJetAK8]/O");
   T1->Branch("PFJetAK8_jetID",PFJetAK8_jetID,"PFJetAK8_jetID[nPFJetAK8]/O");
+  T1->Branch("PFJetAK8_jetID_tightlepveto",PFJetAK8_jetID_tightlepveto,"PFJetAK8_jetID_tightlepveto[nPFJetAK8]/O");
   T1->Branch("PFJetAK8_JEC",PFJetAK8_JEC,"PFJetAK8_JEC[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_CHF",PFJetAK8_CHF,"PFJetAK8_CHF[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_NHF",PFJetAK8_NHF,"PFJetAK8_NHF[nPFJetAK8]/F");
@@ -1437,11 +1409,11 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("PFJetAK8_Neucons",PFJetAK8_Neucons,"PFJetAK8_Neucons[nPFJetAK8]/I");
   T1->Branch("PFJetAK8_Chcons",PFJetAK8_Chcons,"PFJetAK8_Chcons[nPFJetAK8]/I");
   
-  T1->Branch("PFJetAK8_reso",PFJetAK8_reso,"PFJetAK8_reso[nPFJetAK8]/F");
-  T1->Branch("PFJetAK8_resoup",PFJetAK8_resoup,"PFJetAK8_resoup[nPFJetAK8]/F");
-  T1->Branch("PFJetAK8_resodn",PFJetAK8_resodn,"PFJetAK8_resodn[nPFJetAK8]/F");
+  T1->Branch("PFJetAK8_JER",PFJetAK8_reso,"PFJetAK8_reso[nPFJetAK8]/F");
+  T1->Branch("PFJetAK8_JERup",PFJetAK8_resoup,"PFJetAK8_resoup[nPFJetAK8]/F");
+  T1->Branch("PFJetAK8_JERdn",PFJetAK8_resodn,"PFJetAK8_resodn[nPFJetAK8]/F");
   
-  T1->Branch("PFJetAK8_sdmass",PFJetAK8_sdmass,"PFJetAK8_sdmass[nPFJetAK8]/F");
+  T1->Branch("PFJetAK8_msoftdrop",PFJetAK8_sdmass,"PFJetAK8_sdmass[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_tau1",PFJetAK8_tau1,"PFJetAK8_tau1[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_tau2",PFJetAK8_tau2,"PFJetAK8_tau2[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_tau3",PFJetAK8_tau3,"PFJetAK8_tau3[nPFJetAK8]/F");
@@ -1464,12 +1436,14 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("PFJetAK8_sub1eta",PFJetAK8_sub1eta,"PFJetAK8_sub1eta[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_sub1phi",PFJetAK8_sub1phi,"PFJetAK8_sub1phi[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_sub1mass",PFJetAK8_sub1mass,"PFJetAK8_sub1mass[nPFJetAK8]/F");
+  T1->Branch("PFJetAK8_sub1JEC",PFJetAK8_sub1JEC,"PFJetAK8_sub1JEC[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_sub1btag",PFJetAK8_sub1btag,"PFJetAK8_sub1btag[nPFJetAK8]/F");
   
   T1->Branch("PFJetAK8_sub2pt",PFJetAK8_sub2pt,"PFJetAK8_sub2pt[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_sub2eta",PFJetAK8_sub2eta,"PFJetAK8_sub2eta[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_sub2phi",PFJetAK8_sub2phi,"PFJetAK8_sub2phi[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_sub2mass",PFJetAK8_sub2mass,"PFJetAK8_sub2mass[nPFJetAK8]/F");
+  T1->Branch("PFJetAK8_sub2JEC",PFJetAK8_sub2JEC,"PFJetAK8_sub2JEC[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_sub2btag",PFJetAK8_sub2btag,"PFJetAK8_sub2btag[nPFJetAK8]/F");
   
   T1->Branch("PFJetAK8_jesup_AbsoluteStat",PFJetAK8_jesup_AbsoluteStat,"PFJetAK8_jesup_AbsoluteStat[nPFJetAK8]/F");
@@ -1522,25 +1496,39 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("PFJetAK8_jesdn_TimePtEta",PFJetAK8_jesdn_TimePtEta,"PFJetAK8_jesdn_TimePtEta[nPFJetAK8]/F");
   T1->Branch("PFJetAK8_jesdn_Total",PFJetAK8_jesdn_Total,"PFJetAK8_jesdn_Total[nPFJetAK8]/F");
   
+  //gROOT->ProcessLine(".L CustomRootDict.cc+");
+  
+  if(store_fatjet_constituents){
+    T1->Branch("nPFJetAK8_cons",&nPFJetAK8_cons,"nPFJetAK8_cons/I");
+    T1->Branch("PFJetAK8_cons_pt",PFJetAK8_cons_pt, "PFJetAK8_cons_pt[nPFJetAK8_cons]/F");
+    T1->Branch("PFJetAK8_cons_eta",PFJetAK8_cons_eta, "PFJetAK8_cons_eta[nPFJetAK8_cons]/F");
+    T1->Branch("PFJetAK8_cons_phi",PFJetAK8_cons_phi, "PFJetAK8_cons_phi[nPFJetAK8_cons]/F");
+    T1->Branch("PFJetAK8_cons_mass",PFJetAK8_cons_mass, "PFJetAK8_cons_mass[nPFJetAK8_cons]/F");
+    T1->Branch("PFJetAK8_cons_pdgId",PFJetAK8_cons_pdgId, "PFJetAK8_cons_pdgId[nPFJetAK8_cons]/I");
+    T1->Branch("PFJetAK8_cons_jetIndex",PFJetAK8_cons_jetIndex, "PFJetAK8_cons_jetIndex[nPFJetAK8_cons]/I");
+  }
+  
+
   // AK4 jet info //
  
   T1->Branch("nPFJetAK4",&nPFJetAK4,"nPFJetAK4/I"); 
 
-  T1->Branch("PFJetAK4_jetID",PFJetAK4_jetID,"PFJetAK4_jetID[nPFJetAK4]/O");
-  T1->Branch("PFJetAK4_jetID_tightlepveto",PFJetAK4_jetID_tightlepveto,"PFJetAK4_jetID_tightlepveto[nPFJetAK4]/O");
-  
   T1->Branch("PFJetAK4_pt",PFJetAK4_pt,"PFJetAK4_pt[nPFJetAK4]/F");
   T1->Branch("PFJetAK4_eta",PFJetAK4_eta,"PFJetAK4_eta[nPFJetAK4]/F");
   T1->Branch("PFJetAK4_y",PFJetAK4_y,"PFJetAK4_y[nPFJetAK4]/F");
   T1->Branch("PFJetAK4_phi",PFJetAK4_phi,"PFJetAK4_phi[nPFJetAK4]/F");
   T1->Branch("PFJetAK4_mass",PFJetAK4_mass,"PFJetAK4_mass[nPFJetAK4]/F");
+  
+  T1->Branch("PFJetAK4_jetID",PFJetAK4_jetID,"PFJetAK4_jetID[nPFJetAK4]/O");
+  T1->Branch("PFJetAK4_jetID_tightlepveto",PFJetAK4_jetID_tightlepveto,"PFJetAK4_jetID_tightlepveto[nPFJetAK4]/O");
+  
   T1->Branch("PFJetAK4_JEC",PFJetAK4_JEC,"PFJetAK4_JEC[nPFJetAK4]/F");
   T1->Branch("PFJetAK4_btag_DeepCSV",PFJetAK4_btag_DeepCSV,"PFJetAK4_btag_DeepCSV[nPFJetAK4]/F");
   T1->Branch("PFJetAK4_btag_DeepFlav",PFJetAK4_btag_DeepFlav,"PFJetAK4_btag_DeepFlav[nPFJetAK4]/F");
  
-  T1->Branch("PFJetAK4_reso",PFJetAK4_reso,"PFJetAK4_reso[nPFJetAK4]/F");
-  T1->Branch("PFJetAK4_resoup",PFJetAK4_resoup,"PFJetAK4_resoup[nPFJetAK4]/F");
-  T1->Branch("PFJetAK4_resodn",PFJetAK4_resodn,"PFJetAK4_resodn[nPFJetAK4]/F"); 
+  T1->Branch("PFJetAK4_JER",PFJetAK4_reso,"PFJetAK4_reso[nPFJetAK4]/F");
+  T1->Branch("PFJetAK4_JERup",PFJetAK4_resoup,"PFJetAK4_resoup[nPFJetAK4]/F");
+  T1->Branch("PFJetAK4_JERdn",PFJetAK4_resodn,"PFJetAK4_resodn[nPFJetAK4]/F"); 
   
   T1->Branch("PFJetAK4_hadronflav",PFJetAK4_hadronflav,"PFJetAK4_hadronflav[nPFJetAK4]/I");
   T1->Branch("PFJetAK4_partonflav",PFJetAK4_partonflav,"PFJetAK4_partonflav[nPFJetAK4]/I");
@@ -1617,21 +1605,22 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("Muon_isTight",Muon_isTight,"Muon_isTight[nMuon]/O");
   T1->Branch("Muon_isHighPt",Muon_isHighPt,"Muon_isHighPt[nMuon]/O"); 
   T1->Branch("Muon_isHighPttrk",Muon_isHighPttrk,"Muon_isHighPttrk[nMuon]/O");
-  T1->Branch("Muon_MediumID",Muon_MediumID,"Muon_MediumID[nMuon]/O");
+  T1->Branch("Muon_TightID",Muon_TightID,"Muon_TightID[nMuon]/O");
   
   T1->Branch("Muon_pt",Muon_pt,"Muon_pt[nMuon]/F");
   T1->Branch("Muon_p",Muon_p,"Muon_p[nMuon]/F");
   T1->Branch("Muon_eta",Muon_eta,"Muon_eta[nMuon]/F");
   T1->Branch("Muon_phi",Muon_phi,"Muon_phi[nMuon]/F");
   
-  T1->Branch("Muon_minchiso", Muon_minchiso, "Muon_minchiso[nMuon]/F");
-  T1->Branch("Muon_minnhiso", Muon_minnhiso, "Muon_minnhiso[nMuon]/F");
-  T1->Branch("Muon_minphiso", Muon_minphiso, "Muon_minphiso[nMuon]/F");
+  T1->Branch("Muon_minisoch", Muon_minchiso, "Muon_minchiso[nMuon]/F");
+  T1->Branch("Muon_minisonh", Muon_minnhiso, "Muon_minnhiso[nMuon]/F");
+  T1->Branch("Muon_minisoph", Muon_minphiso, "Muon_minphiso[nMuon]/F");
   T1->Branch("Muon_minisoall", Muon_minisoall, "Muon_minisoall[nMuon]/F");
   T1->Branch("Muon_dxy",Muon_dxy,"Muon_dxy[nMuon]/F");
   T1->Branch("Muon_dz",Muon_dz,"Muon_dz[nMuon]/F");
   T1->Branch("Muon_dxyErr",Muon_dxyErr,"Muon_dxyErr[nMuon]/F");
-  T1->Branch("Muon_ip3d",Muon_ip3d,"Muon_ip3d[nMuon]/F");
+  T1->Branch("Muon_ip3d",Muon_ip3d,"Muon_ip3d[nMuon]/F");   // correct the name to sip3d next time
+  T1->Branch("Muon_sip3d",Muon_sip3d,"Muon_sip3d[nMuon]/F");
   T1->Branch("Muon_ptErr",Muon_ptErr,"Muon_ptErr[nMuon]/F");
   T1->Branch("Muon_chi",Muon_chi,"Muon_chi[nMuon]/F");
   T1->Branch("Muon_ndf",Muon_ndf,"Muon_ndf[nMuon]/I");
@@ -1648,6 +1637,10 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("Muon_valfrac",Muon_valfrac,"Muon_valfrac[nMuon]/F"); 
   T1->Branch("Muon_dxy_sv",Muon_dxy_sv,"Muon_dxy_sv[nMuon]/F");
   
+  T1->Branch("Muon_corrected_pt",Muon_corrected_pt,"Muon_corrected_pt[nMuon]/F");
+  T1->Branch("Muon_correctedUp_pt",Muon_correctedUp_pt,"Muon_correctedUp_pt[nMuon]/F");
+  T1->Branch("Muon_correctedDown_pt",Muon_correctedDown_pt,"Muon_correctedDown_pt[nMuon]/F");
+  
   // Electron info //
   
   T1->Branch("nElectron",&nElectron,"nElectron/I");
@@ -1663,11 +1656,15 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("Electron_mvaid_Fallv2WP80",Electron_mvaid_Fallv2WP80,"Electron_mvaid_Fallv2WP80[nElectron]/O");
   T1->Branch("Electron_mvaid_Fallv2WP80_noIso",Electron_mvaid_Fallv2WP80_noIso,"Electron_mvaid_Fallv2WP80_noIso[nElectron]/O");
   
+  T1->Branch("Electron_mvaid_Fallv2_value",Electron_mvaid_Fallv2_value,"Electron_mvaid_Fallv2_value[nElectron]/F");
+  T1->Branch("Electron_mvaid_Fallv2noIso_value",Electron_mvaid_Fallv2noIso_value,"Electron_mvaid_Fallv2noIso_value[nElectron]/F");
+  
   T1->Branch("Electron_dxy",Electron_dxy,"Electron_dxy[nElectron]/F");
   T1->Branch("Electron_dxyErr",Electron_dxyErr,"Electron_dxyErr[nElectron]/F");
   T1->Branch("Electron_dz",Electron_dz,"Electron_dz[nElectron]/F");
   T1->Branch("Electron_dzErr",Electron_dzErr,"Electron_dzErr[nElectron]/F");
-  T1->Branch("Electron_ip3d",Electron_ip3d,"Electron_ip3d[nElectron]/F");
+  T1->Branch("Electron_ip3d",Electron_ip3d,"Electron_ip3d[nElectron]/F"); // correct the name to sip3d next time
+  T1->Branch("Electron_sip3d",Electron_sip3d,"Electron_sip3d[nElectron]/F");
   T1->Branch("Electron_dxy_sv",Electron_dxy_sv,"Electron_dxy_sv[nElectron]/F");
   
   T1->Branch("Electron_hovere",Electron_hovere,"Electron_hovere[nElectron]/F");
@@ -1707,9 +1704,9 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("Electron_pfisolsumchhadpt", Electron_pfisolsumchhadpt, "Electron_pfisolsumchhadpt[nElectron]/F");
   T1->Branch("Electron_pfsiolsumneuhadet", Electron_pfsiolsumneuhadet, "Electron_pfsiolsumneuhadet[nElectron]/F");
   
-  T1->Branch("Electron_minchiso", Electron_minchiso, "Electron_minchiso[nElectron]/F");
-  T1->Branch("Electron_minnhiso", Electron_minnhiso, "Electron_minnhiso[nElectron]/F");
-  T1->Branch("Electron_minphiso", Electron_minphiso, "Electron_minphiso[nElectron]/F");
+  T1->Branch("Electron_minisoch", Electron_minchiso, "Electron_minchiso[nElectron]/F");
+  T1->Branch("Electron_minisonh", Electron_minnhiso, "Electron_minnhiso[nElectron]/F");
+  T1->Branch("Electron_minisoph", Electron_minphiso, "Electron_minphiso[nElectron]/F");
   T1->Branch("Electron_minisoall", Electron_minisoall, "Electron_minisoall[nElectron]/F");
   
   if(store_electron_addvariabs){
@@ -1791,8 +1788,8 @@ Leptop::Leptop(const edm::ParameterSet& pset):
 	  
   // generator-related info //
   
-  T1->Branch("event_weight", &event_weight, "event_weight/D") ;
-  T1->Branch("qscale",&qscale,"qscale/F");
+  T1->Branch("Generator_weight", &Generator_weight, "Generator_weight/D") ;
+  T1->Branch("Generator_qscale",&Generator_qscale,"Generator_qscale/F");
   T1->Branch("Generator_x1",&Generator_x1,"Generator_x1/F");
   T1->Branch("Generator_x2",&Generator_x2,"Generator_x2/F");
   T1->Branch("Generator_xpdf1",&Generator_xpdf1,"Generator_xpdf1/F");
@@ -1816,10 +1813,20 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("GenJetAK8_eta",GenJetAK8_eta,"GenJetAK8_eta[nGenJetAK8]/F");
   T1->Branch("GenJetAK8_phi",GenJetAK8_phi,"GenJetAK8_phi[nGenJetAK8]/F");
   T1->Branch("GenJetAK8_mass",GenJetAK8_mass,"GenJetAK8_mass[nGenJetAK8]/F"); 
-  T1->Branch("GenJetAK8_sdmass",GenJetAK8_sdmass,"GenJetAK8_sdmass[nGenJetAK8]/F");
+  T1->Branch("GenJetAK8_msoftdrop",GenJetAK8_sdmass,"GenJetAK8_sdmass[nGenJetAK8]/F");
   T1->Branch("GenJetAK8_hadronflav",GenJetAK8_hadronflav,"GenJetAK8_hadronflav[nGenJetAK8]/I");
   T1->Branch("GenJetAK8_partonflav",GenJetAK8_partonflav,"GenJetAK8_partonflav[nGenJetAK8]/I");
 
+  if(store_fatjet_constituents){
+    T1->Branch("nGenJetAK8_cons",&nGenJetAK8_cons,"nGenJetAK8_cons/I");
+    T1->Branch("GenJetAK8_cons_pt",GenJetAK8_cons_pt, "GenJetAK8_cons_pt[nGenJetAK8_cons]/F");
+    T1->Branch("GenJetAK8_cons_eta",GenJetAK8_cons_eta, "GenJetAK8_cons_eta[nGenJetAK8_cons]/F");
+    T1->Branch("GenJetAK8_cons_phi",GenJetAK8_cons_phi, "GenJetAK8_cons_phi[nGenJetAK8_cons]/F");
+    T1->Branch("GenJetAK8_cons_mass",GenJetAK8_cons_mass, "GenJetAK8_cons_mass[nGenJetAK8_cons]/F");
+    T1->Branch("GenJetAK8_cons_pdgId",GenJetAK8_cons_pdgId, "GenJetAK8_cons_pdgId[nGenJetAK8_cons]/I");
+    T1->Branch("GenJetAK8_cons_jetIndex",GenJetAK8_cons_jetIndex, "GenJetAK8_cons_jetIndex[nGenJetAK8_cons]/I");
+  }
+  
   // GEN AK4 jet info //  
  
   T1->Branch("nGenJetAK4",&nGenJetAK4, "nGenJetAK4/I");
@@ -1836,16 +1843,19 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("GenPart_pt",GenPart_pt,"GenPart_pt[nGenPart]/F");
   T1->Branch("GenPart_eta",GenPart_eta,"GenPart_eta[nGenPart]/F");
   T1->Branch("GenPart_phi",GenPart_phi,"GenPart_phi[nGenPart]/F");
-  T1->Branch("GenPart_m",GenPart_m,"GenPart_m[nGenPart]/F");
+  T1->Branch("GenPart_mass",GenPart_mass,"GenPart_mass[nGenPart]/F");
   T1->Branch("GenPart_status",GenPart_status,"GenPart_status[nGenPart]/I");
   T1->Branch("GenPart_pdgId",GenPart_pdg,"GenPart_pdg[nGenPart]/I");
   T1->Branch("GenPart_mompdgId",GenPart_mompdg,"GenPart_mompdg[nGenPart]/I");
+  T1->Branch("GenPart_momstatus",GenPart_momstatus,"GenPart_momstatus[nGenPart]/I");
   T1->Branch("GenPart_grmompdgId",GenPart_grmompdg,"GenPart_grmompdg[nGenPart]/I");
   T1->Branch("GenPart_daugno",GenPart_daugno,"GenPart_daugno[nGenPart]/I");
   T1->Branch("GenPart_fromhard",GenPart_fromhard,"GenPart_fromhard[nGenPart]/O");
   T1->Branch("GenPart_fromhardbFSR",GenPart_fromhardbFSR,"GenPart_fromhardbFSR[nGenPart]/O");
   T1->Branch("GenPart_isPromptFinalState",GenPart_isPromptFinalState,"GenPart_isPromptFinalState[nGenPart]/O");
   T1->Branch("GenPart_isLastCopyBeforeFSR",GenPart_isLastCopyBeforeFSR,"GenPart_isLastCopyBeforeFSR[nGenPart]/O");
+  T1->Branch("GenPart_isDirectPromptTauDecayProductFinalState",GenPart_isDirectPromptTauDecayProductFinalState,"GenPart_isDirectPromptTauDecayProductFinalState[nGenPart]/O");
+  
   
   // LHE Info //
   
@@ -1856,17 +1866,33 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("LHEPart_phi",LHEPart_phi,"LHEPart_phi[nLHEPart]/F");
   T1->Branch("LHEPart_m",LHEPart_m,"LHEPart_m[nLHEPart]/F");
   
-  T1->Branch("event_weight_LHE",&event_weight_LHE, "event_weight_LHE/D");
+  T1->Branch("LHE_weight",&LHE_weight, "LHE_weight/D");
+  // scale & pdf weights (correct only for ttbar POWHEG samples))
   T1->Branch("nLHEScaleWeights",&nLHEScaleWeights, "nLHEScaleWeights/I");
   T1->Branch("LHEScaleWeights",LHEScaleWeights,"LHEScaleWeights[nLHEScaleWeights]/F");
   T1->Branch("nLHEPDFWeights",&nLHEPDFWeights, "nLHEPDFWeights/I");
   T1->Branch("LHEPDFWeights",LHEPDFWeights,"LHEPDFWeights[nLHEPDFWeights]/F");
-  T1->Branch("nLHEAlpsWeights",&nLHEAlpsWeights, "nLHEAlpsWeights/I");
-  T1->Branch("LHEAlpsWeights",LHEAlpsWeights,"LHEAlpsWeights[nLHEAlpsWeights]/F");
   T1->Branch("nLHEPSWeights",&nLHEPSWeights, "nLHEPSWeights/I");
   T1->Branch("LHEPSWeights",LHEPSWeights,"LHEPSWeights[nLHEPSWeights]/F");
+  // storing all weights (up to 250) //
+  T1->Branch("nLHEWeights",&nLHEWeights, "nLHEWeights/I");
+  T1->Branch("LHEWeights",LHEWeights,"LHEWeights[nLHEWeights]/F");
   
   } //isMC
+  
+  T2 = new TTree("Events_All", "XtoYH");
+  
+  T2->Branch("ievt", &ievt, "ievt/i");
+  T2->Branch("PV_npvsGood", &PV_npvsGood, "PV_npvsGood/I");
+  
+  if(isMC){
+	  
+  T2->Branch("Generator_weight", &Generator_weight, "Generator_weight/D") ;
+  T2->Branch("npu_vert",&npu_vert,"npu_vert/I");
+  T2->Branch("npu_vert_true",&npu_vert_true,"npu_vert_true/I");
+  T2->Branch("LHE_weight",&LHE_weight, "LHE_weight/D");
+  
+  }
   
   Nevt=0;
 }
@@ -1897,15 +1923,11 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
   ievt = iEvent.id().event();
   
   if (Nevt%100==1)cout <<"Leptop::analyze "<<Nevt<<" "<<iEvent.id().run()<<" "<<iEvent.id().event()<<endl;
-  
-  wtfact = 1.;
-  
+    
   // First store all MC information //
   
   edm::Handle<reco::GenJetCollection> genjetAK8s;
   edm::Handle<reco::GenJetCollection> genjetAK4s;
-  
-  iEvent.getByToken(tok_genjetAK4s_, genjetAK4s);
   
   if(isMC){
 	
@@ -1918,12 +1940,11 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
     
     if (eventinfo.isValid()){
 		
-		event_weight = eventinfo->weight();
-		wtfact *= event_weight;
+		Generator_weight = eventinfo->weight();
 		
 		// Generator information //
 		
-		qscale = eventinfo->qScale();
+		Generator_qscale = eventinfo->qScale();
 		Generator_x1 = (*eventinfo->pdf()).x.first;
         Generator_x2 = (*eventinfo->pdf()).x.second;
         Generator_id1 = (*eventinfo->pdf()).id.first;
@@ -1932,7 +1953,7 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
         Generator_xpdf2 = (*eventinfo->pdf()).xPDF.second;
         Generator_scalePDF = (*eventinfo->pdf()).scalePDF;
         
-        //cout<<"eventinfo->weights().size() "<<eventinfo->weights().size()<<" GEN weight "<<event_weight<<endl;
+        //cout<<"eventinfo->weights().size() "<<eventinfo->weights().size()<<" GEN weight "<<Generator_weight<<endl;
         
         // Parton shower weights //
         if(eventinfo->weights().size()>2){
@@ -1946,7 +1967,7 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
     }
     else
       {
-		event_weight = qscale = wtfact = Generator_x1 = Generator_x2 = Generator_id1 = Generator_id2 = Generator_xpdf1 = Generator_xpdf2 = Generator_scalePDF = -10000;
+		Generator_weight = Generator_qscale = Generator_x1 = Generator_x2 = Generator_id1 = Generator_id2 = Generator_xpdf1 = Generator_xpdf2 = Generator_scalePDF = -10000;
       }
     
     // LHE-level particles //
@@ -1954,25 +1975,27 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
     edm::Handle<LHEEventProduct>lheeventinfo ;
     iEvent.getByToken(lheEventProductToken_,lheeventinfo) ;
     
+    nLHEWeights = 0;
     nLHEScaleWeights = 0;
 	nLHEPDFWeights = 0;
-	nLHEAlpsWeights = 0;
-    
+	    
     nLHEPart = 0;
     
     if(lheeventinfo.isValid()){
       
+      // LHE-level particles //
+      
       const auto & hepeup = lheeventinfo->hepeup();
       const auto & pup = hepeup.PUP;
       
-      for (unsigned int i = 0; i  < pup.size(); ++i) {
-		if(hepeup.ISTUP[i]==1){// status==1 --> particles stay up to final state                          
-			TLorentzVector p4(pup[i][0], pup[i][1], pup[i][2], pup[i][3]);
+      for (unsigned int ij = 0; ij  < pup.size(); ++ij) {
+		if(hepeup.ISTUP[ij]==1){// status==1 --> particles which stay up to final state                          
+			TLorentzVector p4(pup[ij][0], pup[ij][1], pup[ij][2], pup[ij][3]);
 			LHEPart_pt[nLHEPart] = p4.Pt();
 			LHEPart_eta[nLHEPart] = p4.Eta();
 			LHEPart_phi[nLHEPart] = p4.Phi();
 			LHEPart_m[nLHEPart] = p4.M();
-			LHEPart_pdg[nLHEPart] = (hepeup.IDUP[i]);
+			LHEPart_pdg[nLHEPart] = (hepeup.IDUP[ij]);
 			nLHEPart++;
 			if(nLHEPart>=nlhemax) break;
 			}
@@ -1980,10 +2003,21 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 	
 	 // LHE-level weights //
 	
-	  event_weight_LHE = lheeventinfo->originalXWGTUP();
+	  LHE_weight = lheeventinfo->originalXWGTUP();
 	  	  
 	  for ( unsigned int index = 0; index < lheeventinfo->weights().size(); ++index ) {	
-		//cout<<"Index "<<index+1<<" Id "<<lheeventinfo->weights()[index].id<<" weight "<<lheeventinfo->weights()[index].wgt/lheeventinfo->originalXWGTUP()<<endl;//" muR "<<lheeventinfo->weights()[index].MUR<<" muF "<<lheeventinfo->weights()[index].MUF<<" DYN Scale "<<lheeventinfo->weights()[index].DYN_SCALE<<endl;
+		 
+		 //cout<<"Index "<<index+1<<" Id "<<lheeventinfo->weights()[index].id<<endl;//" weight "<<lheeventinfo->weights()[index].wgt/lheeventinfo->originalXWGTUP()<<endl;//" muR "<<lheeventinfo->weights()[index].MUR<<" muF "<<lheeventinfo->weights()[index].MUF<<" DYN Scale "<<lheeventinfo->weights()[index].DYN_SCALE<<endl;
+		
+		// storing up to a maximum number of weights //
+		
+		if(nLHEWeights<nlheweightmax){
+			LHEWeights[nLHEWeights] = lheeventinfo->weights()[index].wgt/lheeventinfo->originalXWGTUP();
+			nLHEWeights++;
+		}
+		
+		// the convention of storing LHE Scale, PDF, and AlphaS weights is valid only for ttbar POWHEG samples //
+		
 		if(index<nlhescalemax && nLHEScaleWeights<nlhescalemax){
 			LHEScaleWeights[nLHEScaleWeights] = lheeventinfo->weights()[index].wgt/lheeventinfo->originalXWGTUP();
 			nLHEScaleWeights++;
@@ -1992,10 +2026,7 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 			LHEPDFWeights[nLHEPDFWeights] = lheeventinfo->weights()[index].wgt/lheeventinfo->originalXWGTUP();
 			nLHEPDFWeights++;
 		}
-		if(index>=(nlhescalemax+nPDFsets) && index<(nlhescalemax+nPDFsets+nalpsmax) && nLHEAlpsWeights<nalpsmax){
-			LHEAlpsWeights[nLHEAlpsWeights] = lheeventinfo->weights()[index].wgt/lheeventinfo->originalXWGTUP();
-			nLHEAlpsWeights++;
-			}
+		
 	  }
 	  		
 	}// lheeventinfo.isValid()
@@ -2008,10 +2039,9 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 	// AK8 GEN jet //
 
     nGenJetAK8 = 0;
-    iEvent.getByToken(tok_genjetAK8s_, genjetAK8s);
+    nGenJetAK8_cons = 0;
     
-    JetDefinition pfjetAK8_Def(antikt_algorithm,0.8,E_scheme);
-	SoftDrop sd(beta,z_cut,0.8);
+    iEvent.getByToken(tok_genjetAK8s_, genjetAK8s);
     
     if(genjetAK8s.isValid()){
 		
@@ -2036,6 +2066,9 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 			}
 		}
       
+        JetDefinition pfjetAK8_Def(antikt_algorithm,0.8,E_scheme);
+		SoftDrop sd(beta,z_cut,0.8);
+      
 		for(unsigned gjet = 0; gjet<genjetAK8s->size(); gjet++)	{
 	
 			TLorentzVector genjetAK8_4v((*genjetAK8s)[gjet].px(),(*genjetAK8s)[gjet].py(),(*genjetAK8s)[gjet].pz(), (*genjetAK8s)[gjet].energy());
@@ -2057,6 +2090,19 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 				PseudoJet psjet = PseudoJet( (*daught[i2]).px(),(*daught[i2]).py(),(*daught[i2]).pz(),(*daught[i2]).energy() );
 				psjet.set_user_index(i2);
 				fjInputs.push_back(psjet); 
+        
+        // Storing 4-momenta of jet constituents//
+        if(store_fatjet_constituents && nGenJetAK8<njetconsmax){
+          GenJetAK8_cons_pt[nGenJetAK8_cons] = daught[i2]->pt();
+          GenJetAK8_cons_eta[nGenJetAK8_cons] = daught[i2]->eta();
+          GenJetAK8_cons_phi[nGenJetAK8_cons] = daught[i2]->phi();
+          GenJetAK8_cons_mass[nGenJetAK8_cons] = daught[i2]->mass();
+          GenJetAK8_cons_pdgId[nGenJetAK8_cons] = daught[i2]->pdgId();
+          GenJetAK8_cons_jetIndex[nGenJetAK8_cons] = nGenJetAK8;   
+          nGenJetAK8_cons++;
+        }
+        // end of candidate storage //
+        
 			} //i2
 	
 			vector <fastjet::PseudoJet> sortedJets;
@@ -2067,8 +2113,9 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 			if(sortedJets.size()>0){
 				GenJetAK8_sdmass[nGenJetAK8] = (sd(sortedJets[0])).m();
 			}
+			sortedJets.clear();
 	
-			if (++nGenJetAK8>=njetmx) break;
+			if (++nGenJetAK8>=njetmxAK8) break;
 	
 		}
 	}
@@ -2076,6 +2123,7 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
     // AK4 GEN jet //
       
 	nGenJetAK4 = 0;
+	iEvent.getByToken(tok_genjetAK4s_, genjetAK4s);
 	
 	if(genjetAK4s.isValid()){
 		
@@ -2129,52 +2177,71 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 	
 		for(unsigned ig=0; ig<(genparticles->size()); ig++){
 			
-			if(!(((*genparticles)[ig].status()==1)||((*genparticles)[ig].status()==22)||((*genparticles)[ig].status()==23))) continue;
-			if(!((*genparticles)[ig].isHardProcess())) continue;
+			if(!(((*genparticles)[ig].status()==1)||(abs((*genparticles)[ig].status())==22)||((*genparticles)[ig].status()==23)|((*genparticles)[ig].status()==2))) continue;
+			if(!((*genparticles)[ig].isHardProcess()||(*genparticles)[ig].fromHardProcessBeforeFSR()||(*genparticles)[ig].isLastCopyBeforeFSR()||(*genparticles)[ig].isDirectPromptTauDecayProductFinalState())) continue;
 	  
-			if(!((abs((*genparticles)[ig].pdgId())>=1&&abs((*genparticles)[ig].pdgId())<=6)||(abs((*genparticles)[ig].pdgId())>=11&&abs((*genparticles)[ig].pdgId())<=16)||(abs((*genparticles)[ig].pdgId())==24))) continue;
-	  
-			const Candidate * mom = (*genparticles)[ig].mother();
+			if(!((abs((*genparticles)[ig].pdgId())>=1 && abs((*genparticles)[ig].pdgId())<=6) || (abs((*genparticles)[ig].pdgId())>=11 && abs((*genparticles)[ig].pdgId())<=16) || (abs((*genparticles)[ig].pdgId())>=22 && abs((*genparticles)[ig].pdgId())<=24))) continue;
+			// important condition on pdg id -> May be changed in other analyses //
 	  
 			GenPart_status[nGenPart] = (*genparticles)[ig].status();
 			GenPart_pdg[nGenPart] = (*genparticles)[ig].pdgId();
-			GenPart_mompdg[nGenPart] = mom->pdgId();
-			const Candidate * momtmp = (*genparticles)[ig].mother();
-			while(GenPart_mompdg[nGenPart] == GenPart_pdg[nGenPart])
-			{
-				GenPart_mompdg[nGenPart] = momtmp->mother()->pdgId();
-				momtmp = momtmp->mother();
-			}
 			GenPart_daugno[nGenPart] = (*genparticles)[ig].numberOfDaughters();
 			GenPart_fromhard[nGenPart] = (*genparticles)[ig].isHardProcess();
 			GenPart_fromhardbFSR[nGenPart] = (*genparticles)[ig].fromHardProcessBeforeFSR();
 			GenPart_isLastCopyBeforeFSR[nGenPart] = (*genparticles)[ig].isLastCopyBeforeFSR();
 			GenPart_isPromptFinalState[nGenPart] = (*genparticles)[ig].isPromptFinalState();
+			GenPart_isDirectPromptTauDecayProductFinalState[nGenPart] = (*genparticles)[ig].isDirectPromptTauDecayProductFinalState();
 			GenPart_pt[nGenPart] = (*genparticles)[ig].pt();
 			GenPart_eta[nGenPart] = (*genparticles)[ig].eta();
 			GenPart_phi[nGenPart] = (*genparticles)[ig].phi();
-			GenPart_m[nGenPart] = (*genparticles)[ig].mass();
+			GenPart_mass[nGenPart] = (*genparticles)[ig].mass();
+			
+			int mompdg, momstatus, grmompdg;
+			mompdg = momstatus = grmompdg = 0;
+			
+			if((*genparticles)[ig].numberOfMothers()>0){
+				
+				// mother pdg id & status //
+			
+				const Candidate * mom = (*genparticles)[ig].mother();
+				
+				while(mom->pdgId() == (*genparticles)[ig].pdgId())
+				{
+					mom = mom->mother();
+				}
+				
+				if(!(*genparticles)[ig].isPromptFinalState() && !(*genparticles)[ig].isDirectPromptTauDecayProductFinalState()){
+					while(mom->status()==2){
+						mom = mom->mother();	
+					}
+				}
+				
+				mompdg = mom->pdgId();
+				momstatus = mom->status();
 	  
-			bool found_grmom = false;
-			if(mom->numberOfMothers()>0){
-				const Candidate * grmom  = mom->mother();
-				for(int iter=0; iter<10; iter++){
-					if(grmom->pdgId() != mom->pdgId()){
-						GenPart_grmompdg[nGenPart]  = grmom->pdgId();
-						found_grmom = true;
-						break;
-					}else{
+				// grand-mother pdg id //
+						
+				if(mom->numberOfMothers()>0){
+	
+					const Candidate * grmom = mom->mother();
+					
+					while(grmom->pdgId() == mompdg)
+					{
 						if(grmom->numberOfMothers()>0){
 							grmom = grmom->mother();
 						}
 						else{ break; }
 					}
-				}
+					
+					grmompdg  = grmom->pdgId();	
+				} 
+				
 			}
-			if(!found_grmom){
-				GenPart_grmompdg[nGenPart]  = -10000000;
-			}
-	  
+			
+			GenPart_mompdg[nGenPart] = mompdg;
+			GenPart_momstatus[nGenPart] = momstatus;
+			GenPart_grmompdg[nGenPart] = grmompdg; 
+			
 			nGenPart++;
 			if(nGenPart>=npartmx) break;
 		}
@@ -2208,7 +2275,15 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
   
   if (primaryVertices.isValid()) {
 	  
-    vertex = primaryVertices->at(0);  
+	if(primaryVertices->size() > 0){  
+		vertex = primaryVertices->at(0); 
+		PV_ndof = vertex.ndof();
+		PV_chi2 = vertex.normalizedChi2();
+		PV_x = vertex.position().x();
+		PV_y = vertex.position().y();
+		PV_z = vertex.position().z();
+	} 
+	 
     int ndofct_org=0;
     int nchict_org=0;
     int nvert_org = 0;
@@ -2229,10 +2304,14 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
     
     nprim = min(999,nvert_org) + 1000*min(999,ndofct_org) + 1000000*min(999,nchict_org);
     npvert = nchict_org;
+    PV_npvsGood = nprimi_org;
     
   } else { 
     nprim = -100;
     npvert = -100;
+    PV_npvsGood = -100;
+    PV_ndof = -100;
+    PV_chi2 = PV_x = PV_y = PV_z = -1000;
   }
   
   reco::TrackBase::Point beamPoint(0,0, 0);
@@ -2243,11 +2322,12 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
     beamPoint = beamSpotH->position();
   }
 
-  edm::Handle<reco::VertexCompositePtrCandidateCollection> svin;
-  iEvent.getByToken(tok_sv,svin);
+  edm::Handle<reco::VertexCompositePtrCandidateCollection> secondaryVertices;
+  iEvent.getByToken(tok_sv,secondaryVertices);
+  
+  // Energy density info //
   
   edm::Handle<double> Rho_PF;
-  
   iEvent.getByToken(tok_Rho_,Rho_PF);
   Rho = *Rho_PF;
   
@@ -2271,7 +2351,6 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 	iEvent.getByToken(triggerPrescales_, triggerPrescales);
   
 	int ihlttrg[nHLTmx+1]= {0};
-  
   
 	for (int jk=0; jk<nHLTmx; jk++) {
 		for(unsigned ij = 0; ij<trigRes->size(); ++ij) {
@@ -2357,12 +2436,41 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 				TrigObj_pdgId[xht] = alltrgobj[iht].pdgId;
 				TrigObj_type[xht] = alltrgobj[iht].type;
 				xht++;
+				if(xht>=njetmx) break;
 			}
-		if(iht == (njetmx-1)) break;
+		//if(iht == (njetmx-1)) break;
 		}
 	}
 
-  } //isFastSIM
+  } // !isFastSIM
+  
+   // fill trigger booleans //
+ 
+  for(int jk=0; jk<nHLTmx; jk++) {
+	  if(jk==0) 	  {  hlt_IsoMu24 = booltrg[jk]; }
+	  else if(jk==1)  {  hlt_Mu50 = booltrg[jk]; }
+	  else if(jk==2)  {  hlt_Ele50_CaloIdVT_GsfTrkIdT_PFJet165 = booltrg[jk]; }
+	  else if(jk==3)  {  hlt_Ele115_CaloIdVT_GsfTrkIdT = booltrg[jk]; }
+	  else if(jk==4)  {  hlt_Ele40_WPTight_Gsf = booltrg[jk]; }
+	  else if(jk==5)  {  hlt_Ele32_WPTight_Gsf = booltrg[jk]; }
+	  else if(jk==6)  {  hlt_Ele28_eta2p1_WPTight_Gsf_HT150 = booltrg[jk]; }
+	  else if(jk==7)  {  hlt_Mu37_Ele27_CaloIdL_MW = booltrg[jk]; }
+	  else if(jk==8)  {  hlt_Mu27_Ele37_CaloIdL_MW = booltrg[jk]; }
+	  else if(jk==9)  {  hlt_Mu37_TkMu27 = booltrg[jk]; }
+	  else if(jk==10) {  hlt_DoubleEle25_CaloIdL_MW = booltrg[jk]; }
+	  else if(jk==11) {  hlt_AK8PFJet500 = booltrg[jk]; }
+	  else if(jk==12) {  hlt_PFJet500 = booltrg[jk]; }
+	  else if(jk==13) {  hlt_HT1050 = booltrg[jk]; }
+	  else if(jk==14) {  hlt_AK8PFJet400_TrimMass30 = booltrg[jk]; }
+	  else if(jk==15) {  hlt_AK8PFHT800_TrimMass50 = booltrg[jk]; }
+	  else if(jk==16) {  hlt_Photon200 = booltrg[jk]; }
+	  else if(jk==17) {  hlt_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60 = booltrg[jk]; }
+	  else if(jk==18) {  hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60 = booltrg[jk]; }
+	  else if(jk==19) {  hlt_PFMETNoMu140_PFMHTNoMu140_IDTight = booltrg[jk]; }
+	  else if(jk==20) {  hlt_PFMETTypeOne140_PFMHT140_IDTight = booltrg[jk]; }
+  }
+  
+  // trigger filling end //
   
   // End of trigger info //
   
@@ -2382,7 +2490,6 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 	iEvent.getByToken(prefweightdown_token, theprefweightdown ) ;   
 	prefiringweightdown =(*theprefweightdown);
  
-	cout<<"Prefiring: "<<prefiringweight<<endl; 
   }
   
   // End of prefire weights //
@@ -2392,6 +2499,10 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
   // MET //
     
   miset = misphi = misetsig = sumEt = genmiset = genmisphi = genmisetsig = -1000 ;
+  miset_UnclusEup = miset_UnclusEdn = -100;
+  misphi_UnclusEup = misphi_UnclusEdn = -100;
+  
+  // MET uncertainty ids are taken from: https://github.com/cms-sw/cmssw/blob/CMSSW_8_0_X/DataFormats/PatCandidates/interface/MET.h#L152-L158 //
   
   // CHS MET //
   
@@ -2407,6 +2518,12 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
     misetsig = met.significance();
     sumEt = met.corSumEt();//sumEt();
     
+    miset_UnclusEup = met.shiftedPt(pat::MET::METUncertainty(10));
+	miset_UnclusEdn = met.shiftedPt(pat::MET::METUncertainty(11));
+	
+	misphi_UnclusEup = met.shiftedPhi(pat::MET::METUncertainty(10));
+	misphi_UnclusEdn = met.shiftedPhi(pat::MET::METUncertainty(11));
+	    
     if(isMC){
       genmiset = met.genMET()->pt();
       genmisphi = met.genMET()->phi();
@@ -2503,8 +2620,9 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 			
 			Muon_dxy[nMuon] = muon1->muonBestTrack()->dxy(vertex.position());                                                                         
 			Muon_dz[nMuon] = muon1->muonBestTrack()->dz(vertex.position());  
-			Muon_dxyErr[nMuon] = muon1->edB(pat::Muon::PV2D);   
-			Muon_ip3d[nMuon] =  muon1->dB(pat::Muon::PV3D)/muon1->edB(pat::Muon::PV3D);     
+			Muon_dxyErr[nMuon] = muon1->edB(pat::Muon::PV2D);    
+			Muon_ip3d[nMuon] =  muon1->dB(pat::Muon::PV3D);  
+			Muon_sip3d[nMuon] =  muon1->dB(pat::Muon::PV3D)/muon1->edB(pat::Muon::PV3D);   
 			 
 			// energy & track info //
 			                                                                     
@@ -2518,9 +2636,9 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 			                                                                    
 			float dzmumin = 1000;                                                                                                                        
 			float dxymumin = 1000;                                                                                                                       
-			if(svin.isValid()){                                                                                                                          
-				for(unsigned int isv=0; isv<(svin->size()); isv++){                                                                                        
-					const auto &sv = (*svin)[isv];                                                                                                           
+			if(secondaryVertices.isValid()){                                                                                                                          
+				for(unsigned int isv=0; isv<(secondaryVertices->size()); isv++){                                                                                        
+					const auto &sv = (*secondaryVertices)[isv];                                                                                                           
 					reco::TrackBase::Point svpoint(sv.vx(),sv.vy(),sv.vz());
 					float dztmp = fabs(muon1->muonBestTrack()->dz(svpoint));
 					if(dztmp < dzmumin){
@@ -2551,15 +2669,56 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 			Muon_valfrac[nMuon] = trktrk->validFraction();                                                        
 			Muon_pfiso[nMuon] = (muon1->pfIsolationR04().sumChargedHadronPt + max(0., muon1->pfIsolationR04().sumNeutralHadronEt + muon1->pfIsolationR04().sumPhotonEt - 0.5*muon1->pfIsolationR04().sumPUPt))/muon1->pt();                                               
 			
-			bool mu_id = Muon_TightID(Muon_isGL[nMuon],Muon_isPF[nMuon],
-				    Muon_chi[nMuon],Muon_hit[nMuon],Muon_mst[nMuon],
-				    Muon_dxy[nMuon],Muon_dz[nMuon],Muon_pixhit[nMuon],Muon_trklay[nMuon]);
+			bool mu_id = Muon_Tight_ID(Muon_isGL[nMuon],Muon_isPF[nMuon],
+										   Muon_chi[nMuon],Muon_hit[nMuon],Muon_mst[nMuon],
+										   Muon_dxy[nMuon],Muon_dz[nMuon],Muon_pixhit[nMuon],Muon_trklay[nMuon]);
+		    Muon_TightID[nMuon] = mu_id;
+		    
 			if (Muon_pt[nMuon]>15 && fabs(Muon_eta[nMuon])<2.5 && mu_id && Muon_dxy[nMuon]<0.2 && Muon_dz[nMuon]<0.5) {
 				tlvmu.push_back(*muon1);
 			}
 			
-			Muon_MediumID[nMuon] = mu_id;
-	  
+			// Application of Rochester correction //
+			
+			float rcSF, rcSF_error;
+			
+			if(!isMC){
+				// Data
+				rcSF = roch_cor.kScaleDT(muon1->charge(), Muon_pt[nMuon], Muon_eta[nMuon], Muon_phi[nMuon]); 
+				rcSF_error = roch_cor.kScaleDTerror(muon1->charge(), Muon_pt[nMuon], Muon_eta[nMuon], Muon_phi[nMuon]); 
+			}
+			else{
+				// MC
+				bool gen_match = false;
+				float match_genpt = -100;
+				float dR_cut = 0.1;
+				for(int ipart=0; ipart<nGenPart; ipart++)
+				{
+					if((GenPart_status[ipart]==1) && (GenPart_pdg[ipart]==(-1*muon1->charge()*13)) && (delta2R(GenPart_eta[ipart],GenPart_phi[ipart],Muon_eta[nMuon], Muon_phi[nMuon])<dR_cut))
+					{
+						dR_cut = delta2R(GenPart_eta[ipart],GenPart_phi[ipart],Muon_eta[nMuon], Muon_phi[nMuon]);
+						gen_match = true;
+						match_genpt = GenPart_pt[ipart];
+					}
+				}
+				if(gen_match){
+					// when matched gen muon is available
+					rcSF = roch_cor.kSpreadMC(muon1->charge(), Muon_pt[nMuon], Muon_eta[nMuon], Muon_phi[nMuon], match_genpt); 
+					rcSF_error = roch_cor.kSpreadMCerror(muon1->charge(), Muon_pt[nMuon], Muon_eta[nMuon], Muon_phi[nMuon], match_genpt);
+				} 
+				else{
+					// when matched gen muon is not available
+					rcSF = roch_cor.kSmearMC(muon1->charge(), Muon_pt[nMuon], Muon_eta[nMuon], Muon_phi[nMuon], Muon_trklay[nMuon], gRandom->Rndm()); 
+					rcSF_error = roch_cor.kSmearMCerror(muon1->charge(), Muon_pt[nMuon], Muon_eta[nMuon], Muon_phi[nMuon], Muon_trklay[nMuon], gRandom->Rndm());
+				}
+			}
+						
+			Muon_corrected_pt[nMuon] = Muon_pt[nMuon]*rcSF;
+			Muon_correctedUp_pt[nMuon] = Muon_pt[nMuon]*max(rcSF+rcSF_error,float(0.));
+			Muon_correctedDown_pt[nMuon] = Muon_pt[nMuon]*max(rcSF-rcSF_error,float(0.));
+			
+			// End of Rochester correction //
+			
 			if (++nMuon>=njetmx) break;                                                                                                                 
 		
 		}                                                                                                                                              
@@ -2592,20 +2751,24 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
     Electron_mvaid_Fallv2WP80[nElectron] = electron1.electronID(melectronID_isowp80);                                                                                 
     Electron_mvaid_Fallv2WP80_noIso[nElectron] = electron1.electronID(melectronID_noisowp80);   
     
-    // displacement //
+    Electron_mvaid_Fallv2_value[nElectron] = electron1.userFloat("ElectronMVAEstimatorRun2Fall17IsoV2Values");
+	Electron_mvaid_Fallv2noIso_value[nElectron] = electron1.userFloat("ElectronMVAEstimatorRun2Fall17NoIsoV2Values");
     
-    Electron_supcl_e[nElectron] = electron1.superCluster()->energy();                                                                                    
+    // displacement //
+                                                                                 
     Electron_dxy[nElectron] = gsftrk1->dxy(vertex.position());  
     Electron_dxyErr[nElectron] = electron1.edB(pat::Electron::PV2D);                                                                                           
     Electron_dz[nElectron] = gsftrk1->dz(vertex.position()); 
     Electron_dzErr[nElectron] = electron1.edB(pat::Electron::PVDZ);     
-    Electron_ip3d[nElectron] =  electron1.dB(pat::Electron::PV3D)/electron1.edB(pat::Electron::PV3D);                                                                                           
+    Electron_ip3d[nElectron] =  electron1.dB(pat::Electron::PV3D);
+    Electron_sip3d[nElectron] =  electron1.dB(pat::Electron::PV3D)/electron1.edB(pat::Electron::PV3D);                                                                                           
     
     // supercluste info //
     
+    Electron_supcl_e[nElectron] = electron1.superCluster()->energy();  
+    Electron_supcl_rawE[nElectron] = electron1.superCluster()->rawEnergy();      
     Electron_supcl_eta[nElectron] = electron1.superCluster()->eta();                                                                                           
     Electron_supcl_phi[nElectron] = electron1.superCluster()->phi();                                                                                           
-    Electron_supcl_rawE[nElectron] = electron1.superCluster()->rawEnergy();  
     
     // scaling & smearing factors //
     
@@ -2669,9 +2832,9 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
     
     float dzmin = 1000;                                                                                                                              
     float dxymin = 1000;
-    if(svin.isValid()){                                                                                                                              
-		for(unsigned int isv=0; isv<(svin->size()); isv++){                                                                                            
-		const auto &sv = (*svin)[isv];                                                                                                               
+    if(secondaryVertices.isValid()){                                                                                                                              
+		for(unsigned int isv=0; isv<(secondaryVertices->size()); isv++){                                                                                            
+		const auto &sv = (*secondaryVertices)[isv];                                                                                                               
      	  reco::TrackBase::Point svpoint(sv.vx(),sv.vy(),sv.vz());
 		  float dztmp =fabs(gsftrk1->dz(svpoint));
 		  if(dztmp < dzmin){                                                                                                      
@@ -2691,10 +2854,10 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
     //MiniIsolation: begin//                                                                                      
 	vector<float> isovalues;
 	Read_MiniIsolation(&electron1,Rho,isovalues);
-	Electron_minisoall[nMuon] = isovalues[0];
-	Electron_minchiso[nMuon] = isovalues[1];
-	Electron_minnhiso[nMuon] = isovalues[2];
-	Electron_minphiso[nMuon] = isovalues[3];
+	Electron_minisoall[nElectron] = isovalues[0];
+	Electron_minchiso[nElectron] = isovalues[1];
+	Electron_minnhiso[nElectron] = isovalues[2];
+	Electron_minphiso[nElectron] = isovalues[3];
 	//MiniIsolation: end//  
 	
 	bool impact_pass = 	((fabs(Electron_supcl_eta[nElectron])<1.4442 && fabs(Electron_dxy[nElectron])<0.05 && fabs(Electron_dz[nElectron])<0.1)
@@ -2707,18 +2870,15 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
   
     if(++nElectron>=njetmx) break;                                                                                                                      
   }
-    
-  // PF candidates //
-  
-  edm::Handle<pat::PackedCandidateCollection> pfs;
-  iEvent.getByToken(tok_pfcands_, pfs);  
   
   // AK8 jets //
   
   nPFJetAK8 = 0;
+  nPFJetAK8_cons = 0;
+  
   edm::Handle<edm::View<pat::Jet>> pfjetAK8s;
   iEvent.getByToken(tok_pfjetAK8s_, pfjetAK8s);	
-    
+  
   if(pfjetAK8s.isValid()){
     
     for (unsigned jet = 0; jet< pfjetAK8s->size(); jet++) {
@@ -2727,17 +2887,19 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 
       TLorentzVector pfjetAK8_4v(ak8jet.correctedP4("Uncorrected").px(),ak8jet.correctedP4("Uncorrected").py(),ak8jet.correctedP4("Uncorrected").pz(), ak8jet.correctedP4("Uncorrected").energy());
      
-      pfjetAK8_4v = LeptonJet_subtraction(tlvmu,ak8jet,pfjetAK8_4v);
-	  pfjetAK8_4v = LeptonJet_subtraction(tlvel,ak8jet,pfjetAK8_4v);
-	
+	  if(subtractLepton_fromAK8){
+		pfjetAK8_4v = LeptonJet_subtraction(tlvmu,ak8jet,pfjetAK8_4v);
+		pfjetAK8_4v = LeptonJet_subtraction(tlvel,ak8jet,pfjetAK8_4v);
+	  }
+	  
       double tmprecpt = pfjetAK8_4v.Pt();
       
       double total_cor =1;
       Read_JEC(total_cor,tmprecpt,pfjetAK8_4v.Eta(),Rho,isData,ak8jet,jecL1FastAK8,jecL2RelativeAK8,jecL3AbsoluteAK8,jecL2L3ResidualAK8);
       PFJetAK8_JEC[nPFJetAK8] = total_cor;
             
-      if(tmprecpt <AK8PtCut) continue;
-      if(abs(pfjetAK8_4v.Rapidity())>maxEta) continue;
+      if(tmprecpt<AK8PtCut) continue;
+      if(abs(pfjetAK8_4v.Eta())>maxEta) continue;
       
       PFJetAK8_pt[nPFJetAK8] = 	pfjetAK8_4v.Pt();
       PFJetAK8_y[nPFJetAK8] = pfjetAK8_4v.Rapidity();
@@ -2768,8 +2930,11 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
        
       if(isMC){
 	
+		TLorentzVector tmp4v;
+		tmp4v.SetPtEtaPhiM(PFJetAK8_JEC[nPFJetAK8]*pfjetAK8_4v.Pt(),pfjetAK8_4v.Eta(),pfjetAK8_4v.Phi(),PFJetAK8_JEC[nPFJetAK8]*pfjetAK8_4v.M());
+		
       	vector<double> SFs;
-      	Read_JER(mPtResoFileAK8, mPtSFFileAK8, tmprecpt, pfjetAK8_4v, Rho, genjetAK8s, SFs);
+      	Read_JER(mPtResoFileAK8, mPtSFFileAK8, tmprecpt, tmp4v, Rho, genjetAK8s, 0.5*0.8, SFs);
       	
       	PFJetAK8_reso[nPFJetAK8] = SFs[0];
       	PFJetAK8_resoup[nPFJetAK8] = SFs[1];
@@ -2889,7 +3054,7 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
      
       PFJetAK8_sub1pt[nPFJetAK8] = PFJetAK8_sub1eta[nPFJetAK8] = PFJetAK8_sub1phi[nPFJetAK8] = PFJetAK8_sub1mass[nPFJetAK8] = PFJetAK8_sub1btag[nPFJetAK8] = -100;              
       PFJetAK8_sub2pt[nPFJetAK8] = PFJetAK8_sub2eta[nPFJetAK8] = PFJetAK8_sub2phi[nPFJetAK8] = PFJetAK8_sub2mass[nPFJetAK8] = PFJetAK8_sub2btag[nPFJetAK8] = -100;                                                        
-      PFJetAK8_sdmass[nPFJetAK8] = -100;                                                                      
+      PFJetAK8_sdmass[nPFJetAK8] = PFJetAK8_tau1[nPFJetAK8] = PFJetAK8_tau2[nPFJetAK8] = PFJetAK8_tau3[nPFJetAK8] = -100;                                                                      
       
       if(isSoftDrop){
 	
@@ -2908,13 +3073,15 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 				PFJetAK8_sub1eta[nPFJetAK8] = ak8subjet->eta();
 				PFJetAK8_sub1phi[nPFJetAK8] = ak8subjet->phi();
 				PFJetAK8_sub1mass[nPFJetAK8] = ak8subjet->correctedP4("Uncorrected").mass();	 
+				PFJetAK8_sub1JEC[nPFJetAK8] = ak8subjet->pt()*1./ak8subjet->correctedP4("Uncorrected").pt();
 				PFJetAK8_sub1btag[nPFJetAK8] = ak8subjet->bDiscriminator("pfDeepCSVJetTags:probb")+ak8subjet->bDiscriminator("pfDeepCSVJetTags:probbb");
 			}
 			else if(isub==1){
 				PFJetAK8_sub2pt[nPFJetAK8] = ak8subjet->correctedP4("Uncorrected").pt();
 				PFJetAK8_sub2eta[nPFJetAK8] = ak8subjet->eta();
 				PFJetAK8_sub2phi[nPFJetAK8] = ak8subjet->phi();
-				PFJetAK8_sub2mass[nPFJetAK8] = ak8subjet->correctedP4("Uncorrected").mass();	 
+				PFJetAK8_sub2mass[nPFJetAK8] = ak8subjet->correctedP4("Uncorrected").mass();	
+				PFJetAK8_sub2JEC[nPFJetAK8] = ak8subjet->pt()*1./ak8subjet->correctedP4("Uncorrected").pt(); 
 				PFJetAK8_sub2btag[nPFJetAK8] = ak8subjet->bDiscriminator("pfDeepCSVJetTags:probb")+ak8subjet->bDiscriminator("pfDeepCSVJetTags:probbb");
 			}
 		}
@@ -2922,13 +3089,32 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 	
       }//isSoftDrop
       
+      // Storing 4-momenta of jet constituents//
+      if(store_fatjet_constituents && nGenJetAK8<njetconsmax)     {
+        for(unsigned int ic = 0 ; ic < ak8jet.numberOfSourceCandidatePtrs() ; ++ic) {  
+          if(ak8jet.sourceCandidatePtr(ic).isNonnull() && ak8jet.sourceCandidatePtr(ic).isAvailable()){
+            
+            if(nPFJetAK8_cons>= nconsmax) break;	
+            const reco::Candidate* jcand = ak8jet.sourceCandidatePtr(ic).get();
+            PFJetAK8_cons_pt[nPFJetAK8_cons] = jcand->pt();
+            PFJetAK8_cons_eta[nPFJetAK8_cons] = jcand->eta();
+            PFJetAK8_cons_phi[nPFJetAK8_cons] = jcand->phi();
+            PFJetAK8_cons_mass[nPFJetAK8_cons] = jcand->mass();
+            PFJetAK8_cons_pdgId[nPFJetAK8_cons] = jcand->pdgId();
+            PFJetAK8_cons_jetIndex[nPFJetAK8_cons] = nPFJetAK8;   
+            nPFJetAK8_cons++;
+          }
+        }
+      }
+            
+      // end of candidate storage //
+            
       nPFJetAK8++;	
       if(nPFJetAK8 >= njetmxAK8) { break;}
       
     }
   }
- 
- 
+  
   nPFJetAK4 = 0;
   edm::Handle<edm::View<pat::Jet>> pfjetAK4s;
   iEvent.getByToken(tok_pfjetAK4s_, pfjetAK4s);
@@ -2938,8 +3124,10 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 	const auto &ak4jet = (*pfjetAK4s)[jet];
     TLorentzVector pfjetAK4_4v(ak4jet.correctedP4("Uncorrected").px(),ak4jet.correctedP4("Uncorrected").py(),ak4jet.correctedP4("Uncorrected").pz(), ak4jet.correctedP4("Uncorrected").energy());
     
-    pfjetAK4_4v = LeptonJet_subtraction(tlvmu,ak4jet,pfjetAK4_4v);
-    pfjetAK4_4v = LeptonJet_subtraction(tlvel,ak4jet,pfjetAK4_4v);
+    if(subtractLepton_fromAK4){
+		pfjetAK4_4v = LeptonJet_subtraction(tlvmu,ak4jet,pfjetAK4_4v);
+		pfjetAK4_4v = LeptonJet_subtraction(tlvel,ak4jet,pfjetAK4_4v);
+	}
     
     double tmprecpt = pfjetAK4_4v.Pt();
    
@@ -2961,8 +3149,11 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
      
     if(isMC){
 		
+		TLorentzVector tmp4v;
+		tmp4v.SetPtEtaPhiM(PFJetAK4_JEC[nPFJetAK4]*pfjetAK4_4v.Pt(),pfjetAK4_4v.Eta(),pfjetAK4_4v.Phi(),PFJetAK4_JEC[nPFJetAK4]*pfjetAK4_4v.M());
+		
 		vector<double> SFs;
-      	Read_JER(mPtResoFileAK4, mPtSFFileAK4, tmprecpt, pfjetAK4_4v, Rho, genjetAK4s, SFs);
+      	Read_JER(mPtResoFileAK4, mPtSFFileAK4, tmprecpt, tmp4v, Rho, genjetAK4s, 0.5*0.4, SFs);
       	
       	PFJetAK4_reso[nPFJetAK4] = SFs[0];
       	PFJetAK4_resoup[nPFJetAK4] = SFs[1];
@@ -3089,14 +3280,15 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 		PFJetAK4_btag_DeepFlav_SF_up[nPFJetAK4] = reader_deepflav.eval_auto_bounds("up",btv_flav,fabs(pfjetAK4_4v.Eta()),tmprecpt);
 		PFJetAK4_btag_DeepFlav_SF_dn[nPFJetAK4] = reader_deepflav.eval_auto_bounds("down",btv_flav,fabs(pfjetAK4_4v.Eta()),tmprecpt);
 	}
-	//**Note that btag SF is derived after applying JEC**//
+	// Note that btag SF is derived after applying JEC //
      
     nPFJetAK4++;	
     if(nPFJetAK4 >= njetmx) { break;}
     
   }
   
-  
+  // Tau leptons //
+ 
   nTau = 0;
 
   for(const auto& tau1 : iEvent.get(tok_taus_) ) {
@@ -3160,6 +3352,7 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
   edm::Handle<edm::View<pat::Photon>> photons;
   iEvent.getByToken(tok_photons_, photons);
   
+  // for raw MVA score info //
   edm::Handle <edm::ValueMap <float> > mvaPhoID_FallV2_raw;
   iEvent.getByToken(tok_mvaPhoID_FallV2_raw, mvaPhoID_FallV2_raw);
 
@@ -3197,38 +3390,18 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
     if (++nPhoton>=njetmx) break;
 
   }
-   
-   
-  // fill trigger booleans //
- 
-  for(int jk=0; jk<nHLTmx; jk++) {
-	  if(jk==0) 	  {  hlt_IsoMu24 = booltrg[jk]; }
-	  else if(jk==1)  {  hlt_Mu50 = booltrg[jk]; }
-	  else if(jk==2)  {  hlt_Ele50_CaloIdVT_GsfTrkIdT_PFJet165 = booltrg[jk]; }
-	  else if(jk==3)  {  hlt_Ele115_CaloIdVT_GsfTrkIdT = booltrg[jk]; }
-	  else if(jk==4)  {  hlt_Ele40_WPTight_Gsf = booltrg[jk]; }
-	  else if(jk==5)  {  hlt_Ele32_WPTight_Gsf = booltrg[jk]; }
-	  else if(jk==6)  {  hlt_Ele28_eta2p1_WPTight_Gsf_HT150 = booltrg[jk]; }
-	  else if(jk==7)  {  hlt_Mu37_Ele27_CaloIdL_MW = booltrg[jk]; }
-	  else if(jk==8)  {  hlt_Mu27_Ele37_CaloIdL_MW = booltrg[jk]; }
-	  else if(jk==9)  {  hlt_Mu37_TkMu27 = booltrg[jk]; }
-	  else if(jk==10) {  hlt_DoubleEle25_CaloIdL_MW = booltrg[jk]; }
-	  else if(jk==11) {  hlt_AK8PFJet500 = booltrg[jk]; }
-	  else if(jk==12) {  hlt_PFJet500 = booltrg[jk]; }
-	  else if(jk==13) {  hlt_HT1050 = booltrg[jk]; }
-	  else if(jk==14) {  hlt_AK8PFJet400_TrimMass30 = booltrg[jk]; }
-	  else if(jk==15) {  hlt_AK8PFHT800_TrimMass50 = booltrg[jk]; }
-	  else if(jk==16) {  hlt_Photon200 = booltrg[jk]; }
-	  else if(jk==17) {  hlt_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60 = booltrg[jk]; }
-	  else if(jk==18) {  hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60 = booltrg[jk]; }
-	  else if(jk==19) {  hlt_PFMETNoMu140_PFMHTNoMu140_IDTight = booltrg[jk]; }
-	  else if(jk==20) {  hlt_PFMETTypeOne140_PFMHT140_IDTight = booltrg[jk]; }
+       
+  //cout<<"done!"<<endl;
+  
+  T2->Fill(); // filling the tree used to get sumofweights
+  
+  // Skimming condition //
+  
+  if(nPFJetAK8>=1 && (nMuon+nElectron)>=1){
+	T1->Fill(); // filling the main tree
   }
   
-  // trigger filling end //
-    
-  //cout<<"done!"<<endl;
-  T1->Fill();
+  // End of skimming 
   
 }
 
@@ -3295,6 +3468,23 @@ Leptop::beginJob()
 	reader_deepflav.load(calib_deepflav, BTagEntry::FLAV_C, "comb");
 	reader_deepflav.load(calib_deepflav, BTagEntry::FLAV_UDSG, "incl");
   }
+  
+  if(isUltraLegacy)
+  {
+	if(year==2018){
+		roch_cor.init((mRochcorFolder+"RoccoR2018UL.txt").c_str()); 
+	}
+	if(year==2017){
+		roch_cor.init((mRochcorFolder+"RoccoR2017UL.txt").c_str()); 
+	}
+	if(year==2016){
+		roch_cor.init((mRochcorFolder+"RoccoR2016aUL.txt").c_str()); 
+	}
+  }
+  else{
+		roch_cor.init((mRochcorFolder+"RoccoR2017.txt").c_str()); 
+	  }
+  
   //**Important**//
   //For precision top physics, change "comb" to "mujets" in BTagCalibrationReader above //
   //https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation106XUL18#Additional_information
