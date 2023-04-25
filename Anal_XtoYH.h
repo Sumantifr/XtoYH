@@ -15,7 +15,7 @@
 #include <TF1.h>
 #include <math.h>
 
-#include "RtypesCore.h"
+//#include "RtypesCore.h"
 
 #include <TRandom3.h>
 
@@ -477,8 +477,8 @@
    Float_t         LHEScaleWeights[nlhescalemax];   //[nLHEScaleWeights]
    Int_t           nLHEPDFWeights;
    Float_t         LHEPDFWeights[nlhepdfmax];   //[nLHEPDFWeights]
-   Int_t           nLHEAlpsWeights;
-   Float_t         LHEAlpsWeights[nalpsmax];   //[nLHEAlpsWeights]
+   //Int_t           nLHEAlpsWeights;
+   //Float_t         LHEAlpsWeights[nalpsmax];   //[nLHEAlpsWeights]
    Int_t           nLHEPSWeights;
    Float_t         LHEPSWeights[nlhepsmax];   //[nLHEPSWeights]
 
@@ -921,8 +921,8 @@
    TBranch        *b_LHEScaleWeights;   //!
    TBranch        *b_nLHEPDFWeights;   //!
    TBranch        *b_LHEPDFWeights;   //!
-   TBranch        *b_nLHEAlpsWeights;   //!
-   TBranch        *b_LHEAlpsWeights;   //!
+   //TBranch        *b_nLHEAlpsWeights;   //!
+   //TBranch        *b_LHEAlpsWeights;   //!
    TBranch        *b_nLHEPSWeights;   //!
    TBranch        *b_LHEPSWeights;   //!
    
@@ -1075,6 +1075,8 @@
    
    // Booleans for different regions //
    
+   bool Flag_pass_baseline;
+   
    bool Flag_Y_bb_pass_T, Flag_Y_bb_pass_M, Flag_Y_bb_pass_L;
    bool Flag_H_W_pass_T_opt1, Flag_H_W_pass_M_opt1, Flag_H_W_pass_L_opt1, Flag_H_m_pass_opt1, Flag_dR_lW_pass_opt1;
    bool Flag_H_W_pass_T_opt2, Flag_H_W_pass_M_opt2, Flag_H_W_pass_L_opt2, Flag_H_m_pass_opt2, Flag_dR_lW_pass_opt2;
@@ -1093,6 +1095,9 @@
    float _s_PFJetAK8_DeepTag_PNetMD_XbbvsQCD[njetmxAK8],  _s_PFJetAK8_DeepTag_PNetMD_WvsQCD[njetmxAK8], _s_PFJetAK8_DeepTag_PNet_TvsQCD[njetmxAK8], _s_PFJetAK8_DeepTag_PNet_WvsQCD[njetmxAK8];
    float _s_PFJetAK8_DeepTag_DAK8MD_TvsQCD[njetmxAK8], _s_PFJetAK8_DeepTag_DAK8MD_WvsQCD[njetmxAK8], _s_PFJetAK8_DeepTag_DAK8MD_bbvsQCD[njetmxAK8]; 
    float _s_PFJetAK8_JESup[njetmxAK8], _s_PFJetAK8_JESdn[njetmxAK8], _s_PFJetAK8_JERup[njetmxAK8], _s_PFJetAK8_JERdn[njetmxAK8];
+   bool _s_PFJetAK8_label_Top_bq[njetmxAK8], _s_PFJetAK8_label_Top_bc[njetmxAK8], _s_PFJetAK8_label_Top_bcq[njetmxAK8], _s_PFJetAK8_label_Top_bqq[njetmxAK8], _s_PFJetAK8_label_W_qq[njetmxAK8], _s_PFJetAK8_label_W_cq[njetmxAK8];
+   std::vector <std::vector <float> >  _s_PFJetAK8_JESup_split, _s_PFJetAK8_JESdn_split;
+   
    int _s_PFJetAK8_Y_index, _s_PFJetAK8_W_index_opt1, _s_PFJetAK8_W_index_opt2;
    
    int _s_nBJetAK4;
@@ -1108,8 +1113,20 @@
    float _s_JetAK4_btag_DeepFlav[njetmx], _s_JetAK4_btag_DeepCSV[njetmx];
    int _s_JetAK4_hadronflav[njetmx], _s_JetAK4_partonflav[njetmx];
    float _s_JetAK4_qgl[njetmx], _s_JetAK4_PUID[njetmx];
+   bool _s_JetAK4_isMediumBJet[njetmx], _s_JetAK4_isLooseBJet[njetmx];
    float _s_JetAK4_JESup[njetmx], _s_JetAK4_JESdn[njetmx], _s_JetAK4_JERup[njetmx], _s_JetAK4_JERdn[njetmx];
    float _s_JetAK4_btag_DeepFlav_SF[njetmx], _s_JetAK4_btag_DeepFlav_SF_up[njetmx], _s_JetAK4_btag_DeepFlav_SF_dn[njetmx];
+   std::vector <std::vector <float> >  _s_JetAK4_JESup_split, _s_JetAK4_JESdn_split;
+   
+   int _s_nMuon;
+   float _s_Muon_pt[njetmx], _s_Muon_eta[njetmx], _s_Muon_phi[njetmx], _s_Muon_mass[njetmx];
+   int _s_Muon_ID[njetmx];
+   float _s_Muon_minisoall[njetmx], _s_Muon_pfiso[njetmx];
+   
+   int _s_nElectron;
+   float _s_Electron_pt[njetmx], _s_Electron_eta[njetmx], _s_Electron_phi[njetmx], _s_Electron_mass[njetmx];
+   bool _s_Electron_Fallv2WP90_noIso[njetmx], _s_Electron_Fallv2WP80_noIso[njetmx], _s_Electron_Fallv2WP90[njetmx],_s_Electron_Fallv2WP80[njetmx];
+   float _s_Electron_minisoall[njetmx], _s_Electron_pfiso_eacor[njetmx];
 
    int nGenLep;
    float GenLep_pt[njetmx], GenLep_eta[njetmx], GenLep_phi[njetmx], GenLep_mass[njetmx];
@@ -1138,3 +1155,7 @@
    float puidcuts_default[npuptbins] = {0.77,0.90,0.96,0.98};
    //{0.77,0.90,0.96,0.98}; // 2018 & 2017
    //{0.71,0.87,0.94,0.97}; // 2016
+ 
+   int njetAK4_max = 5;
+   int nMuon_max = 3;
+   int nElectron_max = 3;

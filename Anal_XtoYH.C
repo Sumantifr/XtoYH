@@ -138,8 +138,8 @@ int main(int argc, char *argv[])
 
    TFile *fileout = new TFile(fOut,"recreate");
    
-   fileout->SetCompressionAlgorithm(4); //4-> kLZ4
-   fileout->SetCompressionLevel(4); 
+//   fileout->SetCompressionAlgorithm(4); //4-> kLZ4
+//   fileout->SetCompressionLevel(4); 
    
    Tout = new TTree("Tout", "Results");
    Tout_presel = new TTree("Tout_presel", "All");
@@ -244,6 +244,7 @@ int main(int argc, char *argv[])
 
    Tout->Branch("ncuts",&ncuts,"ncuts/I");
    Tout->Branch("Flag_event_cuts", Flag_event_cuts, "Flag_event_cuts[ncuts]/O");	
+   Tout->Branch("Flag_pass_baseline",&Flag_pass_baseline,"Flag_pass_baseline/O");
 
    // trigger booleans //
 
@@ -263,7 +264,8 @@ int main(int argc, char *argv[])
    Tout->Branch("hlt_HT1050",&hlt_HT1050,"hlt_HT1050/O");
    Tout->Branch("hlt_AK8PFJet400_TrimMass30",&hlt_AK8PFJet400_TrimMass30,"hlt_AK8PFJet400_TrimMass30/O");
    Tout->Branch("hlt_AK8PFHT800_TrimMass50",&hlt_AK8PFHT800_TrimMass50,"hlt_AK8PFHT800_TrimMass50/O");
-
+   Tout->Branch("hlt_Photon200",&hlt_Photon200,"hlt_Photon200/O");
+  
    Tout->Branch("Muon_trig_pass",&Muon_trig_pass,"Muon_trig_pass/O");
    Tout->Branch("Electron_trig_pass",&Electron_trig_pass,"Electron_trig_pass/O");
    Tout->Branch("MuonElectron_trig_pass",&MuonElectron_trig_pass,"MuonElectron_trig_pass/O");
@@ -453,7 +455,7 @@ int main(int argc, char *argv[])
 	Tout->Branch("X_mass_JESup_opt1", &X_mass_JESup[0], "X_mass_JESup/F");	
 	Tout->Branch("X_mass_JESdn_opt1", &X_mass_JESdn[0], "X_mass_JESdn/F");	
 	Tout->Branch("X_mass_JESup_split_opt1",&X_mass_JESup_split);
-    Tout->Branch("X_mass_JESdn_split_opt1",&X_mass_JESdn_split);	
+        Tout->Branch("X_mass_JESdn_split_opt1",&X_mass_JESdn_split);	
 	Tout->Branch("X_mass_JERup_opt1", &X_mass_JERup[0], "X_mass_JERup/F");
 	Tout->Branch("X_mass_JERdn_opt1", &X_mass_JERdn[0], "X_mass_JERdn/F");
 	Tout->Branch("X_mass_JERdn_opt1", &X_mass_JERdn[0], "X_mass_JERdn/F");
@@ -593,6 +595,8 @@ int main(int argc, char *argv[])
    Tout->Branch("nbjets_outY_HEMcor", &nbjets_outY_HEMcor, "nbjets_outY_HEMcor/I");		
    
    // Different flags and control regions   
+   
+   Tout->Branch("Flag_pass_baseline", &Flag_pass_baseline, "Flag_pass_baseline/O");	
 
    Tout->Branch("Flag_Y_bb_pass_T", &Flag_Y_bb_pass_T, "Flag_Y_bb_pass_T/O");	
    Tout->Branch("Flag_Y_bb_pass_M", &Flag_Y_bb_pass_M, "Flag_Y_bb_pass_M/O");
@@ -649,14 +653,23 @@ int main(int argc, char *argv[])
    Tout->Branch("PFJetAK8_DeepTag_DAK8MD_bbvsQCD",_s_PFJetAK8_DeepTag_DAK8MD_bbvsQCD,"_s_PFJetAK8_DeepTag_DAK8MD_bbvsQCD[_s_nPFJetAK8]/F");
    Tout->Branch("PFJetAK8_JESup",_s_PFJetAK8_JESup,"_s_PFJetAK8_JESup[_s_nPFJetAK8]/F");
    Tout->Branch("PFJetAK8_JESdn",_s_PFJetAK8_JESdn,"_s_PFJetAK8_JESdn[_s_nPFJetAK8]/F");
-   Tout->Branch("PFJetAK8_JERup",_s_PFJetAK8_JERup,"_s_PFJetAK8_JERup[_s_nPFJetAK8]/F");
-   Tout->Branch("PFJetAK8_JERdn",_s_PFJetAK8_JERdn,"_s_PFJetAK8_JERdn[_s_nPFJetAK8]/F");
+   //Tout->Branch("PFJetAK8_JERup",_s_PFJetAK8_JERup,"_s_PFJetAK8_JERup[_s_nPFJetAK8]/F");
+   //Tout->Branch("PFJetAK8_JERdn",_s_PFJetAK8_JERdn,"_s_PFJetAK8_JERdn[_s_nPFJetAK8]/F");
+   Tout->Branch("PFJetAK8_label_Top_bq",_s_PFJetAK8_label_Top_bq,"_s_PFJetAK8_label_Top_bq[_s_nPFJetAK8]/O");
+   Tout->Branch("PFJetAK8_label_Top_bc",_s_PFJetAK8_label_Top_bc,"_s_PFJetAK8_label_Top_bc[_s_nPFJetAK8]/O");
+   Tout->Branch("PFJetAK8_label_Top_bcq",_s_PFJetAK8_label_Top_bcq,"_s_PFJetAK8_label_Top_bcq[_s_nPFJetAK8]/O");
+   Tout->Branch("PFJetAK8_label_Top_bqq",_s_PFJetAK8_label_Top_bqq,"_s_PFJetAK8_label_Top_bqq[_s_nPFJetAK8]/O");
+   Tout->Branch("PFJetAK8_label_W_qq",_s_PFJetAK8_label_W_qq,"_s_PFJetAK8_label_W_qq[_s_nPFJetAK8]/O");
+   Tout->Branch("PFJetAK8_label_W_cq",_s_PFJetAK8_label_W_cq,"_s_PFJetAK8_label_W_cq[_s_nPFJetAK8]/O");
+   Tout->Branch("PFJetAK8_JESup_split",&_s_PFJetAK8_JESup_split);
+   Tout->Branch("PFJetAK8_JESdn_split",&_s_PFJetAK8_JESdn_split);
    
    Tout->Branch("PFJetAK8_Y_index",&_s_PFJetAK8_Y_index,"_s_PFJetAK8_Y_index/I");
    Tout->Branch("PFJetAK8_W_index_opt1",&_s_PFJetAK8_W_index_opt1,"_s_PFJetAK8_W_index_opt1/I");
    Tout->Branch("PFJetAK8_W_index_opt2",&_s_PFJetAK8_W_index_opt2,"_s_PFJetAK8_W_index_opt2/I");
    
-   //First 6 AK4 jets
+   //First 5 AK4 jets
+   
    Tout->Branch("nJetAK4",&_s_nJetAK4,"_s_nJetAK4/I");
    Tout->Branch("JetAK4_pt",_s_JetAK4_pt,"_s_JetAK4_pt[_s_nJetAK4]/F");
    Tout->Branch("JetAK4_eta",_s_JetAK4_eta,"_s_JetAK4_eta[_s_nJetAK4]/F");
@@ -668,13 +681,42 @@ int main(int argc, char *argv[])
    Tout->Branch("JetAK4_partonflav",_s_JetAK4_partonflav,"_s_JetAK4_partonflav[_s_nJetAK4]/I");
    Tout->Branch("JetAK4_qgl",_s_JetAK4_qgl,"_s_JetAK4_qgl[_s_nJetAK4]/F");
    Tout->Branch("JetAK4_PUID",_s_JetAK4_PUID,"_s_JetAK4_PUID[_s_nJetAK4]/F");
+   Tout->Branch("JetAK4_isMediumBJet",_s_JetAK4_isMediumBJet,"_s_JetAK4_isMediumBJet[_s_nJetAK4]/O");
+   Tout->Branch("JetAK4_isLooseBJet",_s_JetAK4_isLooseBJet,"_s_JetAK4_isLooseBJet[_s_nJetAK4]/O"); 
    Tout->Branch("JetAK4_JESup",_s_JetAK4_JESup,"_s_JetAK4_JESup[_s_nJetAK4]/F");
    Tout->Branch("JetAK4_JESdn",_s_JetAK4_JESdn,"_s_JetAK4_JESdn[_s_nJetAK4]/F");
-   Tout->Branch("JetAK4_JERup",_s_JetAK4_JERup,"_s_JetAK4_JERup[_s_nJetAK4]/F");
-   Tout->Branch("JetAK4_JERdn",_s_JetAK4_JERdn,"_s_JetAK4_JERdn[_s_nJetAK4]/F");
+   //Tout->Branch("JetAK4_JERup",_s_JetAK4_JERup,"_s_JetAK4_JERup[_s_nJetAK4]/F");
+   //Tout->Branch("JetAK4_JERdn",_s_JetAK4_JERdn,"_s_JetAK4_JERdn[_s_nJetAK4]/F");
    Tout->Branch("JetAK4_btag_DeepFlav_SF",_s_JetAK4_btag_DeepFlav_SF,"_s_JetAK4_btag_DeepFlav_SF[_s_nJetAK4]/F");
    Tout->Branch("JetAK4_btag_DeepFlav_SF_up",_s_JetAK4_btag_DeepFlav_SF_up,"_s_JetAK4_btag_DeepFlav_SF_up[_s_nJetAK4]/F");
    Tout->Branch("JetAK4_btag_DeepFlav_SF_dn",_s_JetAK4_btag_DeepFlav_SF_dn,"_s_JetAK4_btag_DeepFlav_SF_dn[_s_nJetAK4]/F");
+   Tout->Branch("JetAK4_JESup_split",&_s_JetAK4_JESup_split);
+   Tout->Branch("JetAK4_JESdn_split",&_s_JetAK4_JESdn_split);
+   
+   // First 2 muons //
+   
+   Tout->Branch("nMuon",&_s_nMuon,"_s_nMuon/I");
+   Tout->Branch("Muon_pt",_s_Muon_pt,"_s_Muon_pt[_s_nMuon]/F");
+   Tout->Branch("Muon_eta",_s_Muon_eta,"_s_Muon_eta[_s_nMuon]/F");
+   Tout->Branch("Muon_phi",_s_Muon_phi,"_s_Muon_phi[_s_nMuon]/F");
+   Tout->Branch("Muon_mass",_s_Muon_mass,"_s_Muon_mass[_s_nMuon]/F");
+   Tout->Branch("Muon_ID",_s_Muon_ID,"_s_Muon_ID[_s_nMuon]/I");
+   Tout->Branch("Muon_minisoall",_s_Muon_minisoall,"_s_Muon_minisoall[_s_nMuon]/F");
+   Tout->Branch("Muon_pfiso",_s_Muon_pfiso,"_s_Muon_pfiso[_s_nMuon]/F");
+   
+   // First 2 electrons //
+   
+   Tout->Branch("nElectron",&_s_nElectron,"_s_nElectron/I");
+   Tout->Branch("Electron_pt",_s_Electron_pt,"_s_Electron_pt[_s_nElectron]/F");
+   Tout->Branch("Electron_eta",_s_Electron_eta,"_s_Electron_eta[_s_nElectron]/F");
+   Tout->Branch("Electron_phi",_s_Electron_phi,"_s_Electron_phi[_s_nElectron]/F");
+   Tout->Branch("Electron_mass",_s_Electron_mass,"_s_Electron_mass[_s_nElectron]/F");
+   Tout->Branch("Electron_Fallv2WP90_noIso",_s_Electron_Fallv2WP90_noIso,"_s_Electron_Fallv2WP90_noIso[_s_nElectron]/O");
+   Tout->Branch("Electron_Fallv2WP80_noIso",_s_Electron_Fallv2WP80_noIso,"_s_Electron_Fallv2WP80_noIso[_s_nElectron]/O");
+   Tout->Branch("Electron_Fallv2WP90",_s_Electron_Fallv2WP90,"_s_Electron_Fallv2WP90[_s_nElectron]/O");
+   Tout->Branch("Electron_Fallv2WP80",_s_Electron_Fallv2WP80,"_s_Electron_Fallv2WP80[_s_nElectron]/O");
+   Tout->Branch("Electron_minisoall",_s_Electron_minisoall,"_s_Electron_minisoall[_s_nElectron]/F");
+   Tout->Branch("Electron_pfiso_eacor",_s_Electron_pfiso_eacor,"_s_Electron_pfiso_eacor[_s_nElectron]/F");
    
    Tout->Branch("Event_weight", &weight, "weight/D");
    
@@ -743,8 +785,8 @@ int main(int argc, char *argv[])
    Tout->Branch("LHEScaleWeights", LHEScaleWeights, "LHEScaleWeights[nLHEScaleWeights]/F");
    Tout->Branch("nLHEPDFWeights", &nLHEPDFWeights, "nLHEPDFWeights/I");
    Tout->Branch("LHEPDFWeights", LHEPDFWeights, "LHEPDFWeights[nLHEPDFWeights]/F");
-   Tout->Branch("nLHEAlpsWeights", &nLHEAlpsWeights, "nLHEAlpsWeights/I");
-   Tout->Branch("LHEAlpsWeights", LHEAlpsWeights, "LHEAlpsWeights[nLHEAlpsWeights]/F");
+   //Tout->Branch("nLHEAlpsWeights", &nLHEAlpsWeights, "nLHEAlpsWeights/I");
+   //Tout->Branch("LHEAlpsWeights", LHEAlpsWeights, "LHEAlpsWeights[nLHEAlpsWeights]/F");
    Tout->Branch("nLHEPSWeights", &nLHEPSWeights, "nLHEPSWeights/I");
    Tout->Branch("LHEPSWeights", LHEPSWeights, "LHEPSWeights[nLHEPSWeights]/F");
    
@@ -1217,8 +1259,8 @@ int main(int argc, char *argv[])
    fChain->SetBranchAddress("LHEScaleWeights", LHEScaleWeights, &b_LHEScaleWeights);
    fChain->SetBranchAddress("nLHEPDFWeights", &nLHEPDFWeights, &b_nLHEPDFWeights);
    fChain->SetBranchAddress("LHEPDFWeights", LHEPDFWeights, &b_LHEPDFWeights);
-   fChain->SetBranchAddress("nLHEAlpsWeights", &nLHEAlpsWeights, &b_nLHEAlpsWeights);
-   fChain->SetBranchAddress("LHEAlpsWeights", LHEAlpsWeights, &b_LHEAlpsWeights);
+   //fChain->SetBranchAddress("nLHEAlpsWeights", &nLHEAlpsWeights, &b_nLHEAlpsWeights);
+   //fChain->SetBranchAddress("LHEAlpsWeights", LHEAlpsWeights, &b_LHEAlpsWeights);
    fChain->SetBranchAddress("nLHEPSWeights", &nLHEPSWeights, &b_nLHEPSWeights);
    fChain->SetBranchAddress("LHEPSWeights", LHEPSWeights, &b_LHEPSWeights);
    
@@ -1228,6 +1270,8 @@ int main(int argc, char *argv[])
    
    int nentries = fChain->GetEntries();
    cout<<"nentries "<<nentries<<endl;
+   
+   //////// *****    Event loop  ***** ////////
    
    for (int ij=0; ij<nentries; ij++) {
    
@@ -1386,6 +1430,7 @@ int main(int argc, char *argv[])
 	for(int imax=0; imax<nmaxWcands; imax++){
 		W_JESup_split[imax].clear(); W_JESdn_split[imax].clear();
 		H_JESup_split[imax].clear(); H_JESdn_split[imax].clear();
+                X_mass_JESup_split[imax].clear(); X_mass_JESdn_split[imax].clear();
 	}
 	HTlep_pt_JESup_split.clear(); HTlep_pt_JESdn_split.clear();
 	ST_JESup_split.clear(); ST_JESdn_split.clear();
@@ -1586,7 +1631,7 @@ int main(int argc, char *argv[])
                    event_cuts.push_back((Jets[0].pt<3*Generator_qscale));   // safety condition against pileup
             }
      }
-    // this condition reduces too much MC events. But, why?
+    // this condition reduces too much MC events. Why?
     */
     
     ncuts=0;	
@@ -1599,7 +1644,8 @@ int main(int argc, char *argv[])
 	//Fill a tree before analysis-specific event selection
     Tout_presel->Fill();
     
-    // Apply analysis-specific event selection conditions
+    // Apply analysis-specific event selection conditions 
+    //(now, not applying it, but storing it to a boolean Flag)
     	
     bool event_pass = true;
 	for(unsigned icut=0; icut<event_cuts.size(); icut++){
@@ -1607,7 +1653,14 @@ int main(int argc, char *argv[])
 		if(!event_pass) break;
     }
 
-	if(!event_pass) continue; // <---  Here we're putting channel-specific selection //
+	//if(!event_pass) continue; // <---  Here we're putting channel-specific selection //
+	// Storing a boolean to flag if event passes baseline conditions or not //
+	if(event_pass){
+		Flag_pass_baseline = true;
+	}
+	else{
+		Flag_pass_baseline = false;
+	}
 	
 	// ======== filling histograms after channel-specific selection ========== //
 		
@@ -1752,6 +1805,9 @@ int main(int argc, char *argv[])
     
     _s_nPFJetAK8 = 0;
     
+    _s_PFJetAK8_JESup_split.clear();
+    _s_PFJetAK8_JESdn_split.clear();
+    
     for(unsigned ijet=0; ijet<LJets.size(); ijet++){
 		
 		_s_PFJetAK8_pt[_s_nPFJetAK8] = LJets[ijet].pt;
@@ -1780,12 +1836,26 @@ int main(int argc, char *argv[])
 			_s_PFJetAK8_JERup[_s_nPFJetAK8] = 0;
 			_s_PFJetAK8_JERdn[_s_nPFJetAK8] = 0;
 			}
+		_s_PFJetAK8_label_Top_bq[_s_nPFJetAK8]  = LJets[_s_nPFJetAK8].label_Top_bq;
+		_s_PFJetAK8_label_Top_bc[_s_nPFJetAK8]  = LJets[_s_nPFJetAK8].label_Top_bc;
+		_s_PFJetAK8_label_Top_bcq[_s_nPFJetAK8] = LJets[_s_nPFJetAK8].label_Top_bcq;
+		_s_PFJetAK8_label_Top_bqq[_s_nPFJetAK8] = LJets[_s_nPFJetAK8].label_Top_bqq;
+		_s_PFJetAK8_label_W_qq[_s_nPFJetAK8]    = LJets[_s_nPFJetAK8].label_W_qq;
+		_s_PFJetAK8_label_W_cq[_s_nPFJetAK8]    = LJets[_s_nPFJetAK8].label_W_cq;
+		
+		vector<float> _s_JESup_split, _s_JESdn_split;
+		get_JES_sys(LJets[_s_nPFJetAK8],_s_JESup_split,"up");
+		get_JES_sys(LJets[_s_nPFJetAK8],_s_JESdn_split,"dn");
+		_s_PFJetAK8_JESup_split.push_back(_s_JESup_split);
+		_s_PFJetAK8_JESdn_split.push_back(_s_JESdn_split);
+		_s_JESup_split.clear(); _s_JESdn_split.clear(); 
 		
 		_s_nPFJetAK8++;
 		
 		if(_s_nPFJetAK8>=njetmxAK8) break;
 		
 		}
+		
     /*    
     _s_nBJetAK4 = 0;
     
@@ -1816,6 +1886,8 @@ int main(int argc, char *argv[])
 	}     */
 
     _s_nJetAK4 = 0;
+    _s_JetAK4_JESup_split.clear();
+    _s_JetAK4_JESdn_split.clear();
 
     for(unsigned ijet=0; ijet<Jets.size(); ijet++){
 
@@ -1829,6 +1901,9 @@ int main(int argc, char *argv[])
         _s_JetAK4_PUID[_s_nJetAK4] = Jets[ijet].PUID;
         _s_JetAK4_JESup[_s_nJetAK4] = Jets[ijet].jesup_Total;
         _s_JetAK4_JESdn[_s_nJetAK4] = Jets[ijet].jesdn_Total;
+        _s_JetAK4_isMediumBJet[_s_nJetAK4] = isBJet(Jets[ijet],DAK4_M);
+        _s_JetAK4_isLooseBJet[_s_nJetAK4] = isBJet(Jets[ijet],DAK4_L);
+       
         if(isMC){
 			_s_JetAK4_JERup[_s_nJetAK4] = Jets[ijet].JERup;//Jets[ijet].JER;
 			_s_JetAK4_JERdn[_s_nJetAK4] = Jets[ijet].JERdn;//Jets[ijet].JER;
@@ -1847,12 +1922,60 @@ int main(int argc, char *argv[])
 			_s_JetAK4_hadronflav[_s_nJetAK4] = 0;
 			_s_JetAK4_partonflav[_s_nJetAK4] = 0;
 		}
+		
+		vector<float> _s_JESup_split, _s_JESdn_split;
+		get_JES_sys(Jets[ijet],_s_JESup_split,"up");
+		get_JES_sys(Jets[ijet],_s_JESdn_split,"dn");
+		_s_JetAK4_JESup_split.push_back(_s_JESup_split);
+		_s_JetAK4_JESdn_split.push_back(_s_JESdn_split);
+		_s_JESup_split.clear(); _s_JESdn_split.clear(); 
 
         _s_nJetAK4++;
 
-        if(_s_nJetAK4>5) break;
+        if(_s_nJetAK4 >= njetAK4_max) break;
 
    }  
+   
+   // store muons passing standard criteria //
+   
+   _s_nMuon = 0;
+   
+   for(unsigned imuon=0; imuon<vmuons.size(); imuon++){
+	
+		_s_Muon_pt[_s_nMuon] = vmuons[imuon].pt;
+		_s_Muon_eta[_s_nMuon] = vmuons[imuon].eta;
+		_s_Muon_phi[_s_nMuon] = vmuons[imuon].phi;
+	    _s_Muon_mass[_s_nMuon] = vmuons[imuon].mass;
+	    _s_Muon_ID[_s_nMuon] = vmuons[imuon].isLoose + 2*vmuons[imuon].isMed + 4*vmuons[imuon].TightID;
+	    _s_Muon_minisoall[_s_nMuon] = vmuons[imuon].minisoall;
+		_s_Muon_pfiso[_s_nMuon] = vmuons[imuon].pfiso;
+		
+		_s_nMuon++;
+		
+		if(_s_nMuon >= nMuon_max) break;
+   }
+   
+   // store electrons passing standard criteria //
+   
+   _s_nElectron = 0;
+   
+   for(unsigned iel=0; iel<velectrons.size(); iel++){
+	
+		_s_Electron_pt[_s_nElectron] = velectrons[iel].pt;
+		_s_Electron_eta[_s_nElectron] = velectrons[iel].eta;
+		_s_Electron_phi[_s_nElectron] = velectrons[iel].phi;
+	    _s_Electron_mass[_s_nElectron] = velectrons[iel].mass;
+	    _s_Electron_Fallv2WP90_noIso[_s_nElectron] = velectrons[iel].Fallv2WP90_noIso;
+	    _s_Electron_Fallv2WP80_noIso[_s_nElectron] = velectrons[iel].Fallv2WP80_noIso;
+	    _s_Electron_Fallv2WP90[_s_nElectron] = velectrons[iel].Fallv2WP90;
+	    _s_Electron_Fallv2WP80[_s_nElectron] = velectrons[iel].Fallv2WP80;
+	    _s_Electron_minisoall[_s_nElectron] = velectrons[iel].minisoall;
+		_s_Electron_pfiso_eacor[_s_nElectron] = velectrons[iel].pfiso_eacor;
+		
+		_s_nElectron++;
+		
+		if(_s_nElectron >= nElectron_max) break;
+   }
     
     // ========== Now choose RECO objects for different candidates store  & store their information  ========= //
 		
@@ -1866,7 +1989,7 @@ int main(int argc, char *argv[])
 	for(unsigned ijet=0; ijet<LJets.size(); ijet++){
 		
 		if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD >= max_PNet_bb && LJets[ijet].msoftdrop >= msd_cut){
-			
+//                if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD >= max_PNet_bb){  			
 			max_PNet_bb = LJets[ijet].DeepTag_PNetMD_XbbvsQCD;
 			Y_cand = int(ijet);
 			
@@ -1898,7 +2021,7 @@ int main(int argc, char *argv[])
 		}
     }  		
     
-    // Skip event if no Y candidate is found (& also W candidates for the SL channel //  
+    // Skip event if no Y candidate is found (& also W candidates for the SL channel) //  
     if(Y_cand==-1) continue;
 	if(!isDL){
 		if(W_cand[0]==-1 || W_cand[1]==-1) continue;
@@ -2466,7 +2589,9 @@ int main(int argc, char *argv[])
 	
 	}// entry
     
-      fl->Close();
+    //// ** End of event loop *** ////
+    
+    fl->Close();
     
    }
         
