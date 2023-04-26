@@ -932,9 +932,9 @@ void Match_AK8_TopDaughters(std::vector<AK8Jet> &LJets, std::vector<HeavyParticl
 				}
 			}
 		
-			if(match_b && match_c) { LJet.label_Top_bc = true; }
-			if(match_b && match_c && (match_q1||match_q2)) { LJet.label_Top_bcq = true; }
-			if(match_b && (match_q1||match_q2)) { LJet.label_Top_bq = true; }
+			if(match_b && match_c && !(match_q1||match_q2)) { LJet.label_Top_bc = true; }
+			if(match_b && match_c &&  (match_q1||match_q2)) { LJet.label_Top_bcq = true; }
+			if(match_b && (match_q1||match_q2) && !(match_q1 && match_q2)) { LJet.label_Top_bq = true; }
 			if(match_b && match_q1 && match_q2) { LJet.label_Top_bqq = true; }
 			
 			if(match_b && match_e) { LJet.label_Top_bele = true; }
