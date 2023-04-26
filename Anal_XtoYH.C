@@ -1409,6 +1409,9 @@ int main(int argc, char *argv[])
 		}
     }
     
+    nbjets_L = (int)BJets_L.size();
+	nbjets = (int)BJets_M.size();
+    
 	//Here you get AK8 jets with your criteria
     vector <AK8Jet> LJets;
     getAK8jets(LJets,AK8jet_pt_cut,absetacut,isMC);
@@ -1662,6 +1665,61 @@ int main(int argc, char *argv[])
 		Flag_pass_baseline = false;
 	}
 	
+	// Storing MC weights //
+	 
+    // calculate all the weights correspoding different scale factors //
+    // PU weight, Lepton SF weight, Prefire weight //
+	
+	weight = 1;
+    
+    leptonsf_weight = 1.0;
+	leptonsf_weight_up = 1.0;
+	leptonsf_weight_dn = 1.0;
+	leptonsf_weight_stat = 1.0;
+	leptonsf_weight_syst = 1.0;
+	
+	puWeight = puWeightup = puWeightdown = 1.0;
+        
+    if(isMC){    
+
+		if(npu_vert_true>=0 && npu_vert_true<100){
+			float *puweights = Get_PU_Weights(file_pu_ratio, npu_vert_true);
+			puWeight = puweights[0];
+			puWeightup = puweights[1];
+			puWeightdown = puweights[2];
+		}
+	
+		for(unsigned lep=0; lep<vleptons.size(); lep++){
+			if(abs(vleptons[lep].pdgId)==11) { 
+				float *sfvalues = Electron_SF(file_el_sf, vleptons[lep].pt, vleptons[lep].eta);
+				leptonsf_weight *= sfvalues[0];
+				leptonsf_weight_up *= sfvalues[1];
+				leptonsf_weight_dn *= sfvalues[2];
+				leptonsf_weight_stat *= (sfvalues[0] + sqrt(sfvalues[3]*sfvalues[3] + sfvalues[4]*sfvalues[4]));  // like this for time being 
+				leptonsf_weight_syst *= (sfvalues[0] + sqrt(sfvalues[5]*sfvalues[5] + sfvalues[6]*sfvalues[6] + sfvalues[7]*sfvalues[7] + sfvalues[8]*sfvalues[8]));  // like this for time being 
+			}
+			if(abs(vleptons[lep].pdgId)==13) { 
+				float *sfvalues;
+				sfvalues = Muon_SF(file_mu_sf, muon_id_name, vleptons[lep].pt, vleptons[lep].eta);
+				leptonsf_weight *= *(sfvalues+0);
+				leptonsf_weight_up *= *(sfvalues+1);
+				leptonsf_weight_dn *= *(sfvalues+2);
+				leptonsf_weight_stat *= *(sfvalues+3);
+				leptonsf_weight_syst *= *(sfvalues+4);
+			}
+		}
+	
+		if(!isSignal){
+			weight *= Generator_weight;
+		}
+		weight *= puWeight;
+		weight *= leptonsf_weight;
+		weight *= prefiringweight;
+	
+	}//isMC
+	
+	// end of MC weights //
+	
 	// ======== filling histograms after channel-specific selection ========== //
 		
     h_PV->Fill(npvert,event_weight);
@@ -1670,7 +1728,7 @@ int main(int argc, char *argv[])
 		h_TPU->Fill(npu_vert_true,event_weight);
 	}	
 		     
-    if(isMC) 
+    if(isMC && Flag_pass_baseline) 
     {
 		
 		 //*****************************************************************************************
@@ -1978,614 +2036,573 @@ int main(int argc, char *argv[])
    }
     
     // ========== Now choose RECO objects for different candidates store  & store their information  ========= //
-		
-	int Y_cand = -1;
-    int W_cand[nmaxWcands] = {-1,-1};
-    
-	float max_PNet_bb = -100;
-	float max_PNet_W = -100;
 	
-	// Y candidate
-	for(unsigned ijet=0; ijet<LJets.size(); ijet++){
-		
-		if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD >= max_PNet_bb && LJets[ijet].msoftdrop >= msd_cut){
-//                if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD >= max_PNet_bb){  			
-			max_PNet_bb = LJets[ijet].DeepTag_PNetMD_XbbvsQCD;
-			Y_cand = int(ijet);
-			
-		}
-		
-	}
-    
-    //W candidate option 1
-	for(unsigned ijet=0; ijet<LJets.size(); ijet++){
-		
-		if(LJets[ijet].DeepTag_PNetMD_WvsQCD >= max_PNet_W && LJets[ijet].msoftdrop >= msd_cut && int(ijet)!=Y_cand){
-			
-			max_PNet_W = LJets[ijet].DeepTag_PNetMD_WvsQCD;
-			W_cand[0] = int(ijet);
-			
-		}
-	}
-	
-	// W candidate option 2
-	double dR_LJet_lep =  9999.9;
-	for(unsigned ijet=0; ijet<LJets.size(); ijet++){
-		if (int(ijet) == Y_cand) continue;
-		if (LJets[ijet].msoftdrop < msd_cut) continue;
-		double temp_dR = delta2R(LJets[ijet].y,LJets[ijet].phi,vleptons[0].p4.Rapidity(),vleptons[0].phi);
-		if( temp_dR < dR_LJet_lep )
-        {
-			dR_LJet_lep =  temp_dR;
-	        W_cand[1] =  int(ijet);
-		}
-    }  		
-    
-    // Skip event if no Y candidate is found (& also W candidates for the SL channel) //  
-    if(Y_cand==-1) continue;
-	if(!isDL){
-		if(W_cand[0]==-1 || W_cand[1]==-1) continue;
-	}
-	
-	_s_PFJetAK8_Y_index = Y_cand;
-	_s_PFJetAK8_W_index_opt1 = W_cand[0];
-	_s_PFJetAK8_W_index_opt2 = W_cand[1];
-
-	// 4-vector of neutrinos (to be reconstrcued) //
-	TLorentzVector pnu[nmaxWcands];
-	double random_no = gRandom->Uniform(0,1);
-	
-	// store booleans from Y and W (for SL channel) candidates //
-	
-	Flag_Y_bb_pass_T = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD >= PNetbb_cut_T);
-    Flag_Y_bb_pass_M = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD >= PNetbb_cut_M);
-	Flag_Y_bb_pass_L = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD >= PNetbb_cut_L);
-	
-	Flag_MET_pass = (MET_pt > MET_cut_final);
-
-	if(!isDL){
-
-		Flag_H_W_pass_T_opt1 = (LJets[W_cand[0]].DeepTag_PNetMD_WvsQCD >= PNetW_cut_T);
-		Flag_H_W_pass_M_opt1 = (LJets[W_cand[0]].DeepTag_PNetMD_WvsQCD >= PNetW_cut_M);
-		Flag_H_W_pass_L_opt1 = (LJets[W_cand[0]].DeepTag_PNetMD_WvsQCD >= PNetW_cut_L);
-	
-		pnu[0] = neutrino_mom_fromH(vleptons[0].p4+LJets[W_cand[0]].p4, MET_pt, MET_phi, random_no);
-		Flag_H_m_pass_opt1 = ((vleptons[0].p4+LJets[W_cand[0]].p4+pnu[0]).M()>H_mass_min && (vleptons[0].p4+LJets[W_cand[0]].p4+pnu[0]).M()<H_mass_max);
-		Flag_dR_lW_pass_opt1 = (delta2R(LJets[W_cand[0]].y,LJets[W_cand[0]].phi,vleptons[0].p4.Rapidity(),vleptons[0].phi) < dR_cut);
-
-		Flag_H_W_pass_T_opt2 = (LJets[W_cand[1]].DeepTag_PNetMD_WvsQCD >= PNetW_cut_T);
-		Flag_H_W_pass_M_opt2 = (LJets[W_cand[1]].DeepTag_PNetMD_WvsQCD >= PNetW_cut_M);
-		Flag_H_W_pass_L_opt2 = (LJets[W_cand[1]].DeepTag_PNetMD_WvsQCD >= PNetW_cut_L);
-		
-		pnu[1] = neutrino_mom_fromH(vleptons[0].p4+LJets[W_cand[1]].p4, MET_pt, MET_phi, random_no);
-		Flag_H_m_pass_opt2 = ((vleptons[0].p4+LJets[W_cand[1]].p4+pnu[1]).M()>H_mass_min && (vleptons[0].p4+LJets[W_cand[1]].p4+pnu[1]).M()<H_mass_max);
-		Flag_dR_lW_pass_opt2 = (delta2R(LJets[W_cand[1]].y,LJets[W_cand[1]].phi,vleptons[0].p4.Rapidity(),vleptons[0].phi) < dR_cut);
-		
-	}
-	
-	// store lepton variables //
-	
-    if(vleptons.size()>0){
-		
-		for(unsigned ilep=0; ilep<(vleptons.size()); ilep++){
-		
-			l_pt[ilep] = vleptons[ilep].pt;
-			l_eta[ilep] = vleptons[ilep].eta;
-			l_phi[ilep] = vleptons[ilep].phi;
-			l_mass[ilep] = vleptons[ilep].mass;
-			l_pdgId[ilep] = vleptons[ilep].pdgId;
-		
-			if(abs(vleptons[ilep].pdgId)==13 && vleptons[ilep].indexemu>=0 && vleptons[ilep].indexemu<(vmuons.size())){
-				l_minisoch[ilep] = vmuons[vleptons[ilep].indexemu].minisoch;
-				l_minisonh[ilep] = vmuons[vleptons[ilep].indexemu].minisonh;
-				l_minisoph[ilep] = vmuons[vleptons[ilep].indexemu].minisoph;
-				l_minisoall[ilep] = vmuons[vleptons[ilep].indexemu].minisoall;
-				l_id[ilep] = vmuons[vleptons[ilep].indexemu].isLoose + 2*vmuons[vleptons[ilep].indexemu].isMed + 4*vmuons[vleptons[ilep].indexemu].TightID;
-			}
-			else if (abs(vleptons[ilep].pdgId)==11 && vleptons[ilep].indexemu>=0 && vleptons[ilep].indexemu<(velectrons.size())){
-				l_minisoch[ilep] = velectrons[vleptons[ilep].indexemu].minisoch;
-				l_minisonh[ilep] = velectrons[vleptons[ilep].indexemu].minisonh;
-				l_minisoph[ilep] = velectrons[vleptons[ilep].indexemu].minisoph;
-				l_minisoall[ilep] = velectrons[vleptons[ilep].indexemu].minisoall;
-				l_id[ilep] =  2*velectrons[vleptons[ilep].indexemu].Fallv2WP90_noIso + 4*velectrons[vleptons[ilep].indexemu].Fallv2WP80_noIso;
-			}
-	
-			l_genindex[ilep] = (isMC)?get_nearest_Parton(genleps,vleptons[0].p4,0.4):-1;
-
-			if(ilep>=(nmaxleptons-1)) break;
-		}
-	}
-	
-	
-	if(isDL){
-		 if (vleptons.size()>1) {  lep_miniso = (l_minisoall[0]<miniso_cut && l_minisoall[1]<miniso_cut)?true:false; }
-	}
-	else {
-		 if (vleptons.size()>0) {  lep_miniso = (l_minisoall[0]<miniso_cut)?true:false; }
-	}
-	
-	// Boolean assignment for DL //
-	
-	OS_DL = false; Z_veto = false; Z_pass = false;
-	
-	if(vleptons.size()>1){
-		
-		l1l2_mass = (vleptons[0].p4+vleptons[1].p4).M();
-		l1l2_deta = (vleptons[0].eta-vleptons[1].eta);
-		l1l2_dphi = PhiInRange(vleptons[0].phi-vleptons[1].phi);
-		l1l2_dR = delta2R(vleptons[0].eta,vleptons[0].phi,vleptons[1].eta,vleptons[1].phi);
-		dphi_MET_l1l2 = PhiInRange((vleptons[0].p4+vleptons[1].p4).Phi() - MET_phi);
-		OS_DL = (((vleptons[0].charge*vleptons[1].charge)<0)?true:false);
-		Z_veto = ((l1l2_mass>10. && l1l2_mass<Z_mass_min) || (l1l2_mass>Z_mass_max));
-		Z_pass = (l1l2_mass>=Z_mass_min && l1l2_mass<=Z_mass_max);
-		
-	}
-
-	// End of boolean assignment for DL //
-	
-	// Booleans for SR + CR //
-	
-	// regions can be constructed using: 
-	// 1. MET
-	// 2. bb score of Y candidate
-	// 3. W score of W candidate
-	// 4. Mass of H candidate (l+nu+W)
-	// 5. dR of lepton & W candidate
-	// 6. dphi & dR between lepton & Y candidate
-	
-	
-	if(isDL){
-		//signal regions//
-		Flag_isSR1 = (OS_DL && Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.8) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
-		Flag_isSR2 = (OS_DL && !Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.8) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
-		//TT CRs //
-		Flag_isCR2 = (OS_DL && !Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>1.0) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
-		Flag_isCR6 = (OS_DL &&  Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>1.0) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
-		Flag_isCR8 = (					  Z_veto && (l1l2_dR>1.0) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
-		//DY+j CRs //
-		Flag_isCR3 = (OS_DL && !Flag_Y_bb_pass_T && Z_pass && (l1l2_dR<1.0) && !Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)>0.5*M_PI);
-		Flag_isCR4 = (OS_DL && !Flag_Y_bb_pass_T && Z_pass && (l1l2_dR<1.0) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI); //dphi_MET_l1l2 cut does not have any impact (for CR3 & CR4)
-		Flag_isCR7 = (OS_DL &&  Flag_Y_bb_pass_T && Z_pass && (l1l2_dR<1.0) && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
-		//QCD CR //
-		Flag_isCR5 = (!Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.8) && !Flag_MET_pass && !lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+	if(!Flag_pass_baseline){ 
+		Tout->Fill();
+		continue;
 	}
 	else{
-		//signal regions//
-		Flag_isSR1 = (Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
-		Flag_isSR2 = (!Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
-		//W+j CRs //
-		Flag_isCR3 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
-		//TT CRs //
-		Flag_isCR2 = (!Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
-		Flag_isCR4 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && lep_miniso && (Y_DeepTag_PNet_TvsQCD>=PN_Top_med));
-		Flag_isCR6 = (Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
-		// QCD CR //	
-		Flag_isCR5 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && !Flag_MET_pass && !lep_miniso);
-		Flag_isCR8 = (Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && Flag_MET_pass && !lep_miniso);
-		// another CR //
-		Flag_isCR7 = (Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && !Flag_MET_pass && lep_miniso);
-	}
-	
-	// end of SR + CR booleans //
-	
-	// ==== candidate information ===== //
-	
-    if(Y_cand>=0) {
 		
-		Y_pt = LJets[Y_cand].pt;
-		Y_y =  LJets[Y_cand].y;
-        Y_eta = LJets[Y_cand].eta;
-		Y_phi = LJets[Y_cand].phi;
-		Y_mass = LJets[Y_cand].mass;
+		int Y_cand = -1;
+		int W_cand[nmaxWcands] = {-1,-1};
+    
+		float max_PNet_bb = -100;
+		float max_PNet_W = -100;
 		
-		Y_msoftdrop = LJets[Y_cand].msoftdrop;
-		Y_tau21 = LJets[Y_cand].tau21;
-		Y_tau32 = LJets[Y_cand].tau32;
-		
-		Y_DeepTag_DAK8MD_TvsQCD = LJets[Y_cand].DeepTag_DAK8MD_TvsQCD;
-		Y_DeepTag_DAK8MD_WvsQCD = LJets[Y_cand].DeepTag_DAK8MD_WvsQCD;
-		Y_DeepTag_DAK8MD_ZvsQCD = LJets[Y_cand].DeepTag_DAK8MD_ZvsQCD;
-		Y_DeepTag_DAK8MD_HvsQCD = LJets[Y_cand].DeepTag_DAK8MD_HvsQCD;
-		Y_DeepTag_DAK8MD_bbvsQCD = LJets[Y_cand].DeepTag_DAK8MD_bbvsQCD;
-		Y_DeepTag_PNet_TvsQCD = LJets[Y_cand].DeepTag_PNet_TvsQCD;
-		Y_DeepTag_PNet_WvsQCD = LJets[Y_cand].DeepTag_PNet_WvsQCD;
-		Y_DeepTag_PNet_ZvsQCD = LJets[Y_cand].DeepTag_PNet_ZvsQCD;
-		Y_DeepTag_PNetMD_XbbvsQCD = LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD;
-		Y_DeepTag_PNetMD_XccvsQCD = LJets[Y_cand].DeepTag_PNetMD_XccvsQCD;
-		Y_DeepTag_PNetMD_XqqvsQCD = LJets[Y_cand].DeepTag_PNetMD_XqqvsQCD;
-		Y_DeepTag_PNetMD_QCD = LJets[Y_cand].DeepTag_PNetMD_QCD;
-		Y_DeepTag_PNetMD_WvsQCD = LJets[Y_cand].DeepTag_PNetMD_WvsQCD;
-		
-		Y_PN_bb = LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD;
-		
-		Y_label_Top_bq = LJets[Y_cand].label_Top_bq;
-		Y_label_Top_bc = LJets[Y_cand].label_Top_bc;
-		Y_label_Top_bcq = LJets[Y_cand].label_Top_bcq;
-		Y_label_Top_bqq = LJets[Y_cand].label_Top_bqq;
-		Y_label_W_qq = LJets[Y_cand].label_W_qq;
-		Y_label_W_cq = LJets[Y_cand].label_W_cq;
-		
-		Y_sub1_pt = LJets[Y_cand].sub1_pt;
-		Y_sub1_eta = LJets[Y_cand].sub1_eta;
-		Y_sub1_phi = LJets[Y_cand].sub1_phi;
-		Y_sub1_mass = LJets[Y_cand].sub1_mass;
-		Y_sub1_btag = LJets[Y_cand].sub1_btag;
-		Y_sub2_pt = LJets[Y_cand].sub2_pt;
-		Y_sub2_eta = LJets[Y_cand].sub2_eta;
-		Y_sub2_phi = LJets[Y_cand].sub2_phi;
-		Y_sub2_mass = LJets[Y_cand].sub2_mass;
-		Y_sub2_btag = LJets[Y_cand].sub2_btag;
-		
-		if(isMC){
+		// Y candidate
+		for(unsigned ijet=0; ijet<LJets.size(); ijet++){
 			
-			Y_genbindex[0] = get_nearest_Parton(genbs,LJets[Y_cand].p4,0.8);
-			if(Y_genbindex[0]>=0){
-				genbs.erase(genbs.begin()+Y_genbindex[0]);
-				Y_genbindex[1] = get_nearest_Parton(genbs,LJets[Y_cand].p4,0.8);
+			if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD >= max_PNet_bb && LJets[ijet].msoftdrop >= msd_cut){
+			//if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD >= max_PNet_bb){  			
+				max_PNet_bb = LJets[ijet].DeepTag_PNetMD_XbbvsQCD;
+				Y_cand = int(ijet);
+				
 			}
-			else{
-				Y_genbindex[1] = -1;
-			}
+			
+		}
 		
-			int gen_match = get_nearest_Parton(genVs,LJets[Y_cand].p4,0.8);
-			if(gen_match>=0 && abs(genVs[gen_match].pdgId)==35){
-				Y_genindex = gen_match; 
-			}else{
-				Y_genindex = -1;
+		//W candidate option 1
+		for(unsigned ijet=0; ijet<LJets.size(); ijet++){
+			
+			if(LJets[ijet].DeepTag_PNetMD_WvsQCD >= max_PNet_W && LJets[ijet].msoftdrop >= msd_cut && int(ijet)!=Y_cand){
+				
+				max_PNet_W = LJets[ijet].DeepTag_PNetMD_WvsQCD;
+				W_cand[0] = int(ijet);
+				
 			}
 		}
-		else { Y_genbindex[0] = Y_genbindex[1] = Y_genindex = -1; }
 		
-		//JES 
-		Y_JESup = LJets[Y_cand].jesup_Total;
-		Y_JESdn = LJets[Y_cand].jesdn_Total;
-		get_JES_sys(LJets[Y_cand],Y_JESup_split,"up");
-		get_JES_sys(LJets[Y_cand],Y_JESdn_split,"down");
+		// W candidate option 2
+		double dR_LJet_lep =  9999.9;
+		for(unsigned ijet=0; ijet<LJets.size(); ijet++){
+			if (int(ijet) == Y_cand) continue;
+			if (LJets[ijet].msoftdrop < msd_cut) continue;
+			double temp_dR = delta2R(LJets[ijet].y,LJets[ijet].phi,vleptons[0].p4.Rapidity(),vleptons[0].phi);
+			if( temp_dR < dR_LJet_lep )
+			{
+				dR_LJet_lep =  temp_dR;
+				W_cand[1] =  int(ijet);
+			}
+		}  		
 		
-		//JER
-		if(isMC){
-			Y_JERup = LJets[Y_cand].JERup;//LJets[Y_cand].JER;
-			Y_JERdn = LJets[Y_cand].JERdn;//LJets[Y_cand].JER;
+		// Skip event if no Y candidate is found (& also W candidates for the SL channel) //  
+		
+		if(Y_cand==-1) continue;
+		if(!isDL){
+			if(W_cand[0]==-1 || W_cand[1]==-1) continue;
+		}
+		
+		// end of skip
+		
+		_s_PFJetAK8_Y_index = Y_cand;
+		_s_PFJetAK8_W_index_opt1 = W_cand[0];
+		_s_PFJetAK8_W_index_opt2 = W_cand[1];
+
+		// 4-vector of neutrinos (to be reconstrcued) //
+		
+		TLorentzVector pnu[nmaxWcands];
+		double random_no = gRandom->Uniform(0,1);
+		
+		// store booleans from Y and W (for SL channel) candidates //
+		
+		Flag_Y_bb_pass_T = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD >= PNetbb_cut_T);
+		Flag_Y_bb_pass_M = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD >= PNetbb_cut_M);
+		Flag_Y_bb_pass_L = (LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD >= PNetbb_cut_L);
+		
+		Flag_MET_pass = (MET_pt > MET_cut_final);
+
+		if(!isDL){
+
+			Flag_H_W_pass_T_opt1 = (LJets[W_cand[0]].DeepTag_PNetMD_WvsQCD >= PNetW_cut_T);
+			Flag_H_W_pass_M_opt1 = (LJets[W_cand[0]].DeepTag_PNetMD_WvsQCD >= PNetW_cut_M);
+			Flag_H_W_pass_L_opt1 = (LJets[W_cand[0]].DeepTag_PNetMD_WvsQCD >= PNetW_cut_L);
+		
+			pnu[0] = neutrino_mom_fromH(vleptons[0].p4+LJets[W_cand[0]].p4, MET_pt, MET_phi, random_no);
+			Flag_H_m_pass_opt1 = ((vleptons[0].p4+LJets[W_cand[0]].p4+pnu[0]).M()>H_mass_min && (vleptons[0].p4+LJets[W_cand[0]].p4+pnu[0]).M()<H_mass_max);
+			Flag_dR_lW_pass_opt1 = (delta2R(LJets[W_cand[0]].y,LJets[W_cand[0]].phi,vleptons[0].p4.Rapidity(),vleptons[0].phi) < dR_cut);
+
+			Flag_H_W_pass_T_opt2 = (LJets[W_cand[1]].DeepTag_PNetMD_WvsQCD >= PNetW_cut_T);
+			Flag_H_W_pass_M_opt2 = (LJets[W_cand[1]].DeepTag_PNetMD_WvsQCD >= PNetW_cut_M);
+			Flag_H_W_pass_L_opt2 = (LJets[W_cand[1]].DeepTag_PNetMD_WvsQCD >= PNetW_cut_L);
+			
+			pnu[1] = neutrino_mom_fromH(vleptons[0].p4+LJets[W_cand[1]].p4, MET_pt, MET_phi, random_no);
+			Flag_H_m_pass_opt2 = ((vleptons[0].p4+LJets[W_cand[1]].p4+pnu[1]).M()>H_mass_min && (vleptons[0].p4+LJets[W_cand[1]].p4+pnu[1]).M()<H_mass_max);
+			Flag_dR_lW_pass_opt2 = (delta2R(LJets[W_cand[1]].y,LJets[W_cand[1]].phi,vleptons[0].p4.Rapidity(),vleptons[0].phi) < dR_cut);
+			
+		}
+		
+		// store lepton variables //
+		
+		if(vleptons.size()>0){
+			
+			for(unsigned ilep=0; ilep<(vleptons.size()); ilep++){
+			
+				l_pt[ilep] = vleptons[ilep].pt;
+				l_eta[ilep] = vleptons[ilep].eta;
+				l_phi[ilep] = vleptons[ilep].phi;
+				l_mass[ilep] = vleptons[ilep].mass;
+				l_pdgId[ilep] = vleptons[ilep].pdgId;
+			
+				if(abs(vleptons[ilep].pdgId)==13 && vleptons[ilep].indexemu>=0 && vleptons[ilep].indexemu<(vmuons.size())){
+					l_minisoch[ilep] = vmuons[vleptons[ilep].indexemu].minisoch;
+					l_minisonh[ilep] = vmuons[vleptons[ilep].indexemu].minisonh;
+					l_minisoph[ilep] = vmuons[vleptons[ilep].indexemu].minisoph;
+					l_minisoall[ilep] = vmuons[vleptons[ilep].indexemu].minisoall;
+					l_id[ilep] = vmuons[vleptons[ilep].indexemu].isLoose + 2*vmuons[vleptons[ilep].indexemu].isMed + 4*vmuons[vleptons[ilep].indexemu].TightID;
+				}
+				else if (abs(vleptons[ilep].pdgId)==11 && vleptons[ilep].indexemu>=0 && vleptons[ilep].indexemu<(velectrons.size())){
+					l_minisoch[ilep] = velectrons[vleptons[ilep].indexemu].minisoch;
+					l_minisonh[ilep] = velectrons[vleptons[ilep].indexemu].minisonh;
+					l_minisoph[ilep] = velectrons[vleptons[ilep].indexemu].minisoph;
+					l_minisoall[ilep] = velectrons[vleptons[ilep].indexemu].minisoall;
+					l_id[ilep] =  2*velectrons[vleptons[ilep].indexemu].Fallv2WP90_noIso + 4*velectrons[vleptons[ilep].indexemu].Fallv2WP80_noIso;
+				}
+		
+				l_genindex[ilep] = (isMC)?get_nearest_Parton(genleps,vleptons[0].p4,0.4):-1;
+
+				if(ilep>=(nmaxleptons-1)) break;
+			}
+		}
+		
+		
+		if(isDL){
+			 if (vleptons.size()>1) {  lep_miniso = (l_minisoall[0]<miniso_cut && l_minisoall[1]<miniso_cut)?true:false; }
+		}
+		else {
+			 if (vleptons.size()>0) {  lep_miniso = (l_minisoall[0]<miniso_cut)?true:false; }
+		}
+		
+		// Boolean assignment for DL //
+		
+		OS_DL = false; Z_veto = false; Z_pass = false;
+		
+		if(vleptons.size()>1){
+			
+			l1l2_mass = (vleptons[0].p4+vleptons[1].p4).M();
+			l1l2_deta = (vleptons[0].eta-vleptons[1].eta);
+			l1l2_dphi = PhiInRange(vleptons[0].phi-vleptons[1].phi);
+			l1l2_dR = delta2R(vleptons[0].eta,vleptons[0].phi,vleptons[1].eta,vleptons[1].phi);
+			dphi_MET_l1l2 = PhiInRange((vleptons[0].p4+vleptons[1].p4).Phi() - MET_phi);
+			OS_DL = (((vleptons[0].charge*vleptons[1].charge)<0)?true:false);
+			Z_veto = ((l1l2_mass>10. && l1l2_mass<Z_mass_min) || (l1l2_mass>Z_mass_max));
+			Z_pass = (l1l2_mass>=Z_mass_min && l1l2_mass<=Z_mass_max);
+			
+		}
+
+		// End of boolean assignment for DL //
+		
+		// Booleans for SR + CR //
+		
+		// regions can be constructed using: 
+		// 1. MET
+		// 2. bb score of Y candidate
+		// 3. W score of W candidate
+		// 4. Mass of H candidate (l+nu+W)
+		// 5. dR of lepton & W candidate
+		// 6. dphi & dR between lepton & Y candidate
+		
+		
+		if(isDL){
+			//signal regions//
+			Flag_isSR1 = (OS_DL && Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.8) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+			Flag_isSR2 = (OS_DL && !Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.8) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+			//TT CRs //
+			Flag_isCR2 = (OS_DL && !Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>1.0) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
+			Flag_isCR6 = (OS_DL &&  Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>1.0) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
+			Flag_isCR8 = (					  Z_veto && (l1l2_dR>1.0) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+			//DY+j CRs //
+			Flag_isCR3 = (OS_DL && !Flag_Y_bb_pass_T && Z_pass && (l1l2_dR<1.0) && !Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)>0.5*M_PI);
+			Flag_isCR4 = (OS_DL && !Flag_Y_bb_pass_T && Z_pass && (l1l2_dR<1.0) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI); //dphi_MET_l1l2 cut does not have any impact (for CR3 & CR4)
+			Flag_isCR7 = (OS_DL &&  Flag_Y_bb_pass_T && Z_pass && (l1l2_dR<1.0) && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
+			//QCD CR //
+			Flag_isCR5 = (!Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.8) && !Flag_MET_pass && !lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
 		}
 		else{
-			Y_JERup = Y_JERdn = 0;
+			//signal regions//
+			Flag_isSR1 = (Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
+			Flag_isSR2 = (!Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
+			//W+j CRs //
+			Flag_isCR3 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
+			//TT CRs //
+			Flag_isCR2 = (!Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
+			Flag_isCR4 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && lep_miniso && (Y_DeepTag_PNet_TvsQCD>=PN_Top_med));
+			Flag_isCR6 = (Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
+			// QCD CR //	
+			Flag_isCR5 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && !Flag_MET_pass && !lep_miniso);
+			Flag_isCR8 = (Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && Flag_MET_pass && !lep_miniso);
+			// another CR //
+			Flag_isCR7 = (Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && !Flag_MET_pass && lep_miniso);
 		}
 		
-		//HEM
-		Y_HEMcor = LJets[Y_cand].HEMcor;
-				
-		if(vleptons.size()>0){
-			for(unsigned ilep=0; ilep<vleptons.size(); ilep++){
-				dR_lY[ilep] = delta2R(LJets[Y_cand].y,LJets[Y_cand].phi,vleptons[ilep].p4.Rapidity(),vleptons[ilep].phi);
-				dy_lY[ilep] = (LJets[Y_cand].eta - vleptons[ilep].eta);
-				dphi_lY[ilep] = PhiInRange(LJets[Y_cand].phi - vleptons[ilep].p4.Phi());
-				if(int(ilep)>=(nmaxleptons-1)) break;
-			}
-		}
-	}
-	
-	if(!isDL){
-	
-	for(int jw=0; jw<nmaxWcands; jw++){
-	
-		if(W_cand[jw]>=0 && W_cand[jw]<int(LJets.size())) {
+		// end of SR + CR booleans //
+		
+		// ==== candidate information ===== //
+		
+		if(Y_cand>=0) {
 			
-			if(Y_cand>=0) {
-				X_mass[jw] = (LJets[Y_cand].p4 + LJets[W_cand[jw]].p4 + vleptons[0].p4 + pnu[jw]).M();
-			}	
-		
-			W_pt[jw] = LJets[W_cand[jw]].pt;
-			W_y[jw] = LJets[W_cand[jw]].y;
-			W_eta[jw] = LJets[W_cand[jw]].eta;
-			W_phi[jw] = LJets[W_cand[jw]].phi;
-			W_mass[jw] = LJets[W_cand[jw]].mass;
-		
-			W_msoftdrop[jw] = LJets[W_cand[jw]].msoftdrop;
-			W_tau21[jw] = LJets[W_cand[jw]].tau21;
-			W_tau32[jw] = LJets[W_cand[jw]].tau32;
-		
-			W_DeepTag_DAK8MD_TvsQCD[jw] = LJets[W_cand[jw]].DeepTag_DAK8MD_TvsQCD;
-			W_DeepTag_DAK8MD_WvsQCD[jw] = LJets[W_cand[jw]].DeepTag_DAK8MD_WvsQCD;
-			W_DeepTag_DAK8MD_ZvsQCD[jw] = LJets[W_cand[jw]].DeepTag_DAK8MD_ZvsQCD;
-			W_DeepTag_DAK8MD_HvsQCD[jw] = LJets[W_cand[jw]].DeepTag_DAK8MD_HvsQCD;
-			W_DeepTag_DAK8MD_bbvsQCD[jw] = LJets[W_cand[jw]].DeepTag_DAK8MD_bbvsQCD;
-			W_DeepTag_PNet_TvsQCD[jw] = LJets[W_cand[jw]].DeepTag_PNet_TvsQCD;
-			W_DeepTag_PNet_WvsQCD[jw] = LJets[W_cand[jw]].DeepTag_PNet_WvsQCD;
-			W_DeepTag_PNet_ZvsQCD[jw] = LJets[W_cand[jw]].DeepTag_PNet_ZvsQCD;
-			W_DeepTag_PNetMD_XbbvsQCD[jw] = LJets[W_cand[jw]].DeepTag_PNetMD_XbbvsQCD;
-			W_DeepTag_PNetMD_XccvsQCD[jw] = LJets[W_cand[jw]].DeepTag_PNetMD_XccvsQCD;
-			W_DeepTag_PNetMD_XqqvsQCD[jw] = LJets[W_cand[jw]].DeepTag_PNetMD_XqqvsQCD;
-			W_DeepTag_PNetMD_QCD[jw] = LJets[W_cand[jw]].DeepTag_PNetMD_QCD;
-			W_DeepTag_PNetMD_WvsQCD[jw] = LJets[W_cand[jw]].DeepTag_PNetMD_WvsQCD;
-		
-			W_DAK8_W[jw] = LJets[W_cand[jw]].DeepTag_DAK8MD_WvsQCD;
-			W_PN_W[jw] = LJets[W_cand[jw]].DeepTag_PNetMD_WvsQCD;
-		
+			Y_pt = LJets[Y_cand].pt;
+			Y_y =  LJets[Y_cand].y;
+			Y_eta = LJets[Y_cand].eta;
+			Y_phi = LJets[Y_cand].phi;
+			Y_mass = LJets[Y_cand].mass;
+			
+			Y_msoftdrop = LJets[Y_cand].msoftdrop;
+			Y_tau21 = LJets[Y_cand].tau21;
+			Y_tau32 = LJets[Y_cand].tau32;
+			
+			Y_DeepTag_DAK8MD_TvsQCD = LJets[Y_cand].DeepTag_DAK8MD_TvsQCD;
+			Y_DeepTag_DAK8MD_WvsQCD = LJets[Y_cand].DeepTag_DAK8MD_WvsQCD;
+			Y_DeepTag_DAK8MD_ZvsQCD = LJets[Y_cand].DeepTag_DAK8MD_ZvsQCD;
+			Y_DeepTag_DAK8MD_HvsQCD = LJets[Y_cand].DeepTag_DAK8MD_HvsQCD;
+			Y_DeepTag_DAK8MD_bbvsQCD = LJets[Y_cand].DeepTag_DAK8MD_bbvsQCD;
+			Y_DeepTag_PNet_TvsQCD = LJets[Y_cand].DeepTag_PNet_TvsQCD;
+			Y_DeepTag_PNet_WvsQCD = LJets[Y_cand].DeepTag_PNet_WvsQCD;
+			Y_DeepTag_PNet_ZvsQCD = LJets[Y_cand].DeepTag_PNet_ZvsQCD;
+			Y_DeepTag_PNetMD_XbbvsQCD = LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD;
+			Y_DeepTag_PNetMD_XccvsQCD = LJets[Y_cand].DeepTag_PNetMD_XccvsQCD;
+			Y_DeepTag_PNetMD_XqqvsQCD = LJets[Y_cand].DeepTag_PNetMD_XqqvsQCD;
+			Y_DeepTag_PNetMD_QCD = LJets[Y_cand].DeepTag_PNetMD_QCD;
+			Y_DeepTag_PNetMD_WvsQCD = LJets[Y_cand].DeepTag_PNetMD_WvsQCD;
+			
+			Y_PN_bb = LJets[Y_cand].DeepTag_PNetMD_XbbvsQCD;
+			
+			Y_label_Top_bq = LJets[Y_cand].label_Top_bq;
+			Y_label_Top_bc = LJets[Y_cand].label_Top_bc;
+			Y_label_Top_bcq = LJets[Y_cand].label_Top_bcq;
+			Y_label_Top_bqq = LJets[Y_cand].label_Top_bqq;
+			Y_label_W_qq = LJets[Y_cand].label_W_qq;
+			Y_label_W_cq = LJets[Y_cand].label_W_cq;
+			
+			Y_sub1_pt = LJets[Y_cand].sub1_pt;
+			Y_sub1_eta = LJets[Y_cand].sub1_eta;
+			Y_sub1_phi = LJets[Y_cand].sub1_phi;
+			Y_sub1_mass = LJets[Y_cand].sub1_mass;
+			Y_sub1_btag = LJets[Y_cand].sub1_btag;
+			Y_sub2_pt = LJets[Y_cand].sub2_pt;
+			Y_sub2_eta = LJets[Y_cand].sub2_eta;
+			Y_sub2_phi = LJets[Y_cand].sub2_phi;
+			Y_sub2_mass = LJets[Y_cand].sub2_mass;
+			Y_sub2_btag = LJets[Y_cand].sub2_btag;
+			
 			if(isMC){
-				W_label_W_cq[jw] = LJets[W_cand[jw]].label_W_cq;
-				W_label_W_qq[jw] = LJets[W_cand[jw]].label_W_qq;
-			}
-			else{
-				W_label_W_cq[jw] = W_label_W_qq[jw] = false;
-			}
-		
-			W_sub1_pt[jw] = LJets[W_cand[jw]].sub1_pt;
-			W_sub1_eta[jw] = LJets[W_cand[jw]].sub1_eta;
-			W_sub1_phi[jw] = LJets[W_cand[jw]].sub1_phi;
-			W_sub1_mass[jw] = LJets[W_cand[jw]].sub1_mass;
-			W_sub1_btag[jw] = LJets[W_cand[jw]].sub1_btag;
-			W_sub2_pt[jw] = LJets[W_cand[jw]].sub2_pt;
-			W_sub2_eta[jw] = LJets[W_cand[jw]].sub2_eta;
-			W_sub2_phi[jw] = LJets[W_cand[jw]].sub2_phi;
-			W_sub2_mass[jw] = LJets[W_cand[jw]].sub2_mass;
-			W_sub2_btag[jw] = LJets[W_cand[jw]].sub2_btag;
-		
-			if(isMC){
-				int gen_match = get_nearest_Parton(genVs,LJets[W_cand[jw]].p4,0.8);
-				if(gen_match>=0 && abs(genVs[gen_match].pdgId)==24){
-					W_genindex[jw] = gen_match; 
+				
+				Y_genbindex[0] = get_nearest_Parton(genbs,LJets[Y_cand].p4,0.8);
+				if(Y_genbindex[0]>=0){
+					genbs.erase(genbs.begin()+Y_genbindex[0]);
+					Y_genbindex[1] = get_nearest_Parton(genbs,LJets[Y_cand].p4,0.8);
+				}
+				else{
+					Y_genbindex[1] = -1;
+				}
+			
+				int gen_match = get_nearest_Parton(genVs,LJets[Y_cand].p4,0.8);
+				if(gen_match>=0 && abs(genVs[gen_match].pdgId)==35){
+					Y_genindex = gen_match; 
 				}else{
-					W_genindex[jw] = -1;
+					Y_genindex = -1;
 				}
 			}
-			else { W_genindex[jw] = -1; }
-		
+			else { Y_genbindex[0] = Y_genbindex[1] = Y_genindex = -1; }
+			
 			//JES 
-			W_JESup[jw] = LJets[W_cand[jw]].jesup_Total;
-			W_JESdn[jw] = LJets[W_cand[jw]].jesdn_Total;
-			get_JES_sys(LJets[W_cand[jw]],W_JESup_split[jw],"up");
-			get_JES_sys(LJets[W_cand[jw]],W_JESdn_split[jw],"down");
+			Y_JESup = LJets[Y_cand].jesup_Total;
+			Y_JESdn = LJets[Y_cand].jesdn_Total;
+			get_JES_sys(LJets[Y_cand],Y_JESup_split,"up");
+			get_JES_sys(LJets[Y_cand],Y_JESdn_split,"down");
 			
 			//JER
 			if(isMC){
-				W_JERup[jw] = LJets[W_cand[jw]].JERup;//LJets[W_cand[jw]].JER;
-				W_JERdn[jw] = LJets[W_cand[jw]].JERdn;//LJets[W_cand[jw]].JER;
+				Y_JERup = LJets[Y_cand].JERup;//LJets[Y_cand].JER;
+				Y_JERdn = LJets[Y_cand].JERdn;//LJets[Y_cand].JER;
 			}
 			else{
-				W_JERup[jw] = W_JERdn[jw] = 0;
+				Y_JERup = Y_JERdn = 0;
 			}
 			
 			//HEM
-			W_HEMcor[jw] = LJets[W_cand[jw]].HEMcor;
-
-			if(vleptons.size()>0 && pnu[jw].Eta()>-100){
+			Y_HEMcor = LJets[Y_cand].HEMcor;
+					
+			if(vleptons.size()>0){
+				for(unsigned ilep=0; ilep<vleptons.size(); ilep++){
+					dR_lY[ilep] = delta2R(LJets[Y_cand].y,LJets[Y_cand].phi,vleptons[ilep].p4.Rapidity(),vleptons[ilep].phi);
+					dy_lY[ilep] = (LJets[Y_cand].eta - vleptons[ilep].eta);
+					dphi_lY[ilep] = PhiInRange(LJets[Y_cand].phi - vleptons[ilep].p4.Phi());
+					if(int(ilep)>=(nmaxleptons-1)) break;
+				}
+			}
+		}
+		
+		if(!isDL){
+		
+		for(int jw=0; jw<nmaxWcands; jw++){
+		
+			if(W_cand[jw]>=0 && W_cand[jw]<int(LJets.size())) {
+				
+				if(Y_cand>=0) {
+					X_mass[jw] = (LJets[Y_cand].p4 + LJets[W_cand[jw]].p4 + vleptons[0].p4 + pnu[jw]).M();
+				}	
 			
-				TLorentzVector W_mom = LJets[W_cand[jw]].p4;
-				TLorentzVector H_mom = (W_mom + vleptons[0].p4 + pnu[jw]);
+				W_pt[jw] = LJets[W_cand[jw]].pt;
+				W_y[jw] = LJets[W_cand[jw]].y;
+				W_eta[jw] = LJets[W_cand[jw]].eta;
+				W_phi[jw] = LJets[W_cand[jw]].phi;
+				W_mass[jw] = LJets[W_cand[jw]].mass;
 			
-				H_pt[jw] = H_mom.Pt();
-				H_y[jw] = H_mom.Rapidity();
-				H_eta[jw] = H_mom.Eta();
-				H_phi[jw] = H_mom.Phi();
-				H_mass[jw] = H_mom.M();
+				W_msoftdrop[jw] = LJets[W_cand[jw]].msoftdrop;
+				W_tau21[jw] = LJets[W_cand[jw]].tau21;
+				W_tau32[jw] = LJets[W_cand[jw]].tau32;
+			
+				W_DeepTag_DAK8MD_TvsQCD[jw] = LJets[W_cand[jw]].DeepTag_DAK8MD_TvsQCD;
+				W_DeepTag_DAK8MD_WvsQCD[jw] = LJets[W_cand[jw]].DeepTag_DAK8MD_WvsQCD;
+				W_DeepTag_DAK8MD_ZvsQCD[jw] = LJets[W_cand[jw]].DeepTag_DAK8MD_ZvsQCD;
+				W_DeepTag_DAK8MD_HvsQCD[jw] = LJets[W_cand[jw]].DeepTag_DAK8MD_HvsQCD;
+				W_DeepTag_DAK8MD_bbvsQCD[jw] = LJets[W_cand[jw]].DeepTag_DAK8MD_bbvsQCD;
+				W_DeepTag_PNet_TvsQCD[jw] = LJets[W_cand[jw]].DeepTag_PNet_TvsQCD;
+				W_DeepTag_PNet_WvsQCD[jw] = LJets[W_cand[jw]].DeepTag_PNet_WvsQCD;
+				W_DeepTag_PNet_ZvsQCD[jw] = LJets[W_cand[jw]].DeepTag_PNet_ZvsQCD;
+				W_DeepTag_PNetMD_XbbvsQCD[jw] = LJets[W_cand[jw]].DeepTag_PNetMD_XbbvsQCD;
+				W_DeepTag_PNetMD_XccvsQCD[jw] = LJets[W_cand[jw]].DeepTag_PNetMD_XccvsQCD;
+				W_DeepTag_PNetMD_XqqvsQCD[jw] = LJets[W_cand[jw]].DeepTag_PNetMD_XqqvsQCD;
+				W_DeepTag_PNetMD_QCD[jw] = LJets[W_cand[jw]].DeepTag_PNetMD_QCD;
+				W_DeepTag_PNetMD_WvsQCD[jw] = LJets[W_cand[jw]].DeepTag_PNetMD_WvsQCD;
+			
+				W_DAK8_W[jw] = LJets[W_cand[jw]].DeepTag_DAK8MD_WvsQCD;
+				W_PN_W[jw] = LJets[W_cand[jw]].DeepTag_PNetMD_WvsQCD;
 			
 				if(isMC){
-					int gen_match = get_nearest_Parton(genVs,H_mom,0.8);
-					if(gen_match>=0 && abs(genVs[gen_match].pdgId)==25){
-						H_genindex[jw] = gen_match; 
-					}else{
-						H_genindex[jw] = -1;
-					}
-				}
-				else {  H_genindex[jw] = -1;  }
-			
-				TLorentzVector pnu_var;
-			
-				W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].jesup_Total*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].jesup_Total*LJets[W_cand[jw]].p4.M());
-				pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JESup, MET_phi_JESup, random_no);
-				H_JESup[jw] = (W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt();
-				if(Y_cand>=0) {
-					X_mass_JESup[jw] = (LJets[Y_cand].p4 * Y_JESup + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw];
-				}
-				
-				W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].jesdn_Total*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].jesdn_Total*LJets[W_cand[jw]].p4.M());
-				pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JESdn, MET_phi_JESdn, random_no);
-				H_JESdn[jw] = (W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt();
-				if(Y_cand>=0) {
-					X_mass_JESdn[jw] = (LJets[Y_cand].p4 * Y_JESdn + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw];
-				}
-				
-				for(unsigned ijec=0; ijec<njecmax; ijec++){
-					
-					W_mom.SetPtEtaPhiM(W_JESup_split[jw][ijec]*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),W_JESup_split[jw][ijec]*LJets[W_cand[jw]].p4.M());
-					pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JESup_split[ijec], MET_phi_JESup_split[ijec], random_no);
-					H_JESup_split[jw].push_back((W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt());
-					if(Y_cand>=0) {
-						X_mass_JESup_split[jw].push_back((LJets[Y_cand].p4 * Y_JESup_split[ijec] + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw]);
-					}
-					
-					W_mom.SetPtEtaPhiM(W_JESdn_split[jw][ijec]*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),W_JESdn_split[jw][ijec]*LJets[W_cand[jw]].p4.M());
-					pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JESdn_split[ijec], MET_phi_JESdn_split[ijec], random_no);
-					H_JESdn_split[jw].push_back((W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt());
-					if(Y_cand>=0) {
-						X_mass_JESdn_split[jw].push_back((LJets[Y_cand].p4 * Y_JESdn_split[ijec] + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw]);
-					}
-				}
-			
-				if(isMC){
-					
-					W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].JERup*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].JERup*LJets[W_cand[jw]].p4.M());
-					pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JERup, MET_phi_JERup, random_no);
-					H_JERup[jw] = (W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt();
-					if(Y_cand>=0) {
-						X_mass_JERup[jw] = (LJets[Y_cand].p4 * Y_JERup + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw];
-					}
-					
-					W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].JERdn*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].JERdn*LJets[W_cand[jw]].p4.M());
-					pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JERdn, MET_phi_JERdn, random_no);
-					H_JERdn[jw] = (W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt();
-					if(Y_cand>=0) {
-						X_mass_JERdn[jw] = (LJets[Y_cand].p4 * Y_JERdn + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw];
-					}
-					
-					W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].HEMcor*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].HEMcor*LJets[W_cand[jw]].p4.M());
-					pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JERup, MET_phi_JERup, random_no);
-					H_HEMcor[jw] = (W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt();
-					if(Y_cand>=0) {
-						X_mass_HEMcor[jw] = (LJets[Y_cand].p4 * Y_HEMcor + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw];
-					}
+					W_label_W_cq[jw] = LJets[W_cand[jw]].label_W_cq;
+					W_label_W_qq[jw] = LJets[W_cand[jw]].label_W_qq;
 				}
 				else{
-					
-					H_JERup[jw] = 1.; X_mass_JERup[jw] = 1.;
-					H_JERdn[jw] = 1.; X_mass_JERdn[jw] = 1.;
-					H_HEMcor[jw] = 1.; X_mass_HEMcor[jw] = 1.;
-					
+					W_label_W_cq[jw] = W_label_W_qq[jw] = false;
 				}
 			
-				dR_lW[jw] = delta2R(LJets[W_cand[jw]].y,LJets[W_cand[jw]].phi,vleptons[0].eta,vleptons[0].phi);
-				dy_lW[jw] = (LJets[W_cand[jw]].eta - vleptons[0].eta);
-				dphi_lW[jw] = PhiInRange(LJets[W_cand[jw]].phi - vleptons[0].p4.Phi());
-
-			} //if(vleptons.size()>0 && pnu[jw].Eta()>-100)
+				W_sub1_pt[jw] = LJets[W_cand[jw]].sub1_pt;
+				W_sub1_eta[jw] = LJets[W_cand[jw]].sub1_eta;
+				W_sub1_phi[jw] = LJets[W_cand[jw]].sub1_phi;
+				W_sub1_mass[jw] = LJets[W_cand[jw]].sub1_mass;
+				W_sub1_btag[jw] = LJets[W_cand[jw]].sub1_btag;
+				W_sub2_pt[jw] = LJets[W_cand[jw]].sub2_pt;
+				W_sub2_eta[jw] = LJets[W_cand[jw]].sub2_eta;
+				W_sub2_phi[jw] = LJets[W_cand[jw]].sub2_phi;
+				W_sub2_mass[jw] = LJets[W_cand[jw]].sub2_mass;
+				W_sub2_btag[jw] = LJets[W_cand[jw]].sub2_btag;
 			
-		}//if(W_cand[jw]>=0)
-	}//jw
-		
-    }//if(!DL)
-    
-    // calculating HTlep_pt & ST //
-    
-    if(isDL){
-    
-		HTlep_pt = l_pt[0]+l_pt[1]+Y_pt;
-		HTlep_pt_JESup = (l_pt[0]+l_pt[1]+Y_pt*Y_JESup)*1./(HTlep_pt);
-		HTlep_pt_JESdn = (l_pt[0]+l_pt[1]+Y_pt*Y_JESdn)*1./(HTlep_pt);
-		HTlep_pt_JERup = (l_pt[0]+l_pt[1]+Y_pt*Y_JERup)*1./(HTlep_pt);
-		HTlep_pt_JERdn = (l_pt[0]+l_pt[1]+Y_pt*Y_JERdn)*1./(HTlep_pt);
-		HTlep_pt_HEMcor = (l_pt[0]+l_pt[1]+Y_pt*Y_HEMcor)*1./(HTlep_pt);
-		
-		for(unsigned ijec=0; ijec<njecmax; ijec++){
-			HTlep_pt_JESup_split.push_back((l_pt[0]+l_pt[1]+Y_pt*Y_JESup_split[ijec])*1./(HTlep_pt));
-			HTlep_pt_JESdn_split.push_back((l_pt[0]+l_pt[1]+Y_pt*Y_JESdn_split[ijec])*1./(HTlep_pt));
-		}
+				if(isMC){
+					int gen_match = get_nearest_Parton(genVs,LJets[W_cand[jw]].p4,0.8);
+					if(gen_match>=0 && abs(genVs[gen_match].pdgId)==24){
+						W_genindex[jw] = gen_match; 
+					}else{
+						W_genindex[jw] = -1;
+					}
+				}
+				else { W_genindex[jw] = -1; }
+			
+				//JES 
+				W_JESup[jw] = LJets[W_cand[jw]].jesup_Total;
+				W_JESdn[jw] = LJets[W_cand[jw]].jesdn_Total;
+				get_JES_sys(LJets[W_cand[jw]],W_JESup_split[jw],"up");
+				get_JES_sys(LJets[W_cand[jw]],W_JESdn_split[jw],"down");
+				
+				//JER
+				if(isMC){
+					W_JERup[jw] = LJets[W_cand[jw]].JERup;//LJets[W_cand[jw]].JER;
+					W_JERdn[jw] = LJets[W_cand[jw]].JERdn;//LJets[W_cand[jw]].JER;
+				}
+				else{
+					W_JERup[jw] = W_JERdn[jw] = 0;
+				}
+				
+				//HEM
+				W_HEMcor[jw] = LJets[W_cand[jw]].HEMcor;
 
-		ST = l_pt[0]+l_pt[1]+Y_pt+MET_pt;
-		ST_JESup = (l_pt[0]+l_pt[1]+Y_pt*Y_JESup+MET_pt_JESup)*1./(ST);
-		ST_JESdn = (l_pt[0]+l_pt[1]+Y_pt*Y_JESdn+MET_pt_JESdn)*1./(ST);
-		ST_JERup = (l_pt[0]+l_pt[1]+Y_pt*Y_JERup+MET_pt_JERup)*1./(ST);
-		ST_JERdn = (l_pt[0]+l_pt[1]+Y_pt*Y_JERdn+MET_pt_JERdn)*1./(ST);
-		ST_HEMcor = (l_pt[0]+l_pt[1]+Y_pt*Y_HEMcor+MET_pt_HEMcor)*1./(ST);
-		
-		for(unsigned ijec=0; ijec<njecmax; ijec++){
-			ST_JESup_split.push_back((l_pt[0]+l_pt[1]+Y_pt*Y_JESup_split[ijec]+MET_pt_JESup_split[ijec])*1./(ST));
-			ST_JESdn_split.push_back((l_pt[0]+l_pt[1]+Y_pt*Y_JESdn_split[ijec]+MET_pt_JESdn_split[ijec])*1./(ST));
-		}
-	
-	}
-	else{
-		
-		HTlep_pt = l_pt[0]+Y_pt+W_pt[1];
-		HTlep_pt_JESup = (l_pt[0]+Y_pt*Y_JESup+W_pt[1]*W_JESup[1])*1./(HTlep_pt);
-		HTlep_pt_JESdn = (l_pt[0]+Y_pt*Y_JESdn+W_pt[1]*W_JESdn[1])*1./(HTlep_pt);
-		HTlep_pt_JERup = (l_pt[0]+Y_pt*Y_JERup+W_pt[1]*W_JERup[1])*1./(HTlep_pt);
-		HTlep_pt_JERdn = (l_pt[0]+Y_pt*Y_JERdn+W_pt[1]*W_JERdn[1])*1./(HTlep_pt);
-		
-		for(unsigned ijec=0; ijec<njecmax; ijec++){
-			HTlep_pt_JESup_split.push_back((l_pt[0]+Y_pt*Y_JESup_split[ijec]+W_pt[1]*W_JESup_split[1][ijec])*1./(HTlep_pt));
-			HTlep_pt_JESdn_split.push_back((l_pt[0]+Y_pt*Y_JESdn_split[ijec]+W_pt[1]*W_JESdn_split[1][ijec])*1./(HTlep_pt));
-		}
+				if(vleptons.size()>0 && pnu[jw].Eta()>-100){
+				
+					TLorentzVector W_mom = LJets[W_cand[jw]].p4;
+					TLorentzVector H_mom = (W_mom + vleptons[0].p4 + pnu[jw]);
+				
+					H_pt[jw] = H_mom.Pt();
+					H_y[jw] = H_mom.Rapidity();
+					H_eta[jw] = H_mom.Eta();
+					H_phi[jw] = H_mom.Phi();
+					H_mass[jw] = H_mom.M();
+				
+					if(isMC){
+						int gen_match = get_nearest_Parton(genVs,H_mom,0.8);
+						if(gen_match>=0 && abs(genVs[gen_match].pdgId)==25){
+							H_genindex[jw] = gen_match; 
+						}else{
+							H_genindex[jw] = -1;
+						}
+					}
+					else {  H_genindex[jw] = -1;  }
+				
+					TLorentzVector pnu_var;
+				
+					W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].jesup_Total*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].jesup_Total*LJets[W_cand[jw]].p4.M());
+					pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JESup, MET_phi_JESup, random_no);
+					H_JESup[jw] = (W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt();
+					if(Y_cand>=0) {
+						X_mass_JESup[jw] = (LJets[Y_cand].p4 * Y_JESup + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw];
+					}
+					
+					W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].jesdn_Total*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].jesdn_Total*LJets[W_cand[jw]].p4.M());
+					pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JESdn, MET_phi_JESdn, random_no);
+					H_JESdn[jw] = (W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt();
+					if(Y_cand>=0) {
+						X_mass_JESdn[jw] = (LJets[Y_cand].p4 * Y_JESdn + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw];
+					}
+					
+					for(unsigned ijec=0; ijec<njecmax; ijec++){
+						
+						W_mom.SetPtEtaPhiM(W_JESup_split[jw][ijec]*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),W_JESup_split[jw][ijec]*LJets[W_cand[jw]].p4.M());
+						pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JESup_split[ijec], MET_phi_JESup_split[ijec], random_no);
+						H_JESup_split[jw].push_back((W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt());
+						if(Y_cand>=0) {
+							X_mass_JESup_split[jw].push_back((LJets[Y_cand].p4 * Y_JESup_split[ijec] + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw]);
+						}
+						
+						W_mom.SetPtEtaPhiM(W_JESdn_split[jw][ijec]*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),W_JESdn_split[jw][ijec]*LJets[W_cand[jw]].p4.M());
+						pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JESdn_split[ijec], MET_phi_JESdn_split[ijec], random_no);
+						H_JESdn_split[jw].push_back((W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt());
+						if(Y_cand>=0) {
+							X_mass_JESdn_split[jw].push_back((LJets[Y_cand].p4 * Y_JESdn_split[ijec] + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw]);
+						}
+					}
+				
+					if(isMC){
+						
+						W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].JERup*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].JERup*LJets[W_cand[jw]].p4.M());
+						pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JERup, MET_phi_JERup, random_no);
+						H_JERup[jw] = (W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt();
+						if(Y_cand>=0) {
+							X_mass_JERup[jw] = (LJets[Y_cand].p4 * Y_JERup + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw];
+						}
+						
+						W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].JERdn*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].JERdn*LJets[W_cand[jw]].p4.M());
+						pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JERdn, MET_phi_JERdn, random_no);
+						H_JERdn[jw] = (W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt();
+						if(Y_cand>=0) {
+							X_mass_JERdn[jw] = (LJets[Y_cand].p4 * Y_JERdn + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw];
+						}
+						
+						W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].HEMcor*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].HEMcor*LJets[W_cand[jw]].p4.M());
+						pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JERup, MET_phi_JERup, random_no);
+						H_HEMcor[jw] = (W_mom + vleptons[0].p4 + pnu_var).Pt()/H_mom.Pt();
+						if(Y_cand>=0) {
+							X_mass_HEMcor[jw] = (LJets[Y_cand].p4 * Y_HEMcor + W_mom + vleptons[0].p4 + pnu_var).M()*1./X_mass[jw];
+						}
+					}
+					else{
+						
+						H_JERup[jw] = 1.; X_mass_JERup[jw] = 1.;
+						H_JERdn[jw] = 1.; X_mass_JERdn[jw] = 1.;
+						H_HEMcor[jw] = 1.; X_mass_HEMcor[jw] = 1.;
+						
+					}
+				
+					dR_lW[jw] = delta2R(LJets[W_cand[jw]].y,LJets[W_cand[jw]].phi,vleptons[0].eta,vleptons[0].phi);
+					dy_lW[jw] = (LJets[W_cand[jw]].eta - vleptons[0].eta);
+					dphi_lW[jw] = PhiInRange(LJets[W_cand[jw]].phi - vleptons[0].p4.Phi());
 
-		ST = l_pt[0]+Y_pt+W_pt[1]+MET_pt;
-		ST_JESup = (l_pt[0]+Y_pt*Y_JESup+W_pt[1]*W_JESup[1]+MET_pt_JESup)*1./(ST);
-		ST_JESdn = (l_pt[0]+Y_pt*Y_JESdn+W_pt[1]*W_JESdn[1]+MET_pt_JESdn)*1./(ST);
-		ST_JERup = (l_pt[0]+Y_pt*Y_JERup+W_pt[1]*W_JERup[1]+MET_pt_JERup)*1./(ST);
-		ST_JERdn = (l_pt[0]+Y_pt*Y_JERdn+W_pt[1]*W_JERdn[1]+MET_pt_JERdn)*1./(ST);
+				} //if(vleptons.size()>0 && pnu[jw].Eta()>-100)
+				
+			}//if(W_cand[jw]>=0)
+		}//jw
+			
+		}//if(!DL)
 		
-		for(unsigned ijec=0; ijec<njecmax; ijec++){
-			ST_JESup_split.push_back((l_pt[0]+Y_pt*Y_JESup_split[ijec]+W_pt[1]*W_JESup_split[1][ijec]+MET_pt_JESup_split[ijec])*1./(ST));
-			ST_JESdn_split.push_back((l_pt[0]+Y_pt*Y_JESdn_split[ijec]+W_pt[1]*W_JESdn_split[1][ijec]+MET_pt_JESdn_split[ijec])*1./(ST));
+		// calculating HTlep_pt & ST //
+		
+		if(isDL){
+		
+			HTlep_pt = l_pt[0]+l_pt[1]+Y_pt;
+			HTlep_pt_JESup = (l_pt[0]+l_pt[1]+Y_pt*Y_JESup)*1./(HTlep_pt);
+			HTlep_pt_JESdn = (l_pt[0]+l_pt[1]+Y_pt*Y_JESdn)*1./(HTlep_pt);
+			HTlep_pt_JERup = (l_pt[0]+l_pt[1]+Y_pt*Y_JERup)*1./(HTlep_pt);
+			HTlep_pt_JERdn = (l_pt[0]+l_pt[1]+Y_pt*Y_JERdn)*1./(HTlep_pt);
+			HTlep_pt_HEMcor = (l_pt[0]+l_pt[1]+Y_pt*Y_HEMcor)*1./(HTlep_pt);
+			
+			for(unsigned ijec=0; ijec<njecmax; ijec++){
+				HTlep_pt_JESup_split.push_back((l_pt[0]+l_pt[1]+Y_pt*Y_JESup_split[ijec])*1./(HTlep_pt));
+				HTlep_pt_JESdn_split.push_back((l_pt[0]+l_pt[1]+Y_pt*Y_JESdn_split[ijec])*1./(HTlep_pt));
+			}
+
+			ST = l_pt[0]+l_pt[1]+Y_pt+MET_pt;
+			ST_JESup = (l_pt[0]+l_pt[1]+Y_pt*Y_JESup+MET_pt_JESup)*1./(ST);
+			ST_JESdn = (l_pt[0]+l_pt[1]+Y_pt*Y_JESdn+MET_pt_JESdn)*1./(ST);
+			ST_JERup = (l_pt[0]+l_pt[1]+Y_pt*Y_JERup+MET_pt_JERup)*1./(ST);
+			ST_JERdn = (l_pt[0]+l_pt[1]+Y_pt*Y_JERdn+MET_pt_JERdn)*1./(ST);
+			ST_HEMcor = (l_pt[0]+l_pt[1]+Y_pt*Y_HEMcor+MET_pt_HEMcor)*1./(ST);
+			
+			for(unsigned ijec=0; ijec<njecmax; ijec++){
+				ST_JESup_split.push_back((l_pt[0]+l_pt[1]+Y_pt*Y_JESup_split[ijec]+MET_pt_JESup_split[ijec])*1./(ST));
+				ST_JESdn_split.push_back((l_pt[0]+l_pt[1]+Y_pt*Y_JESdn_split[ijec]+MET_pt_JESdn_split[ijec])*1./(ST));
+			}
+		
+		}
+		else{
+			
+			HTlep_pt = l_pt[0]+Y_pt+W_pt[1];
+			HTlep_pt_JESup = (l_pt[0]+Y_pt*Y_JESup+W_pt[1]*W_JESup[1])*1./(HTlep_pt);
+			HTlep_pt_JESdn = (l_pt[0]+Y_pt*Y_JESdn+W_pt[1]*W_JESdn[1])*1./(HTlep_pt);
+			HTlep_pt_JERup = (l_pt[0]+Y_pt*Y_JERup+W_pt[1]*W_JERup[1])*1./(HTlep_pt);
+			HTlep_pt_JERdn = (l_pt[0]+Y_pt*Y_JERdn+W_pt[1]*W_JERdn[1])*1./(HTlep_pt);
+			
+			for(unsigned ijec=0; ijec<njecmax; ijec++){
+				HTlep_pt_JESup_split.push_back((l_pt[0]+Y_pt*Y_JESup_split[ijec]+W_pt[1]*W_JESup_split[1][ijec])*1./(HTlep_pt));
+				HTlep_pt_JESdn_split.push_back((l_pt[0]+Y_pt*Y_JESdn_split[ijec]+W_pt[1]*W_JESdn_split[1][ijec])*1./(HTlep_pt));
+			}
+
+			ST = l_pt[0]+Y_pt+W_pt[1]+MET_pt;
+			ST_JESup = (l_pt[0]+Y_pt*Y_JESup+W_pt[1]*W_JESup[1]+MET_pt_JESup)*1./(ST);
+			ST_JESdn = (l_pt[0]+Y_pt*Y_JESdn+W_pt[1]*W_JESdn[1]+MET_pt_JESdn)*1./(ST);
+			ST_JERup = (l_pt[0]+Y_pt*Y_JERup+W_pt[1]*W_JERup[1]+MET_pt_JERup)*1./(ST);
+			ST_JERdn = (l_pt[0]+Y_pt*Y_JERdn+W_pt[1]*W_JERdn[1]+MET_pt_JERdn)*1./(ST);
+			
+			for(unsigned ijec=0; ijec<njecmax; ijec++){
+				ST_JESup_split.push_back((l_pt[0]+Y_pt*Y_JESup_split[ijec]+W_pt[1]*W_JESup_split[1][ijec]+MET_pt_JESup_split[ijec])*1./(ST));
+				ST_JESdn_split.push_back((l_pt[0]+Y_pt*Y_JESdn_split[ijec]+W_pt[1]*W_JESdn_split[1][ijec]+MET_pt_JESdn_split[ijec])*1./(ST));
+			}
+			
 		}
 		
-	}
-	
-	// counting number of b-tagged jets //
-      
-	nbjets_other = 0;
-	if(!isDL){
+		// counting number of b-tagged jets //
+		  
+		nbjets_other = 0;
+		if(!isDL){
+			for(auto & bjet: BJets_M){
+				if(delta2R(bjet.y,bjet.phi,LJets[W_cand[1]].y,LJets[W_cand[1]].phi)>0.6 && delta2R(bjet.y,bjet.phi,LJets[Y_cand].y,LJets[Y_cand].phi)>0.6){
+					nbjets_other++;
+				}
+			}
+		}
+		
+		nbjets_outY = 0;
 		for(auto & bjet: BJets_M){
-			if(delta2R(bjet.y,bjet.phi,LJets[W_cand[1]].y,LJets[W_cand[1]].phi)>0.6 && delta2R(bjet.y,bjet.phi,LJets[Y_cand].y,LJets[Y_cand].phi)>0.6){
-				nbjets_other++;
-			}
+			if(delta2R(bjet.y,bjet.phi,LJets[Y_cand].y,LJets[Y_cand].phi)>1.2){
+				nbjets_outY++;
+				}
 		}
-	}
-	
-	nbjets_outY = 0;
-	for(auto & bjet: BJets_M){
-		if(delta2R(bjet.y,bjet.phi,LJets[Y_cand].y,LJets[Y_cand].phi)>1.2){
-			nbjets_outY++;
-			}
-	}
-	
-	nbjets_outY_L = 0;
-	for(auto & bjet: BJets_L){
-		if(delta2R(bjet.y,bjet.phi,LJets[Y_cand].y,LJets[Y_cand].phi)>1.2){
-			nbjets_outY_L++;
-			}
-	}
-	
-	nbjets_outY_HEMcor = 0;
-	for(auto & bjet: BJets_M){
-		if(delta2R(bjet.y,bjet.phi,LJets[Y_cand].y,LJets[Y_cand].phi)>1.2 && bjet.pt>AK4jet_pt_cut){
-			nbjets_outY_HEMcor++;
-			}
-	}
-	
-	nbjets_L = (int)BJets_L.size();
-	nbjets = (int)BJets_M.size();
-    
-    // calculate all the weights correspoding different scale factors //
-    // PU weight, Lepton SF weight, Prefire weight //
-    
-    weight = 1;
-    
-    leptonsf_weight = 1.0;
-	leptonsf_weight_up = 1.0;
-	leptonsf_weight_dn = 1.0;
-	leptonsf_weight_stat = 1.0;
-	leptonsf_weight_syst = 1.0;
-	
-	puWeight = puWeightup = puWeightdown = 1.0;
-        
-    if(isMC){    
-
-		if(npu_vert_true>=0 && npu_vert_true<100){
-			float *puweights = Get_PU_Weights(file_pu_ratio, npu_vert_true);
-			puWeight = puweights[0];
-			puWeightup = puweights[1];
-			puWeightdown = puweights[2];
+		
+		nbjets_outY_L = 0;
+		for(auto & bjet: BJets_L){
+			if(delta2R(bjet.y,bjet.phi,LJets[Y_cand].y,LJets[Y_cand].phi)>1.2){
+				nbjets_outY_L++;
+				}
 		}
-	
-		for(unsigned lep=0; lep<vleptons.size(); lep++){
-			if(abs(vleptons[lep].pdgId)==11) { 
-				float *sfvalues = Electron_SF(file_el_sf, vleptons[lep].pt, vleptons[lep].eta);
-				leptonsf_weight *= sfvalues[0];
-				leptonsf_weight_up *= sfvalues[1];
-				leptonsf_weight_dn *= sfvalues[2];
-				leptonsf_weight_stat *= (sfvalues[0] + sqrt(sfvalues[3]*sfvalues[3] + sfvalues[4]*sfvalues[4]));  // like this for time being 
-				leptonsf_weight_syst *= (sfvalues[0] + sqrt(sfvalues[5]*sfvalues[5] + sfvalues[6]*sfvalues[6] + sfvalues[7]*sfvalues[7] + sfvalues[8]*sfvalues[8]));  // like this for time being 
-			}
-			if(abs(vleptons[lep].pdgId)==13) { 
-				float *sfvalues;
-				sfvalues = Muon_SF(file_mu_sf, muon_id_name, vleptons[lep].pt, vleptons[lep].eta);
-				leptonsf_weight *= *(sfvalues+0);
-				leptonsf_weight_up *= *(sfvalues+1);
-				leptonsf_weight_dn *= *(sfvalues+2);
-				leptonsf_weight_stat *= *(sfvalues+3);
-				leptonsf_weight_syst *= *(sfvalues+4);
-			}
+		
+		nbjets_outY_HEMcor = 0;
+		for(auto & bjet: BJets_M){
+			if(delta2R(bjet.y,bjet.phi,LJets[Y_cand].y,LJets[Y_cand].phi)>1.2 && bjet.pt>AK4jet_pt_cut){
+				nbjets_outY_HEMcor++;
+				}
 		}
-	
-		if(!isSignal){
-			weight *= Generator_weight;
-		}
-		weight *= puWeight;
-		weight *= leptonsf_weight;
-		weight *= prefiringweight;
-	
-	}//isMC
-	
-	Tout->Fill();
+		
+		
+		Tout->Fill();
+		
+		}// baseline conditions
 	
 	}// entry
     
