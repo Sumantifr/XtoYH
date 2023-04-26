@@ -454,8 +454,8 @@ int main(int argc, char *argv[])
 	Tout->Branch("X_mass_opt1", &X_mass[0], "X_mass/F");	
 	Tout->Branch("X_mass_JESup_opt1", &X_mass_JESup[0], "X_mass_JESup/F");	
 	Tout->Branch("X_mass_JESdn_opt1", &X_mass_JESdn[0], "X_mass_JESdn/F");	
-	Tout->Branch("X_mass_JESup_split_opt1",&X_mass_JESup_split);
-        Tout->Branch("X_mass_JESdn_split_opt1",&X_mass_JESdn_split);	
+	Tout->Branch("X_mass_JESup_split_opt1",&X_mass_JESup_split[0]);
+    Tout->Branch("X_mass_JESdn_split_opt1",&X_mass_JESdn_split[0]);	
 	Tout->Branch("X_mass_JERup_opt1", &X_mass_JERup[0], "X_mass_JERup/F");
 	Tout->Branch("X_mass_JERdn_opt1", &X_mass_JERdn[0], "X_mass_JERdn/F");
 	Tout->Branch("X_mass_JERdn_opt1", &X_mass_JERdn[0], "X_mass_JERdn/F");
@@ -1433,7 +1433,7 @@ int main(int argc, char *argv[])
 	for(int imax=0; imax<nmaxWcands; imax++){
 		W_JESup_split[imax].clear(); W_JESdn_split[imax].clear();
 		H_JESup_split[imax].clear(); H_JESdn_split[imax].clear();
-                X_mass_JESup_split[imax].clear(); X_mass_JESdn_split[imax].clear();
+        X_mass_JESup_split[imax].clear(); X_mass_JESdn_split[imax].clear();
 	}
 	HTlep_pt_JESup_split.clear(); HTlep_pt_JESdn_split.clear();
 	ST_JESup_split.clear(); ST_JESdn_split.clear();
