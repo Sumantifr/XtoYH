@@ -1076,6 +1076,7 @@
    // Booleans for different regions //
    
    bool Flag_pass_baseline;
+   bool Flag_pass_baseline_no_LJet;
    
    bool Flag_Y_bb_pass_T, Flag_Y_bb_pass_M, Flag_Y_bb_pass_L;
    bool Flag_H_W_pass_T_opt1, Flag_H_W_pass_M_opt1, Flag_H_W_pass_L_opt1, Flag_H_m_pass_opt1, Flag_dR_lW_pass_opt1;

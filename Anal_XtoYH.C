@@ -245,7 +245,8 @@ int main(int argc, char *argv[])
    Tout->Branch("ncuts",&ncuts,"ncuts/I");
    Tout->Branch("Flag_event_cuts", Flag_event_cuts, "Flag_event_cuts[ncuts]/O");	
    Tout->Branch("Flag_pass_baseline",&Flag_pass_baseline,"Flag_pass_baseline/O");
-
+   Tout->Branch("Flag_pass_baseline_no_LJet",&Flag_pass_baseline_no_LJet,"Flag_pass_baseline_no_LJet/O");
+   
    // trigger booleans //
 
    Tout->Branch("hlt_IsoMu24",&hlt_IsoMu24,"hlt_IsoMu24/O");
@@ -458,7 +459,6 @@ int main(int argc, char *argv[])
     Tout->Branch("X_mass_JESdn_split_opt1",&X_mass_JESdn_split[0]);	
 	Tout->Branch("X_mass_JERup_opt1", &X_mass_JERup[0], "X_mass_JERup/F");
 	Tout->Branch("X_mass_JERdn_opt1", &X_mass_JERdn[0], "X_mass_JERdn/F");
-	Tout->Branch("X_mass_JERdn_opt1", &X_mass_JERdn[0], "X_mass_JERdn/F");
 	Tout->Branch("X_mass_HEMcor_opt1", &X_mass_HEMcor[0], "X_mass_HEMcor/F");
    
 	Tout->Branch("dR_lW_opt1", &dR_lW[0], "dR_lW/F");	
@@ -596,7 +596,7 @@ int main(int argc, char *argv[])
    
    // Different flags and control regions   
    
-   Tout->Branch("Flag_pass_baseline", &Flag_pass_baseline, "Flag_pass_baseline/O");	
+   //Tout->Branch("Flag_pass_baseline", &Flag_pass_baseline, "Flag_pass_baseline/O");	
 
    Tout->Branch("Flag_Y_bb_pass_T", &Flag_Y_bb_pass_T, "Flag_Y_bb_pass_T/O");	
    Tout->Branch("Flag_Y_bb_pass_M", &Flag_Y_bb_pass_M, "Flag_Y_bb_pass_M/O");
@@ -1664,6 +1664,13 @@ int main(int argc, char *argv[])
 	else{
 		Flag_pass_baseline = false;
 	}
+	
+	Flag_pass_baseline_no_LJet = true;
+	for(unsigned icut=0; icut<event_cuts.size(); icut++){
+		if(icut==1) continue; // not applying LJets>=1 condition
+		Flag_pass_baseline_no_LJet *= event_cuts[icut];
+	}
+	//if(!Flag_pass_baseline_no_LJet) continue; 
 	
 	// Storing MC weights //
 	 
