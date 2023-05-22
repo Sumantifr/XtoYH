@@ -1010,6 +1010,7 @@
    static const int nmaxleptons = 2;
    static const int nmaxWcands = 2;
    static const int njecmax = 25;
+   static const int nTopMax = 2;
    
    float l_pt[nmaxleptons], l_eta[nmaxleptons], l_phi[nmaxleptons], l_mass[nmaxleptons];
    int l_pdgId[nmaxleptons], l_id[nmaxleptons];
@@ -1144,6 +1145,12 @@
    int nGenV;
    float GenV_pt[njetmx], GenV_eta[njetmx], GenV_phi[njetmx], GenV_mass[njetmx];
    int GenV_pdgId[njetmx], GenV_mompdgId[njetmx], GenV_grmompdgId[njetmx];
+   
+   int nGenTop;
+   float GenTop_pt[nTopMax],  GenTop_eta[nTopMax],  GenTop_phi[nTopMax],  GenTop_mass[nTopMax];  
+   
+   int nLHETop;
+   float LHETop_pt[nTopMax],  LHETop_eta[nTopMax],  LHETop_phi[nTopMax],  LHETop_mass[nTopMax];  
    
    double weight;
    

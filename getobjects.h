@@ -716,6 +716,69 @@ void getLHETops(std::vector<GenParton> &LHETops, std::vector<GenParton> GenParto
 	  }
 }
 
+void getTopsfromLHEParts(vector<HeavyParticle> &gentops, vector<GenParton> genpartons)  // with daughters at LHE level
+{     
+    vector<GenParton> W_dau;
+    vector<GenParton> t_bp;
+  
+    for(unsigned igen=0; igen<genpartons.size(); igen++){
+      
+      if(!((abs(genpartons[igen].pdgId)>=1 && abs(genpartons[igen].pdgId)<=5)||(abs(genpartons[igen].pdgId)>=11 && abs(genpartons[igen].pdgId)<=16))) continue;
+      
+      if(abs(genpartons[igen].pdgId)>=1 && abs(genpartons[igen].pdgId)<5)   {  W_dau.push_back(genpartons[igen]); }
+      if(abs(genpartons[igen].pdgId)>=11 && abs(genpartons[igen].pdgId)<=16) {  W_dau.push_back(genpartons[igen]); }
+      if(abs(genpartons[igen].pdgId)==5) {  t_bp.push_back(genpartons[igen]); }
+    
+    }
+    	
+	for(unsigned ipart=0; ipart<W_dau.size(); ipart++){
+		  
+	  if(!((abs(W_dau[ipart].pdgId)==11 || abs(W_dau[ipart].pdgId)==13 || abs(W_dau[ipart].pdgId)==15 || abs(W_dau[ipart].pdgId)==1 || abs(W_dau[ipart].pdgId)==3))) continue;
+		  
+		unsigned partner = -1;
+		unsigned match_b = -1;
+		  
+		for(unsigned jpart=(ipart+1); jpart<W_dau.size(); jpart++){
+			float mij = (W_dau[ipart].p4+W_dau[jpart].p4).M();
+			if((W_dau[ipart].pdgId*W_dau[jpart].pdgId<0) && mij>=75. && mij<=85.){
+				 partner = jpart;
+				 break;
+			 }
+		 }
+		  
+		 for(unsigned ib=0; ib<t_bp.size(); ib++){
+		   if(t_bp[ib].pdgId*W_dau[ipart].pdgId<0){
+		    	 match_b = ib;
+				 break;
+			}
+		 }
+		  
+		 GenParton q1, q2, b;
+		  
+		  q1 = W_dau[ipart];
+		 
+		  if(int(partner)>=0 && partner<W_dau.size()){
+			  q2 = W_dau[partner];
+		  }
+		  if(int(match_b)>=0 && match_b<t_bp.size()){
+			  b = t_bp[match_b];
+		  }
+		  
+		  if(int(partner)>=0 && partner<W_dau.size() && int(match_b)>=0 && match_b<t_bp.size()){
+			
+			HeavyParticle topQ;
+			  
+			topQ.p4 = (b.p4 + q1.p4 + q2.p4);
+			topQ.daughter.push_back(q1);
+			topQ.daughter.push_back(q2);
+			topQ.daughter.push_back(b);
+			
+			gentops.push_back(topQ);	
+		  }
+    }
+  
+}
+
 void getGENTops(vector<HeavyParticle> &gentops, vector<GenParton> genpartons)  // with daughters after shower
 {     
     vector<GenParton> W_dau;

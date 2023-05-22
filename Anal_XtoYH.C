@@ -781,6 +781,18 @@ int main(int argc, char *argv[])
    Tout->Branch("GenV_mompdgId",GenV_mompdgId,"GenV_mompdgId[nGenV]/I");
    Tout->Branch("GenV_grmompdgId",GenV_grmompdgId,"GenV_grmompdgId[nGenNu]/I");
    
+   Tout->Branch("nGenTop",&nGenTop, "nGenTop/I");
+   Tout->Branch("GenTop_pt",GenTop_pt,"GenTop_pt[nGenTop]/F");
+   Tout->Branch("GenTop_eta",GenTop_eta,"GenTop_eta[nGenTop]/F");
+   Tout->Branch("GenTop_phi",GenTop_phi,"GenTop_phi[nGenTop]/F");
+   Tout->Branch("GenTop_mass",GenTop_mass,"GenTop_mass[nGenTop]/F");
+   
+   Tout->Branch("nLHETop",&nLHETop, "nLHETop/I");
+   Tout->Branch("LHETop_pt",LHETop_pt,"LHETop_pt[nLHETop]/F");
+   Tout->Branch("LHETop_eta",LHETop_eta,"LHETop_eta[nLHETop]/F");
+   Tout->Branch("LHETop_phi",LHETop_phi,"LHETop_phi[nLHETop]/F");
+   Tout->Branch("LHETop_mass",LHETop_mass,"LHETop_mass[nLHETop]/F");
+   
    Tout->Branch("nLHEScaleWeights", &nLHEScaleWeights, "nLHEScaleWeights/I");
    Tout->Branch("LHEScaleWeights", LHEScaleWeights, "LHEScaleWeights[nLHEScaleWeights]/F");
    Tout->Branch("nLHEPDFWeights", &nLHEPDFWeights, "nLHEPDFWeights/I");
@@ -821,6 +833,7 @@ int main(int argc, char *argv[])
    int H_lim = stof(argv[2]);
    if(count<=L_lim)continue;
    if(count>H_lim)continue;
+   std::cout << fileName.data() << std::endl;
    TFile *fl = TFile::Open(fileName.data());
    if(fl==0) continue;
 
@@ -1224,7 +1237,7 @@ int main(int argc, char *argv[])
    fChain->SetBranchAddress("GenJetAK8_eta", GenJetAK8_eta, &b_GenJetAK8_eta);
    fChain->SetBranchAddress("GenJetAK8_phi", GenJetAK8_phi, &b_GenJetAK8_phi);
    fChain->SetBranchAddress("GenJetAK8_mass", GenJetAK8_mass, &b_GenJetAK8_mass);
-   fChain->SetBranchAddress("GenJetAK8_sdmass", GenJetAK8_sdmass, &b_GenJetAK8_sdmass);
+   fChain->SetBranchAddress("GenJetAK8_msoftdrop", GenJetAK8_sdmass, &b_GenJetAK8_sdmass);
    fChain->SetBranchAddress("GenJetAK8_hadronflav", GenJetAK8_hadronflav, &b_GenJetAK8_hadronflav);
    fChain->SetBranchAddress("GenJetAK8_partonflav", GenJetAK8_partonflav, &b_GenJetAK8_partonflav);
    fChain->SetBranchAddress("nGenJetAK4", &nGenJetAK4, &b_nGenJetAK4);
@@ -1238,7 +1251,7 @@ int main(int argc, char *argv[])
    fChain->SetBranchAddress("GenPart_pt", GenPart_pt, &b_GenPart_pt);
    fChain->SetBranchAddress("GenPart_eta", GenPart_eta, &b_GenPart_eta);
    fChain->SetBranchAddress("GenPart_phi", GenPart_phi, &b_GenPart_phi);
-   fChain->SetBranchAddress("GenPart_m", GenPart_m, &b_GenPart_m);
+   fChain->SetBranchAddress("GenPart_mass", GenPart_m, &b_GenPart_m);
    fChain->SetBranchAddress("GenPart_status", GenPart_status, &b_GenPart_status);
    fChain->SetBranchAddress("GenPart_pdgId", GenPart_pdgId, &b_GenPart_pdgId);
    fChain->SetBranchAddress("GenPart_mompdgId", GenPart_mompdgId, &b_GenPart_mompdgId);
@@ -1304,6 +1317,7 @@ int main(int argc, char *argv[])
 	vector<GenParton> genVs;
 	vector<HeavyParticle> gentops;
 	vector<HeavyParticle> genwhads;
+	vector<HeavyParticle> lhetops;
 	vector<GenParton> lheparts;
 	
 	if(isMC){
@@ -1347,6 +1361,7 @@ int main(int argc, char *argv[])
 		//Here you get LHE particles 
 
 		getLHEParts(lheparts);
+		getTopsfromLHEParts(lhetops, lheparts);
 	
 	}
 	
@@ -1670,7 +1685,7 @@ int main(int argc, char *argv[])
 		if(icut==1) continue; // not applying LJets>=1 condition
 		Flag_pass_baseline_no_LJet *= event_cuts[icut];
 	}
-	//if(!Flag_pass_baseline_no_LJet) continue; 
+	if(!Flag_pass_baseline_no_LJet) continue; 
 	
 	// Storing MC weights //
 	 
@@ -1863,6 +1878,24 @@ int main(int argc, char *argv[])
 			GenV_grmompdgId[ig] = genVs[ig].grmompdgId;
 			if(ig>=njetmx) break;
 		}
+		
+	   nGenTop = int(gentops.size());
+	   for(unsigned ig=0; ig<(gentops.size()); ig++){
+		   GenTop_pt[ig] = gentops[ig].p4.Pt();
+		   GenTop_eta[ig] = gentops[ig].p4.Eta();
+		   GenTop_phi[ig] = gentops[ig].p4.Phi();
+		   GenTop_mass[ig] = gentops[ig].p4.M();
+		   if(ig>=nTopMax) break;
+	   }
+	   
+	   nLHETop = int(lhetops.size());
+	   for(unsigned ig=0; ig<(lhetops.size()); ig++){
+		   LHETop_pt[ig] = lhetops[ig].p4.Pt();
+		   LHETop_eta[ig] = lhetops[ig].p4.Eta();
+		   LHETop_phi[ig] = lhetops[ig].p4.Phi();
+		   LHETop_mass[ig] = lhetops[ig].p4.M();
+		   if(ig>=nTopMax) break;
+	   }
   
     }//isMC
     
@@ -1910,7 +1943,7 @@ int main(int argc, char *argv[])
 		
 		vector<float> _s_JESup_split, _s_JESdn_split;
 		get_JES_sys(LJets[_s_nPFJetAK8],_s_JESup_split,"up");
-		get_JES_sys(LJets[_s_nPFJetAK8],_s_JESdn_split,"dn");
+		get_JES_sys(LJets[_s_nPFJetAK8],_s_JESdn_split,"down");
 		_s_PFJetAK8_JESup_split.push_back(_s_JESup_split);
 		_s_PFJetAK8_JESdn_split.push_back(_s_JESdn_split);
 		_s_JESup_split.clear(); _s_JESdn_split.clear(); 
@@ -1990,7 +2023,7 @@ int main(int argc, char *argv[])
 		
 		vector<float> _s_JESup_split, _s_JESdn_split;
 		get_JES_sys(Jets[ijet],_s_JESup_split,"up");
-		get_JES_sys(Jets[ijet],_s_JESdn_split,"dn");
+		get_JES_sys(Jets[ijet],_s_JESdn_split,"down");
 		_s_JetAK4_JESup_split.push_back(_s_JESup_split);
 		_s_JetAK4_JESdn_split.push_back(_s_JESdn_split);
 		_s_JESup_split.clear(); _s_JESdn_split.clear(); 
