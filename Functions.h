@@ -136,7 +136,7 @@ mT2 = (vec1+vec2).M();
 return mT2;
 	
 }
-
+/*
 TLorentzVector neutrino_mom(TLorentzVector vec_lep, float MET_pt, float MET_phi, double seed){
 
 	float W_mass = 80.4;
@@ -160,106 +160,10 @@ TLorentzVector neutrino_mom(TLorentzVector vec_lep, float MET_pt, float MET_phi,
 	
 		}
 		else{
-			//pnu.SetPtEtaPhiM(0,-100,-100,0);
-			pnu.SetPtEtaPhiM(MET_pt,vec_lep.Eta(),MET_phi,0);
+			pnu.SetPtEtaPhiM(0,-100,-100,0);
 			}
 	}
 	
 	return pnu;
 }
-
-
-TLorentzVector neutrino_mom_fromH(TLorentzVector vec_X, float MET_pt, float MET_phi, double seed){
-
-	float H_mass = 125;
-
-	TLorentzVector pnu;
-	
-	if(vec_X.E()<1.e-6) {pnu.SetPtEtaPhiM(0,-100,-100,0);}
-	
-	else{
-	
-		float Delta2 = (H_mass*H_mass - vec_X.M()*vec_X.M() + 2*vec_X.Pt()*MET_pt*cos(PhiInRange(vec_X.Phi()-MET_phi)))*1./(2*MET_pt*vec_X.Mt());
-		if(Delta2>=1){
-			float nueta;
-			nueta = (seed>=0.5)?(vec_X.Rapidity() + acosh(Delta2)):(vec_X.Rapidity() - acosh(Delta2));
-			pnu.SetPtEtaPhiM(MET_pt,nueta,MET_phi,0);
-		}
-		else{
-			//pnu.SetPtEtaPhiM(0,-100,-100,0);
-			float nueta;
-			nueta = (vec_X.Rapidity());
-			pnu.SetPtEtaPhiM(MET_pt,nueta,MET_phi,0);
-			}
-	}
-	
-	return pnu;
-}
-
-bool Muon_Tight_ID(bool muonisGL,bool muonisPF, float muonchi, float muonhit, float muonmst,
-                                  float muontrkvtx, float muondz, float muonpixhit, float muontrklay){
-bool tightid = false;
-if(muonisGL && muonisPF){
-        if(muonchi<10 && muonhit>0 && muonmst>1){
-                if(fabs(muontrkvtx)<0.2 && fabs(muondz)<0.5){
-                        if(muonpixhit>0 && muontrklay>5){
-                                tightid = true;
-                                }
-                        }
-                }
-        }
-return tightid;
-}
-//https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Tight_Muon
-
-bool Muon_Iso_ID(float muonpfiso)
-{
-bool isoid = false;
-if(muonpfiso<0.15) { isoid = true; } //SR
-//if(muonpfiso>0.15) { isoid = true; }  // CR
-return isoid;
-}
-
-void Normalize_h(TH1D *hin,bool normalize=false, bool dividebywidth=false){
-
-if(dividebywidth){
-	for(int bn=0; bn<hin->GetNbinsX(); bn++){
-        hin->SetBinContent(bn+1,hin->GetBinContent(bn+1)*1./hin->GetBinWidth(bn+1));
-	}
-}
-
-if(normalize==1){
-    hin->Scale(1./hin->Integral());
-}
-
-}
-
-void check_zero_bin(TH1D *hin)
-{
-        for(int bn=0; bn<hin->GetNbinsX(); bn++){
-          if((hin->GetBinContent(bn+1)) < 1.e-12){ hin->SetBinContent(bn+1,1.e-12);  }
-        }
-}
-
-void check_zero_bin_2D(TH2D *hin)
-{
-        for(int bx=0; bx<hin->GetNbinsX(); bx++){
-			for(int by=0; by<hin->GetNbinsX(); by++){
-				if((hin->GetBinContent(bx+1,by+1)) < 1.e-12){ hin->SetBinContent(bx+1,by+1,1.e-12);  }
-			}
-        }
-}
-
-float get_HEM_Correction(TLorentzVector p4)
-{
-
-TLorentzVector p4_old;
-float cor_factor = 1;
-p4_old = p4;
-if((p4_old.Phi()>-1.57) && (p4_old.Phi()<-0.87)){
-	if(p4_old.Eta()>=-2.5 && p4_old.Eta()<-1.3) { cor_factor = 0.8; }
-	else if(p4_old.Eta()>=-3.0 && p4_old.Eta()<-2.5) { cor_factor = 0.7; }
-}
-return cor_factor;
-
-}
+*/
