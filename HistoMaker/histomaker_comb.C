@@ -3,6 +3,7 @@
 using namespace std;
 
 string input_path = "";
+string output_path = "";
 
 //int main()
 //void histomaker_comb()
@@ -19,8 +20,14 @@ int main(int argc, char *argv[])
  cout<<"Running with options: isDileptonic? "<<isDL<<" isDATA? "<<isDATA<<" Signal? "<<isSignal<<endl;
  cout<<"Running on file : " << argv[3] << std::endl;	
 
- if(isDL) { input_path = "/eos/user/m/mukherje/XToYH/DL/"; }
- else { input_path = "/eos/user/m/mukherje/XToYH/SL/"; }
+ if(isDL) {
+ input_path = "/eos/user/m/mukherje/XToYH/DL/"; 
+ output_path = "OUTPUTS/DL/";
+ }
+ else { 
+ input_path = "/eos/user/m/mukherje/XToYH/SL/"; 
+ output_path = "OUTPUTS/SL/";
+ }
 
  //int nproc = sizeof(inputFile)/sizeof(inputFile[0]);
  
@@ -166,10 +173,12 @@ int main(int argc, char *argv[])
    }
 
    TString inputFile= input_path+argv[3];
-   std::cout << inputFile << std::endl;
-   TFile* final_file = TFile::Open("OUTPUTS/Histogram_"+inputFile, "RECREATE");  
+   std::cout <<"Input file "<< inputFile << std::endl;
+   char infile_name[100]; 
+   sprintf(infile_name,"%s/Histogram_%s",output_path.c_str(),argv[3]);
+   TFile* final_file = TFile::Open(infile_name, "RECREATE");  
 
-   TFile *file = TFile::Open(inputFile);
+   TFile *file = TFile::Open(inputFile,"read");
    TTree *tree = (TTree*)file->Get("Tout");
       
    // read branches //
