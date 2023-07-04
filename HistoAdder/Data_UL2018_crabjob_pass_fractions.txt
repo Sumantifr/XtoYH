@@ -1,0 +1,25 @@
+pass_fraction_EGamma_RunA 	 0.96
+pass_fraction_EGamma_RunB 	 1.0
+pass_fraction_EGamma_RunC 	 1.0
+pass_fraction_EGamma_RunD 	 1.0
+
+pass_fraction_DoubleMuon_RunA 	 0.96
+pass_fraction_DoubleMuon_RunB 	 1.0
+pass_fraction_DoubleMuon_RunC 	 1.0
+pass_fraction_DoubleMuon_RunD 	 1.0
+
+pass_fraction_MuEGamma_RunA 	 0.96
+pass_fraction_MuEGamma_RunB 	 1.0
+pass_fraction_MuEGamma_RunC 	 1.0
+pass_fraction_MuEGamma_RunD 	 1.0
+
+pass_fraction_SingleMuon_RunA 	 0.96
+pass_fraction_SingleMuon_RunB 	 1.0
+pass_fraction_SingleMuon_RunC 	 1.0
+pass_fraction_SingleMuon_RunD 	 1.0
+
+pass_fraction_JetHT_RunA 	 0.96
+pass_fraction_JetHT_RunB 	 1.0
+pass_fraction_JetHT_RunC 	 1.0
+pass_fraction_JetHT_RunD 	 1.0
+
