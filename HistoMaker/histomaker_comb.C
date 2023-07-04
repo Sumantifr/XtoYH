@@ -2,6 +2,8 @@
 
 using namespace std;
 
+string input_path = "";
+
 //int main()
 //void histomaker_comb()
 int main(int argc, char *argv[])
@@ -16,13 +18,83 @@ int main(int argc, char *argv[])
  std::istringstream(argv[4]) >> isSignal; 
  cout<<"Running with options: isDileptonic? "<<isDL<<" isDATA? "<<isDATA<<" Signal? "<<isSignal<<endl;
  cout<<"Running on file : " << argv[3] << std::endl;	
- 
+
+ if(isDL) { input_path = "/eos/user/m/mukherje/XToYH/DL/"; }
+ else { input_path = "/eos/user/m/mukherje/XToYH/SL/"; }
+
  //int nproc = sizeof(inputFile)/sizeof(inputFile[0]);
  
  //for (int ii=0;ii<nproc;ii++)
  // {
+
+  //xbin histogram binning definitions
+   int nmsdbins;
+   if(isDL)
+          {
+              const int nmsdbins_dilep = sizeof(msdbins_dilep)/sizeof(msdbins_dilep[0])-1;
+              nmsdbins  = nmsdbins_dilep;
+              std::cout << "MY for dilep " << nmsdbins  << " :-->  " ;
+          }
+   else
+         {
+              const int nmsdbins_semilep = sizeof(msdbins_semilep)/sizeof(msdbins_semilep[0])-1;
+              nmsdbins  = nmsdbins_semilep;
+              std::cout << "MY for semilep " << nmsdbins  << " :-->  " ;
+         }
+   float msdbins[nmsdbins+1];
+   if(isDL)
+          {
+              for(int aa = 0; aa < nmsdbins+1; aa++)
+              {
+                     std::cout << msdbins_dilep[aa] << " | " ;
+                     msdbins[aa] = msdbins_dilep[aa];
+              }
+          }
+   else
+         {
+              for(int aa = 0; aa < nmsdbins+1; aa++)
+              {
+                     std::cout << msdbins_semilep[aa] << " | " ;
+                     msdbins[aa] = msdbins_semilep[aa];
+              }
+         }
+   std::cout << std::endl;
+   std::cout << "-----------------------------------------" << std::endl;
+   int ninvmassbins;
+   if(isDL)
+          {
+              const int ninvmassbins_dilep = sizeof(invmassbins_dilep)/sizeof(invmassbins_dilep[0])-1;
+              ninvmassbins  = ninvmassbins_dilep;
+              std::cout << "ST for dilep " << ninvmassbins  << " :-->  " ;
+          }
+   else
+         {
+              const int ninvmassbins_semilep = sizeof(invmassbins_semilep)/sizeof(invmassbins_semilep[0])-1;
+              ninvmassbins  = ninvmassbins_semilep;
+              std::cout << "MX for semilep " << ninvmassbins  << " :-->  " ;
+         }
+   float invmassbins[ninvmassbins+1];
+   if(isDL)
+          {
+              for(int bb = 0; bb < ninvmassbins+1; bb++)
+              {
+                     std::cout << invmassbins_dilep[bb] << " | " ;
+                     invmassbins[bb] = invmassbins_dilep[bb];
+              }
+          }
+   else
+         {
+              for(int bb = 0; bb < ninvmassbins+1; bb++)
+              {
+                     std::cout << invmassbins_semilep[bb] << " | " ;
+                     invmassbins[bb] = invmassbins_semilep[bb];
+              }
+         }
+   std::cout << std::endl;
+   std::cout << "-----------------------------------------" << std::endl;
+   const int nunrollbins = nmsdbins*ninvmassbins;
    
-  //Calling efficiency files 
+    //Calling efficiency files 
   
    TFile *FEff; TH2F *h_AK4M_flv_b_eff; TH2F *h_AK4M_flv_c_eff; TH2F *h_AK4M_flv_l_eff;
    TH2F *h_YtagT_eff; TH2F *h_WtagT_eff;
@@ -93,7 +165,7 @@ int main(int argc, char *argv[])
       }
    }
 
-   TString inputFile=argv[3];
+   TString inputFile= input_path+argv[3];
    std::cout << inputFile << std::endl;
    TFile* final_file = TFile::Open("OUTPUTS/Histogram_"+inputFile, "RECREATE");  
 
@@ -101,7 +173,6 @@ int main(int argc, char *argv[])
    TTree *tree = (TTree*)file->Get("Tout");
       
    // read branches //
-   
   read_branches(tree, isDL);
    
   // Declaration of histograms //
@@ -110,7 +181,7 @@ int main(int argc, char *argv[])
  
   TH1D* h_nom;
   TH1D* h_nom_reg[nrgn];  
-  TH1D* h_reg = new TH1D("h_reg_id","h_reg_id",10,0.0,10.0);
+  TH1D* h_reg = new TH1D("h_reg_id","h_reg_id",12,0.0,12.0);
 
   TH1F* h_MET_pt_allreg;
   TH1F* h_Y_PNetMD_XbbvsQCD_allreg;
@@ -142,7 +213,6 @@ int main(int argc, char *argv[])
   
   TH1F* h_MET_pt[nrgn][nbcat][nWop][nlid];
   TH1F* h_MET_sig[nrgn][nbcat][nWop][nlid]; 
-  TH1F* h_MT[nrgn][nbcat][nWop][nlid];  
   
   TH1F* h_leadbjet_pt[nrgn][nbcat][nWop][nlid];  
   TH1F* h_leadbjet_btag_DeepFlav[nrgn][nbcat][nWop][nlid];  
@@ -183,10 +253,13 @@ int main(int argc, char *argv[])
   TH1F* h_nbjets_L[nrgn][nbcat][nWop][nlid]; 
   
   TH1F* h_HTlep_pt[nrgn][nbcat][nWop][nlid][ntop]; 
-  TH1F* h_ST[nrgn][nbcat][nWop][nlid][ntop]; 
-  
+  TH1F* h_ST[nrgn][nbcat][nWop][nlid][ntop];
+  TH1F* h_ST_xbin[nrgn][nbcat][nWop][nlid][ntop]; // xbin ST distribution
+  TH1F* h_MT[nrgn][nbcat][nWop][nlid][ntop]; 
+ 
   TH2F* h_X_Y_mass[nrgn][nbcat][nWop][nlid];   
   TH2F* h_X_Y_mass_xbin[nrgn][nbcat][nWop][nlid];   
+
   TH2F* h_X_Y_mass_sys[nrgn][nbcat][nWop][nlid][ntop][1+2*nsys];  
   TH2F* h_ST_Y_mass_sys[nrgn][nbcat][nWop][nlid][ntop][1+2*nsys];  
   
@@ -202,6 +275,7 @@ int main(int argc, char *argv[])
   
   TH1F* h_X_mass_sys[nrgn][nbcat][nWop][nlid][ntop][1+2*nsys];
   TH1F* h_X_mass_xbin_sys[nrgn][nbcat][nWop][nlid][ntop][1+2*nsys];
+  
 
   TH1F *h_for_limit_X_mass[nrgn][nbcat][nWop][nlid][ntop];
   TH1F *h_for_limit_X_mass_sys[nrgn][nbcat][nWop][nlid][ntop][1+2*nsys];
@@ -214,7 +288,9 @@ int main(int argc, char *argv[])
   
   TH1F* h_HTlep_pt_sys[nrgn][nbcat][nWop][nlid][ntop][1+2*nsys];
   TH1F* h_ST_sys[nrgn][nbcat][nWop][nlid][ntop][1+2*nsys];
-  TH1F* h_ST_sys_v2[nrgn][nbcat][nWop][nlid][ntop][1+2*nsys];
+  TH1F* h_ST_xbin_sys[nrgn][nbcat][nWop][nlid][ntop][1+2*nsys]; // xbin ST distribution 
+  TH1F* h_MT_sys[nrgn][nbcat][nWop][nlid][ntop][1+2*nsys];
+  //TH1F* h_ST_sys_v2[nrgn][nbcat][nWop][nlid][ntop][1+2*nsys];
 
   TH1F *h_for_limit_HTlep_pt[nrgn][nbcat][nWop][nlid][ntop];
   TH1F *h_for_limit_HTlep_pt_sys[nrgn][nbcat][nWop][nlid][ntop][1+2*nsys];
@@ -224,20 +300,21 @@ int main(int argc, char *argv[])
   
   TH1F *h_for_limit_ST_v2[nrgn][nbcat][nWop][nlid][ntop];
   TH1F *h_for_limit_ST_sys_v2[nrgn][nbcat][nWop][nlid][ntop][1+2*nsys];
-
+  
+ 
   // End of declaration //
     
   // Definition of histograms //
   
   h_nom = getHisto1D("h_nom","h_nom",10,0.0,10.0);
-  
+ 
   for(int ij=0; ij<nrgn; ij++){
 	char name[50];
 	sprintf(name,"h_nom_%s",rgn[ij].Data());
 	h_nom_reg[ij] = new TH1D(name,name,7,0.,7.);
 	h_nom_reg[ij]->Sumw2();
   }
-  
+ 
   h_MET_pt_allreg = getHisto1F("h_MET_pt_allreg","",40,0,1000);  
   h_Y_PNetMD_XbbvsQCD_allreg = getHisto1F("h_Y_PNetMD_XbbvsQCD_allreg","",100, 0.0, 1.0 );
   h_W_PNetMD_WvsQCD_opt1_allreg = getHisto1F("h_W_PNetMD_WvsQCD_opt1_allreg","",100, 0.0, 1.0 );
@@ -249,7 +326,6 @@ int main(int argc, char *argv[])
 	h_l1l2_dR_allreg = getHisto1F("h_l1l2_dR_allreg","",120,0,6);
 	h_dphi_MET_l1l2_allreg = getHisto1F("h_dphi_MET_l1l2_allreg","",65,-M_PI,M_PI);
   }
-
   for (int ij=0 ; ij< nrgn ; ij++)
   {
           for(int jk=0; jk<nbcat; jk++)
@@ -265,7 +341,12 @@ int main(int argc, char *argv[])
 									h_Y_msoftdrop[ij][jk][kl][lm][mn] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"Y_msoftdrop","",38,30,600); 
 									h_X_mass[ij][jk][kl][lm][mn] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"X_mass","",40, 0.0, 4000.0);
 									h_HTlep_pt[ij][jk][kl][lm][mn] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"HTlep_pt","",40, 0.0, 4000.0);
-                                    h_ST[ij][jk][kl][lm][mn] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"ST","",40, 0.0, 4000.0);    
+                                                                        h_ST[ij][jk][kl][lm][mn] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"ST","",40, 0.0, 4000.0);    
+                                                                        h_MT[ij][jk][kl][lm][mn] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"MT","",25,0,300); 
+                                                                        h_Y_msoftdrop_xbin[ij][jk][kl][lm][mn]   = get_histo_asymbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"Y_msoftdrop_xbin","",nmsdbins, msdbins);
+                                                                        h_Y_mass_xbin[ij][jk][kl][lm][mn]        = get_histo_asymbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"Y_mass_xbin","",nmsdbins, msdbins);
+                                                                        h_X_mass_xbin[ij][jk][kl][lm][mn]        = get_histo_asymbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"X_mass_xbin","",ninvmassbins,invmassbins);
+                                                                        h_ST_xbin[ij][jk][kl][lm][mn]            = get_histo_asymbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"ST_xbin","",ninvmassbins,invmassbins);
 
 									if(!isSignal){
 									 
@@ -276,18 +357,15 @@ int main(int argc, char *argv[])
                                       //h_HTlep_pt[ij][jk][kl][lm][mn] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"HTlep_pt","",40, 0.0, 4000.0);
                                       //h_ST[ij][jk][kl][lm][mn] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"ST","",40, 0.0, 4000.0);    
 
-                                      h_Y_msoftdrop_xbin[ij][jk][kl][lm][mn]  = get_histo_asymbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"Y_msoftdrop_xbin","",nmsdbins, msdbins);
-									  h_Y_mass_xbin[ij][jk][kl][lm][mn]  = get_histo_asymbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"Y_mass_xbin","",nmsdbins, msdbins);
-                                      h_X_mass_xbin[ij][jk][kl][lm][mn]        = get_histo_asymbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"X_mass_xbin","",ninvmassbins,invmassbins);
-                                      h_Y_msoftdrop_sys[ij][jk][kl][lm][mn][0]           = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"Y_msoftdrop","_nom",38,30,600);
+				      h_Y_msoftdrop_sys[ij][jk][kl][lm][mn][0]           = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"Y_msoftdrop","_nom",38,30,600);
                                       h_Y_msoftdrop_xbin_sys[ij][jk][kl][lm][mn][0]  = get_histo_asymbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"Y_msoftdrop_xbin","_nom",nmsdbins, msdbins);
 
                                       h_X_mass_sys[ij][jk][kl][lm][mn][0]                          = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"X_mass","_nom",40, 0.0, 4000.0);
                                       h_X_mass_xbin_sys[ij][jk][kl][lm][mn][0]         = get_histo_asymbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"X_mass_xbin","_nom",ninvmassbins,invmassbins);
-
-                                      h_HTlep_pt_sys[ij][jk][kl][lm][mn][0]                       = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"HTlep_pt","_nom",40, 0.0, 4000.0);
+                                      h_ST_xbin_sys[ij][jk][kl][lm][mn][0]             = get_histo_asymbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"ST_xbin","_nom",ninvmassbins,invmassbins);
+                                      h_HTlep_pt_sys[ij][jk][kl][lm][mn][0]               = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"HTlep_pt","_nom",40, 0.0, 4000.0);
                                       h_ST_sys[ij][jk][kl][lm][mn][0]                     = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"ST","_nom",40, 0.0, 4000.0);
-
+                                      h_MT_sys[ij][jk][kl][lm][mn][0]                     = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"MT","_nom",25,0,300);
 									}
 									
 								      h_for_limit_X_mass[ij][jk][kl][lm][mn]                 = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"unrolled_bin1_X_mass","",240,0,48000);
@@ -298,7 +376,7 @@ int main(int argc, char *argv[])
 
                                       h_for_limit_HTlep_pt[ij][jk][kl][lm][mn]                 = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"unrolled_HTlep_pt","",240,0,48000);
                                       h_for_limit_ST[ij][jk][kl][lm][mn]                 = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"unrolled_ST","",240,0,48000);
-									  h_for_limit_ST_v2[ij][jk][kl][lm][mn]              = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"unrolled_ST_v2","",nunrollbins,float(0.0),float(nunrollbins));
+				      h_for_limit_ST_v2[ij][jk][kl][lm][mn]              = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"unrolled_ST_v2","",nunrollbins,float(0.0),float(nunrollbins));
 
                                       h_for_limit_HTlep_pt_sys[ij][jk][kl][lm][mn][0] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"unrolled_HTlep_pt","_nom",240,0,48000);
                                       h_for_limit_ST_sys[ij][jk][kl][lm][mn][0] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"unrolled_ST","_nom",240,0,48000);                                         
@@ -322,8 +400,10 @@ int main(int argc, char *argv[])
                                         if(!isSignal){
 											h_Y_msoftdrop_xbin_sys[ij][jk][kl][lm][mn][2*(isys+1)-1]     = get_histo_asymbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"Y_msoftdrop_xbin",name,nmsdbins, msdbins);
 											h_X_mass_xbin_sys[ij][jk][kl][lm][mn][2*(isys+1)-1]          = get_histo_asymbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"X_mass_xbin",name,ninvmassbins,invmassbins);
+											h_ST_xbin_sys[ij][jk][kl][lm][mn][2*(isys+1)-1]              = get_histo_asymbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"ST_xbin",name,ninvmassbins,invmassbins);
 											h_HTlep_pt_sys[ij][jk][kl][lm][mn][2*(isys+1)-1]             = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"HTlep_pt",name,40, 0.0, 4000.0);
 											h_ST_sys[ij][jk][kl][lm][mn][2*(isys+1)-1]                   = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"ST",name,40, 0.0, 4000.0);
+                                                                                        h_MT_sys[ij][jk][kl][lm][mn][2*(isys+1)-1]                   = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"MT",name,25,0,300);
 										}
                                         h_for_limit_HTlep_pt_sys[ij][jk][kl][lm][mn][2*(isys+1)-1]   = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"unrolled_HTlep_pt",name,240,0,48000);
                                         h_for_limit_ST_sys[ij][jk][kl][lm][mn][2*(isys+1)-1]         = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"unrolled_ST",name,240,0,48000);
@@ -343,9 +423,11 @@ int main(int argc, char *argv[])
                                         if(!isSignal){
 											h_Y_msoftdrop_xbin_sys[ij][jk][kl][lm][mn][2*(isys+1)]       = get_histo_asymbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"Y_msoftdrop_xbin",name,nmsdbins, msdbins);
 											h_X_mass_xbin_sys[ij][jk][kl][lm][mn][2*(isys+1)]            = get_histo_asymbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"X_mass_xbin",name,ninvmassbins,invmassbins);
+										        h_ST_xbin_sys[ij][jk][kl][lm][mn][2*(isys+1)]                = get_histo_asymbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"ST_xbin",name,ninvmassbins,invmassbins);
 											h_HTlep_pt_sys[ij][jk][kl][lm][mn][2*(isys+1)]               = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"HTlep_pt",name,40, 0.0, 4000.0);
 											h_ST_sys[ij][jk][kl][lm][mn][2*(isys+1)]                     = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"ST",name,40, 0.0, 4000.0);
-										}
+                                                                                        h_MT_sys[ij][jk][kl][lm][mn][2*(isys+1)]                     = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"MT",name,25,0,300);
+                                                                                 }
                                         h_for_limit_HTlep_pt_sys[ij][jk][kl][lm][mn][2*(isys+1)]     = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"unrolled_HTlep_pt",name,240,0,48000);
                                         h_for_limit_ST_sys[ij][jk][kl][lm][mn][2*(isys+1)]           = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"unrolled_ST",name,240,0,48000);
 										h_for_limit_ST_sys_v2[ij][jk][kl][lm][mn][2*(isys+1)]        = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"unrolled_ST_v2",name,nunrollbins,float(0.0),float(nunrollbins));
@@ -359,7 +441,6 @@ int main(int argc, char *argv[])
 		  }//kl
 	  }//jk
   }//ij
-
   for (int ij=0 ; ij< nrgn ; ij++)
   {
 	  for(int jk=0; jk<nbcat; jk++)
@@ -401,7 +482,6 @@ int main(int argc, char *argv[])
 	       	
 				h_MET_pt[ij][jk][kl][lm] 			= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"MET_pt","",40,0,1000);
 				h_MET_sig[ij][jk][kl][lm] 			= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"MET_sig","",50,0,300);				
-				h_MT[ij][jk][kl][lm] 				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"MT","",25,0,300);
 			
 				}
 				//h_leadbjet_pt[ij][jk][kl][lm] 		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"LeadBJet_pt","",40,0,1000);
@@ -628,8 +708,6 @@ int main(int argc, char *argv[])
 			 
 	for( int jj = 0; jj < nJetAK4 ; jj++)
 	{
-                       
-		//if(delta2R(JetAK4_eta[jj],JetAK4_phi[jj],W_eta_opt2,W_phi_opt2)>0.6 && delta2R(JetAK4_eta[jj],JetAK4_phi[jj],Y_eta,Y_phi)>0.6){
 		if(delta2R(JetAK4_eta[jj],JetAK4_phi[jj],Y_eta,Y_phi)>1.2){	
 					
 			int etabin = std::max(1, std::min(h_AK4M_flv_b_eff->GetNbinsY(), h_AK4M_flv_b_eff->GetYaxis()->FindBin(fabs(JetAK4_eta[jj]))));
@@ -661,19 +739,52 @@ int main(int argc, char *argv[])
             }
 		}
 	}//jj
-                                   	    	
+
+        //Y-cand gen bb matching
+	TLorentzVector Y_cand;
+	Y_cand.SetPtEtaPhiM(Y_pt,Y_eta,Y_phi,Y_mass);
+	Bool_t Y_cand_gen_bb_matched = false;
+        for(int pp = 0 ; pp  < (nGenBPart-1); pp++)
+        {
+                for(int qq = pp+1; qq < nGenBPart; qq++)
+                         {
+                                 TLorentzVector gen_b1, gen_b2;
+                                 gen_b1.SetPtEtaPhiM(GenBPart_pt[pp],GenBPart_eta[pp],GenBPart_phi[pp],GenBPart_mass[pp]);
+                                 gen_b2.SetPtEtaPhiM(GenBPart_pt[qq],GenBPart_eta[qq],GenBPart_phi[qq],GenBPart_mass[qq]);
+                                 Float_t DR_Yb1, DR_Yb2;
+                                 DR_Yb1 = Y_cand.DeltaR(gen_b1);
+                                 DR_Yb2 = Y_cand.DeltaR(gen_b2);
+                                 if(DR_Yb1 < 0.8 && DR_Yb2 < 0.8 && GenBPart_pdgId[pp]*GenBPart_pdgId[qq] < 0 && GenBPart_mompdgId[pp] == GenBPart_mompdgId[qq] )
+                                 {
+                                       Y_cand_gen_bb_matched = true;
+                                       break;
+                                 }
+                         } //qq
+        }//pp               
+
 	int Y_pt_bin = getbinid(Y_pt,PNbb_SF_nptbins,PNbb_SF_ptbins);
-	if(Y_pt_bin>=0 && Y_pt_bin<PNbb_SF_nptbins) { 
-		if(Flag_Y_bb_pass_T){
-			bb_SF = PNbb_SF_HP[Y_pt_bin]; 
-			bb_SF_up = PNbb_SF_HP_up[Y_pt_bin]; 
-			bb_SF_dn = PNbb_SF_HP_dn[Y_pt_bin]; 
+        int Y_etabin_YtagT = std::max(1, std::min(h_YtagT_eff->GetNbinsY(), h_YtagT_eff->GetYaxis()->FindBin(fabs(Y_eta))));
+        int Y_ptbin_YtagT  = std::max(1, std::min(h_YtagT_eff->GetNbinsX(), h_YtagT_eff->GetXaxis()->FindBin(Y_pt)));       
+	if(Y_pt_bin>=0 && Y_pt_bin<PNbb_SF_nptbins) {
+                if(Y_cand_gen_bb_matched){
+                       if(Flag_Y_bb_pass_T)
+                        {
+			  bb_SF = PNbb_SF_HP[Y_pt_bin]; 
+			  bb_SF_up = PNbb_SF_HP_up[Y_pt_bin]; 
+			  bb_SF_dn = PNbb_SF_HP_dn[Y_pt_bin]; 
+                        }
+                       else 
+                        {
+                          bb_SF = std::max(1.e-6,(1.0 - PNbb_SF_HP[Y_pt_bin]*TMath::Max(float(1.e-3),float(h_YtagT_eff->GetBinContent(Y_ptbin_YtagT, Y_etabin_YtagT))) )/ (1.0 - TMath::Max(float(1.e-3),float(h_YtagT_eff->GetBinContent(Y_ptbin_YtagT, Y_etabin_YtagT)))) );
+                          bb_SF_up = std::max(1.e-6,(1.0 - PNbb_SF_HP_up[Y_pt_bin]*TMath::Max(float(1.e-3),float(h_YtagT_eff->GetBinContent(Y_ptbin_YtagT, Y_etabin_YtagT))) )/ (1.0 - TMath::Max(float(1.e-3),float(h_YtagT_eff->GetBinContent(Y_ptbin_YtagT, Y_etabin_YtagT)))) );
+                          bb_SF_dn = std::max(1.e-6,(1.0 - PNbb_SF_HP_dn[Y_pt_bin]*TMath::Max(float(1.e-3),float(h_YtagT_eff->GetBinContent(Y_ptbin_YtagT, Y_etabin_YtagT))) )/ (1.0 - TMath::Max(float(1.e-3),float(h_YtagT_eff->GetBinContent(Y_ptbin_YtagT, Y_etabin_YtagT)))) );
+                          //std::cout << bb_SF << "	" << bb_SF_up << "	" << bb_SF_dn << " " << Y_ptbin_YtagT << " " << Y_etabin_YtagT << " " <<  TMath::Max(float(1.e-3),float(h_YtagT_eff->GetBinContent(Y_ptbin_YtagT, Y_etabin_YtagT)))  <<  std::endl; 
+                        }
 		}
 	}
-        
+       
 	int W_pt_bin = getbinid(W_pt_opt2,PNW_SF_nptbins,PNW_SF_ptbins);
 	if(W_pt_bin>=0 && W_pt_bin<PNW_SF_nptbins) { 
-	//if(W_msoftdrop_opt2>=65. && W_msoftdrop_opt2<=105.){
 		if(W_label_W_qq_opt2||W_label_W_cq_opt2){// use only GEN-matched W for applying SFs 
 			if(Flag_H_W_pass_T_opt2){
 				W_SF = PNW_SF_T[W_pt_bin]; 
@@ -713,11 +824,11 @@ int main(int argc, char *argv[])
    {
    if (isSignal)
    {
-     weight_nom = 1.0; std::cout << "signal event" << std::endl;
+     weight_nom = 1.0; //std::cout << "signal event" << std::endl;
    }
    else
    {
-     weight_nom = Generator_weight; std::cout << "Background event" << std::endl;
+     weight_nom = Generator_weight; //std::cout << "Background event" << std::endl;
    }
      weight_nom *= prefiringweight;
      weight_nom *= puWeight;
@@ -775,7 +886,14 @@ int main(int argc, char *argv[])
 	bool isCR6(false);
 	bool isCR7(false);
 	bool isCR8(false);
-   
+        bool isCR9(false);
+        bool isCR10(false);  
+        //ABCD method vkg estimation
+        bool isQCDVR1(false);
+        bool isQCDVR2(false);
+        bool isQCDVR3(false);
+
+ 
 	bool lep_miniso;
 	if(isDL) {  lep_miniso = (l1_minisoall<miniso_cut && l2_minisoall<miniso_cut)?true:false; }
 	else {  (lep_miniso = l1_minisoall<miniso_cut)?true:false; }
@@ -815,10 +933,15 @@ int main(int argc, char *argv[])
 			isCR2 = (!Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
 			isCR3 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
 			isCR4 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && lep_miniso && (Y_DeepTag_PNet_TvsQCD>=PN_Top_med));
-			isCR5 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && !Flag_MET_pass && !lep_miniso);
+			isCR5 = (!Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && !Flag_MET_pass && MET_pt > 30  && !lep_miniso &&  l1_minisoall < 0.25);
 			isCR6 = (Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
 			isCR7 = (Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && !Flag_MET_pass && lep_miniso);
-			isCR8 = (Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && Flag_MET_pass && !lep_miniso);
+			isCR8  = (Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && Flag_MET_pass && !lep_miniso);
+                        isCR9  = (Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && !Flag_MET_pass && lep_miniso);
+                        isCR10 = (Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && !Flag_MET_pass && !lep_miniso);
+                        isQCDVR1 = (!Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
+                        isQCDVR2 = (!Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && !lep_miniso &&  l1_minisoall < 0.25 );
+                        isQCDVR3 = (!Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && !Flag_MET_pass && MET_pt > 30  && lep_miniso);
 		}
 		else
 		{
@@ -827,10 +950,17 @@ int main(int argc, char *argv[])
 			isCR2 = (!Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && Flag_MET_pass && lep_miniso);
 			isCR3 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && Flag_MET_pass && lep_miniso);
 			isCR4 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt1 && Flag_dR_lW_pass_opt1 && lep_miniso && (Y_DeepTag_PNet_TvsQCD>=PN_Top_med));
-			isCR5 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && !Flag_MET_pass && !lep_miniso);
+			isCR5 = (!Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && !Flag_MET_pass && !lep_miniso);
 			isCR6 = (Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && Flag_MET_pass && lep_miniso); 
 			isCR7 = (Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && !Flag_MET_pass && lep_miniso);
 			isCR8 = (Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt1 && Flag_dR_lW_pass_opt1 && Flag_MET_pass && !lep_miniso);  
+                        isCR8  = (Flag_H_W_pass_T_opt1 && Flag_dR_lW_pass_opt1 && Flag_MET_pass && !lep_miniso);
+                        isCR9  = (Flag_H_W_pass_T_opt1 && Flag_dR_lW_pass_opt1 && !Flag_MET_pass && lep_miniso);
+                        isCR10 = (Flag_H_W_pass_T_opt1 && Flag_dR_lW_pass_opt1 && !Flag_MET_pass && !lep_miniso);
+                        isQCDVR1 = (!Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && Flag_MET_pass && lep_miniso);
+                        isQCDVR2 = (!Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && Flag_MET_pass && !lep_miniso);
+                        isQCDVR3 = (!Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && !Flag_MET_pass && lep_miniso);
+
 		}
 	}
    
@@ -843,7 +973,11 @@ int main(int argc, char *argv[])
 	reg_tags.push_back(isCR6);
 	reg_tags.push_back(isCR7);
 	reg_tags.push_back(isCR8);
-	
+	reg_tags.push_back(isCR9);
+        reg_tags.push_back(isCR10);
+        reg_tags.push_back(isQCDVR1);
+        reg_tags.push_back(isQCDVR2);
+        reg_tags.push_back(isQCDVR3);
 	//int ireg = get_region(reg_tags);
 	
 	vector<int> regs;
@@ -860,8 +994,7 @@ int main(int argc, char *argv[])
 	
 		bool pure_pass = true;
 	
-		if(isSR2){	pure_pass = (Y_DeepTag_PNetMD_XbbvsQCD>=0.4);	}
-	
+                if( isSR2 || isCR8 || isCR9 || isCR10 ) { pure_pass = (Y_DeepTag_PNetMD_XbbvsQCD>=0.4); }	
 		if(!isDL){
 		
 			if(isCR2){	pure_pass = (Y_DeepTag_PNetMD_XbbvsQCD>=0.1);	}
@@ -915,7 +1048,7 @@ int main(int argc, char *argv[])
 		// now fill histograms binned in analysis categories //
 	   
 		float weight = weight_nom;
-		
+	        //std::cout << weight << std::endl;	
 		if(isCR4 && !isDL) { weight = weight_nom*Top_SF; } // since top tagging condition is used only in CR4
 		for(int jk=0; jk<nbcat; jk++){
 		   
@@ -969,7 +1102,6 @@ int main(int argc, char *argv[])
 						
 					h_MET_pt[ireg][jk][kl][lm]->Fill(MET_pt,weight); 
 					h_MET_sig[ireg][jk][kl][lm]->Fill(MET_sig,weight); 
-					h_MT[ireg][jk][kl][lm]->Fill(MT,weight); 
 					
 					}
 					
@@ -1007,7 +1139,6 @@ int main(int argc, char *argv[])
 						//unrol_ST = float(1.0*getbinid(Y_msoftdrop,nmsdbins,msdbins)*getbinid(ST,ninvmassbins,invmassbins));
 						unrol_ST = float(getbinid(ST,ninvmassbins,invmassbins) + getbinid(Y_msoftdrop,nmsdbins,msdbins)* ninvmassbins);
 					}
-                    
                     bool top_semimerged = false; 
                     if(!isDATA) { top_semimerged  = Y_label_Top_bq || Y_label_Top_bc || Y_label_W_qq || Y_label_W_cq  ;}
                     bool top_fullymerged = false; 
@@ -1093,14 +1224,17 @@ int main(int argc, char *argv[])
 							}
                             h_HTlep_pt[ireg][jk][kl][lm][mn]->Fill(HTlep_pt,weight);
                             h_ST[ireg][jk][kl][lm][mn]->Fill(ST,weight);
-							
+                            h_MT[ireg][jk][kl][lm][mn]->Fill(MT,weight);					
+                            h_Y_msoftdrop_xbin[ireg][jk][kl][lm][mn]->Fill(Y_msoftdrop,weight);
+                            h_Y_mass_xbin[ireg][jk][kl][lm][mn]->Fill(Y_msoftdrop,weight);
+                            h_ST_xbin[ireg][jk][kl][lm][mn]->Fill(ST,weight);		
 							if(!isSignal){
-								h_Y_msoftdrop_xbin[ireg][jk][kl][lm][mn]->Fill(Y_msoftdrop,weight);
-								h_Y_mass_xbin[ireg][jk][kl][lm][mn]->Fill(Y_msoftdrop,weight);
 								h_Y_msoftdrop_sys[ireg][jk][kl][lm][mn][0]->Fill(Y_msoftdrop,weight);
 								h_Y_msoftdrop_xbin_sys[ireg][jk][kl][lm][mn][0]->Fill(Y_msoftdrop,weight);
 								h_HTlep_pt_sys[ireg][jk][kl][lm][mn][0]->Fill(HTlep_pt,weight);
 								h_ST_sys[ireg][jk][kl][lm][mn][0]->Fill(ST,weight);
+                                                                h_ST_xbin_sys[ireg][jk][kl][lm][mn][0]->Fill(ST,weight);
+                                                                h_MT_sys[ireg][jk][kl][lm][mn][0]->Fill(MT,weight);
 							}
 							
                             h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][mn][0]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight);
@@ -1118,10 +1252,9 @@ int main(int argc, char *argv[])
 								h_X_mass[ireg][jk][kl][lm][mn]->Fill(X_mass,weight);
 								h_for_limit_X_mass[ireg][jk][kl][lm][mn]->Fill(X_conv_mass,weight);
 								h_for_limit_X_mass_v2[ireg][jk][kl][lm][mn]->Fill(unrol_mass,weight);
-								
+							        h_X_mass_xbin[ireg][jk][kl][lm][mn]->Fill(X_mass,weight);	
 								if(!isSignal){
 									h_X_mass_sys[ireg][jk][kl][lm][mn][0]->Fill(X_mass,weight);
-									h_X_mass_xbin[ireg][jk][kl][lm][mn]->Fill(X_mass,weight);
 									h_X_mass_xbin_sys[ireg][jk][kl][lm][mn][0]->Fill(X_mass,weight);
 								}
 								
@@ -1133,7 +1266,9 @@ int main(int argc, char *argv[])
 				    }
 			   }
                        }//mn
-                    
+                       //std::cout << "check! dude: 2" << std::endl; 
+                       if(!isDATA) 
+                       {
 					vector<float> X_JESup_split, X_JESdn_split;
 					
 					/*
@@ -1160,7 +1295,7 @@ int main(int argc, char *argv[])
                     }
 				    */
 				    
-				    if (!isDL){	
+				    if (!isDL && !isDATA){	
 						for(int ijes=0; ijes<njecmax; ijes++){
 						//	if(kl==0){
 								X_JESup_split.push_back((*X_mass_JESup_split_opt2)[ijes]);
@@ -1196,7 +1331,7 @@ int main(int argc, char *argv[])
 					shape_weight_up.push_back(SF_Trig_1_up);			shape_weight_dn.push_back(SF_Trig_1_dn);			shape_weight_nom.push_back(SF_Trig);
 					shape_weight_up.push_back(SF_Trig_2_up);			shape_weight_dn.push_back(SF_Trig_2_dn);			shape_weight_nom.push_back(SF_Trig);
 					
-		                    //cout << "check! dude: 4 " << endl;			
+		                        //cout << "check! dude: 4 " << endl;			
    				    for(int isys=0; isys<nsys; isys++){
 						for(int mn = 0 ; mn < ntop ; mn++)
 						{
@@ -1219,10 +1354,17 @@ int main(int argc, char *argv[])
 									h_HTlep_pt_sys[ireg][jk][kl][lm][mn][2*(isys+1)]  ->Fill(HTlep_pt*(*HTlep_pt_JESdn_split)[isys],weight); 
 							
 									h_ST_sys[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(ST*(*ST_JESup_split)[isys],weight); 
-									h_ST_sys[ireg][jk][kl][lm][mn][2*(isys+1)]	->Fill(ST*(*ST_JESdn_split)[isys],weight); 
-					
+									h_ST_sys[ireg][jk][kl][lm][mn][2*(isys+1)]  ->Fill(ST*(*ST_JESdn_split)[isys],weight);
+                                                                        
+									//h_ST_xbin_sys[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(ST*(*ST_JESup_split)[isys],weight);
+                                                                        //h_ST_xbin_sys[ireg][jk][kl][lm][mn][2*(isys+1)]  ->Fill(ST*(*ST_JESdn_split)[isys],weight);
+
+				                                        float MT_JESup_split = sqrt(2*l1_pt*(*MET_pt_JESup_split)[isys]*(1-cos(PhiInRange(l1_phi- (*MET_phi_JESup_split)[isys]))));
+                                                                        float MT_JESdn_split = sqrt(2*l1_pt*(*MET_pt_JESdn_split)[isys]*(1-cos(PhiInRange(l1_phi- (*MET_phi_JESdn_split)[isys]))));
+                                                                        h_MT_sys[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(MT_JESup_split,weight);
+                                                                        h_MT_sys[ireg][jk][kl][lm][mn][2*(isys+1)]->Fill(MT_JESdn_split,weight);	
 								}
-					
+				                                //cout << "check! dude" << endl;	
 								h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(HTlep_pt*(*HTlep_pt_JESup_split)[isys] + 4000.0 * get_Y_id(Y_msoftdrop*(*Y_JESup_split)[isys]),weight);
 								h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][mn][2*(isys+1)]  ->Fill(HTlep_pt*(*HTlep_pt_JESdn_split)[isys] + 4000.0 * get_Y_id(Y_msoftdrop*(*Y_JESdn_split)[isys]),weight);
 							
@@ -1230,7 +1372,7 @@ int main(int argc, char *argv[])
 								h_for_limit_ST_sys[ireg][jk][kl][lm][mn][2*(isys+1)]  ->Fill(ST*(*ST_JESdn_split)[isys] + 4000.0 * get_Y_id(Y_msoftdrop*(*Y_JESdn_split)[isys]),weight);
 							
 								if((ST*(*ST_JESup_split)[isys])>=invmassbins[0] && (ST*(*ST_JESup_split)[isys])<invmassbins[ninvmassbins] && Y_msoftdrop*(*Y_JESup_split)[isys]>=msdbins[0] && Y_msoftdrop*(*Y_JESup_split)[isys]<msdbins[nmsdbins]){
-									h_for_limit_ST_sys_v2[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(float(getbinid((ST*(*ST_JESup_split)[isys]),ninvmassbins,invmassbins) + getbinid(Y_msoftdrop*(*Y_JESup_split)[isys],nmsdbins,msdbins)* ninvmassbins),weight);
+								         h_for_limit_ST_sys_v2[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(float(getbinid((ST*(*ST_JESup_split)[isys]),ninvmassbins,invmassbins) + getbinid(Y_msoftdrop*(*Y_JESup_split)[isys],nmsdbins,msdbins)* ninvmassbins),weight);
 								}
 								if((ST*(*ST_JESdn_split)[isys])>=invmassbins[0] && (ST*(*ST_JESdn_split)[isys])<invmassbins[ninvmassbins] && Y_msoftdrop*(*Y_JESdn_split)[isys]>=msdbins[0] && Y_msoftdrop*(*Y_JESdn_split)[isys]<msdbins[nmsdbins]){
 									h_for_limit_ST_sys_v2[ireg][jk][kl][lm][mn][2*(isys+1)]  ->Fill(float(getbinid((ST*(*ST_JESdn_split)[isys]),ninvmassbins,invmassbins) + getbinid(Y_msoftdrop*(*Y_JESdn_split)[isys],nmsdbins,msdbins)* ninvmassbins),weight);
@@ -1268,7 +1410,7 @@ int main(int argc, char *argv[])
                             X_JESup_split.clear();
                             X_JESdn_split.clear();  
 
-							//cout << "check! dude" << endl;
+							//cout << "check! dude-5" << endl;
 							if(isys>=njecmax) // Weight-based systematics (SFs)
 							{
 							
@@ -1291,8 +1433,13 @@ int main(int argc, char *argv[])
 									h_HTlep_pt_sys[ireg][jk][kl][lm][mn][2*(isys+1)]  ->Fill(HTlep_pt,weight_dn); 
 							
 									h_ST_sys[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(ST,weight_up); 
-									h_ST_sys[ireg][jk][kl][lm][mn][2*(isys+1)]	->Fill(ST,weight_dn); 
-								
+									h_ST_sys[ireg][jk][kl][lm][mn][2*(isys+1)]	->Fill(ST,weight_dn);
+
+                                                                        h_ST_xbin_sys[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(ST,weight_up);
+                                                                        h_ST_xbin_sys[ireg][jk][kl][lm][mn][2*(isys+1)]      ->Fill(ST,weight_dn);
+								 	
+							                h_MT_sys[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(MT,weight_up);
+                                                                        h_MT_sys[ireg][jk][kl][lm][mn][2*(isys+1)]      ->Fill(MT,weight_dn);	
 								}
 								
 								h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight_up);
@@ -1329,15 +1476,15 @@ int main(int argc, char *argv[])
 								
 								}
 							}
-							
+						        //std::cout << "Dude-6" << std::endl;	
 							shape_weight_up.clear();
 							shape_weight_dn.clear();
 							shape_weight_nom.clear();
                             
-                        }//top conditions 
+                                            }//top conditions 
 
 					}//sys loop
-			
+		                    } //No Data condition	
 				}//purity condition
 				
 			}// lepid (lm)

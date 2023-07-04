@@ -218,6 +218,7 @@ TString proc_Name[] = {
 "ZZTo4L_XtoYH.root",
 "ZZTo4Q_XtoYH.root",
 */
+"WJetsToLNu_HT-800To1200_XtoYH.root"
 /*
 "NMSSM_XYH_YTobb_HToWWTo2L2Nu_MX_2000_MY_200_v3.root",
 "NMSSM_XYH_YTobb_HToWWTo2L2Nu_MX_3000_MY_100_v3.root",
@@ -280,6 +281,7 @@ TString proc_Name[] = {
 "NMSSM_XYH_YTobb_HToWWTo2L2Nu_MX_3000_MY_100_v3.root",
 "NMSSM_XYH_YTobb_HToWWTo2L2Nu_MX_3000_MY_500_v3.root"
 */
+/*
 "NMSSM_XToYHTo2B2WTo2B2L2Nu_MX-1000_MY-100_TuneCP5_13TeV-madgraph-pythia8.root",
 "NMSSM_XToYHTo2B2WTo2B2L2Nu_MX-1000_MY-125_TuneCP5_13TeV-madgraph-pythia8.root",
 "NMSSM_XToYHTo2B2WTo2B2L2Nu_MX-1000_MY-150_TuneCP5_13TeV-madgraph-pythia8.root",
@@ -380,7 +382,7 @@ TString proc_Name[] = {
 "NMSSM_XToYHTo2B2WTo2B2L2Nu_MX-3500_MY-450_TuneCP5_13TeV-madgraph-pythia8.root",
 "NMSSM_XToYHTo2B2WTo2B2L2Nu_MX-3500_MY-600_TuneCP5_13TeV-madgraph-pythia8.root",
 "NMSSM_XToYHTo2B2WTo2B2L2Nu_MX-3500_MY-60_TuneCP5_13TeV-madgraph-pythia8.root"
-
+*/
 };
 ////
 
@@ -786,18 +788,17 @@ TString proc_Name[] = {
   float ptedges[] = {20, 25, 30, 37, 43, 49, 56, 64, 74, 84, 97, 114, 133, 153, 174, 196, 220, 245, 272, 300, 330, 362, 395, 430, 468, 507, 548, 592, 638, 686, 737, 790, 846, 905, 967, 1101, 1248, 1410, 1588, 1784, 2000, 2366, 2787, 3450};
   const int nptbins = sizeof(ptedges)/sizeof(ptedges[0])-1;
 
-  float msdbins[] = {30,45,65,90,120,160,205,255,310,370,430,500,600}; //roughly 3 sigma bin width
-  const int nmsdbins = sizeof(msdbins)/sizeof(msdbins[0])-1;
-  
-  //float invmassbins[] = {400, 500, 625, 750, 900, 1100, 1300, 1500, 1750, 1950, 2200, 2400, 2650, 2900, 3400, 4000};
-  float invmassbins[] = {400, 550, 700, 900, 1100, 1300, 1500, 1750, 2000, 2250, 2500, 2750, 3000, 3500, 4000};
-  const int ninvmassbins = sizeof(invmassbins)/sizeof(invmassbins[0])-1;
-
-  const int nunrollbins = nmsdbins*ninvmassbins;
+  //float msdbins[] = {30,45,65,90,120,160,205,255,310,370,430,500,600}; //roughly 3 sigma bin width
+  //float msdbins[] = {30,45,60,75,90,105,120,135,150,165,185,210,250,300,600}; //my bin
+  float msdbins_semilep[]  = {30,50,70,90,120,150,170,190,210,260,600};
+  float msdbins_dilep[]    = {30,50,70,90,110,130,160,200,600};
+  float invmassbins_semilep[] =  {500,650,800,950,1150,1300,1500,1800,2100,2500,4000};
+  float invmassbins_dilep[]   =  {500,550,600,650,725,850,1000,1250,1500,4000};
+  //const int nunrollbins = 8*ninvmassbins;
   
   int njecmax = 0;
 
-  TString rgn[] = {"SR1","SR2","CR2","CR3","CR4","CR5","CR6","CR7","CR8"};
+  TString rgn[] = {"SR1","SR2","CR2","CR3","CR4","CR5","CR6","CR7","CR8","CR9","CR10","QCDVR1","QCDVR2","QCDVR3"};
   int nrgn = sizeof(rgn)/sizeof(rgn[0]);
 
   TString Ytype[] = {"T", "M" , "L"};
@@ -811,7 +812,7 @@ TString proc_Name[] = {
   TString bcats[] = {"","_nb0","_nb1"};
   int nbcat = sizeof(bcats)/sizeof(bcats[0]);
   
-  TString Wops[] = {"opt2","opt1"};
+  TString Wops[] = {"opt2"};  //,"opt1"};
   int nWop = sizeof(Wops)/sizeof(Wops[0]);
  
   TString tops[] = {"","_Top_fullymerged","_Top_semimerged","_Top_unmerged"};
@@ -907,7 +908,12 @@ TString proc_Name[] = {
    tree->SetBranchAddress("MET_phi_JERdn", &MET_phi_JERdn);
    tree->SetBranchAddress("MET_phi_UnclusEup", &MET_phi_UnclusEup);
    tree->SetBranchAddress("MET_phi_UnclusEdn", &MET_phi_UnclusEdn);
-   
+   tree->SetBranchAddress("MET_pt_JESup_split", &MET_pt_JESup_split);
+   tree->SetBranchAddress("MET_pt_JESdn_split", &MET_pt_JESdn_split);
+   tree->SetBranchAddress("MET_phi_JESup_split", &MET_phi_JESup_split);
+   tree->SetBranchAddress("MET_phi_JESdn_split", &MET_phi_JESdn_split);
+    
+ 
    tree->SetBranchAddress("Y_pt", &Y_pt);
    tree->SetBranchAddress("Y_y", &Y_y);
    tree->SetBranchAddress("Y_eta", &Y_eta);
@@ -954,7 +960,6 @@ TString proc_Name[] = {
    tree->SetBranchAddress("Y_JERdn", &Y_JERdn);
    tree->SetBranchAddress("Y_JESup_split", &Y_JESup_split);
    tree->SetBranchAddress("Y_JESdn_split", &Y_JESdn_split);
-   
    if(!isDL){
    
    tree->SetBranchAddress("W_pt_opt1", &W_pt_opt1);
@@ -1232,13 +1237,13 @@ TString proc_Name[] = {
 	tree->SetBranchAddress("GenV_grmompdgId", GenV_grmompdgId);
 	
 	tree->SetBranchAddress("nLHEScaleWeights", &nLHEScaleWeights);
-    tree->SetBranchAddress("LHEScaleWeights", LHEScaleWeights);
-    tree->SetBranchAddress("nLHEPDFWeights", &nLHEPDFWeights);
-    tree->SetBranchAddress("LHEPDFWeights", LHEPDFWeights);
-    tree->SetBranchAddress("nLHEAlpsWeights", &nLHEAlpsWeights);
-    tree->SetBranchAddress("LHEAlpsWeights", LHEAlpsWeights);
-    tree->SetBranchAddress("nLHEPSWeights", &nLHEPSWeights);
-    tree->SetBranchAddress("LHEPSWeights", LHEPSWeights);
+        tree->SetBranchAddress("LHEScaleWeights", LHEScaleWeights);
+        tree->SetBranchAddress("nLHEPDFWeights", &nLHEPDFWeights);
+        tree->SetBranchAddress("LHEPDFWeights", LHEPDFWeights);
+        tree->SetBranchAddress("nLHEAlpsWeights", &nLHEAlpsWeights);
+        tree->SetBranchAddress("LHEAlpsWeights", LHEAlpsWeights);
+        tree->SetBranchAddress("nLHEPSWeights", &nLHEPSWeights);
+        tree->SetBranchAddress("LHEPSWeights", LHEPSWeights);
 
     }
        
