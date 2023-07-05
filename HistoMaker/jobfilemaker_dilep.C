@@ -2,10 +2,10 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-void jobfilemaker_dilep()
+void jobfilemaker_dilep(bool isDATA=0)
 {
 
-TString Filenames[] = {
+string Filenames_MC[] = {
 "DYJetsToLL_M-10to50_XtoYH",
 "DYJetsToLL_M-50_HT-100To200_XtoYH",
 "DYJetsToLL_M-50_HT-1200To2500_XtoYH",
@@ -51,37 +51,96 @@ TString Filenames[] = {
 "QCD_HT700to1000_XtoYH"
 };
 
+string Filenames_Data[] = {
+"EGamma_UL2018A_XtoYH_Nov_2021",
+"EGamma_UL2018B_XtoYH_Nov_2021",
+"EGamma_UL2018C_XtoYH_Nov_2021",
+"EGamma_UL2018D_XtoYH_Nov_2021",
+"DoubleMuon_UL2018A_XtoYH_Nov_2021",
+"DoubleMuon_UL2018B_XtoYH_Nov_2021",
+"DoubleMuon_UL2018C_XtoYH_Nov_2021",
+"DoubleMuon_UL2018D_XtoYH_Nov_2021",
+"MuonEG_UL2018A_XtoYH_Nov_2021",
+"MuonEG_UL2018B_XtoYH_Nov_2021",
+"MuonEG_UL2018C_XtoYH_Nov_2021",
+"MuonEG_UL2018D_XtoYH_Nov_2021",
+};
 
-int nfile = sizeof(Filenames)/sizeof(Filenames[0]);
+
+string path = "/afs/cern.ch/user/c/chatterj/work/private/XToYH/CMSSW_10_6_27/src/XtoYH/HistoMaker/";
+string proxy = "/tmp/x509up_u81649";
+
+fstream file_sub;
+char name_submit[100];
+sprintf(name_submit,"condor_submit.sh");
+file_sub.open(name_submit,ios::out);
+
+int nfile_data = sizeof(Filenames_Data)/sizeof(Filenames_Data[0]);
+int nfile_mc = sizeof(Filenames_MC)/sizeof(Filenames_MC[0]);
+
+vector<string> files;
+if(isDATA){
+for(int fg=0; fg<nfile_data; fg++){
+files.push_back((Filenames_Data[fg]));
+}
+}
+else{
+for(int fg=0; fg<nfile_mc; fg++){
+files.push_back((Filenames_MC[fg]));
+}
+}
+
+int nfile = int(files.size());
+
 for (int ii=0;ii<nfile;ii++)
 {
 
 fstream file;
 char name_buffer[512];
-sprintf(name_buffer,"execute_"+Filenames[ii]+".csh");
+sprintf(name_buffer,"execute_%s.csh",files[ii].c_str());
 file.open(name_buffer,ios::out);
 if(!file)
    {
        cout<<"Error in creating file!!!";
-       return 0;
+       //return 0;
    }
 
-   file << "#!/bin/bash\nsource /cvmfs/cms.cern.ch/cmsset_default.sh\n cd /afs/cern.ch/work/m/mukherje/public/For_Suman_da/HISTMAKER/CMSSW_10_2_10/src/ \nexport X509_USER_PROXY=/afs/cern.ch/work/m/mukherje/public/For_Suman_da/HISTMAKER/CMSSW_10_2_10/src/x509up_u56596\neval `scramv1 runtime -sh`\n./histomaker_comb.exe  1 0 "<< Filenames[ii] << ".root 0" ;
-cout<<"execute created successfully." << endl;
-file.close();
+   file <<"#!/bin/bash\n";
+   file << "source /cvmfs/cms.cern.ch/cmsset_default.sh\n";
+   file <<"cd "<<path<<" \n";
+   file<<"export X509_USER_PROXY="<<proxy<<"\n";
+   file<<"eval `scramv1 runtime -sh`\n";
+   file<<"./histomaker_comb.exe  1 "<<isDATA<<" "<<files[ii] << ".root 0" ;
+
+   cout<<"execute created successfully." << endl;
+   file.close();
 
 fstream file1;
 char name_buffer1[512];
-sprintf(name_buffer1,"submit_"+Filenames[ii]+".sh");
+sprintf(name_buffer1,"submit_%s.sh",files[ii].c_str());
 file1.open(name_buffer1,ios::out);
    if(!file1)
    {
        cout<<"Error in creating file!!!";
-       return 0;
+       //return 0;
    }
-file1 << "universe = vanilla\nexecutable = execute_"<< Filenames[ii] << ".csh\ngetenv = TRUE\nlog =" << Filenames[ii] << ".log\noutput ="<< Filenames[ii] <<".out\nerror = "<< Filenames[ii] <<".error\nnotification = never\nshould_transfer_files = YES\nwhen_to_transfer_output = ON_EXIT\nqueue";
+file1 << "universe = vanilla\n";
+file1 << "executable = execute_"<< files[ii] << ".csh\n";
+file1 << "getenv = TRUE\n";
+file1 << "log =" << files[ii] << ".log\n";
+file1 << "output ="<< files[ii] <<".out\n";
+file1 << "error = "<< files[ii] <<".error\n";
+file1 << "notification = never\n";
+file1 << "should_transfer_files = YES\n";
+file1 << "when_to_transfer_output = ON_EXIT\n";
+file1 << "queue";
 cout<<"sub created successfully." << endl;
 file1.close();
+
+file_sub<<"condor_submit "<<name_buffer1<<"\n";
 }
-  return 0;
+
+file_sub.close();
+  
+//return 0;
 }
