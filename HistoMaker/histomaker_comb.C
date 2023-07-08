@@ -22,11 +22,11 @@ int main(int argc, char *argv[])
 
  if(isDL) {
  input_path = "/eos/user/m/mukherje/XToYH/DL/"; 
- output_path = "OUTPUTS/DL/";
+ output_path = "/eos/user/c/chatterj/XtoYH/OUTPUTS/DL/";
  }
  else { 
  input_path = "/eos/user/m/mukherje/XToYH/SL/"; 
- output_path = "OUTPUTS/SL/";
+ output_path = "/eos/user/c/chatterj/XtoYH/OUTPUTS/SL/";
  }
 
  //int nproc = sizeof(inputFile)/sizeof(inputFile[0]);
@@ -569,7 +569,10 @@ int main(int argc, char *argv[])
 	      
 	tree->GetEntry(jentry);
 	if( jentry % 10000 == 0) { std::cout <<jentry<<" events processed" << std::endl;}
-   
+ 
+	//Put baseline conditions for preselection //
+	if(!Flag_pass_baseline) continue;
+  
 	// read number of JES+JER uncs. //
 	njecmax = (*Y_JESup_split).size();
 	// Condition to avoid double counting in data //
@@ -1003,9 +1006,10 @@ int main(int argc, char *argv[])
 	
 		bool pure_pass = true;
 	
-                if( isSR2 || isCR8 || isCR9 || isCR10 ) { pure_pass = (Y_DeepTag_PNetMD_XbbvsQCD>=0.4); }	
+                if( isSR2) { pure_pass = (Y_DeepTag_PNetMD_XbbvsQCD>=0.4); }	
 		if(!isDL){
 		
+			if(isCR8 || isCR9 || isCR10 ) { pure_pass = (Y_DeepTag_PNetMD_XbbvsQCD>=0.4); }
 			if(isCR2){	pure_pass = (Y_DeepTag_PNetMD_XbbvsQCD>=0.1);	}
 			if(isCR3){										
 				if(kl==0) { pure_pass = (W_msoftdrop_opt2<=60.); }
