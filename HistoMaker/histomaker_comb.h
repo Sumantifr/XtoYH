@@ -86,6 +86,15 @@ hout->Sumw2();
 return hout;
 }
 
+TH1F* get_histo_symbin_onetopreg(TString Y_op_name, TString W_op_name, TString Wops_name, TString lep_name, TString top_name, string var, string addText, int nbins, float low_edge, float up_edge)
+{
+char name[500];
+sprintf(name,"h_Y_%s_W_%s_%s_%s_%s%s%s",Y_op_name.Data(),W_op_name.Data(),var.c_str(),Wops_name.Data(),lep_name.Data(),top_name.Data(),addText.c_str());
+TH1F *hout = new TH1F(name, "",nbins,low_edge,up_edge);
+hout->Sumw2();
+return hout;
+}
+
 
 TH1F* get_histo_asymbin(TString Y_op_name, TString W_op_name, TString reg_name, TString bcat_name, TString Wops_name, TString lep_name, string var, string addText, int nbins, float *bins)
 {
@@ -100,6 +109,15 @@ TH1F* get_histo_asymbin_II(TString Y_op_name, TString W_op_name, TString reg_nam
 {
 char name[500];
 sprintf(name,"h_Y_%s_W_%s_%s_%s_%s%s%s%s%s",Y_op_name.Data(),W_op_name.Data(),var.c_str(),Wops_name.Data(),reg_name.Data(),bcat_name.Data(),lep_name.Data(),top_name.Data(),addText.c_str());
+TH1F *hout = new TH1F(name, "",nbins,bins);
+hout->Sumw2();
+return hout;
+}
+
+TH1F* get_histo_asymbin_onetopreg(TString Y_op_name, TString W_op_name, TString Wops_name, TString lep_name, TString top_name, string var, string addText, int nbins, float *bins)
+{
+char name[500];
+sprintf(name,"h_Y_%s_W_%s_%s_%s_%s%s%s",Y_op_name.Data(),W_op_name.Data(),var.c_str(),Wops_name.Data(),lep_name.Data(),top_name.Data(),addText.c_str());
 TH1F *hout = new TH1F(name, "",nbins,bins);
 hout->Sumw2();
 return hout;
@@ -169,6 +187,26 @@ float Z_mass_max = 120;
 //mini-isolation cut for lepton//
 float miniso_cut = 0.1;
 
+//trigger cuts //
+
+float mu_trig_pt_SL = 50;
+float el_trig_pt_SL = 32;
+float jet_trig_pt_SL = 550;
+float mu_trig_pt_DL_0 = 37;
+float mu_trig_pt_DL_1 = 27;
+float el_trig_pt_DL   = 25;
+float emu_trig_pt_DL_0 = 37;
+float emu_trig_pt_DL_1 = 27;
+
+double SF_Trig, SF_Trig_stat, SF_Trig_syst;
+double SF_Trig_1_up, SF_Trig_1_dn;
+double SF_Trig_2_up, SF_Trig_2_dn;
+
+
+double b_SF, b_SF_up, b_SF_dn;
+double bb_SF, bb_SF_up, bb_SF_dn;
+double W_SF, W_SF_up, W_SF_dn;
+double Top_SF, Top_SF_up, Top_SF_dn;
 
 
 TString proc_Name[] = {
@@ -398,7 +436,9 @@ TString proc_Name[] = {
   Int_t           nfatjets;
   Int_t           ncuts;
   Bool_t          Flag_event_cuts[ncutmax];  
-   
+  Bool_t	  Flag_pass_baseline;  
+  Bool_t	  Flag_pass_baseline_no_LJet;
+ 
   Bool_t          hlt_IsoMu24;
   Bool_t          hlt_Mu50;
   Bool_t          hlt_Ele50_CaloIdVT_GsfTrkIdT_PFJet165;
@@ -796,10 +836,16 @@ TString proc_Name[] = {
   float invmassbins_dilep[]   =  {500,550,600,650,725,850,1000,1250,1500,4000};
   //const int nunrollbins = 8*ninvmassbins;
   
+  float yptbins[] = {200, 300, 450, 600, 3000};
+  const int nyptbins  = sizeof(yptbins)/sizeof(yptbins[0])-1;
+  
   int njecmax = 0;
 
   TString rgn[] = {"SR1","SR2","CR2","CR3","CR4","CR5","CR6","CR7","CR8","CR9","CR10","QCDVR1","QCDVR2","QCDVR3"};
   int nrgn = sizeof(rgn)/sizeof(rgn[0]);
+  
+  TString rgn_CR[] = {"CR3_nb0","CR2_nb0","CR4_nb0","CR6_nb1"};
+  int nCR = sizeof(rgn_CR)/sizeof(rgn_CR[0]);
 
   TString Ytype[] = {"T", "M" , "L"};
   //int nYtype = sizeof(Ytype)/sizeof(Ytype[0]);
@@ -848,6 +894,9 @@ TString proc_Name[] = {
    tree->SetBranchAddress("nfatjets", &nfatjets);
    tree->SetBranchAddress("ncuts", &ncuts);
    tree->SetBranchAddress("Flag_event_cuts", Flag_event_cuts);
+
+   tree->SetBranchAddress("Flag_pass_baseline",&Flag_pass_baseline);
+   tree->SetBranchAddress("Flag_pass_baseline_no_LJet",&Flag_pass_baseline_no_LJet);
 
    tree->SetBranchAddress("hlt_IsoMu24", &hlt_IsoMu24);
    tree->SetBranchAddress("hlt_Mu50", &hlt_Mu50);
