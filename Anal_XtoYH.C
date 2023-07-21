@@ -1327,7 +1327,7 @@ int main(int argc, char *argv[])
 		getPartons(genpartons);
 	
 		for(unsigned ig=0; ig<(genpartons).size(); ig++){
-			if((abs(genpartons[ig].pdgId)==11||abs(genpartons[ig].pdgId)==13) && ((genpartons[ig].status)==1||(genpartons[ig].status)==2||(genpartons[ig].status)==23) && ((abs(genpartons[ig].mompdgId)==15 && abs(genpartons[ig].grmompdgId)==24) || abs(genpartons[ig].mompdgId)==24 || abs(genpartons[ig].mompdgId)==25)){
+			if((abs(genpartons[ig].pdgId)==11||abs(genpartons[ig].pdgId)==13) && ((genpartons[ig].status)==1||(genpartons[ig].status)==2||(genpartons[ig].status)==23) && ((abs(genpartons[ig].mompdgId)==15 && abs(genpartons[ig].grmompdgId)==24) || abs(genpartons[ig].mompdgId)==23 || abs(genpartons[ig].mompdgId)==24 || abs(genpartons[ig].mompdgId)==25)){
 				genleps.push_back(genpartons[ig]);
 			}
 		}
