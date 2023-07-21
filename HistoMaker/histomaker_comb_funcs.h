@@ -312,3 +312,32 @@ for(int pp = 0 ; pp  < (int(genbs.size())-1); pp++)
     }//pp      	
 	
 }
+
+
+float get_EWK_cor(TFile *file_SF, float pt, float pt_min=150)
+{
+	char name[100];
+	
+	TH1F *h_ewk = (TH1F*)file_SF->Get("ewcorr");
+	float cor = 1;
+	if(pt>=pt_min){
+		int pt_bin_id = h_ewk->GetXaxis()->FindBin(pt);
+		cor = h_ewk->GetBinContent(pt_bin_id);
+	}
+	return cor;
+	
+}
+
+float get_QCD_cor(TFile *file_SF, float pt, float pt_min=150)
+{
+	char name[100];
+	
+	TH1F *h_qcd = (TH1F*)file_SF->Get("kfactor");
+	float cor = 1;
+	if(pt>=pt_min){
+		int pt_bin_id = h_qcd->GetXaxis()->FindBin(pt);
+		cor = h_qcd->GetBinContent(pt_bin_id);
+	}
+	return cor;
+	
+}

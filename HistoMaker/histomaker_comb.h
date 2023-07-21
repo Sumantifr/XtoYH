@@ -825,6 +825,9 @@ TString proc_Name[] = {
   Float_t         LHEPSWeights[8];   //[nLHEPSWeights]
 
 
+  float EWK_cor;
+  float QCD_cor;
+
   float ptedges[] = {20, 25, 30, 37, 43, 49, 56, 64, 74, 84, 97, 114, 133, 153, 174, 196, 220, 245, 272, 300, 330, 362, 395, 430, 468, 507, 548, 592, 638, 686, 737, 790, 846, 905, 967, 1101, 1248, 1410, 1588, 1784, 2000, 2366, 2787, 3450};
   const int nptbins = sizeof(ptedges)/sizeof(ptedges[0])-1;
 
