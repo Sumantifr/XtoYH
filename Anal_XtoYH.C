@@ -239,6 +239,12 @@ int main(int argc, char *argv[])
 
    // Tree for selected events //
 	
+   Tout->Branch("irun", &irun, "irun/I");
+   Tout->Branch("ilumi", &ilumi, "ilumi/I");
+   Tout->Branch("ievt", &ievt, "ievt/I");	
+   Tout->Branch("npvert", &npvert, "npvert/I");	
+   Tout->Branch("PV_npvsGood", &PV_npvsGood, "PV_npvsGood/I");	
+	
    Tout->Branch("nleptons", &nleptons, "nleptons/I");
    Tout->Branch("nfatjets", &nfatjets, "nfatjets/I");	
 
@@ -846,6 +852,12 @@ int main(int argc, char *argv[])
    fChain->SetBranchAddress("ievt", &ievt, &b_ievt);
    fChain->SetBranchAddress("nprim", &nprim, &b_nprim);
    fChain->SetBranchAddress("npvert", &npvert, &b_npvert);
+   fChain->SetBranchAddress("PV_npvsGood", &PV_npvsGood, &b_PV_npvsGood);
+   fChain->SetBranchAddress("PV_ndof", &PV_ndof, &b_PV_ndof);                                                                                                                                               
+   fChain->SetBranchAddress("PV_chi2", &PV_chi2, &b_PV_chi2);
+   fChain->SetBranchAddress("PV_x", &PV_x, &b_PV_x);
+   fChain->SetBranchAddress("PV_y", &PV_y, &b_PV_y);
+   fChain->SetBranchAddress("PV_z", &PV_z, &b_PV_z);
    fChain->SetBranchAddress("Rho", &Rho, &b_Rho);
    fChain->SetBranchAddress("trig_value", &trig_value, &b_trig_value);
    fChain->SetBranchAddress("hlt_IsoMu24", &hlt_IsoMu24, &b_hlt_IsoMu24);

@@ -52,6 +52,12 @@
    UInt_t          ievt;
    Int_t           nprim;
    Int_t           npvert;
+   Int_t		   PV_npvsGood;
+   Int_t           PV_ndof;
+   Float_t         PV_chi2;
+   Float_t         PV_x;
+   Float_t         PV_y;
+   Float_t         PV_z;
    Double_t        Rho;
    Int_t           trig_value;
    Bool_t          hlt_IsoMu24;
@@ -488,6 +494,12 @@
    TBranch        *b_ievt;   //!
    TBranch        *b_nprim;   //!
    TBranch        *b_npvert;   //!
+   TBranch        *b_PV_npvsGood;   //!
+   TBranch        *b_PV_ndof;   //!                                                                                                                                                                         
+   TBranch        *b_PV_chi2;   //!
+   TBranch        *b_PV_x;   //!
+   TBranch        *b_PV_y;   //!
+   TBranch        *b_PV_z;   //!
    TBranch        *b_Rho;   //!
    TBranch        *b_trig_value;   //!
    TBranch        *b_hlt_IsoMu24;   //!
