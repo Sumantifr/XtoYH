@@ -1,7 +1,14 @@
 //#include "histomaker_comb.h"
 #include "histomaker_comb_funcs.h"
+#include "lester_mt2_bisect.h"
 
 //#define SYSTEMATICS_ON
+//#define APPLY_SF
+
+bool top_cor_pt = false;
+bool top_cor_inc = false;
+bool tt_cor_pt = false;
+bool tt_cor_inc = false;
 
 using namespace std;
 
@@ -25,12 +32,12 @@ int main(int argc, char *argv[])
  cout<<"Running on file : " << argv[3] << std::endl;	
 
  if(isDL) {
- input_path = "/eos/user/m/mukherje/XToYH/DL/"; 
- output_path = "/eos/user/c/chatterj/XtoYH/OUTPUTS/DL/";
+ input_path = "/eos/user/m/mukherje/XToYH/DL/14th_August_DY_VIENA/"; 
+ output_path = "/eos/user/c/chatterj/XtoYH/OUTPUTS/DL/AT_VIENNA/";
  }
  else { 
- input_path = "/eos/user/m/mukherje/XToYH/SL/"; 
- output_path = "/eos/user/c/chatterj/XtoYH/OUTPUTS/SL/";
+ input_path = "/eos/user/m/mukherje/XToYH/SL/13th_oct/"; 
+ output_path = "/eos/user/c/chatterj/XtoYH/OUTPUTS/SL/AT_VIENNA/";
  }
 
  //int nproc = sizeof(inputFile)/sizeof(inputFile[0]);
@@ -175,20 +182,39 @@ int main(int argc, char *argv[])
 			h_trigemu  = (TH2F*)fSF_dilepton->Get("h2D_SF_emu_lepABpt_FullError");
 		}
    
+		// Files from Irene Zoi / Dennis Schwarz //
+		/*
 		ZJets_cor_file = new TFile("VJets_Cor/ZJetsCorr.root","read");
 		WJets_cor_file = new TFile("VJets_Cor/WJetsCorr.root","read");
-   
+		*/
+		// Files from Soumya NJets NLO / HT LO  (added to the previous files)//
+		/*
+		ZJets_cor_file = new TFile("VJets_Cor/CMS_NLO/Z_Gen_pT_kFactor_QCD_EWK.root","read");
+		WJets_cor_file = new TFile("VJets_Cor/CMS_NLO/W_Gen_pT_kFactor_QCD_EWK.root","read");
+		*/
+		//Files from Matteo: arXiv: 1705.04664 //
+		/*
+		ZJets_cor_file = new TFile("VJets_Cor/DM_NLO/eej.root","read");
+		WJets_cor_file = new TFile("VJets_Cor/DM_NLO/evj.root","read");
+		*/
+		// sum of three sets written above //
+		ZJets_cor_file = new TFile("VJets_Cor/ZJetsCorr_collection.root","read");
+		WJets_cor_file = new TFile("VJets_Cor/WJetsCorr_collection.root","read");
    }
 
    TString inputFile= input_path+argv[3];
+   if(isSignal){
+	   inputFile= input_path+"SIGNAL/"+argv[3];
+   }
    std::cout <<"Input file "<< inputFile << std::endl;
-   char infile_name[100]; 
+   
+   char infile_name[1000]; 
    sprintf(infile_name,"%s/Histogram_%s",output_path.c_str(),argv[3]);
    TFile* final_file = TFile::Open(infile_name, "RECREATE");  
 
    TFile *file = TFile::Open(inputFile,"read");
    TTree *tree = (TTree*)file->Get("Tout");
-      
+         
    // read branches //
    read_branches(tree, isDL);
    
@@ -274,10 +300,12 @@ int main(int argc, char *argv[])
   TH1F* h_l2_minisoall[nrgn][nbcat][nWop][nlid];
   
   TH1F* h_l1l2_mass[nrgn][nbcat][nWop][nlid];
+  TH1F* h_l1l2_pt[nrgn][nbcat][nWop][nlid];
   TH1F* h_l1l2_dR[nrgn][nbcat][nWop][nlid];
   TH1F* h_l1l2_deta[nrgn][nbcat][nWop][nlid];
   TH1F* h_l1l2_dphi[nrgn][nbcat][nWop][nlid];
   TH1F* h_dphi_MET_l1l2[nrgn][nbcat][nWop][nlid];
+  TH1F* h_l1l2_MT2[nrgn][nbcat][nWop][nlid];
   
   TH1F* h_MET_pt[nrgn][nbcat][nWop][nlid];
   TH1F* h_MET_phi[nrgn][nbcat][nWop][nlid];
@@ -333,6 +361,8 @@ int main(int argc, char *argv[])
  
   TH2F* h_X_Y_mass[nrgn][nbcat][nWop][nlid];   
   TH2F* h_X_Y_mass_xbin[nrgn][nbcat][nWop][nlid];   
+  
+  TH2F* h_2D_l1l2_Y_pt[nrgn][nbcat][nWop][nlid];   
 
   TH1F *h_Y_msoftdrop[nrgn][nbcat][nWop][nlid][ntop];
   TH1F *h_Y_mass[nrgn][nbcat][nWop][nlid][ntop];
@@ -373,10 +403,13 @@ int main(int argc, char *argv[])
                     h_X_mass_xbin[ij][jk][kl][lm][mn]        = get_histo_asymbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"X_mass_xbin","",ninvmassbins,invmassbins);
                     h_ST_xbin[ij][jk][kl][lm][mn]            = get_histo_asymbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"ST_xbin","",ninvmassbins,invmassbins);
 
+					//h_Y_PNetMD_XbbvsQCD[ij][jk][kl][lm][mn] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"Y_PNetMD_XbbvsQCD","", 100, 0.0, 1.0 );
+
 					if(!isSignal){
-									 
-						h_Y_PNetMD_XbbvsQCD[ij][jk][kl][lm][mn] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"Y_PNetMD_XbbvsQCD","", 100, 0.0, 1.0 );
+									
 						h_Y_mass[ij][jk][kl][lm][mn] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"Y_mass","",38,30,600);
+						h_Y_PNetMD_XbbvsQCD[ij][jk][kl][lm][mn] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"Y_PNetMD_XbbvsQCD","", 100, 0.0, 1.0 );
+						
                         //h_X_mass[ij][jk][kl][lm][mn] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"X_mass","",40, 0.0, 4000.0);
                         //h_HTlep_pt[ij][jk][kl][lm][mn] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"HTlep_pt","",40, 0.0, 4000.0);
                         //h_ST[ij][jk][kl][lm][mn] = get_histo_symbin_II(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],tops[mn],"ST","",40, 0.0, 4000.0);    
@@ -406,10 +439,12 @@ int main(int argc, char *argv[])
 				h_l2_minisoall[ij][jk][kl][lm]		= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"l2_minisoall","",150,0,1.5);
 				
 				h_l1l2_mass[ij][jk][kl][lm] 				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"l1l2_mass","",40,0,250);
+				h_l1l2_pt[ij][jk][kl][lm] 				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"l1l2_pt","",40,0,1000);
 				h_l1l2_dR[ij][jk][kl][lm] 				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"l1l2_dR","",120,0,6);
 				h_l1l2_deta[ij][jk][kl][lm] 				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"l1l2_deta","",50,-5,5);
 				h_l1l2_dphi[ij][jk][kl][lm] 				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"l1l2_dphi","",65,-M_PI,M_PI);
 				h_dphi_MET_l1l2[ij][jk][kl][lm] 				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"dphi_MET_l1l2","",65,-M_PI,M_PI);
+				h_l1l2_MT2[ij][jk][kl][lm] 				= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"l1l2_MT2","",25,0,200);
 	       	
 				h_MET_pt[ij][jk][kl][lm] 			= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"MET_pt","",40,0,1000);
 				h_MET_phi[ij][jk][kl][lm] 			= get_histo_symbin(Ytype[y_wp],Wtype[w_wp],rgn[ij],bcats[jk],Wops[kl],lepids[lm],"MET_phi","",65,-M_PI,M_PI);
@@ -473,6 +508,8 @@ int main(int argc, char *argv[])
 							
 					h_HTlep_pt_Y_mass[ij][jk][kl][lm] 	= new TH2F("h_Y_"+Ytype[y_wp]+"_W_"+Wtype[w_wp]+"_HTlep_pt_Y_mass_"+Wops[kl]+"_"+rgn[ij]+bcats[jk]+lepids[lm], "", 40, 0.0, 4000.0, 40, 0.0, 600.0);
 					h_ST_Y_mass[ij][jk][kl][lm] 		= new TH2F("h_Y_"+Ytype[y_wp]+"_W_"+Wtype[w_wp]+"_ST_Y_mass_"+Wops[kl]+"_"+rgn[ij]+bcats[jk]+lepids[lm], "", 40, 0.0, 4000.0, 40, 0.0, 600.0);
+
+					h_2D_l1l2_Y_pt[ij][jk][kl][lm] 		    = new TH2F("h_Y_"+Ytype[y_wp]+"_W_"+Wtype[w_wp]+"_l1l2_vs_Y_pt_"+Wops[kl]+"_"+rgn[ij]+bcats[jk]+lepids[lm], "", 40, 0, 1000, 40, 0, 1000);
 	
 				}
 	
@@ -710,6 +747,9 @@ int main(int argc, char *argv[])
    
    // end of histogram defitions // 
     	 
+   // for MT2 //
+   asymm_mt2_lester_bisect::disableCopyrightMessage(); 	 
+    	 
    file->cd();
  
    Long64_t nn = tree->GetEntries();
@@ -739,7 +779,7 @@ int main(int argc, char *argv[])
 	if(isDL) {  lep_miniso = (l1_minisoall<miniso_cut && l2_minisoall<miniso_cut)?true:false; }
 	else {  (lep_miniso = l1_minisoall<miniso_cut)?true:false; }
 	 
-    bool Z_veto = ((l1l2_mass>10. && l1l2_mass<Z_mass_min) || (l1l2_mass>Z_mass_max));
+    bool Z_veto = ((l1l2_mass>=15. && l1l2_mass<Z_mass_min) || (l1l2_mass>Z_mass_max));
     bool Z_pass = (l1l2_mass>=Z_mass_min && l1l2_mass<=Z_mass_max);
 	
 	// Condition to avoid double counting in data //
@@ -753,7 +793,44 @@ int main(int argc, char *argv[])
 		
 	if(isDATA){ pass_doublecount = check_double_count(inputFile,mu_trig,el_trig,jet_trig,emu_trig); }
 	if(!pass_doublecount) continue;
-        
+	
+	bool HEM_veto = false;
+	HEM_weight = 1;
+	
+	for( int jj = 0; jj < nJetAK4 ; jj++){
+		TLorentzVector p4;
+		p4.SetPtEtaPhiM(JetAK4_pt[jj],JetAK4_eta[jj],JetAK4_phi[jj],JetAK4_mass[jj]);
+		if (In_HEM(p4)) { HEM_veto = true; break; }
+	}
+	if(abs(l1_pdgId)==11) {   
+		TLorentzVector p4;
+		p4.SetPtEtaPhiM(l1_pt,l1_eta,l1_phi,l1_mass);
+		if (In_HEM(p4)) { HEM_veto = true; }
+	}
+	if(isDL){
+		if(abs(l2_pdgId)==11) {   
+			TLorentzVector p4;
+			p4.SetPtEtaPhiM(l2_pt,l2_eta,l2_phi,l2_mass);
+			if (In_HEM(p4)) { HEM_veto = true; }
+		}
+	}
+	if(Y_pt>0) {   
+		TLorentzVector p4;
+		p4.SetPtEtaPhiM(Y_pt,Y_eta,Y_phi,Y_mass);
+		if (In_HEM(p4)) { HEM_veto = true; }
+	}
+    
+    if(HEM_veto){
+		if(isDATA){
+			if (string(argv[3]).find("UL2018C")!=string::npos || string(argv[3]).find("UL2018D")!=string::npos) { continue; }
+		}
+		else {
+			HEM_weight = 0.645896;
+		}
+	}
+	
+	//cout<<"HEM_veto "<<HEM_veto<<" HEM_weight "<<HEM_weight<<endl;
+	
     //Trigger_pt Scale factor determination and the corresponding unc
 	
 	SF_Trig = 1; SF_Trig_stat = 0; SF_Trig_syst = 0;
@@ -767,7 +844,6 @@ int main(int argc, char *argv[])
 												h_jet, h_jet_stat, h_jet_syst,
 												h_trigmumu, h_trigee, h_trigemu
 											   );
-	
        
 		SF_Trig =  sf_trig_values[0];
 		SF_Trig_stat =  sf_trig_values[1];
@@ -790,21 +866,32 @@ int main(int argc, char *argv[])
 	W_SF = W_SF_up = W_SF_dn = 1.;
 	Top_SF = Top_SF_up = Top_SF_dn = 1.;
 	
+	analysis_SF = 1;
+	analysis_SF_up = analysis_SF_dn = 1;
+	
+	// V+jets NLO corrections //
+	
 	EWK_cor = 1;
 	QCD_cor = 1;
+	
 	if(nGenV>0){
 		if      (string(argv[3]).find("DYJets")!=string::npos && abs(GenV_pdgId[0])==23)	 
 		{  
-			EWK_cor = get_EWK_cor(ZJets_cor_file,GenV_pt[0]);   
-			QCD_cor = get_QCD_cor(ZJets_cor_file,GenV_pt[0]);   
+			EWK_cor = get_EWK_cor(ZJets_cor_file,GenV_pt[0],abs(GenV_pdgId[0]),2); // 2-> taking EWK cor from dark matter paper  
+			QCD_cor = get_QCD_cor(ZJets_cor_file,GenV_pt[0],abs(GenV_pdgId[0]),1); // 1-> taking QCD cor derived using CMS NLO samples
 		}
 		else if (string(argv[3]).find("WJets")!=string::npos  && abs(GenV_pdgId[0])==24)     
 		{  
-			EWK_cor = get_EWK_cor(WJets_cor_file,GenV_pt[0]);   
-			QCD_cor = get_QCD_cor(WJets_cor_file,GenV_pt[0]);   
+			EWK_cor = get_EWK_cor(WJets_cor_file,GenV_pt[0],abs(GenV_pdgId[0]),2);   // 2-> taking EWK cor from dark matter paper  
+			QCD_cor = get_QCD_cor(WJets_cor_file,GenV_pt[0],abs(GenV_pdgId[0]),1);   // 1-> taking QCD cor derived using CMS NLO samples
 		}
+		else{
+			EWK_cor = 1.;
+			QCD_cor = 1.;
+		}
+		//cout<<"GenV_pt[0] "<<GenV_pt[0]<<" EWK_cor "<<EWK_cor<<" QCD_cor "<<QCD_cor<<endl;
 	}
-   
+    
     TLorentzVector Y_p4;
 	Y_p4.SetPtEtaPhiM(Y_pt,Y_eta,Y_phi,Y_mass);
    
@@ -844,6 +931,7 @@ int main(int argc, char *argv[])
 					
 		}
 	}//jj
+	
 
 	// Xbb tagging SF //
 		
@@ -871,8 +959,13 @@ int main(int argc, char *argv[])
 	
 	//cout<<"SFs "<<SF_Trig<<" "<<b_SF<<" "<<W_SF<<" "<<Top_SF<<" "<<bb_SF<<endl;
 	
-	// EWK correction //
+	// Top pt correction //
 	
+	if(nLHETop==2){
+		top_pt_cor_MC = Top_pt_reweight_NNLOvsMC(LHETop_pt[0],LHETop_pt[1]);
+		//top_pt_cor_MC = Top_pt_reweight(LHETop_pt[0],LHETop_pt[1]);
+	}
+
    }//isDATA
 
    // end of tagger SF //
@@ -900,7 +993,20 @@ int main(int argc, char *argv[])
 	 }
 	 weight_nom *= EWK_cor;
 	 weight_nom *= QCD_cor;
+	 weight_nom *= top_pt_cor_MC;
+	 weight_nom *= HEM_weight;
+	 
    }
+      
+   // MET x-y correction //
+   
+   std::pair<double,double> cormet;
+   cormet = METXYCorr_Met_MetPhi(MET_pt,MET_phi,irun,to_string(YEAR),!isDATA,PV_npvsGood);
+  
+   //cout<<"Before phi cor "<<MET_pt<<" "<<MET_phi<<endl;
+   MET_pt = cormet.first;
+   MET_phi = cormet.second;
+   //cout<<"After phi cor "<<MET_pt<<" "<<MET_phi<<endl;
    
    // Now fill all histograms //
    
@@ -946,22 +1052,6 @@ int main(int argc, char *argv[])
    // Defining booleans for signal & control regions //
 	
 	vector<bool> reg_tags;
-   
-	bool isSR1(false);
-	bool isSR2(false);
-	bool isCR2(false);
-	bool isCR3(false);
-	bool isCR4(false);
-	bool isCR5(false);
-	bool isCR6(false);
-	bool isCR7(false);
-	bool isCR8(false);
-    bool isCR9(false);
-    bool isCR10(false);  
-    //ABCD method bkg estimation
-    bool isQCDVR1(false);
-    bool isQCDVR2(false);
-    bool isQCDVR3(false);
   
 	// Apply 30 GeV cut on W candidate soft-drop mass in SL channel (PNet is trained only after mSD > 30 GeV) //
 	if(!isDL){	
@@ -970,76 +1060,196 @@ int main(int argc, char *argv[])
 	}
 	// end of W candidate soft-drop mass cut //
   
+  
+	bool isSR1(false);
+	bool isSR2(false);
+	bool isCR2(false);
+	bool isCR3(false);
+	bool isCR4(false);
+	bool isCR6(false);
+	
+	float DY_bkg_wt = 1.;
+  
 	if(isDL){
+		
+		//redefinition of Flag_MET_pass //
+		Flag_MET_pass = (MET_pt>40.)?true:false;
+		
+		
+		bool isCR8(false);
+		bool isCRVjL(false);
+		bool isARVjL(false);
+		bool isCRVjM(false);
+		bool isARVjM(false);
+		bool isCRVjT(false);
+		bool isARVjT(false);
+		bool isVRVj(false);
+		bool isVRTT(false);
+		
 		//signal regions//
-		isSR1 = (Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.8) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
-		isSR2 = (!Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.8) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+		isSR1 =    (Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.8) /*&& Flag_MET_pass*/ && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+		isSR2 =    (!Flag_Y_bb_pass_T && (Y_DeepTag_PNetMD_XbbvsQCD>=PNbb_cut_SR2) && Z_veto && (l1l2_dR<0.8) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+		
 		//TT CRs //
-		isCR2 = (!Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>1.0) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
+		isCR2 = (!Flag_Y_bb_pass_T /*&& (Y_DeepTag_PNetMD_XbbvsQCD<0.1)*/ && Z_veto && (l1l2_dR>1.0) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
 		isCR6 = ( Flag_Y_bb_pass_T && Z_veto && (l1l2_dR>1.0) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
 		isCR8 = (					  Z_veto && (l1l2_dR>1.0) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+		
+		isVRTT = (!Flag_Y_bb_pass_T && (Y_DeepTag_PNetMD_XbbvsQCD>=0.1 && Y_DeepTag_PNetMD_XbbvsQCD<PNbb_cut_SR2) && Z_veto && (l1l2_dR>1.0) && Flag_MET_pass && lep_miniso);
+		
 		//DY+j CRs //
-		isCR3 = (!Flag_Y_bb_pass_T && Z_pass && (l1l2_dR<1.0) && !Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)>0.5*M_PI);
-		isCR4 = (!Flag_Y_bb_pass_T && Z_pass && (l1l2_dR<1.0) && Flag_MET_pass && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI); //dphi_MET_l1l2 cut does not have any impact (for CR3 & CR4)
-		isCR7 = ( Flag_Y_bb_pass_T && Z_pass && (l1l2_dR<1.0) && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
-		//QCD CR //
-		isCR5 = (!Flag_Y_bb_pass_T && Z_veto && (l1l2_dR<0.8) && !Flag_MET_pass && !lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+		
+		isCR3 = (!Flag_Y_bb_pass_T && (Y_DeepTag_PNetMD_XbbvsQCD<0.1) && Z_pass && (l1l2_dR<0.8) /*&& !Flag_MET_pass*/ && lep_miniso);
+		isCRVjL = (!Flag_Y_bb_pass_T && (Y_DeepTag_PNetMD_XbbvsQCD>=0.1 && Y_DeepTag_PNetMD_XbbvsQCD<PNbb_cut_SR2) && Z_pass && (l1l2_dR<0.8) /*&& Flag_MET_pass*/ && lep_miniso);
+		isARVjL = (!Flag_Y_bb_pass_T && (Y_DeepTag_PNetMD_XbbvsQCD< 0.1) && Z_veto && (l1l2_dR<0.8) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+		
+		isCR4 = (!Flag_Y_bb_pass_T && (Y_DeepTag_PNetMD_XbbvsQCD<PNbb_cut_SR2) && Z_pass && (l1l2_dR<0.8) &&  /*Flag_MET_pass &&*/ lep_miniso);
+		isCRVjM = (!Flag_Y_bb_pass_T && (Y_DeepTag_PNetMD_XbbvsQCD>=PNbb_cut_SR2) && Z_pass && (l1l2_dR<0.8) /*&& !Flag_MET_pass*/ && lep_miniso);
+		isARVjM = (!Flag_Y_bb_pass_T && (Y_DeepTag_PNetMD_XbbvsQCD<PNbb_cut_SR2) && Z_veto && (l1l2_dR<0.8) && Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+		
+		isCR8 = (!Flag_Y_bb_pass_T && (Y_DeepTag_PNetMD_XbbvsQCD<PNbb_cut_SR2) && Z_pass && (l1l2_dR<0.8) &&  /*Flag_MET_pass &&*/ lep_miniso);
+		isCRVjT = (Flag_Y_bb_pass_T && Z_pass && (l1l2_dR<0.8) /*&& !Flag_MET_pass*/ && lep_miniso);
+		isARVjT = (!Flag_Y_bb_pass_T && (Y_DeepTag_PNetMD_XbbvsQCD<PNbb_cut_SR2) && Z_veto && (l1l2_dR<0.8) /*&& Flag_MET_pass*/ && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+				
+		//isCR7 = ((Y_DeepTag_PNetMD_XbbvsQCD>=PNbb_cut_SR2)                     && Z_pass && (l1l2_dR<1.0) && lep_miniso);// && abs(dphi_MET_l1l2)<0.5*M_PI);
+		
+		isVRVj = (!Flag_Y_bb_pass_T && (Y_DeepTag_PNetMD_XbbvsQCD>=0.1 && Y_DeepTag_PNetMD_XbbvsQCD<PNbb_cut_SR2) && Z_veto && (l1l2_dR<0.8) &&  Flag_MET_pass && lep_miniso && abs(dphi_MET_l1l2)<0.5*M_PI);
+	
+		reg_tags.push_back(isSR1);
+		reg_tags.push_back(isSR2);
+		reg_tags.push_back(isCR2);
+		reg_tags.push_back(isCR3);
+		reg_tags.push_back(isCR4);
+		reg_tags.push_back(isCR6);
+		reg_tags.push_back(isCR8);
+		reg_tags.push_back(isCRVjL);
+		reg_tags.push_back(isARVjL);
+		reg_tags.push_back(isCRVjM);
+		reg_tags.push_back(isARVjM);
+		reg_tags.push_back(isCRVjT);
+		reg_tags.push_back(isARVjT);
+		reg_tags.push_back(isVRVj);
+		reg_tags.push_back(isVRTT);
+		
+		
+		if(isARVjL) { DY_bkg_wt = fit_val_pt_L; }
+		//if(isARVjM) { DY_bkg_wt = fit_val_pt_M; }
+		//if(isARVjT) { DY_bkg_wt = fit_val_pt_T; }
+		/*
+		if(isARVjL){
+		if(Y_msoftdrop<220.) { DY_bkg_wt = fit_val_msd_L_p0 + fit_val_msd_L_p1*Y_msoftdrop;}
+		else { DY_bkg_wt =  fit_val_msd_L_high ;}	
+		}
+		 */
 	}
 	
 	else{
+		
+		bool isCR5(false);
+		bool isCR7(false);
+		bool isCR8(false);
+		bool isQCDCR1(false);
+		bool isQCDCR2(false);  
+		//ABCD method bkg estimation
+		bool isQCDVR1(false);
+		bool isQCDVR2(false);
+		bool isQCDVR3(false);
+		bool isQCDVR4(false);
+		bool isVRTT(false);
   
 		if(kl==0)
 		{   
+			// signal regions //
 			isSR1 = (Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
-			isSR2 = (!Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
+			isSR2 = (!Flag_Y_bb_pass_T && (Y_DeepTag_PNetMD_XbbvsQCD>=PNbb_cut_SR2) && Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
+			
+			// top CRs //
+			
 			isCR2 = (!Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
-			isCR3 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
 			isCR4 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && lep_miniso && (Y_DeepTag_PNet_TvsQCD>=PN_Top_med));
-			isCR5 = (!Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && !Flag_MET_pass && MET_pt > 30  && !lep_miniso &&  l1_minisoall < 0.25);
 			isCR6 = (Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
-			isCR7 = (Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && !Flag_MET_pass && lep_miniso);
+			
+			isVRTT = (!Flag_Y_bb_pass_T && (Y_DeepTag_PNetMD_XbbvsQCD>0.1 && Y_DeepTag_PNetMD_XbbvsQCD<PNbb_cut_SR2) && Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
+			
+			// W+jets CRs //
+			
+			isCR3 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
+			
+			// QCD bkg in W+j CRs //
+			
+			isCR5 =    	 (!Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && !Flag_MET_pass && MET_pt > 30  && !lep_miniso &&  l1_minisoall < 0.25);	
+            isQCDVR2 = 	 (!Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 &&  Flag_MET_pass &&                 !lep_miniso &&  l1_minisoall < 0.25 );
+            isQCDVR3 = 	 (!Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && !Flag_MET_pass && MET_pt > 30  &&  lep_miniso);
+			isQCDVR1 = 	 (!Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && 					 lep_miniso); // very similar to CR2 w/o Xbb cut
+			
+			isQCDCR1  =  ( Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && 					 lep_miniso); // similar to QCDVR1 w/ W tag inverted
+            isQCDCR2  =  (!Flag_H_W_pass_T_opt2 &&  Flag_dR_lW_pass_opt2 && Flag_MET_pass && 					 lep_miniso && (Y_DeepTag_PNet_TvsQCD<PN_Top_med)); // similar to CR4 w/ TvsQCD inverted
+            
+			// other CRs //
+										
+			isCR7 =  (Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
 			isCR8  = (Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && Flag_MET_pass && !lep_miniso);
-            isCR9  = (Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && !Flag_MET_pass && lep_miniso);
-            isCR10 = (Flag_H_W_pass_T_opt2 && Flag_dR_lW_pass_opt2 && !Flag_MET_pass && !lep_miniso);
-            isQCDVR1 = (!Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && lep_miniso);
-            isQCDVR2 = (!Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && Flag_MET_pass && !lep_miniso &&  l1_minisoall < 0.25 );
-            isQCDVR3 = (!Flag_H_W_pass_T_opt2 && !Flag_dR_lW_pass_opt2 && !Flag_MET_pass && MET_pt > 30  && lep_miniso);
+            
 		}
 		else
 		{
+			
+			// signal regions //
+			
 			isSR1 = (Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt1 && Flag_dR_lW_pass_opt1 && Flag_MET_pass && lep_miniso);
-			isSR2 = (!Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt1 && Flag_dR_lW_pass_opt1 && Flag_MET_pass && lep_miniso);
+			isSR2 = (!Flag_Y_bb_pass_T && (Y_DeepTag_PNetMD_XbbvsQCD>=PNbb_cut_SR2) && Flag_H_W_pass_T_opt1 && Flag_dR_lW_pass_opt1 && Flag_MET_pass && lep_miniso);
+			
+			// top CRs //
+			
+			
 			isCR2 = (!Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && Flag_MET_pass && lep_miniso);
-			isCR3 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && Flag_MET_pass && lep_miniso);
 			isCR4 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt1 && Flag_dR_lW_pass_opt1 && lep_miniso && (Y_DeepTag_PNet_TvsQCD>=PN_Top_med));
-			isCR5 = (!Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && !Flag_MET_pass && !lep_miniso);
 			isCR6 = (Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && Flag_MET_pass && lep_miniso); 
-			isCR7 = (Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && !Flag_MET_pass && lep_miniso);
-			isCR8 = (Flag_Y_bb_pass_T && Flag_H_W_pass_T_opt1 && Flag_dR_lW_pass_opt1 && Flag_MET_pass && !lep_miniso);  
-            isCR8  = (Flag_H_W_pass_T_opt1 && Flag_dR_lW_pass_opt1 && Flag_MET_pass && !lep_miniso);
-            isCR9  = (Flag_H_W_pass_T_opt1 && Flag_dR_lW_pass_opt1 && !Flag_MET_pass && lep_miniso);
-            isCR10 = (Flag_H_W_pass_T_opt1 && Flag_dR_lW_pass_opt1 && !Flag_MET_pass && !lep_miniso);
-            isQCDVR1 = (!Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && Flag_MET_pass && lep_miniso);
-            isQCDVR2 = (!Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && Flag_MET_pass && !lep_miniso);
-            isQCDVR3 = (!Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && !Flag_MET_pass && lep_miniso);
-
+			
+			isVRTT = (!Flag_Y_bb_pass_T && (Y_DeepTag_PNetMD_XbbvsQCD>0.1 && Y_DeepTag_PNetMD_XbbvsQCD<PNbb_cut_SR2) && Flag_H_W_pass_T_opt1 && Flag_dR_lW_pass_opt1 && Flag_MET_pass && lep_miniso);
+			
+			// W+j CR //
+			
+			isCR3 = (!Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && Flag_MET_pass && lep_miniso);
+			
+			// QCD bkg in W+j CR //
+			
+			isCR5 =    	 (!Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && !Flag_MET_pass && MET_pt > 30  && !lep_miniso &&  l1_minisoall < 0.25);	
+            isQCDVR2 = 	 (!Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 &&  Flag_MET_pass &&                 !lep_miniso &&  l1_minisoall < 0.25 );
+            isQCDVR3 = 	 (!Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && !Flag_MET_pass && MET_pt > 30  &&  lep_miniso);
+			isQCDVR1 = 	 (!Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && Flag_MET_pass && 					 lep_miniso); // very similar to CR2 w/o Xbb cut
+			
+			isQCDCR1  =  ( Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && Flag_MET_pass && 					 lep_miniso); // similar to QCDVR1 w/ W tag inverted
+            isQCDCR2  =  (!Flag_H_W_pass_T_opt1 &&  Flag_dR_lW_pass_opt1 && Flag_MET_pass && 					 lep_miniso && (Y_DeepTag_PNet_TvsQCD<PN_Top_med)); // similar to CR4 w/ TvsQCD inverted
+            
+			// other CRs //
+			
+			isCR7 =  (Flag_Y_bb_pass_T && !Flag_H_W_pass_T_opt1 && !Flag_dR_lW_pass_opt1 && Flag_MET_pass && lep_miniso);
+			isCR8  = (Flag_H_W_pass_T_opt1 && Flag_dR_lW_pass_opt1 && Flag_MET_pass && !lep_miniso);
+            
 		}
+	
+	
+		reg_tags.push_back(isSR1);
+		reg_tags.push_back(isSR2);
+		reg_tags.push_back(isCR2);
+		reg_tags.push_back(isCR3);
+		reg_tags.push_back(isCR4);
+		reg_tags.push_back(isCR5);
+		reg_tags.push_back(isCR6);
+		reg_tags.push_back(isCR7);
+		reg_tags.push_back(isCR8);
+		reg_tags.push_back(isQCDCR1);
+		reg_tags.push_back(isQCDCR2);
+		reg_tags.push_back(isQCDVR1);
+		reg_tags.push_back(isQCDVR2);
+		reg_tags.push_back(isQCDVR3);
+		reg_tags.push_back(isQCDVR4);
+		reg_tags.push_back(isVRTT);
+		
 	}
    
-	reg_tags.push_back(isSR1);
-	reg_tags.push_back(isSR2);
-	reg_tags.push_back(isCR2);
-	reg_tags.push_back(isCR3);
-	reg_tags.push_back(isCR4);
-	reg_tags.push_back(isCR5);
-	reg_tags.push_back(isCR6);
-	reg_tags.push_back(isCR7);
-	reg_tags.push_back(isCR8);
-	reg_tags.push_back(isCR9);
-    reg_tags.push_back(isCR10);
-    reg_tags.push_back(isQCDVR1);
-    reg_tags.push_back(isQCDVR2);
-    reg_tags.push_back(isQCDVR3);
+	
 	//int ireg = get_region(reg_tags);
 	
 	vector<int> regs;
@@ -1055,21 +1265,19 @@ int main(int argc, char *argv[])
 		// conditions to purify control regions //
 	
 		bool pure_pass = true;
-	
-                if( isSR2) { pure_pass = (Y_DeepTag_PNetMD_XbbvsQCD>=0.4); }	
+	    
+	    /*
 		if(!isDL){
 		
-			if(isCR8 || isCR9 || isCR10 ) { pure_pass = (Y_DeepTag_PNetMD_XbbvsQCD>=0.4); }
+			//if(isCR8 || isCR9 || isCR10 ) { pure_pass = (Y_DeepTag_PNetMD_XbbvsQCD>=PNbb_cut_SR2); }
+			//if(isCR3){										
+			//	if(kl==0) { pure_pass = (W_msoftdrop_opt2<=60.); }
+			//	if(kl==1) { pure_pass = (W_msoftdrop_opt1<=60.); }
+			//}
 			if(isCR2){	pure_pass = (Y_DeepTag_PNetMD_XbbvsQCD>=0.1);	}
-			if(isCR3){										
-				if(kl==0) { pure_pass = (W_msoftdrop_opt2<=60.); }
-				if(kl==1) { pure_pass = (W_msoftdrop_opt1<=60.); }
-			}
 			if(isCR4){	pure_pass = (Y_DeepTag_PNetMD_XbbvsQCD>=0.1);	}
-			if(isCR6){	pure_pass = (MET_pt>=75.);	}
-	
 		}
-
+		*/
 		// end of purification conditions //		
 	
 		if(kl==0){
@@ -1107,6 +1315,9 @@ int main(int argc, char *argv[])
 	    
 	    float weight = weight_nom;
 		if(isCR4 && !isDL) { weight = weight_nom*Top_SF; } // since top tagging condition is used only in CR4
+		// DY bkg weight //
+		weight *= DY_bkg_wt;
+		//cout<<"DY_bkg_wt "<<DY_bkg_wt<<endl;
 		
 		float X_mass, X_conv_mass;
 					
@@ -1130,7 +1341,6 @@ int main(int argc, char *argv[])
         if(!isDATA) { top_semimerged  = Y_label_Top_bq || Y_label_Top_bc || Y_label_W_qq || Y_label_W_cq  ;}
         bool top_fullymerged = false; 
         if(!isDATA ) { top_fullymerged = Y_label_Top_bcq || Y_label_Top_bqq;}
-				
 		
 		// first fill few general histograms //
 	   
@@ -1190,6 +1400,7 @@ int main(int argc, char *argv[])
 				}
 				shape_weight_up.push_back(SF_Trig_1_up);			shape_weight_dn.push_back(SF_Trig_1_dn);			shape_weight_nom.push_back(SF_Trig);
 				shape_weight_up.push_back(SF_Trig_2_up);			shape_weight_dn.push_back(SF_Trig_2_dn);			shape_weight_nom.push_back(SF_Trig);
+				shape_weight_up.push_back(analysis_SF_up);			shape_weight_dn.push_back(analysis_SF_dn);		    shape_weight_nom.push_back(analysis_SF);
 					
 			}
 			
@@ -1214,13 +1425,101 @@ int main(int argc, char *argv[])
 				// ref end //
 				
 				// Now apply the purity condition & fill all histograms (including sys)
-				
+								
 				if(pure_pass)
 				{
 					
 					int Ypt_bin = -1;
 					Ypt_bin = getbinid(Y_pt,nyptbins,yptbins);
-	   
+					
+					// analysis SF //
+					#ifdef APPLY_SF
+					
+					if(!isDATA && Ypt_bin>=0 && Ypt_bin<(nyptbins)){
+   
+						analysis_SF = 1;
+						analysis_SF_up = analysis_SF_dn = 1;
+   
+						if(isDL){
+							/*
+							if(string(argv[3]).find("DYJets")!=string::npos) 
+							{ 
+								analysis_SF = DY_SF_DL[lm][Ypt_bin]; 
+								analysis_SF_up = DY_SF_DL[lm][Ypt_bin]+DY_SF_DL_uncs[lm][Ypt_bin]; 
+								analysis_SF_dn = DY_SF_DL[lm][Ypt_bin]-DY_SF_DL_uncs[lm][Ypt_bin]; 
+							}
+							*/
+							
+							// tt+st 
+							
+							if (string(argv[3]).find("TTTo")!=string::npos || string(argv[3]).find("ST_")!=string::npos)
+							{
+								 
+								if(!top_fullymerged && !top_semimerged){
+									
+									// per pt bin
+									
+									if (top_cor_pt) { 
+										analysis_SF = Top_um_SF_DL[lm][Ypt_bin]; 
+										analysis_SF_up = Top_um_SF_DL[lm][Ypt_bin]+Top_um_SF_DL_uncs[lm][Ypt_bin]; 
+										analysis_SF_dn = Top_um_SF_DL[lm][Ypt_bin]-Top_um_SF_DL_uncs[lm][Ypt_bin]; 
+									}
+									
+									// inclusive
+								
+									if(top_cor_inc) { 
+										analysis_SF = Top_um_SF_DL_inc[lm];
+										analysis_SF_up = Top_um_SF_DL_inc[lm];
+										analysis_SF_dn = Top_um_SF_DL_inc[lm];
+									}
+								}
+								
+							}
+							
+							// tt only
+							
+							if (string(argv[3]).find("TTTo")!=string::npos)
+							{
+								
+								if(!top_fullymerged && !top_semimerged){
+								
+									// per pt bin 
+								
+									if(tt_cor_pt) { 
+										analysis_SF = TT_um_SF_DL_pt[lm][Ypt_bin]; 
+										analysis_SF_up = TT_um_SF_DL_pt[lm][Ypt_bin]; 
+										analysis_SF_dn = TT_um_SF_DL_pt[lm][Ypt_bin]; 
+									}
+								
+									// inclusive
+								
+									if(tt_cor_inc) { 
+										analysis_SF = TT_um_SF_DL_inc[lm];
+										analysis_SF_up = TT_um_SF_DL_inc[lm];
+										analysis_SF_dn = TT_um_SF_DL_inc[lm];
+									}
+								}
+							}
+							
+						}
+						
+						if(use_sys){
+							shape_weight_nom[shape_weight_nom.size() - 1] = analysis_SF;
+							shape_weight_up[shape_weight_up.size() - 1] = analysis_SF_up;
+							shape_weight_dn[shape_weight_dn.size() - 1] = analysis_SF_dn;
+						}
+					
+						if(jk!=0) { weight = weight_nom*b_SF*analysis_SF; }
+						else { weight = weight_nom*analysis_SF; }
+						
+						//cout<<"lm+1 "<<lm+1<<" SF "<<analysis_SF<<endl;
+					
+					}
+					
+					#endif
+					
+					// end of analysis SF //
+						   
 					// plots w/o systematics
 				
 					#ifndef SYSTEMATICS_ON
@@ -1239,12 +1538,28 @@ int main(int argc, char *argv[])
 							h_l2_eta[ireg][jk][kl][lm]->Fill(l2_eta,weight); 
 							h_l2_minisoall[ireg][jk][kl][lm]->Fill(l2_minisoall,weight); 
 					
+							TLorentzVector l1_p4, l2_p4;
+							l1_p4.SetPtEtaPhiM(l1_pt,l1_eta,l1_phi,l1_mass);
+							l2_p4.SetPtEtaPhiM(l2_pt,l2_eta,l2_phi,l2_mass);
+							l1l2_pt = (l1_p4+l2_p4).Pt();
+														
 							h_l1l2_mass[ireg][jk][kl][lm]->Fill(l1l2_mass,weight); 
+							h_l1l2_pt[ireg][jk][kl][lm]->Fill(l1l2_pt,weight); 
 							h_l1l2_dR[ireg][jk][kl][lm]->Fill(l1l2_dR,weight); 
 							h_l1l2_deta[ireg][jk][kl][lm]->Fill(l1l2_deta,weight); 
 							h_l1l2_dphi[ireg][jk][kl][lm]->Fill(l1l2_dphi,weight); 
 						
 							h_dphi_MET_l1l2[ireg][jk][kl][lm]->Fill(dphi_MET_l1l2,weight); 
+							
+							double MT2 =  asymm_mt2_lester_bisect::get_mT2(
+											l1_p4.M(), l1_p4.Px(), l1_p4.Py(),
+											l2_p4.M(), l2_p4.Px(), l2_p4.Py(),
+											MET_pt*cos(MET_phi), MET_pt*sin(MET_phi), 
+										    0,0,
+										    0
+										    );
+							
+							h_l1l2_MT2[ireg][jk][kl][lm]->Fill(MT2,weight); 
 					
 						}
 						
@@ -1260,6 +1575,10 @@ int main(int argc, char *argv[])
 						//h_Y_msoftdrop[ireg][jk][kl][lm]->Fill(Y_msoftdrop,weight);
 						//h_Y_msoftdrop_xbin[ireg][jk][kl][lm]->Fill(Y_msoftdrop,weight);
 						//h_Y_PNetMD_XbbvsQCD[ireg][jk][kl][lm]->Fill(Y_DeepTag_PNetMD_XbbvsQCD,weight);
+					
+						if(isDL && !isSignal){
+							h_2D_l1l2_Y_pt[ireg][jk][kl][lm]->Fill(l1l2_pt,Y_pt,weight);
+						}
 					
 						if(!isSignal){
 					
@@ -1346,6 +1665,7 @@ int main(int argc, char *argv[])
 							if(!top_cond) continue; 
 							
 							h_Y_msoftdrop[ireg][jk][kl][lm][mn]->Fill(Y_msoftdrop,weight);
+							//h_Y_PNetMD_XbbvsQCD[ireg][jk][kl][lm][mn]->Fill(Y_DeepTag_PNetMD_XbbvsQCD,weight);
 							
 							if(!isSignal){
 								h_Y_mass[ireg][jk][kl][lm][mn]->Fill(Y_mass,weight);
@@ -1358,7 +1678,7 @@ int main(int argc, char *argv[])
                             h_Y_msoftdrop_xbin[ireg][jk][kl][lm][mn]->Fill(Y_msoftdrop,weight);
                             h_Y_mass_xbin[ireg][jk][kl][lm][mn]->Fill(Y_msoftdrop,weight);
                             h_ST_xbin[ireg][jk][kl][lm][mn]->Fill(ST,weight);		
-
+                            
                             h_for_limit_HTlep_pt[ireg][jk][kl][lm][mn]->Fill(HTlep_pt + 4000.0 * get_Y_id(Y_msoftdrop),weight);
                             h_for_limit_ST[ireg][jk][kl][lm][mn]->Fill(ST + 4000.0 * get_Y_id(Y_msoftdrop),weight);
                             h_for_limit_ST_v2[ireg][jk][kl][lm][mn]->Fill(unrol_ST,weight);
@@ -1553,10 +1873,7 @@ int main(int argc, char *argv[])
 									}//isDL
 							
 								}//if(isys==0 || isys<njecmax)
-                                                        
-								X_JESup_split.clear();
-								X_JESdn_split.clear();  
-
+								
 								//cout << "check! dude-5" << endl;
 								if(isys>=njecmax) // Weight-based systematics (SFs)
 								{
@@ -1645,9 +1962,7 @@ int main(int argc, char *argv[])
 								} // isys>=njecmax
 
 					        //std::cout << "Dude-6" << std::endl;	
-							shape_weight_up.clear();
-							shape_weight_dn.clear();
-							shape_weight_nom.clear();
+							
                             
 							}//sys loop
 						
@@ -1663,12 +1978,36 @@ int main(int argc, char *argv[])
 				
 			}// lepid (lm)
 			
+			if(!isDATA && use_sys){
+				shape_weight_up.clear();
+				shape_weight_dn.clear();
+				shape_weight_nom.clear();
+				if(!isDL){
+					X_JESup_split.clear();
+					X_JESdn_split.clear();  
+				}
+			}
+			
 		  }// b cat (jk)
 	  
 		}//ir (loop over regions)
 	  
 	}// W opt (kl)
+
+	if(!isDATA){
 	
+		Y_JESup_split->clear();
+		Y_JESdn_split->clear();
+		HTlep_pt_JESup_split->clear();
+		HTlep_pt_JESdn_split->clear();
+		ST_JESup_split->clear();
+		ST_JESdn_split->clear();   
+		MET_pt_JESup_split->clear();   
+		MET_pt_JESdn_split->clear();   
+		MET_phi_JESup_split->clear();   
+		MET_phi_JESdn_split->clear();                       
+	
+	}
 	
    }// end of event loop
    

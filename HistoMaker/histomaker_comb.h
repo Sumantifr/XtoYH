@@ -174,18 +174,25 @@ double PNTop_SF_M_up[PNTop_SF_nptbins] = {1.12+0.12,0.98+0.04,0.97+0.03,0.99+0.0
 double PNTop_SF_M_dn[PNTop_SF_nptbins] = {1.12-0.07,0.98-0.03,0.97-0.03,0.99-0.05};
 // SFs taken from: https://indico.cern.ch/event/1103765/contributions/4647556/attachments/2364610/4037250/ParticleNet_2018_ULNanoV9_JMAR_14Dec2021_PK.pdf
 
+float top_pt_cor_MC = 1.;
+
 float PN_Top_med = 0.8;
 float deep_btag_cut = 0.2783; 
 
 //masscut on AK8 jets //
 float msd_cut = 30;
 
+// SR2 cut on bb tagging score //
+
 //Z veto window //
 float Z_mass_min = 75;
-float Z_mass_max = 120;
+float Z_mass_max = 105;//120;
 
 //mini-isolation cut for lepton//
 float miniso_cut = 0.1;
+
+//PNbb score cut for SR2 //
+float PNbb_cut_SR2 = 0.4;
 
 //trigger cuts //
 
@@ -208,6 +215,7 @@ double bb_SF, bb_SF_up, bb_SF_dn;
 double W_SF, W_SF_up, W_SF_dn;
 double Top_SF, Top_SF_up, Top_SF_dn;
 
+double analysis_SF, analysis_SF_up, analysis_SF_dn;
 
 TString proc_Name[] = {
 //"TTTo2L2Nu_XtoYH.root"
@@ -431,13 +439,19 @@ TString proc_Name[] = {
   static const int nlhepdfmax = 101;
   static const int nalpsmax = 3;
   static const int nlhepsmax = 8;
+  
+  Int_t           irun;
+  Int_t           ilumi;
+  UInt_t          ievt;
+  Int_t			  npvert;
+  Int_t 		  PV_npvsGood;
    
   Int_t           nleptons;
   Int_t           nfatjets;
   Int_t           ncuts;
   Bool_t          Flag_event_cuts[ncutmax];  
-  Bool_t	  Flag_pass_baseline;  
-  Bool_t	  Flag_pass_baseline_no_LJet;
+  Bool_t	  	  Flag_pass_baseline;  
+  Bool_t	  	  Flag_pass_baseline_no_LJet;
  
   Bool_t          hlt_IsoMu24;
   Bool_t          hlt_Mu50;
@@ -704,6 +718,8 @@ TString proc_Name[] = {
   Float_t         l1l2_dphi;
   Float_t         l1l2_dR;
   Float_t         dphi_MET_l1l2;
+  //additionally added  //
+  Float_t         l1l2_pt;
   
   Float_t         HTlep_pt;
   Float_t         HTlep_pt_JESup;
@@ -814,6 +830,16 @@ TString proc_Name[] = {
   Int_t           GenV_pdgId[narray];   //[nGenV]
   Int_t           GenV_mompdgId[narray];   //[nGenV]
   Int_t           GenV_grmompdgId[narray];   //[nGenNu]
+  Int_t 		  nLHETop;
+  Float_t 		  LHETop_pt[narray];
+  Float_t		  LHETop_eta[narray];  
+  Float_t		  LHETop_phi[narray];
+  Float_t		  LHETop_mass[narray];  
+  Int_t 		  nGenTop;
+  Float_t 		  GenTop_pt[narray];
+  Float_t		  GenTop_eta[narray];  
+  Float_t		  GenTop_phi[narray];  
+  Float_t		  GenTop_mass[narray];  
   
   Int_t           nLHEScaleWeights;
   Float_t         LHEScaleWeights[9];   //[nLHEScaleWeights]
@@ -828,7 +854,7 @@ TString proc_Name[] = {
   float EWK_cor;
   float QCD_cor;
 
-  float ptedges[] = {20, 25, 30, 37, 43, 49, 56, 64, 74, 84, 97, 114, 133, 153, 174, 196, 220, 245, 272, 300, 330, 362, 395, 430, 468, 507, 548, 592, 638, 686, 737, 790, 846, 905, 967, 1101, 1248, 1410, 1588, 1784, 2000, 2366, 2787, 3450};
+  float ptedges[] = {20, 25, 30, 37, 43, 49, 56, 64, 74, 84, 97, 114, 133, 153, 175, 200, 220, 245, 272, 300, 330, 362, 395, 430, 468, 507, 548, 592, 638, 686, 737, 790, 846, 905, 967, 1101, 1248, 1410, 1588, 1784, 2000};//, 2366, 2787, 3450};
   const int nptbins = sizeof(ptedges)/sizeof(ptedges[0])-1;
 
   //float msdbins[] = {30,45,65,90,120,160,205,255,310,370,430,500,600}; //roughly 3 sigma bin width
@@ -839,12 +865,17 @@ TString proc_Name[] = {
   float invmassbins_dilep[]   =  {500,550,600,650,725,850,1000,1250,1500,4000};
   //const int nunrollbins = 8*ninvmassbins;
   
+  float HEM_weight;
+  
   float yptbins[] = {200, 300, 450, 600, 3000};
   const int nyptbins  = sizeof(yptbins)/sizeof(yptbins[0])-1;
   
   int njecmax = 0;
 
-  TString rgn[] = {"SR1","SR2","CR2","CR3","CR4","CR5","CR6","CR7","CR8","CR9","CR10","QCDVR1","QCDVR2","QCDVR3"};
+  // change between SL & DL //
+  TString rgn[] = {"SR1","SR2","CR2","CR3","CR4","CR5","CR6","CR7","CR8","QCDCR1","QCDCR2","QCDVR1","QCDVR2","QCDVR3","QCDVR4","VRTT"};
+  //TString rgn[] = {"SR1","SR2","CR2","CR3","CR4","CR6","CR8","CRVjL","ARVjL","CRVjM","ARVjM","CRVjT","ARVjT","VRVj","VRTT"};
+
   int nrgn = sizeof(rgn)/sizeof(rgn[0]);
   
   TString rgn_CR[] = {"CR3_nb0","CR2_nb0","CR4_nb0","CR6_nb1"};
@@ -881,7 +912,9 @@ TString proc_Name[] = {
 	 "JES_SinglePionECAL", "JES_SinglePionHCAL","JES_TimePtEta",
 	 "JES_Total",
 	 "JER",
-	 "PU","LeptonSF","LeptonSF2","Prefire","PNbbSF","PNWSF","BTG","TrigSF1","TrigSF2"}; 
+	 "PU","LeptonSF","LeptonSF2","Prefire","PNbbSF","PNWSF","BTG","TrigSF1","TrigSF2",
+	 "CR_SF"
+	 }; 
 	 
   int nsys = sizeof(sysnames)/sizeof(sysnames[0]);
   
@@ -890,8 +923,47 @@ TString proc_Name[] = {
   bool isDATA = true;
   bool isSignal = false;
   
+  int YEAR = 2018;
+  
+  // Scale factors derived in the analysis //
+  
+  //float DY_SF_DL[][nyptbins]          = {{1.0338326,0.8479128,0.8218863,0.7610330}, {1.00842,0.821746,0.798714,0.715957}, {1.06785,0.883104,0.861406,0.844771}, {1.0338326,0.8479128,0.8218863,0.7610330}};
+  //float DY_SF_DL_uncs[][nyptbins]     = {{0.0270255,0.0259449,0.0336987,0.0421685}, {0.0255998,0.0239224,0.0347324,0.0462003}, {0.0388015,0.0403951,0.0526211,0.0702999}, {0.0270255,0.0259449,0.0336987,0.0421685}};
+  float DY_SF_DL[][nyptbins]          = {{0.868614,0.772042,0.708655,0.616403}, {0.846313,0.74796,0.690209,0.586556}, {0.901945,0.80394,0.740487,0.670203}, {0.868614,0.772042,0.708655,0.616403}};
+  float DY_SF_DL_uncs[][nyptbins]     = {{0.023041,0.0232153,0.0290738,0.0342703}, {0.0214107,0.0215712,0.0300266,0.0379569}, {0.0324458,0.0353412,0.0452637,0.0557093}, {0.023041,0.0232153,0.0290738,0.0342703}};
+  
+  // fitting tt+st per pt bin in CR2 //
+  float Top_um_SF_DL[][nyptbins]      = {{0.9630,0.9850,0.9676,0.7616}, {0.9977,0.9932,0.9436,0.7799}, {0.8949,0.9833,1.0133,0.816}, {0.9744,0.9796,0.9637,0.671}};
+  float Top_um_SF_DL_uncs[][nyptbins] = {{0.0245,0.0299,0.0499,0.0688}, {0.0291,0.0399,0.0715,0.0966}, {0.0356,0.0511,0.0963,0.137}, {0.0283,0.0380,0.0808,0.128}};
+  // fitting tt+st inclusive in pT in CR2 //
+  float Top_um_SF_DL_inc[] = {0.965,0.987,0.921,0.972};
+  // fitting tt+st inclusive in pT in CR2+CR6 //
+  //float Top_um_SF_DL_inc[] = {0.966,0.989,0.921,0.972};
+  
+  // fitting tt+st (separately) inclusive in pT in CR2 //
+  float Top_um_SF_incl_TT[] = {0.987,1.091,0.876,0.829};
+  float Top_um_SF_incl_ST[] = {0.457,0.000,0.000,2.660};
+  // fitting tt+st (separately) inclusive in pT in CR2+CR6 //
+  //float Top_um_SF_incl_TT[] = {0.926,1.093,0.873,0.829};
+  //float Top_um_SF_incl_ST[] = {1.152,0.000,0.002,2.660};
+  
+  // fitting only tt per pt bin in CR2 //
+  float TT_um_SF_DL_pt[][nyptbins] =       {{0.960,0.984,0.964,0.721},{0.998,0.993,0.936,0.741},{0.888,0.983,1.017,0.779},{0.972,0.978,0.959,0.631}};
+  // fitting only tt per pt bin in CR2+CR6 //
+  //float TT_um_SF_DL[][nyptbins] =       {{0.960,0.984,0.964,0.721},{0.998,0.993,0.936,0.741},{0.888,0.983,1.017,0.779},{0.972,0.978,0.959,0.631}};
+  // fitting tt inclusive in pT in CR2 //
+  float TT_um_SF_DL_inc[] = {0.962,0.987,0.915,0.970};
+  // fitting tt inclusive in pT in CR2+CR6 //
+  //float TT_um_SF_DL[] = {0.963,0.988,0.916,0.970};
+  
   void read_branches(TTree *tree, bool isDL=false)
   {
+	  
+   tree->SetBranchAddress("irun", &irun);	
+   tree->SetBranchAddress("ilumi", &ilumi);	
+   //tree->SetBranchAddress("ievt", &ievt);	
+   tree->SetBranchAddress("npvert", &npvert);	
+   tree->SetBranchAddress("PV_npvsGood", &PV_npvsGood);	
 	
    tree->SetBranchAddress("nleptons", &nleptons);
    tree->SetBranchAddress("nfatjets", &nfatjets);
@@ -1213,8 +1285,8 @@ TString proc_Name[] = {
    tree->SetBranchAddress("PFJetAK8_DeepTag_DAK8MD_bbvsQCD", PFJetAK8_DeepTag_DAK8MD_bbvsQCD);
    tree->SetBranchAddress("PFJetAK8_JESup", PFJetAK8_JESup);
    tree->SetBranchAddress("PFJetAK8_JESdn", PFJetAK8_JESdn);
-   tree->SetBranchAddress("PFJetAK8_JERup", PFJetAK8_JERup);
-   tree->SetBranchAddress("PFJetAK8_JERdn", PFJetAK8_JERdn);
+   //tree->SetBranchAddress("PFJetAK8_JERup", PFJetAK8_JERup);
+   //tree->SetBranchAddress("PFJetAK8_JERdn", PFJetAK8_JERdn);
    tree->SetBranchAddress("PFJetAK8_Y_index", &PFJetAK8_Y_index);
    tree->SetBranchAddress("PFJetAK8_W_index_opt1", &PFJetAK8_W_index_opt1);
    tree->SetBranchAddress("PFJetAK8_W_index_opt2", &PFJetAK8_W_index_opt2);
@@ -1231,8 +1303,8 @@ TString proc_Name[] = {
    tree->SetBranchAddress("JetAK4_PUID", JetAK4_PUID);
    tree->SetBranchAddress("JetAK4_JESup", JetAK4_JESup);
    tree->SetBranchAddress("JetAK4_JESdn", JetAK4_JESdn);
-   tree->SetBranchAddress("JetAK4_JERup", JetAK4_JERup);
-   tree->SetBranchAddress("JetAK4_JERdn", JetAK4_JERdn);
+   //tree->SetBranchAddress("JetAK4_JERup", JetAK4_JERup);
+   //tree->SetBranchAddress("JetAK4_JERdn", JetAK4_JERdn);
    tree->SetBranchAddress("JetAK4_btag_DeepFlav_SF", JetAK4_btag_DeepFlav_SF);
    tree->SetBranchAddress("JetAK4_btag_DeepFlav_SF_up", JetAK4_btag_DeepFlav_SF_up);
    tree->SetBranchAddress("JetAK4_btag_DeepFlav_SF_dn", JetAK4_btag_DeepFlav_SF_dn);
@@ -1287,17 +1359,60 @@ TString proc_Name[] = {
 	tree->SetBranchAddress("GenV_pdgId", GenV_pdgId);
 	tree->SetBranchAddress("GenV_mompdgId", GenV_mompdgId);
 	tree->SetBranchAddress("GenV_grmompdgId", GenV_grmompdgId);
+	tree->SetBranchAddress("nLHETop", &nLHETop);
+	tree->SetBranchAddress("LHETop_pt", LHETop_pt);
+	tree->SetBranchAddress("LHETop_eta", LHETop_eta);
+	tree->SetBranchAddress("LHETop_phi", LHETop_phi);
+	tree->SetBranchAddress("LHETop_mass", LHETop_mass);
+	tree->SetBranchAddress("nGenTop", &nGenTop);
+	tree->SetBranchAddress("GenTop_pt", GenTop_pt);
+	tree->SetBranchAddress("GenTop_eta", GenTop_eta);
+	tree->SetBranchAddress("GenTop_phi", GenTop_phi);
+	tree->SetBranchAddress("GenTop_mass", GenTop_mass);
 	
 	tree->SetBranchAddress("nLHEScaleWeights", &nLHEScaleWeights);
-        tree->SetBranchAddress("LHEScaleWeights", LHEScaleWeights);
-        tree->SetBranchAddress("nLHEPDFWeights", &nLHEPDFWeights);
-        tree->SetBranchAddress("LHEPDFWeights", LHEPDFWeights);
-        tree->SetBranchAddress("nLHEAlpsWeights", &nLHEAlpsWeights);
-        tree->SetBranchAddress("LHEAlpsWeights", LHEAlpsWeights);
-        tree->SetBranchAddress("nLHEPSWeights", &nLHEPSWeights);
-        tree->SetBranchAddress("LHEPSWeights", LHEPSWeights);
+    tree->SetBranchAddress("LHEScaleWeights", LHEScaleWeights);
+    tree->SetBranchAddress("nLHEPDFWeights", &nLHEPDFWeights);
+    tree->SetBranchAddress("LHEPDFWeights", LHEPDFWeights);
+    //tree->SetBranchAddress("nLHEAlpsWeights", &nLHEAlpsWeights);
+    //tree->SetBranchAddress("LHEAlpsWeights", LHEAlpsWeights);
+    tree->SetBranchAddress("nLHEPSWeights", &nLHEPSWeights);
+    tree->SetBranchAddress("LHEPSWeights", LHEPSWeights);
 
     }
        
 	  
   }
+  /*
+  float fit_val_pt_L = 0.0902;
+  float fit_val_pt_M = 0.0743;
+  float fit_val_pt_T = 0.0030;
+
+  float fit_val_msd_L_p0 = 0.0765;
+  float fit_val_msd_M_p0 = 0.0611;
+  float fit_val_msd_T_p0 = 0.0031;
+  
+  float fit_val_msd_L_p1 = 0.000205;
+  float fit_val_msd_M_p1 = 0.000207;
+  float fit_val_msd_T_p1 = 0;
+
+  float fit_val_msd_L_high = 0.06953;
+  float fit_val_msd_M_high = 0.07375;
+  float fit_val_msd_T_high = 0.018;
+  */
+  
+  float fit_val_pt_L = 0.0897;
+  float fit_val_pt_M = 0.0711;
+  float fit_val_pt_T = 0.0022;
+
+  float fit_val_msd_L_p0 = 0.0786;
+  float fit_val_msd_M_p0 = 0.0607;
+  float fit_val_msd_T_p0 = 0.0025;
+  
+  float fit_val_msd_L_p1 = 0.000173;
+  float fit_val_msd_M_p1 = 0.000176;
+  float fit_val_msd_T_p1 = 0;
+
+  float fit_val_msd_L_high = 0.0802486;
+  float fit_val_msd_M_high = 0.0706991;
+  float fit_val_msd_T_high = 0.0260286;
