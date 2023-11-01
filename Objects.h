@@ -241,6 +241,9 @@ class AK8Jet {
   
   float HEMcor;
   
+  int nearest_genjet_id;
+  float nearest_genjet_dR;
+  
   bool  label_Top_bc;
   bool  label_Top_bcq;
   bool  label_Top_bele;
@@ -432,6 +435,7 @@ class AK8GenJet {
   float  mass;
   float  phi;
   float  pt;
+  float msoftdrop;
   int hadronFlavor;
   int partonFlavor;
 

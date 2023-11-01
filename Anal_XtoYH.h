@@ -1048,6 +1048,7 @@
    float Y_JESup, Y_JESdn, Y_JERup, Y_JERdn;
    vector<float> Y_JESup_split, Y_JESdn_split;
    float Y_HEMcor;
+   float Y_JEC, Y_JER, Y_Gen_msoftdrop;
  
    float W_pt[nmaxWcands], W_y[nmaxWcands], W_eta[nmaxWcands], W_phi[nmaxWcands], W_mass[nmaxWcands];
    float W_msoftdrop[nmaxWcands], W_tau21[nmaxWcands], W_tau32[nmaxWcands];
@@ -1061,6 +1062,7 @@
    float W_JESup[nmaxWcands], W_JESdn[nmaxWcands], W_JERup[nmaxWcands], W_JERdn[nmaxWcands];
    vector<float> W_JESup_split[nmaxWcands], W_JESdn_split[nmaxWcands];
    float W_HEMcor[nmaxWcands];
+   float W_JEC[nmaxWcands], W_JER[nmaxWcands], W_Gen_msoftdrop[nmaxWcands];
    
    float H_pt[nmaxWcands], H_y[nmaxWcands], H_eta[nmaxWcands], H_phi[nmaxWcands], H_mass[nmaxWcands];
    int H_genindex[nmaxWcands];

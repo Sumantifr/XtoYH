@@ -250,6 +250,8 @@ void getAK8Genjets(std::vector<AK8GenJet> &Jets, float ptcut=50, float etacut=2.
 		lJet.eta = GenJetAK8_eta[ijet];
 		lJet.phi = GenJetAK8_phi[ijet];
 		lJet.p4.SetPtEtaPhiM(lJet.pt,lJet.eta,lJet.phi,lJet.mass);
+		
+		lJet.msoftdrop = GenJetAK8_sdmass[ijet];
     
 		Jets.push_back(lJet);
 		if(int(Jets.size())>=maxsize) break;
@@ -393,6 +395,7 @@ void getAK8jets(std::vector<AK8Jet> &LJets, float ptcut=200, float etacut=2.5, b
     if(isMC){
       PFJetAK8_pt[ijet] *= (1+PFJetAK8_JER[ijet]) ;
       PFJetAK8_mass[ijet] *= (1+PFJetAK8_JER[ijet]);
+      PFJetAK8_msoftdrop[ijet] *= (1+PFJetAK8_JER[ijet]);
     }
 				
     if(fabs(PFJetAK8_eta[ijet])>etacut) continue;
@@ -546,6 +549,9 @@ void getAK8jets(std::vector<AK8Jet> &LJets, float ptcut=200, float etacut=2.5, b
     LJet.label_Top_btau = false;
     LJet.label_W_cq = false;
     LJet.label_W_qq = false;
+    
+    LJet.nearest_genjet_id = -1;
+    LJet.nearest_genjet_dR = 100;
     
     LJets.push_back(LJet);
     

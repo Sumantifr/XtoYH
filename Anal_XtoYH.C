@@ -392,6 +392,10 @@ int main(int argc, char *argv[])
    Tout->Branch("Y_HEMcor", &Y_HEMcor, "Y_HEMcor/F");	
    Tout->Branch("Y_JESup_split",&Y_JESup_split);
    Tout->Branch("Y_JESdn_split",&Y_JESdn_split);
+   
+   Tout->Branch("Y_JEC", &Y_JEC, "Y_JEC/F");	
+   Tout->Branch("Y_JER", &Y_JER, "Y_JER/F");	
+   Tout->Branch("Y_Gen_msoftdrop", &Y_Gen_msoftdrop, "Y_Gen_msoftdrop/F");	
   
    if(!isDL){
 	   
@@ -443,6 +447,10 @@ int main(int argc, char *argv[])
 	Tout->Branch("W_HEMcor_opt1", &W_HEMcor[0], "W_HEMcor/F");	
 	Tout->Branch("W_JESup_split_opt1",&W_JESup_split[0]);
     Tout->Branch("W_JESdn_split_opt1",&W_JESdn_split[0]);
+    
+    Tout->Branch("W_JEC_opt1", &W_JEC[0], "W_JEC/F");	
+	Tout->Branch("W_JER_opt1", &W_JER[0], "W_JER/F");	
+	Tout->Branch("W_Gen_msoftdrop_opt1", &W_Gen_msoftdrop[0], "W_Gen_msoftdrop/F");	
    
 	Tout->Branch("H_pt_opt1", &H_pt[0], "H_pt/F");	
 	Tout->Branch("H_y_opt1", &H_y[0], "H_y/F");
@@ -519,6 +527,10 @@ int main(int argc, char *argv[])
 	Tout->Branch("W_HEMcor_opt2", &W_HEMcor[1], "W_HEMcor[1]/F");	
 	Tout->Branch("W_JESup_split_opt2",&W_JESup_split[1]);
     Tout->Branch("W_JESdn_split_opt2",&W_JESdn_split[1]);	
+    
+    Tout->Branch("W_JEC_opt2", &W_JEC[1]);	
+	Tout->Branch("W_JER_opt2", &W_JER[1]);	
+	Tout->Branch("W_Gen_msoftdrop_opt2", &W_Gen_msoftdrop[1]);	
 
 	Tout->Branch("H_pt_opt2", &H_pt[1], "H_pt[1]/F");
 	Tout->Branch("H_y_opt2", &H_y[1], "H_y[1]/F");
@@ -1331,6 +1343,7 @@ int main(int argc, char *argv[])
 	vector<HeavyParticle> genwhads;
 	vector<HeavyParticle> lhetops;
 	vector<GenParton> lheparts;
+	vector <AK8GenJet> genLJets;
 	
 	if(isMC){
 	
@@ -1374,6 +1387,9 @@ int main(int argc, char *argv[])
 
 		getLHEParts(lheparts);
 		getTopsfromLHEParts(lhetops, lheparts);
+		
+		// Here you get AK8 GEN jets //
+		getAK8Genjets(genLJets,AK8GenJet_pt_cut,absetacut);
 	
 	}
 	
@@ -1809,16 +1825,16 @@ int main(int argc, char *argv[])
 		//                                           AK8 histogram filling                       //
 		//*****************************************************************************************                            
     
-		vector <AK8GenJet> genLJets;
-		getAK8Genjets(genLJets,AK8GenJet_pt_cut,absetacut);
 		for(unsigned ijet=0; ijet<LJets.size(); ijet++){
 			double dR = 9999.9;
+			int match_genjet = -1;
 			for(unsigned gjet=0; gjet<genLJets.size(); gjet++)
 			{
 				double temp_dR = delta2R(LJets[ijet].y,LJets[ijet].phi,genLJets[gjet].p4.Rapidity(),genLJets[gjet].phi) ;
 				if(temp_dR < dR )
 				{
 					dR = temp_dR;
+					match_genjet = gjet;
 				}
 			}
 			if(dR < 0.6) 
@@ -1831,6 +1847,9 @@ int main(int argc, char *argv[])
 				if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNetbb_cut_T){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_T->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);}
 				if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNetbb_cut_M){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_M->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);}
 				if(LJets[ijet].DeepTag_PNetMD_XbbvsQCD>PNetbb_cut_L){h_Ak8_DeepTag_PNetMD_XbbvsQCD_pass_L->Fill(LJets[ijet].pt,fabs(LJets[ijet].eta),event_weight);}
+				
+				LJets[ijet].nearest_genjet_id = match_genjet;
+				LJets[ijet].nearest_genjet_dR = dR;
 			}
            
 		}//ijet
@@ -2373,6 +2392,18 @@ int main(int argc, char *argv[])
 			
 			//HEM
 			Y_HEMcor = LJets[Y_cand].HEMcor;
+			
+			//JEC,JER//
+			Y_JEC = LJets[Y_cand].JEC;
+			Y_JER = LJets[Y_cand].JER;
+			
+			//Gen msd //
+			if(LJets[Y_cand].nearest_genjet_id>=0 && LJets[Y_cand].nearest_genjet_id<LJets.size() && LJets[Y_cand].nearest_genjet_dR<0.4){
+				Y_Gen_msoftdrop = genLJets[LJets[Y_cand].nearest_genjet_id].msoftdrop;
+			}
+			else{
+				Y_Gen_msoftdrop = -100;
+			}
 					
 			if(vleptons.size()>0){
 				for(unsigned ilep=0; ilep<vleptons.size(); ilep++){
@@ -2467,6 +2498,19 @@ int main(int argc, char *argv[])
 				
 				//HEM
 				W_HEMcor[jw] = LJets[W_cand[jw]].HEMcor;
+				
+				//JEC,JER//
+				W_JEC[jw] = LJets[W_cand[jw]].JEC;
+				W_JER[jw] = LJets[W_cand[jw]].JER;
+			
+				//Gen msd //
+				if(LJets[W_cand[jw]].nearest_genjet_id>=0 && LJets[W_cand[jw]].nearest_genjet_id<LJets.size() && LJets[W_cand[jw]].nearest_genjet_dR<0.4){
+					W_Gen_msoftdrop[jw] = genLJets[LJets[W_cand[jw]].nearest_genjet_id].msoftdrop;
+				}
+				else{
+					W_Gen_msoftdrop[jw] = -100;
+				}
+					
 
 				if(vleptons.size()>0 && pnu[jw].Eta()>-100){
 				
