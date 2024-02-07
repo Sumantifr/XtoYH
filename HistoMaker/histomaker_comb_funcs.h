@@ -100,15 +100,18 @@ float *get_bb_SF(float pt, bool gen_match, bool score_pass)
 	return SFs;
 }
 
-float* get_AK8_tagging_SF(float pt, bool gen_match, bool score_pass, string tagging)
+float* get_AK8_tagging_SF(float pt, bool gen_match, int score_pass, string tagging)
 {
 	static float SFs[3];
 	SFs[0] = 1.;
 	SFs[1] = 1.;
 	SFs[2] = 1.;
 	
+	//cout<<"score_pass "<<score_pass<<endl;
+	
 	if(gen_match){
-		if(score_pass){
+		
+		if(score_pass==1){
 	
 			if(tagging.find("W_PN")!=string::npos){
 	
@@ -141,6 +144,21 @@ float* get_AK8_tagging_SF(float pt, bool gen_match, bool score_pass, string tagg
 				}
 			}
 	
+		}
+		
+		else if (score_pass==2){
+			
+			if(tagging.find("Xbb_PN")!=string::npos){
+				
+				int pt_bin = getbinid(pt,PNbb_SF_nptbins,PNbb_SF_ptbins);
+				if(pt_bin>=0 && pt_bin<PNbb_SF_nptbins) {
+					SFs[0] = PNbb_SF_LP[pt_bin]; 
+					SFs[1] = PNbb_SF_LP_up[pt_bin]; 
+					SFs[2] = PNbb_SF_LP_dn[pt_bin]; 
+				}
+				
+			}
+		
 		}
 	}
 	
@@ -292,6 +310,8 @@ bool check_Y_genmatching(TLorentzVector Y_cand, vector<TLorentzVector> genbs, ve
 
 bool isMatched = false;
 
+//cout<<"int(genbs.size()) "<<int(genbs.size())<<endl;
+
 for(int pp = 0 ; pp  < (int(genbs.size())-1); pp++)
     {
 		for(int qq = pp+1; qq < int(genbs.size()); qq++)
@@ -302,6 +322,7 @@ for(int pp = 0 ; pp  < (int(genbs.size())-1); pp++)
             Float_t DR_Yb1, DR_Yb2;
             DR_Yb1 = Y_cand.DeltaR(gen_b1);
             DR_Yb2 = Y_cand.DeltaR(gen_b2);
+            //cout<<"DR_Yb1 "<<DR_Yb1<<" DR_Yb2 "<<DR_Yb2<<" chargeproduct "<<genpdgids[pp]*genpdgids[qq]<<" mom same? "<<(genmompdgids[pp] == genmompdgids[qq])<<endl;
             if(DR_Yb1 < 0.8 && DR_Yb2 < 0.8 && genpdgids[pp]*genpdgids[qq] < 0 && genmompdgids[pp] == genmompdgids[qq] )
             //GenBPart_pdgId[pp]*GenBPart_pdgId[qq] < 0 && GenBPart_mompdgId[pp] == GenBPart_mompdgId[qq] )
             {
@@ -310,6 +331,10 @@ for(int pp = 0 ; pp  < (int(genbs.size())-1); pp++)
             }
          }//qq
     }//pp      	
+
+//cout<<"isMatched "<<isMatched<<endl;
+
+return isMatched;
 	
 }
 
@@ -526,4 +551,167 @@ float get_QCD_cor(TFile *file_SF, float pt, int pdgId, int choice = 1, float pt_
 		
 	return cor;
 	
+}
+
+float get_JMS_cor(float pt)
+{
+	
+  vector<float> JMS_SFs;
+
+  int pt_bin_jms = getbinid(pt,JMS_nptbins,JMS_ptbins);
+  if(pt_bin_jms>=0 && pt_bin_jms<JMS_nptbins){
+		JMS_SFs.push_back(JMS_values[pt_bin_jms]);
+		JMS_SFs.push_back(JMS_values[pt_bin_jms]+JMS_uncs[pt_bin_jms]);
+		JMS_SFs.push_back(JMS_values[pt_bin_jms]-JMS_uncs[pt_bin_jms]);
+   }	
+  else{
+		JMS_SFs.push_back(1);
+		JMS_SFs.push_back(1);
+		JMS_SFs.push_back(1);
+  }
+  
+  return JMS_SFs[0];
+
+}
+
+float get_PUPPI_cor(float pt, float eta)
+{
+
+float gen_cor = 1;
+float reco_cor = 1;
+
+gen_cor = 1.0062610+((-1.0616051)*(pow((pt*0.079990008),-(1.204537))));	
+
+if(abs(eta)<1.3){
+	reco_cor = 1.0930198 + (-0.00015006789*pt) + (3.4486612e-07*pt*pt) + (-2.6810031e-10*pt*pt*pt);
+}
+else{
+	reco_cor = 1.2721152 + (-0.00057164036*pt) + (8.3728941e-07*pt*pt) + (-5.2043320e-10*pt*pt*pt);
+	}
+
+return (gen_cor*reco_cor);
+	
+}
+
+
+float get_AK8mass_resolution(float pt, float eta)
+{
+	if(abs(eta)<1.3){
+		return (1.0927351+(4.1426227e-05*pt)+(-1.3736806e-07*pt*pt));	
+	}	
+	else{
+		return (1.1649278+(-0.00012678903*pt)+(1.0594037e-07*pt*pt));	
+	}
+}
+
+float get_JMR_cor(float pt, float eta)
+{
+	double rp = get_AK8mass_resolution(pt, eta);
+	double gaus_rp = gRandom->Gaus(0.,rp);
+	
+	double sf = JMR_value;
+	double sf_up = (JMR_value+JMR_unc);
+	double sf_dn = (JMR_value-JMR_unc);
+	
+	vector<float> JMR_SFs;
+	JMR_SFs.clear();
+	
+	/*	
+	bool match = false;
+	int match_gen = -1;  
+	 
+	for (unsigned get = 0; get<(genjets->size()); get++) {
+		TLorentzVector genjet4v((*genjets)[get].px(),(*genjets)[get].py(),(*genjets)[get].pz(), (*genjets)[get].energy());
+		if((delta2R(pfjet4v.Rapidity(),pfjet4v.Phi(),genjet4v.Rapidity(),genjet4v.Phi()) < (dRcut)) &&(fabs(tmprecpt-genjet4v.Pt())<(3*fabs(rp)*tmprecpt))){
+			match = true;
+			match_gen = get;
+			break;
+		}
+	}
+		
+	if(match && (match_gen>=0)){
+	  
+		SFs.push_back((sf-1.)*(mass-(*genjets)[match_gen].M())*1./mass);
+		SFs.push_back((sf_up-1.)*(mass-(*genjets)[match_gen].M())*1./mass);
+		SFs.push_back((sf_dn-1.)*(mass-(*genjets)[match_gen].M())*1./mass);
+	  
+	}else{
+	*/  
+		JMR_SFs.push_back(sqrt(max(0.,((sf*sf)-1))) * gaus_rp);
+		JMR_SFs.push_back(sqrt(max(0.,((sf_up*sf_up)-1))) * gaus_rp);
+		JMR_SFs.push_back(sqrt(max(0.,((sf_dn*sf_dn)-1))) * gaus_rp);
+	//}
+	cout<<"pt "<<pt<<" eta "<<eta<<endl;
+	cout<<"sf "<<sf<<" rp "<<rp<<" gaus_rp "<<gaus_rp<<" SF "<<JMR_SFs[0]<<endl;
+
+	return JMR_SFs[0];
+
+}
+
+float *getTheoryEsystematics_Scale(int nLHEScaleWeights, float* LHEScaleWeights, int extreme_comb_id_1 = 5, int extreme_comb_id_2 = 7)
+{
+	static float SFs[2];
+	
+	float diff_up_max = 0;
+	float diff_dn_max = 0;
+	
+	for(int ilhe=1; ilhe<nLHEScaleWeights; ilhe++){
+	
+		if(ilhe==extreme_comb_id_1||ilhe==extreme_comb_id_2) continue; // (2,1/2) & (1/2,2) combinations
+
+		//cout<<"ilhe "<<ilhe<<" diff "<<(LHEScaleWeights[ilhe]-LHEScaleWeights[0])<<endl;
+
+		if((LHEScaleWeights[ilhe]-LHEScaleWeights[0])>0) {   
+			if(abs((LHEScaleWeights[ilhe]-LHEScaleWeights[0]))> diff_up_max){
+				diff_up_max = abs((LHEScaleWeights[ilhe]-LHEScaleWeights[0]));
+				}
+		}
+		else{
+			if(abs((LHEScaleWeights[ilhe]-LHEScaleWeights[0]))> diff_dn_max){
+				diff_dn_max = abs((LHEScaleWeights[ilhe]-LHEScaleWeights[0]));
+				}
+			}
+		
+	}
+	
+	SFs[0] = diff_up_max;
+	SFs[1] = diff_dn_max;
+	
+	//cout<<"scale err "<<diff_up_max<<"\t"<<diff_dn_max<<endl;
+	
+	return SFs;
+}
+
+
+float getTheoryEsystematics_PDF(int nLHEPDFWeights, float* LHEPDFWeights, bool isHessian)
+{
+	// ref: https://arxiv.org/pdf/1510.03865.pdf  (Eqs. 20-22) //
+	
+	float pdferr=0;
+	
+	if(isHessian){
+		for(int ilhe=1; ilhe<nLHEPDFWeights; ilhe++){
+			pdferr +=  pow(abs(LHEPDFWeights[ilhe]-LHEPDFWeights[0]),2);
+		}
+	}
+	else{
+		
+		float pdfmean = 0;
+		for(int ilhe=1; ilhe<nLHEPDFWeights; ilhe++){
+			pdfmean += LHEPDFWeights[ilhe];
+		}
+		pdfmean *= 1./(nLHEPDFWeights-1);   // nLHEPDFWeights-1 is used since nLHEPDFWeights includes the central value
+		
+		for(int ilhe=1; ilhe<nLHEPDFWeights; ilhe++){
+			pdferr +=  pow(abs(LHEPDFWeights[ilhe]-pdfmean),2);  
+		}
+		pdferr *= 1./(nLHEPDFWeights-2.);  // nLHEPDFWeights-2 is used since nLHEPDFWeights includes the central value
+		
+		}
+	
+	pdferr = sqrt(pdferr);
+	
+	//cout<<"PDF err "<<pdferr/LHEPDFWeights[0]<<endl;
+	
+	return pdferr;
 }

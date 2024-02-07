@@ -18,6 +18,8 @@
 #include <string>
 #include <vector>
 
+#include "LHAPDF/LHAPDF.h"
+
 #include "Functions.h"
 
 using namespace std;
@@ -152,13 +154,24 @@ TH1D *hout = new TH1D(name,title,nbins,bins);
 hout->Sumw2();
 return hout;
 }
-
+/*
 static const int PNbb_SF_nptbins = 4;
 float PNbb_SF_ptbins[PNbb_SF_nptbins+1] = {300,400,500,600,10000};
 double PNbb_SF_HP[PNbb_SF_nptbins] = {1.192,1.137,1.211,1.350};
 double PNbb_SF_HP_up[PNbb_SF_nptbins] = {1.192-0.101,1.137-0.081,1.211-0.151,1.350-0.237};
 double PNbb_SF_HP_dn[PNbb_SF_nptbins] = {1.192+0.101,1.137+0.082,1.211+0.151,1.350+0.238};
-// SFs taken from: https://indico.cern.ch/event/1011640/contributions/4460748/attachments/2285317/3885997/21.07.21_BTV_ParticleNet%20SFs%20for%20UL1718%20v2.pdf
+// SFs taken from B2G-21-033: https://indico.cern.ch/event/1011640/contributions/4460748/attachments/2285317/3885997/21.07.21_BTV_ParticleNet%20SFs%20for%20UL1718%20v2.pdf
+*/
+
+// SFs derived using BTV framework: https://chatterj.web.cern.ch/chatterj/XtoYH/AK8ParticleNetSF/example_bb_ULNanoV9_PNetXbbVsQCD_ak8_inclWP_XtoYH_2018_2018/4_fit/
+static const int PNbb_SF_nptbins = 5;
+float PNbb_SF_ptbins[PNbb_SF_nptbins+1] = {200,300,400,500,600,10000};
+double PNbb_SF_HP[PNbb_SF_nptbins] = {0.958,0.978,0.941,1.042,0.988};
+double PNbb_SF_HP_up[PNbb_SF_nptbins] = {0.958+0.044,0.978+0.033,0.941+0.052,1.042+0.039,0.988+0.040};
+double PNbb_SF_HP_dn[PNbb_SF_nptbins] = {0.958-0.044,0.978-0.039,0.941-0.053,1.042-0.037,0.988-0.044};
+double PNbb_SF_LP[PNbb_SF_nptbins] = {0.922,0.987,0.940,0.946,0.970};
+double PNbb_SF_LP_up[PNbb_SF_nptbins] = {0.922+0.033,0.987+0.034,0.940+0.033,0.946+0.040,0.970+0.040};
+double PNbb_SF_LP_dn[PNbb_SF_nptbins] = {0.922-0.039,0.987-0.044,0.940-0.034,0.946-0.068,0.970-0.056};
 
 static const int PNW_SF_nptbins = 3;
 float PNW_SF_ptbins[PNW_SF_nptbins+1] = {200,300,400,10000};
@@ -215,7 +228,10 @@ double bb_SF, bb_SF_up, bb_SF_dn;
 double W_SF, W_SF_up, W_SF_dn;
 double Top_SF, Top_SF_up, Top_SF_dn;
 
-double analysis_SF, analysis_SF_up, analysis_SF_dn;
+double analysis_SF, analysis_SF_up, analysis_SF_dn, analysis_SFerr;
+
+double LHEScale_err_up, LHEScale_err_dn;
+double LHEPDF_err;
 
 TString proc_Name[] = {
 //"TTTo2L2Nu_XtoYH.root"
@@ -842,13 +858,13 @@ TString proc_Name[] = {
   Float_t		  GenTop_mass[narray];  
   
   Int_t           nLHEScaleWeights;
-  Float_t         LHEScaleWeights[9];   //[nLHEScaleWeights]
+  Float_t         LHEScaleWeights[nlhescalemax];   //[nLHEScaleWeights]
   Int_t           nLHEPDFWeights;
-  Float_t         LHEPDFWeights[103];   //[nLHEPDFWeights]
+  Float_t         LHEPDFWeights[nlhepdfmax];   //[nLHEPDFWeights]
   Int_t           nLHEAlpsWeights;
   Float_t         LHEAlpsWeights[3];   //[nLHEAlpsWeights]
   Int_t           nLHEPSWeights;
-  Float_t         LHEPSWeights[8];   //[nLHEPSWeights]
+  Float_t         LHEPSWeights[nlhepsmax];   //[nLHEPSWeights]
 
 
   float EWK_cor;
@@ -873,8 +889,14 @@ TString proc_Name[] = {
   int njecmax = 0;
 
   // change between SL & DL //
+  // SL //
   TString rgn[] = {"SR1","SR2","CR2","CR3","CR4","CR5","CR6","CR7","CR8","QCDCR1","QCDCR2","QCDVR1","QCDVR2","QCDVR3","QCDVR4","VRTT"};
+  // DL //
   //TString rgn[] = {"SR1","SR2","CR2","CR3","CR4","CR6","CR8","CRVjL","ARVjL","CRVjM","ARVjM","CRVjT","ARVjT","VRVj","VRTT"};
+
+  //sys in SL//
+  //TString rgn[] = {"SR1","SR2","CR2","CR3","CR4","CR6"};
+
 
   int nrgn = sizeof(rgn)/sizeof(rgn[0]);
   
@@ -913,6 +935,7 @@ TString proc_Name[] = {
 	 "JES_Total",
 	 "JER",
 	 "PU","LeptonSF","LeptonSF2","Prefire","PNbbSF","PNWSF","BTG","TrigSF1","TrigSF2",
+	 "LHEScale","LHEPDF",
 	 "CR_SF"
 	 }; 
 	 
@@ -956,6 +979,22 @@ TString proc_Name[] = {
   // fitting tt inclusive in pT in CR2+CR6 //
   //float TT_um_SF_DL[] = {0.963,0.988,0.916,0.970};
   
+  // SL SFs //
+  
+  //Ymsd fit //
+  
+  float TT_um_SF_SL_inc[][3] = 	  {{0.94547,0.477823,1.23104},{0.891556,0.518005,1.30039},{1.017,0.537019,1.14102}};
+  float TT_um_SFerr_SL_inc[][3] = {{0.04646,0.079805,0.05935},{0.057192,0.104115,0.07146},{0.067,0.098804,0.07193}};
+  float Wj_SF_SL_inc[] = 	{0.708277,0.669645,0.730394};
+  float Wj_SFerr_SL_inc[] = {0.027976,0.030367,0.0377435};
+  
+  // mX-Ymsd fit //
+  /*
+  float TT_um_SF_SL_inc[][3] = 	  {{0.972474,0.590109,1.22841},{0.891556,0.518005,1.30039},{1.017,0.537019,1.14102}};
+  float TT_um_SFerr_SL_inc[][3] = {{0.04646,0.079805,0.05935},{0.057192,0.104115,0.07146},{0.067,0.098804,0.07193}};
+  float Wj_SF_SL_inc[] = 	{0.708277,0.669645,0.730394};
+  float Wj_SFerr_SL_inc[] = {0.027976,0.030367,0.0377435};
+  */
   void read_branches(TTree *tree, bool isDL=false)
   {
 	  
@@ -1416,3 +1455,11 @@ TString proc_Name[] = {
   float fit_val_msd_L_high = 0.0802486;
   float fit_val_msd_M_high = 0.0706991;
   float fit_val_msd_T_high = 0.0260286;
+  
+  float JMS_ptbins[] = {200,1000};
+  int JMS_nptbins = sizeof(JMS_ptbins)/sizeof(JMS_ptbins[0]) - 1;
+  float JMS_values[] = {0.983}; //2017+2018  {1.014};//2016
+  float JMS_uncs[] = {0.006}; //2017+2018  {0.007}; //2016
+
+  float JMR_value = 1.080; //2017+2018  1.086; //2016
+  float JMR_unc =   0.081; //2017+2018  0..090; //2016
