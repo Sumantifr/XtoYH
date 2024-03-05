@@ -869,6 +869,10 @@ private:
   float LHEPart_pt[nlhemax], LHEPart_eta[nlhemax], LHEPart_phi[nlhemax], LHEPart_m[nlhemax];
   int LHEPart_pdg[nlhemax];
   
+  static const int nlheweightmax = 250;
+  int nLHEWeights;
+  float LHEWeights[nlheweightmax];
+  
   static const int nlhescalemax = 9;
   int nLHEScaleWeights;
   float LHEScaleWeights[nlhescalemax];
@@ -876,10 +880,6 @@ private:
   static const int nlhepdfmax = 103; // be consistent with nPDFsets (nlhepdfmax should be >= nPDFsets)
   int nLHEPDFWeights;
   float LHEPDFWeights[nlhepdfmax];
-  
-  static const int nalpsmax = 3;
-  int nLHEAlpsWeights;
-  float LHEAlpsWeights[nalpsmax];
   
   static const int nlhepsmax = 8;
   int nLHEPSWeights;
@@ -899,7 +899,7 @@ private:
   int nMuon;
   
   float Muon_minchiso[njetmx], Muon_minnhiso[njetmx], Muon_minphiso[njetmx], Muon_minisoall[njetmx]; 
-  float Muon_charge[njetmx], Muon_p[njetmx], Muon_pt[njetmx], Muon_eta[njetmx], Muon_phi[njetmx], Muon_dz[njetmx], Muon_ip3d[njetmx], Muon_ptErr[njetmx], Muon_chi[njetmx], Muon_ecal[njetmx], Muon_hcal[njetmx]; //Muon_emiso[njetmx], Muon_hadiso[njetmx], Muon_tkpt03[njetmx], Muon_tkpt05[njetmx];
+  float Muon_charge[njetmx], Muon_p[njetmx], Muon_pt[njetmx], Muon_eta[njetmx], Muon_phi[njetmx], Muon_dz[njetmx], Muon_ip3d[njetmx], Muon_sip3d[njetmx], Muon_ptErr[njetmx], Muon_chi[njetmx], Muon_ecal[njetmx], Muon_hcal[njetmx]; //Muon_emiso[njetmx], Muon_hadiso[njetmx], Muon_tkpt03[njetmx], Muon_tkpt05[njetmx];
   
   float Muon_posmatch[njetmx], Muon_trkink[njetmx], Muon_segcom[njetmx], Muon_pfiso[njetmx], Muon_dxy[njetmx], Muon_dxyErr[njetmx], Muon_hit[njetmx], Muon_pixhit[njetmx], Muon_mst[njetmx], Muon_trklay[njetmx], Muon_valfrac[njetmx],Muon_dxy_sv[njetmx];
   int Muon_ndf[njetmx];
@@ -912,9 +912,10 @@ private:
   int nElectron;
   bool Electron_mvaid_Fallv2WP90[njetmx], Electron_mvaid_Fallv2WP90_noIso[njetmx];
   bool Electron_mvaid_Fallv2WP80[njetmx], Electron_mvaid_Fallv2WP80_noIso[njetmx];
+  float Electron_mvaid_Fallv2_value[njetmx], Electron_mvaid_Fallv2noIso_value[njetmx];
 
   float Electron_charge[njetmx], Electron_pt[njetmx], Electron_eta[njetmx], Electron_phi[njetmx], Electron_e[njetmx], Electron_e_ECAL[njetmx], Electron_p[njetmx];
-  float Electron_dxy[njetmx],  Electron_dxyErr[njetmx], Electron_dxy_sv[njetmx], Electron_dz[njetmx], Electron_dzErr[njetmx], Electron_ip3d[njetmx];
+  float Electron_dxy[njetmx],  Electron_dxyErr[njetmx], Electron_dxy_sv[njetmx], Electron_dz[njetmx], Electron_dzErr[njetmx], Electron_ip3d[njetmx], Electron_sip3d[njetmx];
   float Electron_hovere[njetmx], Electron_qovrper[njetmx], Electron_chi[njetmx]; //Electron_emiso03[njetmx], Electron_hadiso03[njetmx], Electron_emiso04[njetmx], Electron_hadiso04[njetmx];
   float Electron_eoverp[njetmx], Electron_ietaieta[njetmx], Electron_etain[njetmx], Electron_phiin[njetmx], Electron_fbrem[njetmx]; 
   float Electron_nohits[njetmx], Electron_misshits[njetmx];
@@ -1618,7 +1619,8 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("Muon_dxy",Muon_dxy,"Muon_dxy[nMuon]/F");
   T1->Branch("Muon_dz",Muon_dz,"Muon_dz[nMuon]/F");
   T1->Branch("Muon_dxyErr",Muon_dxyErr,"Muon_dxyErr[nMuon]/F");
-  T1->Branch("Muon_ip3d",Muon_ip3d,"Muon_ip3d[nMuon]/F");
+  T1->Branch("Muon_ip3d",Muon_ip3d,"Muon_ip3d[nMuon]/F");   // correct the name to sip3d next time
+  T1->Branch("Muon_sip3d",Muon_sip3d,"Muon_sip3d[nMuon]/F");
   T1->Branch("Muon_ptErr",Muon_ptErr,"Muon_ptErr[nMuon]/F");
   T1->Branch("Muon_chi",Muon_chi,"Muon_chi[nMuon]/F");
   T1->Branch("Muon_ndf",Muon_ndf,"Muon_ndf[nMuon]/I");
@@ -1654,11 +1656,15 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("Electron_mvaid_Fallv2WP80",Electron_mvaid_Fallv2WP80,"Electron_mvaid_Fallv2WP80[nElectron]/O");
   T1->Branch("Electron_mvaid_Fallv2WP80_noIso",Electron_mvaid_Fallv2WP80_noIso,"Electron_mvaid_Fallv2WP80_noIso[nElectron]/O");
   
+  T1->Branch("Electron_mvaid_Fallv2_value",Electron_mvaid_Fallv2_value,"Electron_mvaid_Fallv2_value[nElectron]/F");
+  T1->Branch("Electron_mvaid_Fallv2noIso_value",Electron_mvaid_Fallv2noIso_value,"Electron_mvaid_Fallv2noIso_value[nElectron]/F");
+  
   T1->Branch("Electron_dxy",Electron_dxy,"Electron_dxy[nElectron]/F");
   T1->Branch("Electron_dxyErr",Electron_dxyErr,"Electron_dxyErr[nElectron]/F");
   T1->Branch("Electron_dz",Electron_dz,"Electron_dz[nElectron]/F");
   T1->Branch("Electron_dzErr",Electron_dzErr,"Electron_dzErr[nElectron]/F");
-  T1->Branch("Electron_ip3d",Electron_ip3d,"Electron_ip3d[nElectron]/F");
+  T1->Branch("Electron_ip3d",Electron_ip3d,"Electron_ip3d[nElectron]/F"); // correct the name to sip3d next time
+  T1->Branch("Electron_sip3d",Electron_sip3d,"Electron_sip3d[nElectron]/F");
   T1->Branch("Electron_dxy_sv",Electron_dxy_sv,"Electron_dxy_sv[nElectron]/F");
   
   T1->Branch("Electron_hovere",Electron_hovere,"Electron_hovere[nElectron]/F");
@@ -1861,14 +1867,16 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("LHEPart_m",LHEPart_m,"LHEPart_m[nLHEPart]/F");
   
   T1->Branch("LHE_weight",&LHE_weight, "LHE_weight/D");
+  // scale & pdf weights (correct only for ttbar POWHEG samples))
   T1->Branch("nLHEScaleWeights",&nLHEScaleWeights, "nLHEScaleWeights/I");
   T1->Branch("LHEScaleWeights",LHEScaleWeights,"LHEScaleWeights[nLHEScaleWeights]/F");
   T1->Branch("nLHEPDFWeights",&nLHEPDFWeights, "nLHEPDFWeights/I");
   T1->Branch("LHEPDFWeights",LHEPDFWeights,"LHEPDFWeights[nLHEPDFWeights]/F");
-  T1->Branch("nLHEAlpsWeights",&nLHEAlpsWeights, "nLHEAlpsWeights/I");
-  T1->Branch("LHEAlpsWeights",LHEAlpsWeights,"LHEAlpsWeights[nLHEAlpsWeights]/F");
   T1->Branch("nLHEPSWeights",&nLHEPSWeights, "nLHEPSWeights/I");
   T1->Branch("LHEPSWeights",LHEPSWeights,"LHEPSWeights[nLHEPSWeights]/F");
+  // storing all weights (up to 250) //
+  T1->Branch("nLHEWeights",&nLHEWeights, "nLHEWeights/I");
+  T1->Branch("LHEWeights",LHEWeights,"LHEWeights[nLHEWeights]/F");
   
   } //isMC
   
@@ -1967,10 +1975,10 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
     edm::Handle<LHEEventProduct>lheeventinfo ;
     iEvent.getByToken(lheEventProductToken_,lheeventinfo) ;
     
+    nLHEWeights = 0;
     nLHEScaleWeights = 0;
 	nLHEPDFWeights = 0;
-	nLHEAlpsWeights = 0;
-    
+	    
     nLHEPart = 0;
     
     if(lheeventinfo.isValid()){
@@ -1996,9 +2004,22 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 	 // LHE-level weights //
 	
 	  LHE_weight = lheeventinfo->originalXWGTUP();
-	  	  
+	  	 
+	  cout<<"PRINTING all theory weights\n";
+ 
 	  for ( unsigned int index = 0; index < lheeventinfo->weights().size(); ++index ) {	
-		//cout<<"Index "<<index+1<<" Id "<<lheeventinfo->weights()[index].id<<" weight "<<lheeventinfo->weights()[index].wgt/lheeventinfo->originalXWGTUP()<<endl;//" muR "<<lheeventinfo->weights()[index].MUR<<" muF "<<lheeventinfo->weights()[index].MUF<<" DYN Scale "<<lheeventinfo->weights()[index].DYN_SCALE<<endl;
+		 
+		 cout<<"Index "<<index+1<<" Id "<<lheeventinfo->weights()[index].id<<" weight "<<lheeventinfo->weights()[index].wgt/lheeventinfo->originalXWGTUP()<<endl;//" muR "<<lheeventinfo->weights()[index].MUR<<" muF "<<lheeventinfo->weights()[index].MUF<<" DYN Scale "<<lheeventinfo->weights()[index].DYN_SCALE<<endl;
+		
+		// storing up to a maximum number of weights //
+		
+		if(nLHEWeights<nlheweightmax){
+			LHEWeights[nLHEWeights] = lheeventinfo->weights()[index].wgt/lheeventinfo->originalXWGTUP();
+			nLHEWeights++;
+		}
+		
+		// the convention of storing LHE Scale, PDF, and AlphaS weights is valid only for ttbar POWHEG samples //
+		
 		if(index<nlhescalemax && nLHEScaleWeights<nlhescalemax){
 			LHEScaleWeights[nLHEScaleWeights] = lheeventinfo->weights()[index].wgt/lheeventinfo->originalXWGTUP();
 			nLHEScaleWeights++;
@@ -2007,10 +2028,7 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 			LHEPDFWeights[nLHEPDFWeights] = lheeventinfo->weights()[index].wgt/lheeventinfo->originalXWGTUP();
 			nLHEPDFWeights++;
 		}
-		if(index>=(nlhescalemax+nPDFsets) && index<(nlhescalemax+nPDFsets+nalpsmax) && nLHEAlpsWeights<nalpsmax){
-			LHEAlpsWeights[nLHEAlpsWeights] = lheeventinfo->weights()[index].wgt/lheeventinfo->originalXWGTUP();
-			nLHEAlpsWeights++;
-			}
+		
 	  }
 	  		
 	}// lheeventinfo.isValid()
@@ -2604,8 +2622,9 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 			
 			Muon_dxy[nMuon] = muon1->muonBestTrack()->dxy(vertex.position());                                                                         
 			Muon_dz[nMuon] = muon1->muonBestTrack()->dz(vertex.position());  
-			Muon_dxyErr[nMuon] = muon1->edB(pat::Muon::PV2D);   
-			Muon_ip3d[nMuon] =  muon1->dB(pat::Muon::PV3D)/muon1->edB(pat::Muon::PV3D);     
+			Muon_dxyErr[nMuon] = muon1->edB(pat::Muon::PV2D);    
+			Muon_ip3d[nMuon] =  muon1->dB(pat::Muon::PV3D);  
+			Muon_sip3d[nMuon] =  muon1->dB(pat::Muon::PV3D)/muon1->edB(pat::Muon::PV3D);   
 			 
 			// energy & track info //
 			                                                                     
@@ -2734,13 +2753,17 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
     Electron_mvaid_Fallv2WP80[nElectron] = electron1.electronID(melectronID_isowp80);                                                                                 
     Electron_mvaid_Fallv2WP80_noIso[nElectron] = electron1.electronID(melectronID_noisowp80);   
     
+    Electron_mvaid_Fallv2_value[nElectron] = electron1.userFloat("ElectronMVAEstimatorRun2Fall17IsoV2Values");
+	Electron_mvaid_Fallv2noIso_value[nElectron] = electron1.userFloat("ElectronMVAEstimatorRun2Fall17NoIsoV2Values");
+    
     // displacement //
                                                                                  
     Electron_dxy[nElectron] = gsftrk1->dxy(vertex.position());  
     Electron_dxyErr[nElectron] = electron1.edB(pat::Electron::PV2D);                                                                                           
     Electron_dz[nElectron] = gsftrk1->dz(vertex.position()); 
     Electron_dzErr[nElectron] = electron1.edB(pat::Electron::PVDZ);     
-    Electron_ip3d[nElectron] =  electron1.dB(pat::Electron::PV3D)/electron1.edB(pat::Electron::PV3D);                                                                                           
+    Electron_ip3d[nElectron] =  electron1.dB(pat::Electron::PV3D);
+    Electron_sip3d[nElectron] =  electron1.dB(pat::Electron::PV3D)/electron1.edB(pat::Electron::PV3D);                                                                                           
     
     // supercluste info //
     
