@@ -147,25 +147,67 @@ int main(int argc, char *argv[])
 
     //// change tagger WPs depending on year ////
     
-   if(year==2018){
-	//DeepTag_PNetMD_XbbvsQCD
+   if(year=="2018"){
+	//DeepTag_PNetMD_XbbvsQCD souce: AN-2020/225 (B2G-21-003)
 	PNetbb_cut_T = 0.98;
 	PNetbb_cut_M = 0.94;
 	PNetbb_cut_L = 0.90;
-	//DeepTag_PNetMD_WvsQCD cut values
+	//DeepTag_PNetMD_WvsQCD cut values source: https://indico.cern.ch/event/1221195/contributions/5141581/attachments/2556595/4514497/Top_W_Calibration_Updated.pdf#page=8
 	PNetW_cut_T = 0.90;
 	PNetW_cut_M = 0.82;
 	PNetW_cut_L = 0.59;
-	// Deep Ak4 Flv
+	// Deep Ak4 Flv source: https://btv-wiki.docs.cern.ch/ScaleFactors/UL2018/
 	DAK4_T = 0.71;
 	DAK4_M = 0.2783;
 	DAK4_L = 0.0490;
    }
+   else if(year=="2017"){
+	//DeepTag_PNetMD_XbbvsQCD souce: AN-2020/225 (B2G-21-003), AN-2021/005 (BTV-22-001)
+	PNetbb_cut_T = 0.98;
+	PNetbb_cut_M = 0.97;
+	PNetbb_cut_L = 0.90;
+	//DeepTag_PNetMD_WvsQCD cut values source: https://indico.cern.ch/event/1221195/contributions/5141581/attachments/2556595/4514497/Top_W_Calibration_Updated.pdf#page=8
+	PNetW_cut_T = 0.891;
+	PNetW_cut_M = 0.810;
+	PNetW_cut_L = 0.579;
+	// Deep Ak4 Flv source: https://btv-wiki.docs.cern.ch/ScaleFactors/UL2017/
+	DAK4_T = 0.7476;
+	DAK4_M = 0.3040;
+	DAK4_L = 0.0532;
+   }
+   else if(year=="2016postVFP"){ //post-VFP
+	//DeepTag_PNetMD_XbbvsQCD souce: AN-2020/225 (B2G-21-003), AN-2021/005 (BTV-22-001)
+	PNetbb_cut_T = 0.98;
+	PNetbb_cut_M = 0.97;
+	PNetbb_cut_L = 0.90;
+	//DeepTag_PNetMD_WvsQCD cut values source: https://indico.cern.ch/event/1221195/contributions/5141581/attachments/2556595/4514497/Top_W_Calibration_Updated.pdf#page=7
+	PNetW_cut_T = 0.907;
+	PNetW_cut_M = 0.842;
+	PNetW_cut_L = 0.642;
+	// Deep Ak4 Flv source: https://btv-wiki.docs.cern.ch/ScaleFactors/UL2016postVFP/
+	DAK4_T = 0.6377;
+	DAK4_M = 0.2489;
+	DAK4_L = 0.0480;
+   }
+   else { // 2016 pre-VFP
+	//DeepTag_PNetMD_XbbvsQCD souce: AN-2020/225 (B2G-21-003), AN-2021/005 (BTV-22-001)
+	PNetbb_cut_T = 0.98;
+	PNetbb_cut_M = 0.97;
+	PNetbb_cut_L = 0.90;
+	//DeepTag_PNetMD_WvsQCD cut values source: https://indico.cern.ch/event/1221195/contributions/5141581/attachments/2556595/4514497/Top_W_Calibration_Updated.pdf#page=7
+	PNetW_cut_T = 0.910;
+	PNetW_cut_M = 0.845;
+	PNetW_cut_L = 0.637;
+	// Deep Ak4 Flv source: https://btv-wiki.docs.cern.ch/ScaleFactors/UL2016preVFP/
+	DAK4_T = 0.6502;
+	DAK4_M = 0.2598;
+	DAK4_L = 0.0508;
+   }
    
-   if(year==2016){ absetacut = 2.4; }
+   if(year=="2016postVFP"||year=="2016preVFP"){ absetacut = 2.4; }
    else{ absetacut = 2.5; }
    
-   if(year==2016){
+   if(year=="2016postVFP"||year=="2016preVFP"){
 		puidcuts[0]=0.71; puidcuts[1]=0.87; puidcuts[2]=0.94; puidcuts[3]=0.97;
    }
    else{
@@ -272,7 +314,16 @@ int main(int argc, char *argv[])
    Tout->Branch("hlt_AK8PFJet400_TrimMass30",&hlt_AK8PFJet400_TrimMass30,"hlt_AK8PFJet400_TrimMass30/O");
    Tout->Branch("hlt_AK8PFHT800_TrimMass50",&hlt_AK8PFHT800_TrimMass50,"hlt_AK8PFHT800_TrimMass50/O");
    Tout->Branch("hlt_Photon200",&hlt_Photon200,"hlt_Photon200/O");
-  
+   // addition triggers in 2017 (begin) //   
+   Tout->Branch("hlt_IsoMu27",&hlt_IsoMu27,"hlt_IsoMu27/O");
+   Tout->Branch("hlt_TkMu100",&hlt_TkMu100,"hlt_TkMu100/O");
+   Tout->Branch("hlt_OldMu100",&hlt_OldMu100,"hlt_OldMu100/O");
+   Tout->Branch("hlt_Ele32_WPTight_Gsf_L1DoubleEG",&hlt_Ele32_WPTight_Gsf_L1DoubleEG,"hlt_Ele32_WPTight_Gsf_L1DoubleEG/O");
+   Tout->Branch("hlt_Ele35_WPTight_Gsf",&hlt_Ele35_WPTight_Gsf,"hlt_Ele35_WPTight_Gsf/O");
+   Tout->Branch("hlt_DoubleEle33_CaloIdL_MW",&hlt_DoubleEle33_CaloIdL_MW,"hlt_DoubleEle33_CaloIdL_MW/O");
+   Tout->Branch("hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",&hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8,"hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8/O");
+   Tout->Branch("hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8",&hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8,"hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8/O");
+   // addition triggers in 2017 (end) //   
    Tout->Branch("Muon_trig_pass",&Muon_trig_pass,"Muon_trig_pass/O");
    Tout->Branch("Electron_trig_pass",&Electron_trig_pass,"Electron_trig_pass/O");
    Tout->Branch("MuonElectron_trig_pass",&MuonElectron_trig_pass,"MuonElectron_trig_pass/O");
@@ -819,8 +870,13 @@ int main(int argc, char *argv[])
    //Tout->Branch("LHEAlpsWeights", LHEAlpsWeights, "LHEAlpsWeights[nLHEAlpsWeights]/F");
    Tout->Branch("nLHEPSWeights", &nLHEPSWeights, "nLHEPSWeights/I");
    Tout->Branch("LHEPSWeights", LHEPSWeights, "LHEPSWeights[nLHEPSWeights]/F");
-   
+  
+   if(year=="2017"){
+   calib_deepflav = BTagCalibration("DeepJet", "BtagRecommendation106XUL17/DeepJet_106XUL17SF_WPonly_V2p1.csv");
+   }
+   else{//2018
    calib_deepflav = BTagCalibration("DeepJet", "BtagRecommendation106XUL18/DeepJet_106XUL18SF_WPonly_V1p1.csv");
+   }
    reader_deepflav = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central", {"up", "down"}); 
    reader_deepflav.load(calib_deepflav, BTagEntry::FLAV_B, "comb");
    reader_deepflav.load(calib_deepflav, BTagEntry::FLAV_C, "comb");
@@ -830,13 +886,15 @@ int main(int argc, char *argv[])
    
    char name[1000];
    
-   sprintf(name,"data/Efficiencies_muon_generalTracks_Z_Run%i_UL_ID.root",year);
+   sprintf(name,"data/Efficiencies_muon_generalTracks_Z_Run%s_UL_ID.root",year.c_str());
    file_mu_sf = new TFile(name,"read");
    
-   sprintf(name,"data/egammaEffi.txt_Ele_%s_EGM2D_UL%i.root",electron_id_name.c_str(),year);
-   file_el_sf = new TFile(name,"read");
    
-   sprintf(name,"data/pileup/RatioPileup-UL%i-100bins.root",year);
+   sprintf(name,"data/egammaEffi.txt_Ele_%s_EGM2D_UL%s.root",electron_id_name.c_str(),year.c_str());
+   file_el_sf = new TFile(name,"read");
+   //source: https://twiki.cern.ch/twiki/bin/view/CMS/EgammaUL2016To2018
+   
+   sprintf(name,"data/pileup/RatioPileup-UL%s-100bins.root",year.c_str());
    file_pu_ratio = new TFile(name,"read");
    
    int count =0;
@@ -893,6 +951,16 @@ int main(int argc, char *argv[])
    fChain->SetBranchAddress("hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60", &hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60, &b_hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60);
    fChain->SetBranchAddress("hlt_PFMETNoMu140_PFMHTNoMu140_IDTight", &hlt_PFMETNoMu140_PFMHTNoMu140_IDTight, &b_hlt_PFMETNoMu140_PFMHTNoMu140_IDTight);
    fChain->SetBranchAddress("hlt_PFMETTypeOne140_PFMHT140_IDTight", &hlt_PFMETTypeOne140_PFMHT140_IDTight, &b_hlt_PFMETTypeOne140_PFMHT140_IDTight);
+   // additional triggers for 2017 (begin) //
+   fChain->SetBranchAddress("hlt_IsoMu27", &hlt_IsoMu27, &b_hlt_IsoMu27);
+   fChain->SetBranchAddress("hlt_TkMu100", &hlt_TkMu100, &b_hlt_TkMu100);
+   fChain->SetBranchAddress("hlt_OldMu100", &hlt_OldMu100, &b_hlt_OldMu100);
+   fChain->SetBranchAddress("hlt_Ele32_WPTight_Gsf_L1DoubleEG", &hlt_Ele32_WPTight_Gsf_L1DoubleEG, &b_hlt_Ele32_WPTight_Gsf_L1DoubleEG);
+   fChain->SetBranchAddress("hlt_Ele35_WPTight_Gsf", &hlt_Ele35_WPTight_Gsf, &b_hlt_Ele35_WPTight_Gsf);
+   fChain->SetBranchAddress("hlt_DoubleEle33_CaloIdL_MW", &hlt_DoubleEle33_CaloIdL_MW, &b_hlt_DoubleEle33_CaloIdL_MW);
+   fChain->SetBranchAddress("hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8", &hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8, &b_hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8);
+   fChain->SetBranchAddress("hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8", &hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8, &b_hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8);
+   // additional triggers for 2017 (end) //
    fChain->SetBranchAddress("nTrigObj", &nTrigObj, &b_nTrigObj);
    fChain->SetBranchAddress("TrigObj_pt", TrigObj_pt, &b_TrigObj_pt);
    fChain->SetBranchAddress("TrigObj_eta", TrigObj_eta, &b_TrigObj_eta);
@@ -1409,6 +1477,12 @@ int main(int argc, char *argv[])
     vector <AK4Jet> Jets;
     getAK4jets(Jets,AK4jet_pt_cut,absetacut,isMC,puidcuts,50);
     //LeptonJet_cleaning(Jets,vleptons,AK4jet_pt_cut,absetacut);
+    // undo HEM correction in  eras other than 2018 //
+    if(year!="2018"){
+		for(unsigned ijet=0; ijet<Jets.size(); ijet++){
+			Jets[ijet].HEMcor = 1;
+		}
+	}
     
     // Add b tag SF (if not in ntuple)//
     
@@ -1459,6 +1533,12 @@ int main(int argc, char *argv[])
     vector <AK8Jet> LJets;
     getAK8jets(LJets,AK8jet_pt_cut,absetacut,isMC);
     //LeptonJet_cleaning(LJets,vleptons,AK8jet_pt_cut,absetacut); (not required here, as already done in EDAnalyzer)
+    // undo HEM correction in  eras other than 2018 //
+    if(year!="2018"){
+		for(unsigned ijet=0; ijet<LJets.size(); ijet++){
+			LJets[ijet].HEMcor = 1;
+		}
+	}
     
     //Matching to AK8 jets to heavy particle products (GEN level)
     if(isMC){
@@ -1505,8 +1585,13 @@ int main(int argc, char *argv[])
     get_corrected_MET_JESVar(Jets,MET_pt_JESup_split,MET_phi_JESup_split,MET_pt,MET_phi,"up");
     get_corrected_MET_JESVar(Jets,MET_pt_JESdn_split,MET_phi_JESdn_split,MET_pt,MET_phi,"down");
     
+    if(year=="2018"){
     get_HEM_Corrected_MET(Jets,MET_pt_HEMcor,MET_phi_HEMcor,MET_pt,MET_phi);
-        
+	}    
+    else{
+		MET_pt_HEMcor = MET_pt; 
+		MET_phi_HEMcor = MET_phi;
+	}
     // ============ Trigger object along with pdgid ================////
     
     vector<TrigObj> trigobjects;
@@ -1548,10 +1633,23 @@ int main(int argc, char *argv[])
 	double_hlts.push_back(hlt_DoubleEle25_CaloIdL_MW);
     double_pt_cuts.push_back({25+add_ptcut_lep,25+add_ptcut_lep});
     double_pids.push_back({11,11});
+    if(year=="2017"){
+	double_hlts.push_back(hlt_DoubleEle33_CaloIdL_MW);
+    double_pt_cuts.push_back({33+add_ptcut_lep,33+add_ptcut_lep});
+    double_pids.push_back({11,11});	
+	}
     // Double muon trigger //	
 	double_hlts.push_back(hlt_Mu37_TkMu27);
     double_pt_cuts.push_back({37+add_ptcut_lep,27+add_ptcut_lep});
     double_pids.push_back({13,13});
+    if(year=="2017"){
+	double_hlts.push_back(hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8);
+    double_pt_cuts.push_back({17+add_ptcut_lep,8+add_ptcut_lep});
+    double_pids.push_back({13,13});
+	double_hlts.push_back(hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8);
+    double_pt_cuts.push_back({17+add_ptcut_lep,8+add_ptcut_lep});
+    double_pids.push_back({13,13});
+	}
     
     // Single muon trigger //	
     single_hlts.push_back(hlt_Mu50);
@@ -1559,6 +1657,18 @@ int main(int argc, char *argv[])
     single_pids.push_back(13);
     single_other_pt_cuts.push_back(-100);
     single_other_pids.push_back(0);
+    if(year=="2017"){
+	single_hlts.push_back(hlt_TkMu100);
+    single_pt_cuts.push_back(100+add_ptcut_lep);
+    single_pids.push_back(13);
+    single_other_pt_cuts.push_back(-100);
+    single_other_pids.push_back(0);
+	single_hlts.push_back(hlt_OldMu100);
+    single_pt_cuts.push_back(100+add_ptcut_lep);
+    single_pids.push_back(13);
+    single_other_pt_cuts.push_back(-100);
+    single_other_pids.push_back(0);
+	}
     // Single electron trigger //	
     single_hlts.push_back(hlt_Ele32_WPTight_Gsf);
     single_pt_cuts.push_back(32+add_ptcut_lep);
@@ -1580,6 +1690,18 @@ int main(int argc, char *argv[])
     single_pids.push_back(11);
     single_other_pt_cuts.push_back(165+15);
     single_other_pids.push_back(1);
+    if(year=="2017"){
+	single_hlts.push_back(hlt_Ele32_WPTight_Gsf_L1DoubleEG);
+    single_pt_cuts.push_back(32+add_ptcut_lep);
+    single_pids.push_back(11);
+    single_other_pt_cuts.push_back(-100);
+    single_other_pids.push_back(0);	
+	single_hlts.push_back(hlt_Ele35_WPTight_Gsf);
+    single_pt_cuts.push_back(35+add_ptcut_lep);
+    single_pids.push_back(11);
+    single_other_pt_cuts.push_back(-100);
+    single_other_pids.push_back(0);		
+	}
 	// Single jet trigger //	
 	jet_hlts.push_back(hlt_AK8PFJet500);
 	jet_pt_cuts.push_back(500+add_ptcut_jet);
@@ -2566,7 +2688,7 @@ int main(int argc, char *argv[])
 						}
 					}
 				
-					if(isMC){
+					if(isMC && year=="2018"){
 						
 						W_mom.SetPtEtaPhiM(LJets[W_cand[jw]].JERup*LJets[W_cand[jw]].p4.Pt(),LJets[W_cand[jw]].p4.Eta(),LJets[W_cand[jw]].p4.Phi(),LJets[W_cand[jw]].JERup*LJets[W_cand[jw]].p4.M());
 						pnu_var = neutrino_mom_fromH(vleptons[0].p4+W_mom, MET_pt_JERup, MET_phi_JERup, random_no);

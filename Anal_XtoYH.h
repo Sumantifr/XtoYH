@@ -81,6 +81,16 @@
    Bool_t          hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60;
    Bool_t          hlt_PFMETNoMu140_PFMHTNoMu140_IDTight;
    Bool_t          hlt_PFMETTypeOne140_PFMHT140_IDTight;
+   //additions in 2017 (begin) //
+   Bool_t		   hlt_IsoMu27;
+   Bool_t		   hlt_TkMu100;
+   Bool_t		   hlt_OldMu100;
+   Bool_t		   hlt_Ele32_WPTight_Gsf_L1DoubleEG;
+   Bool_t		   hlt_Ele35_WPTight_Gsf;
+   Bool_t		   hlt_DoubleEle33_CaloIdL_MW;
+   Bool_t		   hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8;
+   Bool_t		   hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8;
+   //additions in 2017 (end) //
    Int_t           nTrigObj;
    int ncuts;
    Bool_t          Flag_event_cuts[njetmxAK8];
@@ -523,6 +533,16 @@
    TBranch        *b_hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60;   //!
    TBranch        *b_hlt_PFMETNoMu140_PFMHTNoMu140_IDTight;   //!
    TBranch        *b_hlt_PFMETTypeOne140_PFMHT140_IDTight;   //!
+   //additions in 2017 (begin) //
+   TBranch		  *b_hlt_IsoMu27;
+   TBranch		  *b_hlt_TkMu100;
+   TBranch		  *b_hlt_OldMu100;
+   TBranch		  *b_hlt_Ele32_WPTight_Gsf_L1DoubleEG;
+   TBranch		  *b_hlt_Ele35_WPTight_Gsf;
+   TBranch		  *b_hlt_DoubleEle33_CaloIdL_MW;
+   TBranch		  *b_hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8;
+   TBranch		  *b_hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8;
+   //additions in 2017 (end) //
    TBranch        *b_nTrigObj;   //!
    TBranch        *b_TrigObj_pt;   //!
    TBranch        *b_TrigObj_eta;   //!
@@ -940,7 +960,8 @@
    
    // YEAR //
    
-   int year = 2018; 
+   //int year = 2018; 
+   string year = "2017"; 
    
    // Files to read for SFs //
    
