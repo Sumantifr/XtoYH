@@ -72,15 +72,6 @@ std::cerr << "ERROR in BTagCalibration: "
 throw std::exception();
   }
 
-  // Due to moving on to UL, the configuration of Btag SF file is changed.
-  // ref: (p.2) https://indico.cern.ch/event/1096988/contributions/4615134/attachments/2346047/4000529/Nov21_btaggingSFjsons.pdf
-  if (vec[0]=="L") vec[0]="0";
-  else if (vec[0]=="M") vec[0]="1";
-  else if (vec[0]=="T") vec[0]="2";
-  if (vec[3]=="5") vec[3]="0";
-  else if (vec[3]=="4") vec[3]="1";
-  else if (vec[3]=="0") vec[3]="2";
-
   // make parameters
   unsigned op = stoi(vec[0]);
   if (op > 3) {
@@ -441,7 +432,7 @@ std::cerr << "ERROR in BTagCalibration: "
             << ost;
 throw std::exception();
     }
-    otherSysTypeReaders_[ost] = std::unique_ptr<BTagCalibrationReaderImpl>(
+    otherSysTypeReaders_[ost] = std::auto_ptr<BTagCalibrationReaderImpl>(
         new BTagCalibrationReaderImpl(op, ost)
     );
   }

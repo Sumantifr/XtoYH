@@ -913,7 +913,7 @@ int main(int argc, char *argv[])
    Tout->Branch("LHEPSWeights", LHEPSWeights, "LHEPSWeights[nLHEPSWeights]/F");
   
    if(year=="2017"){
-   calib_deepflav = BTagCalibration("DeepJet", "BtagRecommendation106XUL17/DeepJet_106XUL17SF_WPonly_V2p1.csv");
+   calib_deepflav = BTagCalibration("DeepJet", "BtagRecommendation106XUL17/wp_deepJet.csv"); //DeepJet_106XUL17SF_WPonly_V2p1.csv
    }
    else{//2018
    calib_deepflav = BTagCalibration("DeepJet", "BtagRecommendation106XUL18/DeepJet_106XUL18SF_WPonly_V1p1.csv");
