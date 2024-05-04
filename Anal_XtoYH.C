@@ -101,6 +101,43 @@ float* Get_PU_Weights(TFile *file_pu_ratio, int npu){
 	return puweight;
 }
 
+float* Jet_PUID_SF(TFile *file_jet_puid_SF, float pt, float eta, string year, string WP){
+
+	char name[100];
+	
+	string era = "";
+	if(year=="2016preVFP")		{ era = "2016APV";}
+	//else if(year=="2016postVFP"){ era = "2016";}
+	else { era = year; }
+	
+	sprintf(name,"h2_eff_sfUL%s_%s",era.c_str(),WP.c_str());
+	TH2F *h_SF = (TH2F*)file_jet_puid_SF->Get(name);
+	sprintf(name,"h2_eff_sfUL%s_%s_Systuncty",era.c_str(),WP.c_str());
+	TH2F *h_SF_sys = (TH2F*)file_jet_puid_SF->Get(name);
+	
+	int pt_bin_id = h_SF->GetXaxis()->FindBin(pt);
+	int eta_bin_id = h_SF->GetYaxis()->FindBin(eta);
+
+	float sf, sf_stat, sf_sys, sf_err;
+		
+	if(eta_bin_id>0 && eta_bin_id<=(h_SF->GetNbinsY()) && pt_bin_id>0 && pt_bin_id<=(h_SF->GetNbinsX())){
+		sf = h_SF->GetBinContent(pt_bin_id,eta_bin_id);
+		sf_stat = h_SF->GetBinError(pt_bin_id,eta_bin_id);
+		sf_sys = h_SF_sys->GetBinContent(pt_bin_id,eta_bin_id);
+	}else{
+		sf = 1;
+		sf_stat = sf_sys = 0;
+		}
+	
+	static float sfvalues[3];
+	
+	sfvalues[0] = sf;
+	sfvalues[1] = sf_stat;
+	sfvalues[2] = sf_sys;
+		
+	return sfvalues;
+}
+
 int main(int argc, char *argv[])
 {
    //Arguments:
@@ -806,7 +843,11 @@ int main(int argc, char *argv[])
    Tout->Branch("leptonsf_weight_up", &leptonsf_weight_up, "leptonsf_weight_up/F");	
    Tout->Branch("leptonsf_weight_dn", &leptonsf_weight_dn, "leptonsf_weight_dn/F");	
    Tout->Branch("leptonsf_weight_stat", &leptonsf_weight_stat, "leptonsf_weight_stat/F");	
-   Tout->Branch("leptonsf_weight_syst", &leptonsf_weight_syst, "leptonsf_weight_syst/F");		
+   Tout->Branch("leptonsf_weight_syst", &leptonsf_weight_syst, "leptonsf_weight_syst/F");	
+   
+   Tout->Branch("jetpuidsf_weight", &jetpuidsf_weight, "jetpuidsf_weight/F");
+   Tout->Branch("jetpuidsf_weight_stat", &jetpuidsf_weight_stat, "jetpuidsf_weight_stat/F");	
+   Tout->Branch("jetpuidsf_weight_syst", &jetpuidsf_weight_syst, "jetpuidsf_weight_syst/F");	
    
    Tout->Branch("prefiringweight", &prefiringweight, "prefiringweight/D");	
    Tout->Branch("prefiringweightup", &prefiringweightup, "prefiringweightup/D");	
@@ -896,6 +937,10 @@ int main(int argc, char *argv[])
    
    sprintf(name,"data/pileup/RatioPileup-UL%s-100bins.root",year.c_str());
    file_pu_ratio = new TFile(name,"read");
+   
+   sprintf(name,"data/PUID_106XTraining_ULRun2_EffSFandUncties_v1.root");
+   file_jet_puid_SF = new TFile(name,"read");
+   //source: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetIDUL#Data_MC_Efficiency_Scale_Factors
    
    int count =0;
    string fileName;
@@ -1845,15 +1890,17 @@ int main(int argc, char *argv[])
 	weight = 1;
     
     leptonsf_weight = 1.0;
-	leptonsf_weight_up = 1.0;
-	leptonsf_weight_dn = 1.0;
 	leptonsf_weight_stat = 1.0;
 	leptonsf_weight_syst = 1.0;
 	
 	puWeight = puWeightup = puWeightdown = 1.0;
         
+    jetpuidsf_weight = 1;
+    jetpuidsf_weight_stat = 1;
+    jetpuidsf_weight_syst = 1;
+        
     if(isMC){    
-
+		
 		if(npu_vert_true>=0 && npu_vert_true<100){
 			float *puweights = Get_PU_Weights(file_pu_ratio, npu_vert_true);
 			puWeight = puweights[0];
@@ -1879,6 +1926,17 @@ int main(int argc, char *argv[])
 				leptonsf_weight_stat *= *(sfvalues+3);
 				leptonsf_weight_syst *= *(sfvalues+4);
 			}
+		
+		for(unsigned ijet=0; ijet<Jets.size(); ijet++){
+			
+			float *sfvalues;
+			sfvalues =  Jet_PUID_SF(file_jet_puid_SF, Jets[ijet].pt, Jets[ijet].eta, year, "T");
+			jetpuidsf_weight	 *= *(sfvalues);
+			jetpuidsf_weight_stat *= *(sfvalues+1); // only unc(SF), not SF + unc(SF)
+			jetpuidsf_weight_syst *= *(sfvalues+2); // only unc(SF), not SF + unc(SF)
+			
+		}
+		
 		}
 	
 		if(!isSignal){

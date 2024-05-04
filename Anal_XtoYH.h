@@ -968,6 +968,7 @@
    TFile *file_mu_sf;
    TFile *file_el_sf;
    TFile *file_pu_ratio;
+   TFile *file_jet_puid_SF;
    
    //// cuts & WPs for object selection ////
    
@@ -1191,6 +1192,7 @@
    
    float puWeight, puWeightup, puWeightdown;
    float leptonsf_weight, leptonsf_weight_up, leptonsf_weight_dn, leptonsf_weight_stat, leptonsf_weight_syst;
+   float jetpuidsf_weight, jetpuidsf_weight_stat, jetpuidsf_weight_syst;
    
    static const int npuptbins = 4;
    float puptbins[npuptbins+1] = {10,20,30,40,50};
