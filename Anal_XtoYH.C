@@ -1528,7 +1528,11 @@ int main(int argc, char *argv[])
 			Jets[ijet].HEMcor = 1;
 		}
 	}
-    
+	//Here you get AK4 GEN jets
+	vector <AK4GenJet> genJets;
+	if(isMC){
+		getAK4Genjets(genJets,AK4GenJet_pt_cut,absetacut);
+	}
     // Add b tag SF (if not in ntuple)//
     
     for(auto & jet: Jets){
@@ -1926,22 +1930,36 @@ int main(int argc, char *argv[])
 				leptonsf_weight_stat *= *(sfvalues+3);
 				leptonsf_weight_syst *= *(sfvalues+4);
 			}
+		}//lep
 		
 		for(unsigned ijet=0; ijet<Jets.size(); ijet++){
 			
-			float *sfvalues;
-			sfvalues =  Jet_PUID_SF(file_jet_puid_SF, Jets[ijet].pt, Jets[ijet].eta, year, "T");
-			jetpuidsf_weight	 *= *(sfvalues);
-			jetpuidsf_weight_stat *= *(sfvalues+1); // only unc(SF), not SF + unc(SF)
-			jetpuidsf_weight_syst *= *(sfvalues+2); // only unc(SF), not SF + unc(SF)
+			double dR_ij = 9999.9;
 			
-		}
-		
-		}
+			for(unsigned gjet=0; gjet<genJets.size(); gjet++)
+			{
+				double temp_dR = delta2R(Jets[ijet].y,Jets[ijet].phi,genJets[gjet].p4.Rapidity(),genJets[gjet].phi) ;
+				if (temp_dR < dR_ij )
+				{
+					dR_ij = temp_dR;
+				}
+			}
+			
+			if(dR_ij < 0.4)
+			{
+				float *sfvalues;
+				sfvalues =  Jet_PUID_SF(file_jet_puid_SF, Jets[ijet].pt, Jets[ijet].eta, year, "T");
+				jetpuidsf_weight	 *= *(sfvalues);
+				jetpuidsf_weight_stat *= *(sfvalues+1); // only unc(SF), not SF + unc(SF)
+				jetpuidsf_weight_syst *= *(sfvalues+2); // only unc(SF), not SF + unc(SF)
+			}
+			
+		}//jet
 	
 		if(!isSignal){
 			weight *= Generator_weight;
 		}
+		
 		weight *= puWeight;
 		weight *= leptonsf_weight;
 		weight *= prefiringweight;
@@ -1964,9 +1982,6 @@ int main(int argc, char *argv[])
 		 //*****************************************************************************************
 		//                            AK4 histogram filling for btag SF                          //
 		//*****************************************************************************************          
-  	
-		vector <AK4GenJet> genJets;
-		getAK4Genjets(genJets,AK4GenJet_pt_cut,absetacut);
 
 		for(unsigned ijet=0; ijet<Jets.size(); ijet++){
 			double dR = 9999.9;
