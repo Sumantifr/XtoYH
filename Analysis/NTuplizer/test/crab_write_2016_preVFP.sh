@@ -20,7 +20,7 @@ config.General.transferLogs = True
 
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = '${config}'
-config.JobType.inputFiles = ['Summer19UL16_V7_MC','Summer20UL16_JRV3_MC','BtagRecommendation106XUL16postVFP','roccor.Run2.v5']
+config.JobType.inputFiles = ['Summer19UL16APV_V7_MC','Summer20UL16APV_JRV3_MC','BtagRecommendation106XUL16preVFP','roccor.Run2.v5']
 config.JobType.disableAutomaticOutputCollection = True
 config.JobType.outputFiles = ['hist.root','rootuple.root']
 config.JobType.maxJobRuntimeMin = 2700

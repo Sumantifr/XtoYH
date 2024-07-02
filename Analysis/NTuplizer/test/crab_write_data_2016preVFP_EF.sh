@@ -20,7 +20,7 @@ config.General.transferLogs = True
 
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = '${config}'
-config.JobType.inputFiles = ['Summer19UL16_V7_MC','Summer20UL16_JRV3_MC','BtagRecommendation106XUL16postVFP','roccor.Run2.v5']
+config.JobType.inputFiles = ['Summer19UL16APV_RunEF_V7_DATA','Summer20UL16APV_JRV3_MC','BtagRecommendation106XUL16preVFP','roccor.Run2.v5']
 config.JobType.disableAutomaticOutputCollection = True
 config.JobType.outputFiles = ['hist.root','rootuple.root']
 config.JobType.maxJobRuntimeMin = 2700
@@ -29,8 +29,9 @@ config.JobType.allowUndistributedCMSSW = True
 
 config.Data.inputDataset = '$Dataset'
 config.Data.inputDBS = '$DBS'
-config.Data.splitting = 'FileBased'
+config.Data.splitting = 'LumiBased'
 config.Data.unitsPerJob = 5
+config.Data.lumiMask ='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Legacy_2016/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt'
 config.Data.outLFNDirBase = '/store/user/chatterj/XToYH/'
 config.Data.publication = $publication
 config.Data.outputDatasetTag = '${production_tag}'

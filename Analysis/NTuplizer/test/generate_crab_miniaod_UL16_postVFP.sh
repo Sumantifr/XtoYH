@@ -1,6 +1,6 @@
 #!/bin/bash
 
-config=RunJets_MC_2016_MINIAOD_cfg.py
+config=RunJets_MC_2016_postVFP_MINIAOD_cfg.py
 publish=True
 #site=T2_US_UCSD
 site=T2_AT_Vienna
