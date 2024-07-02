@@ -67,7 +67,7 @@ inFiles = cms.untracked.vstring(
 #'file:MINIAOD_Signal_MX2000_MY200.root'
 #'root://xrootd-cms.infn.it//store/mc/RunIISummer19UL17MiniAOD/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/260000/00C28834-56C0-2343-B436-AA8521756E9E.root'
 #'root://xrootd-cms.infn.it//store/mc/RunIISummer20UL18MiniAODv2/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/00000/04A0B676-D63A-6D41-B47F-F4CF8CBE7DB8.root'
-'root://cms-xrd-global.cern.ch//store/mc/RunIISummer20UL16MiniAODv2/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_mcRun2_asymptotic_v17-v1/120000/038D9F5E-C340-FD45-B613-DD495181C237.root'
+'root://cms-xrd-global.cern.ch//store/mc/RunIISummer20UL16MiniAODAPVv2/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_mcRun2_asymptotic_preVFP_v11-v1/100000/01F4A6F7-4A2D-CF48-94EC-7C586DD313E3.root'
 
 
    )
