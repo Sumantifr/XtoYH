@@ -1037,18 +1037,20 @@ private:
   
   // HL triggers //
   
-  static const int nHLTmx = 29;
+  static const int nHLTmx = 35;
   const char *hlt_name[nHLTmx] = {"HLT_IsoMu24_v","HLT_Mu50_v",  // single-muon triggers
 				  "HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v","HLT_Ele115_CaloIdVT_GsfTrkIdT_v", "HLT_Ele40_WPTight_Gsf_v",  "HLT_Ele32_WPTight_Gsf_v", "HLT_Ele28_eta2p1_WPTight_Gsf_HT150_v", // single-electron triggers
 				  "HLT_Mu37_Ele27_CaloIdL_MW_v", "HLT_Mu27_Ele37_CaloIdL_MW_v", "HLT_Mu37_TkMu27_v", "HLT_DoubleEle25_CaloIdL_MW_v", // double-lepton triggers
 				  "HLT_AK8PFJet500_v", "HLT_PFJet500_v", "HLT_PFHT1050_v", "HLT_AK8PFJet400_TrimMass30_v", "HLT_AK8PFHT800_TrimMass50_v", // jet triggers
 				  "HLT_Photon200_v", // photon trigger
 				  "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60_v", "HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60_v", "HLT_PFMETNoMu140_PFMHTNoMu140_IDTight_v", "HLT_PFMETTypeOne140_PFMHT140_IDTight_v", // MET trigger
-                                  "HLT_IsoMu27_v","HLT_TkMu100_v","HLT_OldMu100_v","HLT_Ele32_WPTight_Gsf_L1DoubleEG_v","HLT_Ele35_WPTight_Gsf_v","HLT_DoubleEle33_CaloIdL_MW_v","HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v","HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v" // the addition-twenty-seventeen                  
+                  "HLT_IsoMu27_v","HLT_TkMu100_v","HLT_OldMu100_v","HLT_Ele32_WPTight_Gsf_L1DoubleEG_v","HLT_Ele35_WPTight_Gsf_v","HLT_DoubleEle33_CaloIdL_MW_v","HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v","HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v", // the addition for 2017               
+				  "HLT_IsoTkMu24_v", "HLT_Ele27_WPTight_Gsf_v","HLT_AK8PFJet450_v", "HLT_PFJet450_v", "HLT_PFHT800_v", "HLT_PFHT900_v" // the addition for 2016
   }; 
 
   bool hlt_IsoMu24;
   bool hlt_IsoMu27;
+  bool hlt_IsoTkMu24;
   bool hlt_Mu50; 
   bool hlt_TkMu100;
   bool hlt_OldMu100;
@@ -1059,6 +1061,7 @@ private:
   bool hlt_Ele28_eta2p1_WPTight_Gsf_HT150;
   bool hlt_Ele32_WPTight_Gsf_L1DoubleEG;
   bool hlt_Ele35_WPTight_Gsf;
+  bool hlt_Ele27_WPTight_Gsf;
   bool hlt_Mu37_Ele27_CaloIdL_MW;
   bool hlt_Mu27_Ele37_CaloIdL_MW;
   bool hlt_Mu37_TkMu27;
@@ -1067,8 +1070,12 @@ private:
   bool hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8;
   bool hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8;
   bool hlt_AK8PFJet500;
+  bool hlt_AK8PFJet450;
   bool hlt_PFJet500;
+  bool hlt_PFJet450;
   bool hlt_HT1050;
+  bool hlt_HT900;
+  bool hlt_HT800;
   bool hlt_AK8PFJet400_TrimMass30;
   bool hlt_AK8PFHT800_TrimMass50;
   bool hlt_Photon200;
@@ -1322,12 +1329,14 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("hlt_IsoMu24",&hlt_IsoMu24,"hlt_IsoMu24/O");
   T1->Branch("hlt_IsoMu27", &hlt_IsoMu27, "hlt_IsoMu27/O");
   T1->Branch("hlt_Mu50",&hlt_Mu50,"hlt_Mu50/O");
+  T1->Branch("hlt_IsoTkMu24",&hlt_IsoTkMu24,"hlt_IsoTkMu24/O");
   T1->Branch("hlt_TkMu100", &hlt_TkMu100, "hlt_TkMu100/O");
   T1->Branch("hlt_OldMu100", &hlt_OldMu100, "hlt_OldMu100/O");
   T1->Branch("hlt_Ele50_CaloIdVT_GsfTrkIdT_PFJet165",&hlt_Ele50_CaloIdVT_GsfTrkIdT_PFJet165,"hlt_Ele50_CaloIdVT_GsfTrkIdT_PFJet165/O");
   T1->Branch("hlt_Ele115_CaloIdVT_GsfTrkIdT",&hlt_Ele115_CaloIdVT_GsfTrkIdT,"hlt_Ele115_CaloIdVT_GsfTrkIdT/O");
   T1->Branch("hlt_Ele40_WPTight_Gsf",&hlt_Ele40_WPTight_Gsf,"hlt_Ele40_WPTight_Gsf/O");
   T1->Branch("hlt_Ele32_WPTight_Gsf",&hlt_Ele32_WPTight_Gsf,"hlt_Ele32_WPTight_Gsf/O");
+  T1->Branch("hlt_Ele27_WPTight_Gsf",&hlt_Ele27_WPTight_Gsf,"hlt_Ele27_WPTight_Gsf/O");
   T1->Branch("hlt_Ele28_eta2p1_WPTight_Gsf_HT150",&hlt_Ele28_eta2p1_WPTight_Gsf_HT150,"hlt_Ele28_eta2p1_WPTight_Gsf_HT150/O");
   T1->Branch("hlt_Ele32_WPTight_Gsf_L1DoubleEG", &hlt_Ele32_WPTight_Gsf_L1DoubleEG, "hlt_Ele32_WPTight_Gsf_L1DoubleEG/O");
   T1->Branch("hlt_Ele35_WPTight_Gsf", &hlt_Ele35_WPTight_Gsf, "hlt_Ele35_WPTight_Gsf/O");
@@ -1339,8 +1348,13 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8", &hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8, "hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8/O");
   T1->Branch("hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8", &hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8, "hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8/O");
   T1->Branch("hlt_AK8PFJet500",&hlt_AK8PFJet500,"hlt_AK8PFJet500/O");
+  T1->Branch("hlt_AK8PFJet450",&hlt_AK8PFJet450,"hlt_AK8PFJet450/O");
   T1->Branch("hlt_PFJet500",&hlt_PFJet500,"hlt_PFJet500/O");
+  T1->Branch("hlt_PFJet450",&hlt_PFJet450,"hlt_PFJet450/O");
   T1->Branch("hlt_HT1050",&hlt_HT1050,"hlt_HT1050/O");
+  T1->Branch("hlt_HT800",&hlt_HT800,"hlt_HT800/O");
+  T1->Branch("hlt_HT900",&hlt_HT900,"hlt_HT900/O");
+  
   T1->Branch("hlt_AK8PFJet400_TrimMass30",&hlt_AK8PFJet400_TrimMass30,"hlt_AK8PFJet400_TrimMass30/O");
   T1->Branch("hlt_AK8PFHT800_TrimMass50",&hlt_AK8PFHT800_TrimMass50,"hlt_AK8PFHT800_TrimMass50/O");
   T1->Branch("hlt_Photon200",&hlt_Photon200,"hlt_Photon200/O");
@@ -1348,7 +1362,7 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60",&hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60,"hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60/O");
   T1->Branch("hlt_PFMETNoMu140_PFMHTNoMu140_IDTight",&hlt_PFMETNoMu140_PFMHTNoMu140_IDTight,"hlt_PFMETNoMu140_PFMHTNoMu140_IDTight/O");
   T1->Branch("hlt_PFMETTypeOne140_PFMHT140_IDTight",&hlt_PFMETTypeOne140_PFMHT140_IDTight,"hlt_PFMETTypeOne140_PFMHT140_IDTight/O");
- 
+  
   T1->Branch("nTrigObj",&nTrigObj,"nTrigObj/I");
   T1->Branch("TrigObj_pt",TrigObj_pt,"TrigObj_pt[nTrigObj]/F");
   T1->Branch("TrigObj_eta",TrigObj_eta,"TrigObj_eta[nTrigObj]/F");
@@ -2487,14 +2501,21 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
 	  else if(jk==18) {  hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60 = booltrg[jk]; }
 	  else if(jk==19) {  hlt_PFMETNoMu140_PFMHTNoMu140_IDTight = booltrg[jk]; }
 	  else if(jk==20) {  hlt_PFMETTypeOne140_PFMHT140_IDTight = booltrg[jk]; }
-          else if(jk==21) {  hlt_IsoMu27 = booltrg[jk]; }
+      else if(jk==21) {  hlt_IsoMu27 = booltrg[jk]; }
 	  else if(jk==22) {  hlt_TkMu100 = booltrg[jk]; }
 	  else if(jk==23) {  hlt_OldMu100 = booltrg[jk]; }
 	  else if(jk==24) {  hlt_Ele32_WPTight_Gsf_L1DoubleEG = booltrg[jk]; }
 	  else if(jk==25) {  hlt_Ele35_WPTight_Gsf = booltrg[jk]; }
 	  else if(jk==26) {  hlt_DoubleEle33_CaloIdL_MW = booltrg[jk]; }
 	  else if(jk==27) {  hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8 = booltrg[jk]; }
-          else if(jk==28) {  hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8   = booltrg[jk]; }
+      else if(jk==28) {  hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8   = booltrg[jk]; }
+      //
+      else if(jk==29) {  hlt_IsoTkMu24   = booltrg[jk]; }
+      else if(jk==30) {  hlt_Ele27_WPTight_Gsf   = booltrg[jk]; }
+      else if(jk==31) {  hlt_AK8PFJet450   = booltrg[jk]; }
+      else if(jk==32) {  hlt_PFJet450   = booltrg[jk]; }
+      else if(jk==33) {  hlt_HT800   = booltrg[jk]; }
+      else if(jk==34) {  hlt_HT900   = booltrg[jk]; }
   }
   
   // trigger filling end //

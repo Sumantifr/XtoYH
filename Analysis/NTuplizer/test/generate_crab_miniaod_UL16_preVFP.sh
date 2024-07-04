@@ -74,8 +74,8 @@ then
 	exit
 fi
 
-fil_list=crab_submit
-mon_list=crab_monitor
+fil_list=crab_submit_2016_preVFP_MC
+mon_list=crab_monitor_2016_preVFP_MC
 truncate -s 0 ${fil_list}.sh
 echo "#!/bin/bash" | cat >>${fil_list}.sh
 truncate -s 0 ${mon_list}.sh
