@@ -2,7 +2,7 @@
 
 config=RunJets_MC_MINIAOD_cfg.py
 publish=True
-site=T2_IN_TIFR
+site=T2_AT_Vienna
 DBS=global
 
 sample_names=(

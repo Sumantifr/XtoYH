@@ -2,7 +2,7 @@
 
 config=RunJets_MC_MINIAOD_cfg.py
 publish=True
-site=T2_IN_TIFR
+site=T2_AT_Vienna
 DBS=global
 
 sample_names=(
@@ -75,7 +75,7 @@ do
         then
                 ./crab_write_data_2016postVFP.sh $label RunJets_Data_2016postVFP_MINIAOD_cfg.py ${sample_data[i-1]} $publish $site $DBS
         fi
-        if [ $runtag = 3 ];
+        if [ $runtag = 0 ];
         then
                 ./crab_write_data_2016postVFP.sh $label RunJets_Data_2016postVFP_MINIAOD_cfg.py ${sample_data[i-1]} $publish $site $DBS
         fi
