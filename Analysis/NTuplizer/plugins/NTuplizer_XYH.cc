@@ -1037,7 +1037,7 @@ private:
   
   // HL triggers //
   
-  static const int nHLTmx = 42;
+  static const int nHLTmx = 43;
   const char *hlt_name[nHLTmx] = {"HLT_IsoMu24_v","HLT_Mu50_v",  // single-muon triggers
 				  "HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v","HLT_Ele115_CaloIdVT_GsfTrkIdT_v", "HLT_Ele40_WPTight_Gsf_v",  "HLT_Ele32_WPTight_Gsf_v", "HLT_Ele28_eta2p1_WPTight_Gsf_HT150_v", // single-electron triggers
 				  "HLT_Mu37_Ele27_CaloIdL_MW_v", "HLT_Mu27_Ele37_CaloIdL_MW_v", "HLT_Mu37_TkMu27_v", "HLT_DoubleEle25_CaloIdL_MW_v", // double-lepton triggers
@@ -1046,7 +1046,7 @@ private:
 				  "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60_v", "HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60_v", "HLT_PFMETNoMu140_PFMHTNoMu140_IDTight_v", "HLT_PFMETTypeOne140_PFMHT140_IDTight_v", // MET trigger
                   "HLT_IsoMu27_v","HLT_TkMu100_v","HLT_OldMu100_v","HLT_Ele32_WPTight_Gsf_L1DoubleEG_v","HLT_Ele35_WPTight_Gsf_v","HLT_DoubleEle33_CaloIdL_MW_v","HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v","HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v", // the addition for 2017               
 				  "HLT_IsoTkMu24_v", "HLT_Ele27_WPTight_Gsf_v","HLT_AK8PFJet450_v", "HLT_PFJet450_v", "HLT_PFHT800_v", "HLT_PFHT900_v", // the addition for 2016
-				  "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v","HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v","HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v","HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v","HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v","HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",//more additions for 2016
+				  "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v","HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v","HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v","HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v","HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v","HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v","HLT_Photon175_v"//more additions for 2016
   }; 
 
   bool hlt_IsoMu24;
@@ -1087,6 +1087,7 @@ private:
   bool hlt_AK8PFJet400_TrimMass30;
   bool hlt_AK8PFHT800_TrimMass50;
   bool hlt_Photon200;
+  bool hlt_Photon175;
   bool hlt_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60;
   bool hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60;
   bool hlt_PFMETNoMu140_PFMHTNoMu140_IDTight;
@@ -1373,6 +1374,7 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("hlt_AK8PFJet400_TrimMass30",&hlt_AK8PFJet400_TrimMass30,"hlt_AK8PFJet400_TrimMass30/O");
   T1->Branch("hlt_AK8PFHT800_TrimMass50",&hlt_AK8PFHT800_TrimMass50,"hlt_AK8PFHT800_TrimMass50/O");
   T1->Branch("hlt_Photon200",&hlt_Photon200,"hlt_Photon200/O");
+  T1->Branch("hlt_Photon175",&hlt_Photon175,"hlt_Photon175/O");
   T1->Branch("hlt_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60",&hlt_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60,"hlt_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60/O");
   T1->Branch("hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60",&hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60,"hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60/O");
   T1->Branch("hlt_PFMETNoMu140_PFMHTNoMu140_IDTight",&hlt_PFMETNoMu140_PFMHTNoMu140_IDTight,"hlt_PFMETNoMu140_PFMHTNoMu140_IDTight/O");
@@ -2539,6 +2541,7 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
       else if(jk==39) {  hlt_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL   = booltrg[jk]; }
       else if(jk==40) {  hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ   = booltrg[jk]; }
       else if(jk==41) {  hlt_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ   = booltrg[jk]; }
+      else if(jk==42) {  hlt_Photon175 = booltrg[jk]; }
   }
   
   // trigger filling end //

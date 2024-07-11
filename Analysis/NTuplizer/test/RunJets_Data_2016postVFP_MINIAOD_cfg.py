@@ -45,7 +45,7 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 from RecoJets.Configuration.GenJetParticles_cff import *
 
-process.GlobalTag.globaltag = "106X_mcRun2_asymptotic_v17"
+process.GlobalTag.globaltag = "106X_dataRun2_v37"
 
 ##-------------------- Import the JEC services -----------------------
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
@@ -59,7 +59,7 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 inFiles = cms.untracked.vstring(
 #'root://xrootd-cms.infn.it//store/data/Run2018A/SingleMuon/MINIAOD/UL2018_MiniAODv2-v3/2530000/002A113D-FB15-1341-A170-638E53A7261F.root'
-'root://xrootd-cms.infn.it//store/data/Run2017B/DoubleEG/MINIAOD/UL2017_MiniAODv2-v1/260000/21F007E8-B68B-0940-8D87-5928610D4DD1.root'
+'root://cms-xrd-global.cern.ch//store/data/Run2016F/SingleMuon/MINIAOD/UL2016_MiniAODv2-v2/70000/060F0B51-FCEF-F343-890C-3043A4B268C2.root'
    )
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(3000))

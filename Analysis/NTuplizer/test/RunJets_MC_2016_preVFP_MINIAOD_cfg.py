@@ -45,7 +45,7 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 from RecoJets.Configuration.GenJetParticles_cff import *
 
-process.GlobalTag.globaltag = "106X_mcRun2_asymptotic_v17"
+process.GlobalTag.globaltag = "106X_mcRun2_asymptotic_preVFP_v11"
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
 
 ##-------------------- Import the JEC services -----------------------
