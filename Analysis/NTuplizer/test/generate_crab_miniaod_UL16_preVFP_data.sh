@@ -107,7 +107,7 @@ do
 	then
 		./crab_write_data_2016preVFP_EF.sh $label RunJets_Data_2016preVFP_EF_MINIAOD_cfg.py ${sample_data[i-1]} $publish $site $DBS
 	fi
-	if [ $runtag = 5 ];
+	if [ $runtag = 0 ];
 	then
 		./crab_write_data_2016preVFP_EF.sh $label RunJets_Data_2016preVFP_EF_MINIAOD_cfg.py ${sample_data[i-1]} $publish $site $DBS
 	fi
