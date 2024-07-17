@@ -915,6 +915,12 @@ int main(int argc, char *argv[])
    if(year=="2017"){
    calib_deepflav = BTagCalibration("DeepJet", "BtagRecommendation106XUL17/wp_deepJet.csv"); //DeepJet_106XUL17SF_WPonly_V2p1.csv
    }
+   else if(year=="2016postVFP"){
+   calib_deepflav = BTagCalibration("DeepJet", "BtagRecommendation106XUL16postVFP/wp_deepJet.csv"); 
+   }
+   else if(year=="2016preVFP"){
+   calib_deepflav = BTagCalibration("DeepJet", "BtagRecommendation106XUL16preVFP/wp_deepJet.csv"); 
+   }
    else{//2018
    calib_deepflav = BTagCalibration("DeepJet", "BtagRecommendation106XUL18/DeepJet_106XUL18SF_WPonly_V1p1.csv");
    }
@@ -929,7 +935,6 @@ int main(int argc, char *argv[])
    
    sprintf(name,"data/Efficiencies_muon_generalTracks_Z_Run%s_UL_ID.root",year.c_str());
    file_mu_sf = new TFile(name,"read");
-   
    
    sprintf(name,"data/egammaEffi.txt_Ele_%s_EGM2D_UL%s.root",electron_id_name.c_str(),year.c_str());
    file_el_sf = new TFile(name,"read");
