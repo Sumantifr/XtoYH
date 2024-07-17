@@ -111,24 +111,13 @@ double delta2R_vec(TLorentzVector vec1, TLorentzVector vec2) {
 double EW_toppt_cor(double pt){
 return (exp(-1.08872-(pt*0.011998)) + 0.895139);
 }
-
-double Top_pt_reweight(double pt0, double pt1, double alpha=0.0615, double beta=0.0005)
+/*
+double SF_TOP(double alpha, double beta, double pt0, double pt1)
 {
-	//https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopPtReweighting#How_to_practically_apply_default
 	double sfwt = sqrt(exp(alpha-beta*pt0) * exp(alpha-beta*pt1));
 	return sfwt;
 }
-
-
-double Top_pt_reweight_NNLOvsMC(double pt0, double pt1, double a0=0.103, double b0=-0.0118, double c0=-0.000134, double d0=0.973)
-{
-        //https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopPtReweighting#How_to_practically_apply_default
-        double sfwt1 = a0*exp(b0*pt0) + c0*pt0 + d0;
-	double sfwt2 = a0*exp(b0*pt1) + c0*pt0 + d0;
-	double sfwt = sqrt(sfwt1*sfwt2);
-        return sfwt;
-}
-
+*/
 
 float Calc_MT(const TLorentzVector t1, const TLorentzVector t2)
 {
@@ -243,45 +232,4 @@ if(normalize==1){
     hin->Scale(1./hin->Integral());
 }
 
-}
-
-void check_zero_bin(TH1D *hin)
-{
-        for(int bn=0; bn<hin->GetNbinsX(); bn++){
-          if((hin->GetBinContent(bn+1)) < 1.e-12){ hin->SetBinContent(bn+1,1.e-12);  }
-        }
-}
-
-void check_zero_bin_2D(TH2D *hin)
-{
-        for(int bx=0; bx<hin->GetNbinsX(); bx++){
-			for(int by=0; by<hin->GetNbinsX(); by++){
-				if((hin->GetBinContent(bx+1,by+1)) < 1.e-12){ hin->SetBinContent(bx+1,by+1,1.e-12);  }
-			}
-        }
-}
-
-float get_HEM_Correction(TLorentzVector p4)
-{
-
-TLorentzVector p4_old;
-float cor_factor = 1;
-p4_old = p4;
-if((p4_old.Phi()>-1.57) && (p4_old.Phi()<-0.87)){
-	if(p4_old.Eta()>=-2.5 && p4_old.Eta()<-1.3) { cor_factor = 0.8; }
-	else if(p4_old.Eta()>=-3.0 && p4_old.Eta()<-2.5) { cor_factor = 0.7; }
-}
-return cor_factor;
-
-}
-
-bool In_HEM(TLorentzVector p4)
-{
-bool inHEM = false;
-if((p4.Phi()>-1.57) && (p4.Phi()<-0.87)){
-if(p4.Eta()>=-3.0 && p4.Eta()<-1.3){
-   inHEM = true;
- }
-}
-return inHEM;
 }

@@ -120,6 +120,16 @@ double Top_pt_reweight(double pt0, double pt1, double alpha=0.0615, double beta=
 }
 
 
+double Top_pt_reweight_NNLOvsMC(double pt0, double pt1, double a0=0.103, double b0=-0.0118, double c0=-0.000134, double d0=0.973)
+{
+        //https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopPtReweighting#How_to_practically_apply_default
+        double sfwt1 = a0*exp(b0*pt0) + c0*pt0 + d0;
+	double sfwt2 = a0*exp(b0*pt1) + c0*pt0 + d0;
+	double sfwt = sqrt(sfwt1*sfwt2);
+        return sfwt;
+}
+
+
 float Calc_MT(const TLorentzVector t1, const TLorentzVector t2)
 {
 
@@ -263,4 +273,15 @@ if((p4_old.Phi()>-1.57) && (p4_old.Phi()<-0.87)){
 }
 return cor_factor;
 
+}
+
+bool In_HEM(TLorentzVector p4)
+{
+bool inHEM = false;
+if((p4.Phi()>-1.57) && (p4.Phi()<-0.87)){
+if(p4.Eta()>=-3.0 && p4.Eta()<-1.3){
+   inHEM = true;
+ }
+}
+return inHEM;
 }

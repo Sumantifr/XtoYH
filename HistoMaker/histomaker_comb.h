@@ -866,6 +866,13 @@ TString proc_Name[] = {
   Int_t           nLHEPSWeights;
   Float_t         LHEPSWeights[nlhepsmax];   //[nLHEPSWeights]
 
+  Float_t         Generator_x1;
+  Float_t         Generator_x2;
+  Float_t         Generator_xpdf1;
+  Float_t         Generator_xpdf2;
+  Int_t           Generator_id1;
+  Int_t           Generator_id2;
+  Float_t         Generator_scalePDF;
 
   float EWK_cor;
   float QCD_cor;
@@ -934,7 +941,12 @@ TString proc_Name[] = {
 	 "JES_SinglePionECAL", "JES_SinglePionHCAL","JES_TimePtEta",
 	 "JES_Total",
 	 "JER",
-	 "PU","LeptonSF","LeptonSF2","Prefire","PNbbSF","PNWSF","BTG","TrigSF1","TrigSF2",
+	 "PU",
+	 "LeptonSF_stat","LeptonSF_syst","LeptonSF_stat2",
+	 "LeptonSF_stat_mu","LeptonSF_syst_mu","LeptonSF_stat2_mu",
+	 "LeptonSF_stat_el","LeptonSF_syst_el","LeptonSF_stat2_el",
+	 "Prefire","PNbbSF","PNWSF","BTG",
+	 "TrigSF1","TrigSF2",
 	 "LHEScale","LHEPDF",
 	 "CR_SF"
 	 }; 
@@ -981,20 +993,31 @@ TString proc_Name[] = {
   
   // SL SFs //
   
-  //Ymsd fit //
+  // convention: 
+  //ttbar: {fm, sm, um}_inclusive, {fm, sm, um}_Mu, {fm, sm, um}_El
+  //wj:  {inclusive, Mu, El}
   
+  //Ymsd fit //
+   /*
   float TT_um_SF_SL_inc[][3] = 	  {{0.94547,0.477823,1.23104},{0.891556,0.518005,1.30039},{1.017,0.537019,1.14102}};
   float TT_um_SFerr_SL_inc[][3] = {{0.04646,0.079805,0.05935},{0.057192,0.104115,0.07146},{0.067,0.098804,0.07193}};
   float Wj_SF_SL_inc[] = 	{0.708277,0.669645,0.730394};
   float Wj_SFerr_SL_inc[] = {0.027976,0.030367,0.0377435};
-  
+  */
+   
   // mX-Ymsd fit //
   /*
   float TT_um_SF_SL_inc[][3] = 	  {{0.972474,0.590109,1.22841},{0.891556,0.518005,1.30039},{1.017,0.537019,1.14102}};
   float TT_um_SFerr_SL_inc[][3] = {{0.04646,0.079805,0.05935},{0.057192,0.104115,0.07146},{0.067,0.098804,0.07193}};
   float Wj_SF_SL_inc[] = 	{0.708277,0.669645,0.730394};
-  float Wj_SFerr_SL_inc[] = {0.027976,0.030367,0.0377435};
+  float Wj_SFerr_SL_inc[] = {0.027976,0.030367,0.0377435}; 
   */
+  
+  float TT_um_SF_SL_inc[][3] = 	  {{0.98216,0.595499,1.24645},{0.924436,0.571431,1.31342},{1.02179,0.662775,1.13263}};
+  float TT_um_SFerr_SL_inc[][3] = {{0.0476746,0.0647999,0.0548879},{0.0584401,0.0858271,0.0676311},{0.0666995,0.0880127,0.0702012}};
+  float Wj_SF_SL_inc[] = 	{0.714711,0.677858,0.736193};
+  float Wj_SFerr_SL_inc[] = {0.0304211,0.0302965,0.0401134};
+  
   void read_branches(TTree *tree, bool isDL=false)
   {
 	  
@@ -1417,6 +1440,15 @@ TString proc_Name[] = {
     //tree->SetBranchAddress("LHEAlpsWeights", LHEAlpsWeights);
     tree->SetBranchAddress("nLHEPSWeights", &nLHEPSWeights);
     tree->SetBranchAddress("LHEPSWeights", LHEPSWeights);
+    
+    tree->SetBranchAddress("Generator_x1", &Generator_x1);
+	tree->SetBranchAddress("Generator_x2", &Generator_x2);
+	tree->SetBranchAddress("Generator_xpdf1", &Generator_xpdf1);
+	tree->SetBranchAddress("Generator_xpdf2", &Generator_xpdf2);
+	tree->SetBranchAddress("Generator_id1", &Generator_id1);
+	tree->SetBranchAddress("Generator_id2", &Generator_id2);
+	tree->SetBranchAddress("Generator_scalePDF", &Generator_scalePDF);
+
 
     }
        

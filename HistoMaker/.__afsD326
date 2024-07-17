@@ -1,0 +1,6 @@
+#!/bin/bash
+source /cvmfs/cms.cern.ch/cmsset_default.sh
+cd /afs/cern.ch/user/c/chatterj/work/private/XToYH/CMSSW_10_6_27/src/XtoYH/HistoMaker/ 
+export X509_USER_PROXY=/tmp/x509up_u81649
+eval `scramv1 runtime -sh`
+./histomaker_comb.exe  1 0 QCD_HT2000toInf_XtoYH.root 0

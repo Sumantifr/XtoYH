@@ -1,0 +1,11 @@
+rm -f *_XtoYH.out
+rm -f *_XtoYH.error
+rm -f *_XtoYH.log
+rm -f *_2021.out
+rm -f *_2021.error
+rm -f *_2021.log
+rm -f execute*.csh
+rm -f submit*.sh
+rm -f condor_submit*.sh
+rm -f run_local*.sh
+rm -f *NMSSM*.*

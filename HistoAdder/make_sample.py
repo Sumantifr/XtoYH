@@ -18,7 +18,7 @@ def float_to_str(f):
 
 samples=[]
 
-with open('mc_info.txt') as f:
+with open('mc_info_Vienna.txt') as f:
     for line in f:
         x = line.split()
         samples.append(dict({"name":x[0], "sumofevents":float(x[1]), "sumofweights":float(x[2]), "xsec":float(x[3]), "kfactor":float(x[4]), "weight":float(1.)}))
@@ -31,7 +31,7 @@ names = [sm['name'] for sm in samples]
 
 data_crab_info=[]
 
-with open('Data_UL2018_crabjob_pass_fractions.txt') as f:
+with open('Data_UL2018_crabjob_pass_fractions_Vienna.txt') as f:
     for line in f:
         x = line.split()
         data_crab_info.append(dict({"name":x[0], "pass":float(x[1])}))
@@ -43,12 +43,12 @@ data_names = [data_sample['name'] for data_sample in data_crab_info]
 
 sample_directory="" 
 if args.isDL:
-	sample_directory="/eos/user/c/chatterj/XtoYH/OUTPUTS/DL/" 
+	sample_directory="/eos/user/c/chatterj/XtoYH/OUTPUTS/DL/AT_VIENNA/" 
 else:
-	sample_directory="/eos/user/c/chatterj/XtoYH/OUTPUTS/SL/" 
+	sample_directory="/eos/user/c/chatterj/XtoYH/OUTPUTS/SL/AT_VIENNA/" 
 
 if not args.isDATA:
-    
+        
     os.system("./haddws.exe  "+sample_directory+"/Histogram_DYJetsToLL_M-10to50_XtoYH.root  "+sample_directory+"/Histogram_DYJetsToLL_M-50_HT-70to100_XtoYH.root "+sample_directory+"/Histogram_DYJetsToLL_M-50_HT-100To200_XtoYH.root "+sample_directory+"/Histogram_DYJetsToLL_M-50_HT-200To400_XtoYH.root "+sample_directory+"/Histogram_DYJetsToLL_M-50_HT-400To600_XtoYH.root "+sample_directory+"/Histogram_DYJetsToLL_M-50_HT-600To800_XtoYH.root "+sample_directory+"/Histogram_DYJetsToLL_M-50_HT-800To1200_XtoYH.root "+sample_directory+"/Histogram_DYJetsToLL_M-50_HT-1200To2500_XtoYH.root "+sample_directory+"/Histogram_DYJetsToLL_M-50_HT-2500ToInf_XtoYH.root "+float_to_str(weights[names.index('DYJetsToLL_M-10to50')])+" "+float_to_str(weights[names.index('DYJetsToLL_M-50_HT-70to100')])+" "+float_to_str(weights[names.index('DYJetsToLL_M-50_HT-100To200')])+" "+float_to_str(weights[names.index('DYJetsToLL_M-50_HT-200To400')])+" "+float_to_str(weights[names.index('DYJetsToLL_M-50_HT-400To600')])+" "+float_to_str(weights[names.index('DYJetsToLL_M-50_HT-600To800')])+" "+float_to_str(weights[names.index('DYJetsToLL_M-50_HT-800To1200')])+" "+float_to_str(weights[names.index('DYJetsToLL_M-50_HT-1200To2500')])+" "+float_to_str(weights[names.index('DYJetsToLL_M-50_HT-2500ToInf')]))
     os.system("mv result.root "+sample_directory+"/Output_DYj.root")
     print("Output_DYj.root done!")
@@ -56,22 +56,22 @@ if not args.isDATA:
     os.system("./haddws.exe  "+sample_directory+"/Histogram_QCD_HT300to500_XtoYH.root "+sample_directory+"/Histogram_QCD_HT500to700_XtoYH.root  "+sample_directory+"/Histogram_QCD_HT700to1000_XtoYH.root "+sample_directory+"/Histogram_QCD_HT1000to1500_XtoYH.root "+sample_directory+"/Histogram_QCD_HT1500to2000_XtoYH.root "+sample_directory+"/Histogram_QCD_HT2000toInf_XtoYH.root "+float_to_str(weights[names.index('QCD_HT300to500')])+" "+float_to_str(weights[names.index('QCD_HT500to700')])+" "+float_to_str(weights[names.index('QCD_HT700to1000')])+" "+float_to_str(weights[names.index('QCD_HT1000to1500')])+" "+float_to_str(weights[names.index('QCD_HT1500to2000')])+" "+float_to_str(weights[names.index('QCD_HT2000toInf')]))
     os.system("mv result.root "+sample_directory+"/Output_QCD.root")
     print("Output_QCD.root done!")
-   
+     
     os.system("./haddws.exe  "+sample_directory+"/Histogram_ST_s-channel_XtoYH.root "+sample_directory+"/Histogram_ST_t-channel_antitop_XtoYH.root "+sample_directory+"/Histogram_ST_t-channel_top_XtoYH.root "+sample_directory+"/Histogram_ST_tW_antitop_XtoYH.root "+sample_directory+"/Histogram_ST_tW_top_XtoYH.root "+float_to_str(weights[names.index('ST_s-channel')])+" "+float_to_str(weights[names.index('ST_t-channel_antitop')])+" "+float_to_str(weights[names.index('ST_t-channel_top')])+" "+float_to_str(weights[names.index('ST_tW_antitop')])+" "+float_to_str(weights[names.index('ST_tW_top')]))
     os.system("mv result.root "+sample_directory+"/Output_ST.root")
     print("Output_ST.root done!")
-
+    '''
     os.system("./haddws.exe  "+sample_directory+"/Histogram_TTTo2L2Nu_XtoYH.root "+sample_directory+"/Histogram_TTToHadronic_XtoYH.root "+sample_directory+"/Histogram_TTToSemiLeptonic_XtoYH.root "+float_to_str(weights[names.index('TTTo2L2Nu')])+" "+float_to_str(weights[names.index('TTToHadronic')])+" "+float_to_str(weights[names.index('TTToSemiLeptonic')]))
     os.system("mv result.root "+sample_directory+"/Output_TT.root")
     print("Output_TT.root done!")
-
+    '''
     os.system("hadd -fk "+sample_directory+"/Output_Top.root "+sample_directory+"/Output_TT.root "+sample_directory+"/Output_ST.root")
     print("Output_Top.root done!")
-   
+    
     os.system("./haddws.exe  "+sample_directory+"/Histogram_WJetsToLNu_HT-70To100_XtoYH.root "+sample_directory+"/Histogram_WJetsToLNu_HT-100To200_XtoYH.root "+sample_directory+"/Histogram_WJetsToLNu_HT-200To400_XtoYH.root "+sample_directory+"/Histogram_WJetsToLNu_HT-400To600_XtoYH.root "+sample_directory+"/Histogram_WJetsToLNu_HT-600To800_XtoYH.root "+sample_directory+"/Histogram_WJetsToLNu_HT-800To1200_XtoYH.root "+sample_directory+"/Histogram_WJetsToLNu_HT-1200To2500_XtoYH.root "+sample_directory+"/Histogram_WJetsToLNu_HT-2500ToInf_XtoYH.root "+float_to_str(weights[names.index('WJetsToLNu_HT-70To100')])+" "+float_to_str(weights[names.index('WJetsToLNu_HT-100To200')])+" "+float_to_str(weights[names.index('WJetsToLNu_HT-200To400')])+" "+float_to_str(weights[names.index('WJetsToLNu_HT-400To600')])+" "+float_to_str(weights[names.index('WJetsToLNu_HT-600To800')])+" "+float_to_str(weights[names.index('WJetsToLNu_HT-800To1200')])+" "+float_to_str(weights[names.index('WJetsToLNu_HT-1200To2500')])+" "+float_to_str(weights[names.index('WJetsToLNu_HT-2500ToInf')]))
     os.system("mv result.root "+sample_directory+"/Output_Wj.root")
     print("Output_Wj.root done!")
-
+    
     #os.system("./haddws.exe "+sample_directory+"/Histogram_WWTo1L1Nu2Q_XtoYH.root "+sample_directory+"/Histogram_WWTo2L2Nu_XtoYH.root "+sample_directory+"/Histogram_WWTo4Q_XtoYH.root "+float_to_str(WWTo1L1Nu2Q)+" "+float_to_str(WWTo2L2Nu)+" "+float_to_str(WWTo4Q))
     if args.isDL:
 	os.system("./haddws.exe "+sample_directory+"/Histogram_WWTo2L2Nu_XtoYH.root "+float_to_str(weights[names.index('WWTo2L2Nu')]))
@@ -79,18 +79,23 @@ if not args.isDATA:
         os.system("./haddws.exe "+sample_directory+"/Histogram_WWTo1L1Nu2Q_XtoYH.root "+float_to_str(weights[names.index('WWTo1L1Nu2Q')]))
     os.system("mv result.root "+sample_directory+"/Output_WW.root")
     print("Output_WW.root done!")
-
-    os.system("./haddws.exe "+sample_directory+"/Histogram_WZTo1L1Nu2Q_XtoYH.root "+sample_directory+"/Histogram_WZTo2Q2L_XtoYH.root "+sample_directory+"/Histogram_WZTo2Q2Nu_XtoYH.root "+sample_directory+"/Histogram_WZTo3LNu_XtoYH.root "+float_to_str(weights[names.index('WZTo1L1Nu2Q')])+" "+float_to_str(weights[names.index('WZTo2Q2L')])+" "+float_to_str(weights[names.index('WZTo2Q2Nu')])+" "+float_to_str(weights[names.index('WZTo3LNu')]))
+    
+    #os.system("./haddws.exe "+sample_directory+"/Histogram_WZTo1L1Nu2Q_XtoYH.root "+sample_directory+"/Histogram_WZTo2Q2L_XtoYH.root "+sample_directory+"/Histogram_WZTo2Q2Nu_XtoYH.root "+sample_directory+"/Histogram_WZTo3LNu_XtoYH.root "+float_to_str(weights[names.index('WZTo1L1Nu2Q')])+" "+float_to_str(weights[names.index('WZTo2Q2L')])+" "+float_to_str(weights[names.index('WZTo2Q2Nu')])+" "+float_to_str(weights[names.index('WZTo3LNu')]))
+    #os.system("./haddws.exe "+sample_directory+"/Histogram_WZTo2Q2L_XtoYH.root "+sample_directory+"/Histogram_WZTo2Q2Nu_XtoYH.root "+sample_directory+"/Histogram_WZTo3LNu_XtoYH.root "+float_to_str(weights[names.index('WZTo2Q2L')])+" "+float_to_str(weights[names.index('WZTo2Q2Nu')])+" "+float_to_str(weights[names.index('WZTo3LNu')]))
+    
+    os.system("./haddws.exe "+sample_directory+"/Histogram_WZTo1L1Nu2Q_XtoYH.root "+sample_directory+"/Histogram_WZTo2Q2L_XtoYH.root "+sample_directory+"/Histogram_WZTo3LNu_XtoYH.root "+float_to_str(weights[names.index('WZTo1L1Nu2Q')])+" "+float_to_str(weights[names.index('WZTo2Q2L')])+" "+float_to_str(weights[names.index('WZTo3LNu')]))
     os.system("mv result.root "+sample_directory+"/Output_WZ.root")
     print("Output_WZ.root done!")
-
+    
     os.system("./haddws.exe "+sample_directory+"/Histogram_ZZTo2L2Nu_XtoYH.root "+sample_directory+"/Histogram_ZZTo2Q2L_XtoYH.root "+sample_directory+"/Histogram_ZZTo2Q2Nu_XtoYH.root "+sample_directory+"/Histogram_ZZTo4L_XtoYH.root "+sample_directory+"/Histogram_ZZTo4Q_XtoYH.root "+float_to_str(weights[names.index('ZZTo2L2Nu')])+" "+float_to_str(weights[names.index('ZZTo2Q2L')])+" "+float_to_str(weights[names.index('ZZTo2Q2Nu')])+" "+float_to_str(weights[names.index('ZZTo4L')])+" "+float_to_str(weights[names.index('ZZTo4Q')]))
     os.system("mv result.root "+sample_directory+"/Output_ZZ.root")
     print("Output_ZZ.root done!")
-
+    
     os.system("hadd -fk "+sample_directory+"/Output_Diboson.root "+sample_directory+"/Output_WW.root "+sample_directory+"/Output_WZ.root "+sample_directory+"/Output_ZZ.root")
     print("Output_Diboson.root done!")
-     
+    
+    os.system("hadd -fk "+sample_directory+"/Output_MC_noDY.root "+sample_directory+"/Output_Top.root "+sample_directory+"/Output_Diboson.root "+sample_directory+"/Output_Wj.root "+sample_directory+"/Output_QCD.root")
+    print("Output_MC_noDY.root done!")
     
 if args.isSignal:
     if not args.isDL:
@@ -150,7 +155,7 @@ if args.isDATA:
     if args.isDL:
         os.system("./haddws.exe "+sample_directory+"/Histogram_DoubleMuon_UL2018A_XtoYH_Nov_2021.root "+sample_directory+"/Histogram_DoubleMuon_UL2018B_XtoYH_Nov_2021.root " +sample_directory+"/Histogram_DoubleMuon_UL2018C_XtoYH_Nov_2021.root " +sample_directory+"/Histogram_DoubleMuon_UL2018D_XtoYH_Nov_2021.root "+float_to_str(pass_fracs[data_names.index('DoubleMuon_RunA')])+" "+float_to_str(pass_fracs[data_names.index('DoubleMuon_RunB')])+" "+float_to_str(pass_fracs[data_names.index('DoubleMuon_RunC')])+" "+float_to_str(pass_fracs[data_names.index('DoubleMuon_RunD')]))
 	os.system("mv result.root "+sample_directory+"/Histogram_DoubleMuon_UL2018.root")
-	os.system("./haddws.exe "+sample_directory+"/Histogram_MuonEG_UL2018A_XtoYH_Nov_2021.root "+sample_directory+"/Histogram_MuonEG_UL2018B_XtoYH_Nov_2021.root " +sample_directory+"/Histogram_MuonEG_UL2018C_XtoYH_Nov_2021.root " +sample_directory+"/Histogram_MuonEG_UL2018D_XtoYH_Nov_2021.root "+float_to_str(pass_fracs[data_names.index('MuonEG_RunA')])+" "+float_to_str(pass_fracs[data_names.index('MuonEG_RunB')])+" "+float_to_str(pass_fracs[data_names.index('MuonEG_RunC')])+" "+float_to_str(pass_fracs[data_names.index('MuonEG_RunA')]))
+	os.system("./haddws.exe "+sample_directory+"/Histogram_MuonEG_UL2018A_XtoYH_Nov_2021.root "+sample_directory+"/Histogram_MuonEG_UL2018B_XtoYH_Nov_2021.root " +sample_directory+"/Histogram_MuonEG_UL2018C_XtoYH_Nov_2021.root " +sample_directory+"/Histogram_MuonEG_UL2018D_XtoYH_Nov_2021.root "+float_to_str(pass_fracs[data_names.index('MuonEG_RunA')])+" "+float_to_str(pass_fracs[data_names.index('MuonEG_RunB')])+" "+float_to_str(pass_fracs[data_names.index('MuonEG_RunC')])+" "+float_to_str(pass_fracs[data_names.index('MuonEG_RunD')]))
 	os.system("mv result.root "+sample_directory+"/Histogram_MuonEG_UL2018.root")
     else:
         os.system("./haddws.exe "+sample_directory+"/Histogram_SingleMuon_UL2018A_XtoYH_Nov_2021.root "+sample_directory+"/Histogram_SingleMuon_UL2018B_XtoYH_Nov_2021.root " +sample_directory+"/Histogram_SingleMuon_UL2018C_XtoYH_Nov_2021.root " +sample_directory+"/Histogram_SingleMuon_UL2018D_XtoYH_Nov_2021.root "+float_to_str(pass_fracs[data_names.index('SingleMuon_RunA')])+" "+float_to_str(pass_fracs[data_names.index('SingleMuon_RunB')])+" "+float_to_str(pass_fracs[data_names.index('SingleMuon_RunC')])+" "+float_to_str(pass_fracs[data_names.index('SingleMuon_RunD')]))
@@ -165,3 +170,4 @@ if args.isDATA:
 	os.system("hadd -fk "+sample_directory+"/Output_MuEGamma.root "+sample_directory+"/Histogram_EGamma_UL2018.root "+sample_directory+"/Histogram_SingleMuon_UL2018.root")
 	os.system("hadd -fk "+sample_directory+"/Output_MuEGammaJetHT.root "+sample_directory+"/Histogram_EGamma_UL2018.root "+sample_directory+"/Histogram_SingleMuon_UL2018.root "+sample_directory+"/Histogram_JetHT_UL2018.root")
     print("Data done!")
+

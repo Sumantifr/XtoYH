@@ -36,7 +36,6 @@ string Filenames_MC[] = {
 "WWTo4Q_XtoYH",
 "WZTo1L1Nu2Q_XtoYH",
 "WZTo2Q2L_XtoYH",
-"WZTo2Q2Nu_XtoYH",
 "WZTo3LNu_XtoYH",
 "ZZTo2L2Nu_XtoYH",
 "ZZTo2Q2L_XtoYH",
@@ -86,14 +85,18 @@ string path = "/afs/cern.ch/user/c/chatterj/work/private/XToYH/CMSSW_10_6_27/src
 string proxy = "/tmp/x509up_u81649";
 
 fstream file_sub;
-char name_submit[100];
+fstream file_local;
+char name_submit[100], name_local[100];
 if(isDATA){
 sprintf(name_submit,"condor_submit_data.sh");
+sprintf(name_local,"run_local_data.sh");
 }
 else{
 sprintf(name_submit,"condor_submit.sh");
+sprintf(name_local,"run_local.sh");
 }
 file_sub.open(name_submit,ios::out);
+file_local.open(name_local,ios::out);
 
 int nfile_data_DL = sizeof(Filenames_Data_DL)/sizeof(Filenames_Data_DL[0]);
 int nfile_data_SL = sizeof(Filenames_Data_SL)/sizeof(Filenames_Data_SL[0]);
@@ -137,7 +140,8 @@ if(!file)
    file << "source /cvmfs/cms.cern.ch/cmsset_default.sh\n";
    file <<"cd "<<path<<" \n";
    file<<"export X509_USER_PROXY="<<proxy<<"\n";
-   file<<"eval `scramv1 runtime -sh`\n";
+   file<<"# eval `scramv1 runtime -sh`\n";
+   file<<"cmssw-el7\n";
    file<<"./histomaker_comb.exe  "<<isDL<<" "<<isDATA<<" "<<files[ii] << ".root 0" ;
 
    cout<<"execute created successfully." << endl;
@@ -163,11 +167,12 @@ file1 << "should_transfer_files = YES\n";
 file1 << "when_to_transfer_output = ON_EXIT\n";
 file1 << "queue\n";
 //file1 << "+JobFlavour = \"workday\"\n";
-file1<< "+MaxRuntime = 30000\n";
+file1<< "+MaxRuntime = 100000\n";
 cout<<"sub created successfully." << endl;
 file1.close();
 
 file_sub<<"condor_submit "<<name_buffer1<<"\n";
+file_local<<"sh "<<name_buffer<<"\n";
 }
 
 file_sub.close();

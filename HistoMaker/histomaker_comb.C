@@ -7,7 +7,7 @@ R__ADD_LIBRARY_PATH(/cvmfs/cms.cern.ch/slc6_amd64_gcc700/external/lhapdf/6.2.1-g
 R__LOAD_LIBRARY(libLHAPDF.so)
 
 
-//#define SYSTEMATICS_ON
+#define SYSTEMATICS_ON
 //#define APPLY_SF
 
 bool top_cor_pt = false;
@@ -37,11 +37,11 @@ int main(int argc, char *argv[])
  cout<<"Running on file : " << argv[3] << std::endl;	
 
  if(isDL) {
- input_path = "/eos/user/m/mukherje/XToYH/DL/14th_August_DY_VIENA/"; 
+ input_path = "/eos/user/m/mukherje/XToYH/DL/"; 
  output_path = "/eos/user/c/chatterj/XtoYH/OUTPUTS/DL/AT_VIENNA/";
  }
  else { 
- input_path = "/eos/user/m/mukherje/XToYH/SL/13th_oct/"; 
+ input_path = "/eos/user/m/mukherje/XToYH/SL/"; 
  output_path = "/eos/user/c/chatterj/XtoYH/OUTPUTS/SL/AT_VIENNA/";
  }
 
@@ -212,10 +212,11 @@ int main(int argc, char *argv[])
    TString inputFile= input_path+argv[3];
    if(isSignal){
 	if(isDL){
-	   inputFile= input_path+"SIGNAL/"+argv[3];
+	   //inputFile= input_path+"SIGNAL/"+argv[3];
+	   inputFile= input_path+"14th_August_DY_VIENA/SIGNAL/SIGNAL_FEB_2024/"+argv[3];
 	}
 	else{
-	   inputFile= input_path+"Signal/"+argv[3];
+	   inputFile= input_path+"13th_oct/Signal/SIGNAL_FEB_2024/"+argv[3];
 	}
    }
    std::cout <<"Input file "<< inputFile << std::endl;
@@ -773,7 +774,7 @@ int main(int argc, char *argv[])
 	      
 	tree->GetEntry(jentry);
 	if( jentry % 10000 == 0) { std::cout <<jentry<<" events processed" << std::endl;}
- 
+  
 	//Put baseline conditions for preselection //
 	if(!Flag_pass_baseline) continue;
 	
@@ -788,7 +789,9 @@ int main(int argc, char *argv[])
     
     nLHEPDFWeights = nlhepdfmax;
     
-    if(isSignal){
+    #ifdef SYSTEMATICS_ON
+    
+    if(isSignal || (string(argv[3]).find("DYJets")!=string::npos) || (string(argv[3]).find("WJets")!=string::npos) || (string(argv[3]).find("QCD_")!=string::npos)){
 		
 		LHEScaleWeights[1] = LHEScaleWeights[5];
 		LHEScaleWeights[2] = LHEPDFWeights[1];
@@ -798,19 +801,27 @@ int main(int argc, char *argv[])
 		LHEScaleWeights[6] = LHEPDFWeights[21];
 		LHEScaleWeights[7] = LHEPDFWeights[26];
 		LHEScaleWeights[8] = LHEPDFWeights[31];
+		
+	}
+	
+	if(isSignal || string(argv[3]).find("DYJets")!=string::npos || string(argv[3]).find("WJets")!=string::npos || string(argv[3]).find("QCD_")!=string::npos 
+				|| string(argv[3]).find("ST_")!=string::npos || string(argv[3]).find("WW")!=string::npos || string(argv[3]).find("WZ")!=string::npos || string(argv[3]).find("ZZ")!=string::npos){
+	
+		int gen_id1 = (int)Generator_id1;
+		int gen_id2 = (int)Generator_id2;
+		if(gen_id1==21) { gen_id1 = 0; }
+		if(gen_id2==21) { gen_id2 = 0; }
+		double gen_x1 = (double)Generator_x1;
+		double gen_x2 = (double)Generator_x2;
+		double gen_scalePDF = (double)Generator_scalePDF;
+		
+		//cout<<"gen_id1, gen_id2, gen_x1, gen_x2, gen_scalePDF"<<gen_id1<<" "<<gen_id2<<" "<<gen_x1<<" "<<gen_x2<<" "<<gen_scalePDF<<endl;
     
 		//for (int jk=0; jk< TMath::Min(nLHEPDFWeights,1 + LHAPDF::numberPDF()) ;jk++) {
 		for (int jk=0; jk<nLHEPDFWeights; jk++) {
 
 			LHAPDF::initPDF(jk);
 			
-			int gen_id1 = 21;//(int)Generator_id1;
-			int gen_id2 = 21;//(int)Generator_id2;
-			if(gen_id1==21) { gen_id1 = 0; }
-			if(gen_id2==21) { gen_id2 = 0; }
-			double gen_x1 = 0.1;//(double)Generator_x1;
-			double gen_x2 = 0.1;//(double)Generator_x2;
-			double gen_scalePDF = 1000;//(double)Generator_scalePDF;
 			float ypdf1 = LHAPDF::xfx(gen_x1, gen_scalePDF, gen_id1);
 			float ypdf2 = LHAPDF::xfx(gen_x2, gen_scalePDF, gen_id2);
 
@@ -828,6 +839,8 @@ int main(int argc, char *argv[])
 		LHEPDFWeights[0] = 1.;
 	
 	}
+	
+	#endif
   
 	// read number of JES+JER uncs. //
 	njecmax = (*Y_JESup_split).size();
@@ -1483,12 +1496,81 @@ int main(int argc, char *argv[])
 					//	}
 					}
 				}
+				
+				//cout<<"njecmax "<<njecmax<<endl;
 				      
 				//cout << "check! dude: 3" << endl;	
 				        		
 				shape_weight_up.push_back(puWeightup);				shape_weight_dn.push_back(puWeightdown);  			shape_weight_nom.push_back(puWeight);
-				shape_weight_up.push_back(leptonsf_weight_stat);	shape_weight_dn.push_back(leptonsf_weight_syst);	shape_weight_nom.push_back(leptonsf_weight);
-				shape_weight_up.push_back(leptonsf_weight_up);		shape_weight_dn.push_back(leptonsf_weight_dn);		shape_weight_nom.push_back(leptonsf_weight);
+				
+				shape_weight_up.push_back(leptonsf_weight_stat);	shape_weight_dn.push_back(max(2*leptonsf_weight-leptonsf_weight_stat,float(0.)));	shape_weight_nom.push_back(leptonsf_weight); // dn: nom - (up-nom) = 2*nom-up
+				shape_weight_up.push_back(leptonsf_weight_syst);	shape_weight_dn.push_back(max(2*leptonsf_weight-leptonsf_weight_syst,float(0.)));	shape_weight_nom.push_back(leptonsf_weight);
+				shape_weight_up.push_back(leptonsf_weight_up);		shape_weight_dn.push_back(leptonsf_weight_dn);										shape_weight_nom.push_back(leptonsf_weight);
+				
+				//cout<<"jk:"<<jk+1<<" lepid_info "<<lepid_info[1]<<" leptonsf_weight_up "<<leptonsf_weight_up<<" leptonsf_weight_dn "<<leptonsf_weight_dn<<" leptonsf_weight "<<leptonsf_weight<<endl;
+				
+				if(isDL){
+					if(lepid_info[1]){//mumu
+						shape_weight_up.push_back(leptonsf_weight_stat);	shape_weight_dn.push_back(max(2*leptonsf_weight-leptonsf_weight_stat,float(0.)));	shape_weight_nom.push_back(leptonsf_weight); 
+						shape_weight_up.push_back(leptonsf_weight_syst);	shape_weight_dn.push_back(max(2*leptonsf_weight-leptonsf_weight_syst,float(0.)));	shape_weight_nom.push_back(leptonsf_weight);
+						shape_weight_up.push_back(leptonsf_weight_up);		shape_weight_dn.push_back(leptonsf_weight_dn);										shape_weight_nom.push_back(leptonsf_weight);
+						shape_weight_up.push_back(1);						shape_weight_dn.push_back(1);														shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(1);						shape_weight_dn.push_back(1);														shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(1);						shape_weight_dn.push_back(1);														shape_weight_nom.push_back(1);
+					}
+					else if (lepid_info[2]){//ee
+						shape_weight_up.push_back(1);						shape_weight_dn.push_back(1);														shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(1);						shape_weight_dn.push_back(1);														shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(1);						shape_weight_dn.push_back(1);														shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(leptonsf_weight_stat);	shape_weight_dn.push_back(max(2*leptonsf_weight-leptonsf_weight_stat,float(0.)));	shape_weight_nom.push_back(leptonsf_weight); 
+						shape_weight_up.push_back(leptonsf_weight_syst);	shape_weight_dn.push_back(max(2*leptonsf_weight-leptonsf_weight_syst,float(0.)));	shape_weight_nom.push_back(leptonsf_weight);
+						shape_weight_up.push_back(leptonsf_weight_up);		shape_weight_dn.push_back(leptonsf_weight_dn);										shape_weight_nom.push_back(leptonsf_weight);
+					}
+					else if (lepid_info[3]){ //emu
+						shape_weight_up.push_back(sqrt(leptonsf_weight_stat));	shape_weight_dn.push_back(sqrt(max(2*leptonsf_weight-leptonsf_weight_stat,float(0.))));	shape_weight_nom.push_back(sqrt(leptonsf_weight));
+						shape_weight_up.push_back(sqrt(leptonsf_weight_syst));	shape_weight_dn.push_back(sqrt(max(2*leptonsf_weight-leptonsf_weight_syst,float(0.))));	shape_weight_nom.push_back(sqrt(leptonsf_weight));
+						shape_weight_up.push_back(sqrt(leptonsf_weight_up));	shape_weight_dn.push_back(sqrt(leptonsf_weight_dn));									shape_weight_nom.push_back(sqrt(leptonsf_weight));
+						shape_weight_up.push_back(sqrt(leptonsf_weight_stat));	shape_weight_dn.push_back(sqrt(max(2*leptonsf_weight-leptonsf_weight_stat,float(0.))));	shape_weight_nom.push_back(sqrt(leptonsf_weight));
+						shape_weight_up.push_back(sqrt(leptonsf_weight_syst));	shape_weight_dn.push_back(sqrt(max(2*leptonsf_weight-leptonsf_weight_syst,float(0.))));	shape_weight_nom.push_back(sqrt(leptonsf_weight));
+						shape_weight_up.push_back(sqrt(leptonsf_weight_up));	shape_weight_dn.push_back(sqrt(leptonsf_weight_dn));									shape_weight_nom.push_back(sqrt(leptonsf_weight));
+					}
+					
+					else{
+						shape_weight_up.push_back(1);		shape_weight_dn.push_back(1);		shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(1);		shape_weight_dn.push_back(1);		shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(1);		shape_weight_dn.push_back(1);		shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(1);		shape_weight_dn.push_back(1);		shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(1);		shape_weight_dn.push_back(1);		shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(1);		shape_weight_dn.push_back(1);		shape_weight_nom.push_back(1);
+					}
+				}
+				else{
+					if(lepid_info[1]){//mu
+						shape_weight_up.push_back(leptonsf_weight_stat);	shape_weight_dn.push_back(max(2*leptonsf_weight-leptonsf_weight_stat,float(0.)));	shape_weight_nom.push_back(leptonsf_weight); 
+						shape_weight_up.push_back(leptonsf_weight_syst);	shape_weight_dn.push_back(max(2*leptonsf_weight-leptonsf_weight_syst,float(0.)));	shape_weight_nom.push_back(leptonsf_weight);
+						shape_weight_up.push_back(leptonsf_weight_up);		shape_weight_dn.push_back(leptonsf_weight_dn);										shape_weight_nom.push_back(leptonsf_weight);
+						shape_weight_up.push_back(1);						shape_weight_dn.push_back(1);														shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(1);						shape_weight_dn.push_back(1);														shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(1);						shape_weight_dn.push_back(1);														shape_weight_nom.push_back(1);
+					}
+					else if(lepid_info[2]){//el
+						shape_weight_up.push_back(1);						shape_weight_dn.push_back(1);														shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(1);						shape_weight_dn.push_back(1);														shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(1);						shape_weight_dn.push_back(1);														shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(leptonsf_weight_stat);	shape_weight_dn.push_back(max(2*leptonsf_weight-leptonsf_weight_stat,float(0.)));	shape_weight_nom.push_back(leptonsf_weight); 
+						shape_weight_up.push_back(leptonsf_weight_syst);	shape_weight_dn.push_back(max(2*leptonsf_weight-leptonsf_weight_syst,float(0.)));	shape_weight_nom.push_back(leptonsf_weight);
+						shape_weight_up.push_back(leptonsf_weight_up);		shape_weight_dn.push_back(leptonsf_weight_dn);										shape_weight_nom.push_back(leptonsf_weight);
+					}
+					else{
+						shape_weight_up.push_back(1);		shape_weight_dn.push_back(1);		shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(1);		shape_weight_dn.push_back(1);		shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(1);		shape_weight_dn.push_back(1);		shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(1);		shape_weight_dn.push_back(1);		shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(1);		shape_weight_dn.push_back(1);		shape_weight_nom.push_back(1);
+						shape_weight_up.push_back(1);		shape_weight_dn.push_back(1);		shape_weight_nom.push_back(1);
+					}
+				}
+				
 				shape_weight_up.push_back(prefiringweightup);		shape_weight_dn.push_back(prefiringweightdown);		shape_weight_nom.push_back(prefiringweight);
 				shape_weight_up.push_back(bb_SF_up);				shape_weight_dn.push_back(bb_SF_dn);				shape_weight_nom.push_back(bb_SF);
 				if(!isDL){
@@ -1506,6 +1588,44 @@ int main(int argc, char *argv[])
 				shape_weight_up.push_back(SF_Trig_1_up);			shape_weight_dn.push_back(SF_Trig_1_dn);			shape_weight_nom.push_back(SF_Trig);
 				shape_weight_up.push_back(SF_Trig_2_up);			shape_weight_dn.push_back(SF_Trig_2_dn);			shape_weight_nom.push_back(SF_Trig);
 				
+				//cout<<"shape_weight_up size "<<shape_weight_up.size()<<" shape_weight_dn size "<<shape_weight_dn.size()<<" shape_weight_nom size "<<shape_weight_nom.size()<<endl;
+				/*
+				int trig_index_1=-1; int trig_index_2=-1;
+				
+				if(isDL){
+					if(lepid_info[1]){//mumu
+						trig_index_1 = 1; trig_index_1 = 2; 
+					}
+					else if (lepid_info[2]){//ee
+						trig_index_1 = 3; trig_index_1 = 4; 
+					}
+					else if (lepid_info[2]){//emu
+						trig_index_1 = 5; trig_index_1 = 6; 
+					}
+				}
+				else{
+					if(lepid_info[1]){//mu
+						trig_index_1 = 7; trig_index_1 = 8; 
+					}
+					else if(lepid_info[1]){//e
+						trig_index_1 = 9; trig_index_1 = 10; 
+					}
+				}
+				
+				if(trig_index_1>0 && trig_index_2>0) { trig_index_1 -= 1; trig_index_2 -= 1; }
+				
+				for(int itrig=0; itrig<10; itrig++){
+					if(itrig==trig_index_1){
+						shape_weight_up.push_back(SF_Trig_1_up);			shape_weight_dn.push_back(SF_Trig_1_dn);			shape_weight_nom.push_back(SF_Trig);
+					}
+					else if(itrig==trig_index_2){
+						shape_weight_up.push_back(SF_Trig_2_up);			shape_weight_dn.push_back(SF_Trig_2_dn);			shape_weight_nom.push_back(SF_Trig);
+					}
+					else{
+						shape_weight_up.push_back(1);			shape_weight_dn.push_back(1);			shape_weight_nom.push_back(1);
+					}
+				}
+				*/			
 				//theory sys//
 				shape_weight_up.push_back(LHEScaleWeights[0]+LHEScale_err_up);	shape_weight_dn.push_back(LHEScaleWeights[0]-LHEScale_err_dn);   shape_weight_nom.push_back(LHEScaleWeights[0]);
 				shape_weight_up.push_back(LHEPDFWeights[0]+LHEPDF_err);			shape_weight_dn.push_back(LHEPDFWeights[0]-LHEPDF_err);   		 shape_weight_nom.push_back(LHEPDFWeights[0]);
@@ -1514,6 +1634,11 @@ int main(int argc, char *argv[])
 				shape_weight_up.push_back(analysis_SF_up);			shape_weight_dn.push_back(analysis_SF_dn);		    shape_weight_nom.push_back(analysis_SF);
 			}
 			
+			//cout<<"lepID "<<lepid_info[0]<<" "<<lepid_info[1]<<" "<<lepid_info[2]<<" "<<lepid_info[3]<<endl;
+			//cout<<"shape weights"<<endl;
+			//for(unsigned ish=0; ish<shape_weight_up.size(); ish++){
+			//	cout<<shape_weight_up[ish]<<" "<<shape_weight_dn[ish]<<" "<<shape_weight_nom[ish]<<endl;
+			//}
 			
 			for(int lm=0; lm<nlid; lm++){
 				
@@ -1816,7 +1941,6 @@ int main(int argc, char *argv[])
 							
                             if(!isDL){
                             
-								
 								h_X_mass[ireg][jk][kl][lm][mn]->Fill(X_mass,weight);
 								h_for_limit_X_mass[ireg][jk][kl][lm][mn]->Fill(X_conv_mass,weight);
 								h_for_limit_X_mass_v2[ireg][jk][kl][lm][mn]->Fill(unrol_mass,weight);
@@ -1931,12 +2055,26 @@ int main(int argc, char *argv[])
 										h_MT_sys[ireg][jk][kl][lm][mn][2*(isys+1)]->Fill(MT_JESdn_split,weight);	
 									}
 				                                //cout << "check! dude" << endl;	
+				                    if(Y_msoftdrop*(*Y_JESup_split)[isys]>=msdbins[0] && Y_msoftdrop*(*Y_JESup_split)[isys]<msdbins[nmsdbins]){
 									h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(HTlep_pt*(*HTlep_pt_JESup_split)[isys] + 4000.0 * get_Y_id(Y_msoftdrop*(*Y_JESup_split)[isys]),weight);
+									}
+									if(Y_msoftdrop*(*Y_JESdn_split)[isys]>=msdbins[0] && Y_msoftdrop*(*Y_JESdn_split)[isys]<msdbins[nmsdbins]){
 									h_for_limit_HTlep_pt_sys[ireg][jk][kl][lm][mn][2*(isys+1)]  ->Fill(HTlep_pt*(*HTlep_pt_JESdn_split)[isys] + 4000.0 * get_Y_id(Y_msoftdrop*(*Y_JESdn_split)[isys]),weight);
-							
-									h_for_limit_ST_sys[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(ST*(*ST_JESup_split)[isys] + 4000.0 * get_Y_id(Y_msoftdrop*(*Y_JESup_split)[isys]),weight);
-									h_for_limit_ST_sys[ireg][jk][kl][lm][mn][2*(isys+1)]  ->Fill(ST*(*ST_JESdn_split)[isys] + 4000.0 * get_Y_id(Y_msoftdrop*(*Y_JESdn_split)[isys]),weight);
+									}
 									
+									if((ST*(*ST_JESup_split)[isys])>=invmassbins[0] && (ST*(*ST_JESup_split)[isys])<invmassbins[ninvmassbins] && Y_msoftdrop*(*Y_JESup_split)[isys]>=msdbins[0] && Y_msoftdrop*(*Y_JESup_split)[isys]<msdbins[nmsdbins]){
+									h_for_limit_ST_sys[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(ST*(*ST_JESup_split)[isys] + 4000.0 * get_Y_id(Y_msoftdrop*(*Y_JESup_split)[isys]),weight);
+									}
+									if((ST*(*ST_JESdn_split)[isys])>=invmassbins[0] && (ST*(*ST_JESdn_split)[isys])<invmassbins[ninvmassbins] && Y_msoftdrop*(*Y_JESdn_split)[isys]>=msdbins[0] && Y_msoftdrop*(*Y_JESdn_split)[isys]<msdbins[nmsdbins]){
+									h_for_limit_ST_sys[ireg][jk][kl][lm][mn][2*(isys+1)]  ->Fill(ST*(*ST_JESdn_split)[isys] + 4000.0 * get_Y_id(Y_msoftdrop*(*Y_JESdn_split)[isys]),weight);
+									}
+									
+									if((ST*(*ST_JESup_split)[isys])>=invmassbins[0] && (ST*(*ST_JESup_split)[isys])<invmassbins[ninvmassbins] && Y_msoftdrop*(*Y_JESup_split)[isys]>=msdbins[0] && Y_msoftdrop*(*Y_JESup_split)[isys]<msdbins[nmsdbins]){
+									h_for_limit_ST_sys_v2[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(float(getbinid(ST*(*ST_JESup_split)[isys],ninvmassbins,invmassbins) + getbinid(Y_msoftdrop*(*Y_JESup_split)[isys],nmsdbins,msdbins)* ninvmassbins),weight);
+									}
+									if((ST*(*ST_JESdn_split)[isys])>=invmassbins[0] && (ST*(*ST_JESdn_split)[isys])<invmassbins[ninvmassbins] && Y_msoftdrop*(*Y_JESdn_split)[isys]>=msdbins[0] && Y_msoftdrop*(*Y_JESdn_split)[isys]<msdbins[nmsdbins]){
+									h_for_limit_ST_sys_v2[ireg][jk][kl][lm][mn][2*(isys+1)]	 ->Fill(float(getbinid(ST*(*ST_JESdn_split)[isys],ninvmassbins,invmassbins) + getbinid(Y_msoftdrop*(*Y_JESdn_split)[isys],nmsdbins,msdbins)* ninvmassbins),weight);
+									}
 									/*
 									if(!isSignal && Ypt_bin>=0 && Ypt_bin<(nyptbins) && CRidx>=0 && CRidx<nCR){
 									
@@ -1972,8 +2110,10 @@ int main(int argc, char *argv[])
 											h_X_mass_sys[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(X_mass*X_JESup_split[isys],weight); 
 											h_X_mass_sys[ireg][jk][kl][lm][mn][2*(isys+1)]	->Fill(X_mass*X_JESdn_split[isys],weight); 
 							
-											h_X_mass_xbin_sys[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(X_mass*X_JESup_split[isys],weight); 
-											h_X_mass_xbin_sys[ireg][jk][kl][lm][mn][2*(isys+1)]	->Fill(X_mass*X_JESdn_split[isys],weight); 
+											if(X_mass*X_JESup_split[isys]>=invmassbins[0] && X_mass*X_JESup_split[isys]<invmassbins[ninvmassbins])
+											{ h_X_mass_xbin_sys[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(X_mass*X_JESup_split[isys],weight); }
+											if(X_mass*X_JESdn_split[isys]>=invmassbins[0] && X_mass*X_JESdn_split[isys]<invmassbins[ninvmassbins])
+											{ h_X_mass_xbin_sys[ireg][jk][kl][lm][mn][2*(isys+1)]	->Fill(X_mass*X_JESdn_split[isys],weight); }
 							
 										}
 							
@@ -2013,8 +2153,10 @@ int main(int argc, char *argv[])
 									float weight_up = weight*shape_weight_up[isys1]/TMath::Max(float(1.e-6),shape_weight_nom[isys1]);
 									float weight_dn = weight*shape_weight_dn[isys1]/TMath::Max(float(1.e-6),shape_weight_nom[isys1]);
 							
-									if(jk==0 && isys1==6) {  weight_up = 1.; weight_dn = 1.; } // b tagging SF
+									//cout<<"sys "<<sysnames[isys]<<" up "<<weight_up<<" dn "<<weight_dn<<" nom "<<weight<<endl;
 							
+									if(jk==0 && string(sysnames[isys]).find("BTG")!=string::npos) {  weight_up = 1.; weight_dn = 1.; } // b tagging SF
+													
 									if(!isSignal){
 						
 										h_Y_msoftdrop_sys[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(Y_msoftdrop,weight_up);
@@ -2044,6 +2186,7 @@ int main(int argc, char *argv[])
 								
 									h_for_limit_ST_sys_v2[ireg][jk][kl][lm][mn][2*(isys+1)-1]->Fill(unrol_ST,weight_up);
 									h_for_limit_ST_sys_v2[ireg][jk][kl][lm][mn][2*(isys+1)]  ->Fill(unrol_ST,weight_dn);
+									
 									/*
 									if(!isSignal){
 									
