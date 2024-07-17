@@ -962,6 +962,8 @@
    
    //int year = 2018; 
    string year = "2017"; 
+   //string year = "2016postVFP"; 
+   //string year = "2016preVFP"; 
    
    // Files to read for SFs //
    
@@ -1198,8 +1200,9 @@
    float puptbins[npuptbins+1] = {10,20,30,40,50};
    float puidcuts[npuptbins];
    float puidcuts_default[npuptbins] = {0.77,0.90,0.96,0.98};
-   //{0.77,0.90,0.96,0.98}; // 2018 & 2017
-   //{0.71,0.87,0.94,0.97}; // 2016
+   //{0.77,0.90,0.96,0.98}; // 2018 & 2017 ("T" WP)
+   //{0.71,0.87,0.94,0.97}; // 2016        ("T" WP)
+   https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetIDUL
  
    int njetAK4_max = 5;
    int nMuon_max = 3;
