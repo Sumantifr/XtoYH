@@ -107,7 +107,7 @@ float* Jet_PUID_SF(TFile *file_jet_puid_SF, float pt, float eta, string year, st
 	
 	string era = "";
 	if(year=="2016preVFP")		{ era = "2016APV";}
-	//else if(year=="2016postVFP"){ era = "2016";}
+	else if(year=="2016postVFP"){ era = "2016";}
 	else { era = year; }
 	
 	sprintf(name,"h2_eff_sfUL%s_%s",era.c_str(),WP.c_str());
@@ -340,14 +340,19 @@ int main(int argc, char *argv[])
    Tout->Branch("hlt_Ele115_CaloIdVT_GsfTrkIdT",&hlt_Ele115_CaloIdVT_GsfTrkIdT,"hlt_Ele115_CaloIdVT_GsfTrkIdT/O");
    Tout->Branch("hlt_Ele40_WPTight_Gsf",&hlt_Ele40_WPTight_Gsf,"hlt_Ele40_WPTight_Gsf/O");
    Tout->Branch("hlt_Ele32_WPTight_Gsf",&hlt_Ele32_WPTight_Gsf,"hlt_Ele32_WPTight_Gsf/O");
+   Tout->Branch("hlt_Ele27_WPTight_Gsf",&hlt_Ele27_WPTight_Gsf,"hlt_Ele27_WPTight_Gsf/O");
    Tout->Branch("hlt_Ele28_eta2p1_WPTight_Gsf_HT150",&hlt_Ele28_eta2p1_WPTight_Gsf_HT150,"hlt_Ele28_eta2p1_WPTight_Gsf_HT150/O");
    Tout->Branch("hlt_Mu37_Ele27_CaloIdL_MW",&hlt_Mu37_Ele27_CaloIdL_MW,"hlt_Mu37_Ele27_CaloIdL_MW/O");
    Tout->Branch("hlt_Mu27_Ele37_CaloIdL_MW",&hlt_Mu27_Ele37_CaloIdL_MW,"hlt_Mu27_Ele37_CaloIdL_MW/O");
    Tout->Branch("hlt_Mu37_TkMu27",&hlt_Mu37_TkMu27,"hlt_Mu37_TkMu27/O");
    Tout->Branch("hlt_DoubleEle25_CaloIdL_MW",&hlt_DoubleEle25_CaloIdL_MW,"hlt_DoubleEle25_CaloIdL_MW/O");
    Tout->Branch("hlt_AK8PFJet500",&hlt_AK8PFJet500,"hlt_AK8PFJet500/O");
+   Tout->Branch("hlt_AK8PFJet450",&hlt_AK8PFJet450,"hlt_AK8PFJet450/O");
    Tout->Branch("hlt_PFJet500",&hlt_PFJet500,"hlt_PFJet500/O");
+   Tout->Branch("hlt_PFJet450",&hlt_PFJet450,"hlt_PFJet450/O");
    Tout->Branch("hlt_HT1050",&hlt_HT1050,"hlt_HT1050/O");
+   Tout->Branch("hlt_HT900",&hlt_HT900,"hlt_HT900/O");
+   Tout->Branch("hlt_HT800",&hlt_HT800,"hlt_HT800/O");
    Tout->Branch("hlt_AK8PFJet400_TrimMass30",&hlt_AK8PFJet400_TrimMass30,"hlt_AK8PFJet400_TrimMass30/O");
    Tout->Branch("hlt_AK8PFHT800_TrimMass50",&hlt_AK8PFHT800_TrimMass50,"hlt_AK8PFHT800_TrimMass50/O");
    Tout->Branch("hlt_Photon200",&hlt_Photon200,"hlt_Photon200/O");
@@ -940,12 +945,19 @@ int main(int argc, char *argv[])
    file_el_sf = new TFile(name,"read");
    //source: https://twiki.cern.ch/twiki/bin/view/CMS/EgammaUL2016To2018
    
-   sprintf(name,"data/pileup/RatioPileup-UL%s-100bins.root",year.c_str());
+   if(year=="2016preVFP"||year=="2016postVFP"){ sprintf(name,"data/pileup/RatioPileup-UL2016-100bins.root");  }
+   else{ sprintf(name,"data/pileup/RatioPileup-UL%s-100bins.root",year.c_str()); }
    file_pu_ratio = new TFile(name,"read");
    
    sprintf(name,"data/PUID_106XTraining_ULRun2_EffSFandUncties_v1.root");
    file_jet_puid_SF = new TFile(name,"read");
    //source: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetIDUL#Data_MC_Efficiency_Scale_Factors
+   
+   cout<<"Auxiliary files used \n";
+   cout<<file_mu_sf->GetName()<<endl;
+   cout<<file_el_sf->GetName()<<endl;
+   cout<<file_pu_ratio->GetName()<<endl;
+   cout<<file_jet_puid_SF->GetName()<<endl;
    
    int count =0;
    string fileName;
@@ -986,14 +998,19 @@ int main(int argc, char *argv[])
    fChain->SetBranchAddress("hlt_Ele115_CaloIdVT_GsfTrkIdT", &hlt_Ele115_CaloIdVT_GsfTrkIdT, &b_hlt_Ele115_CaloIdVT_GsfTrkIdT);
    fChain->SetBranchAddress("hlt_Ele40_WPTight_Gsf", &hlt_Ele40_WPTight_Gsf, &b_hlt_Ele40_WPTight_Gsf);
    fChain->SetBranchAddress("hlt_Ele32_WPTight_Gsf", &hlt_Ele32_WPTight_Gsf, &b_hlt_Ele32_WPTight_Gsf);
+   fChain->SetBranchAddress("hlt_Ele27_WPTight_Gsf", &hlt_Ele27_WPTight_Gsf, &b_hlt_Ele27_WPTight_Gsf);//2016
    fChain->SetBranchAddress("hlt_Ele28_eta2p1_WPTight_Gsf_HT150", &hlt_Ele28_eta2p1_WPTight_Gsf_HT150, &b_hlt_Ele28_eta2p1_WPTight_Gsf_HT150);
    fChain->SetBranchAddress("hlt_Mu37_Ele27_CaloIdL_MW", &hlt_Mu37_Ele27_CaloIdL_MW, &b_hlt_Mu37_Ele27_CaloIdL_MW);
    fChain->SetBranchAddress("hlt_Mu27_Ele37_CaloIdL_MW", &hlt_Mu27_Ele37_CaloIdL_MW, &b_hlt_Mu27_Ele37_CaloIdL_MW);
    fChain->SetBranchAddress("hlt_Mu37_TkMu27", &hlt_Mu37_TkMu27, &b_hlt_Mu37_TkMu27);
    fChain->SetBranchAddress("hlt_DoubleEle25_CaloIdL_MW", &hlt_DoubleEle25_CaloIdL_MW, &b_hlt_DoubleEle25_CaloIdL_MW);
    fChain->SetBranchAddress("hlt_AK8PFJet500", &hlt_AK8PFJet500, &b_hlt_AK8PFJet500);
+   fChain->SetBranchAddress("hlt_AK8PFJet450", &hlt_AK8PFJet450, &b_hlt_AK8PFJet450);//2016
    fChain->SetBranchAddress("hlt_PFJet500", &hlt_PFJet500, &b_hlt_PFJet500);
+   fChain->SetBranchAddress("hlt_PFJet450", &hlt_PFJet450, &b_hlt_PFJet450);//2016
    fChain->SetBranchAddress("hlt_HT1050", &hlt_HT1050, &b_hlt_HT1050);
+   fChain->SetBranchAddress("hlt_HT900", &hlt_HT900, &b_hlt_HT900); //2016
+   fChain->SetBranchAddress("hlt_HT800", &hlt_HT800, &b_hlt_HT800); //2016
    fChain->SetBranchAddress("hlt_AK8PFJet400_TrimMass30", &hlt_AK8PFJet400_TrimMass30, &b_hlt_AK8PFJet400_TrimMass30);
    fChain->SetBranchAddress("hlt_AK8PFHT800_TrimMass50", &hlt_AK8PFHT800_TrimMass50, &b_hlt_AK8PFHT800_TrimMass50);
    fChain->SetBranchAddress("hlt_Photon200", &hlt_Photon200, &b_hlt_Photon200);
@@ -1711,6 +1728,13 @@ int main(int argc, char *argv[])
     single_pids.push_back(13);
     single_other_pt_cuts.push_back(-100);
     single_other_pids.push_back(0);
+    if(year=="2016preVFP"||year=="2016postVFP"){
+	single_hlts.push_back(hlt_TkMu100);
+    single_pt_cuts.push_back(100+add_ptcut_lep);
+    single_pids.push_back(13);
+    single_other_pt_cuts.push_back(-100);
+    single_other_pids.push_back(0);
+	}
     if(year=="2017"){
 	single_hlts.push_back(hlt_TkMu100);
     single_pt_cuts.push_back(100+add_ptcut_lep);
@@ -1724,16 +1748,7 @@ int main(int argc, char *argv[])
     single_other_pids.push_back(0);
 	}
     // Single electron trigger //	
-    single_hlts.push_back(hlt_Ele32_WPTight_Gsf);
-    single_pt_cuts.push_back(32+add_ptcut_lep);
-    single_pids.push_back(11);
-    single_other_pt_cuts.push_back(-100);
-    single_other_pids.push_back(0);
-    single_hlts.push_back(hlt_Ele40_WPTight_Gsf);
-    single_pt_cuts.push_back(40+add_ptcut_lep);
-    single_pids.push_back(11);
-    single_other_pt_cuts.push_back(-100);
-    single_other_pids.push_back(0);
+    
     single_hlts.push_back(hlt_Ele115_CaloIdVT_GsfTrkIdT);
     single_pt_cuts.push_back(115+add_ptcut_lep);
     single_pids.push_back(11);
@@ -1744,6 +1759,25 @@ int main(int argc, char *argv[])
     single_pids.push_back(11);
     single_other_pt_cuts.push_back(165+15);
     single_other_pids.push_back(1);
+    if(year=="2016preVFP"||year=="2016postVFP"){
+	single_hlts.push_back(hlt_Ele27_WPTight_Gsf);
+    single_pt_cuts.push_back(27+add_ptcut_lep);
+    single_pids.push_back(11);
+    single_other_pt_cuts.push_back(-100);
+    single_other_pids.push_back(0);
+	}
+	if(year=="2017"||year=="2018"){
+	single_hlts.push_back(hlt_Ele32_WPTight_Gsf);
+    single_pt_cuts.push_back(32+add_ptcut_lep);
+    single_pids.push_back(11);
+    single_other_pt_cuts.push_back(-100);
+    single_other_pids.push_back(0);
+    single_hlts.push_back(hlt_Ele40_WPTight_Gsf);
+    single_pt_cuts.push_back(40+add_ptcut_lep);
+    single_pids.push_back(11);
+    single_other_pt_cuts.push_back(-100);
+    single_other_pids.push_back(0);
+	}
     if(year=="2017"){
 	single_hlts.push_back(hlt_Ele32_WPTight_Gsf_L1DoubleEG);
     single_pt_cuts.push_back(32+add_ptcut_lep);
@@ -1763,6 +1797,14 @@ int main(int argc, char *argv[])
 	jet_hlts.push_back(hlt_PFJet500);
 	jet_pt_cuts.push_back(500+add_ptcut_jet);
 	jet_pids.push_back(1);
+	if(year=="2016preVFP"||year=="2016postVFP"){
+	jet_hlts.push_back(hlt_AK8PFJet450);
+    jet_pt_cuts.push_back(450+add_ptcut_jet);
+    jet_pids.push_back(2);
+    jet_hlts.push_back(hlt_PFJet450);
+    jet_pt_cuts.push_back(450+add_ptcut_jet);
+    jet_pids.push_back(1);	
+	}
 	
 	bool anytrig_pass(false);
 	bool trig_threshold_pass(false); 
@@ -2309,7 +2351,7 @@ int main(int argc, char *argv[])
     // ========== Now choose RECO objects for different candidates store  & store their information  ========= //
 	
 	if(!Flag_pass_baseline){ 
-		Tout->Fill();
+		//Tout->Fill();
 		continue;
 	}
 	else{

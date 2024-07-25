@@ -72,8 +72,12 @@
    Bool_t          hlt_Mu37_TkMu27;
    Bool_t          hlt_DoubleEle25_CaloIdL_MW;
    Bool_t          hlt_AK8PFJet500;
+   Bool_t          hlt_AK8PFJet450;
    Bool_t          hlt_PFJet500;
+   Bool_t          hlt_PFJet450;
    Bool_t          hlt_HT1050;
+   Bool_t          hlt_HT900;
+   Bool_t          hlt_HT800;
    Bool_t          hlt_AK8PFJet400_TrimMass30;
    Bool_t          hlt_AK8PFHT800_TrimMass50;
    Bool_t          hlt_Photon200;
@@ -87,6 +91,7 @@
    Bool_t		   hlt_OldMu100;
    Bool_t		   hlt_Ele32_WPTight_Gsf_L1DoubleEG;
    Bool_t		   hlt_Ele35_WPTight_Gsf;
+   Bool_t		   hlt_Ele27_WPTight_Gsf;
    Bool_t		   hlt_DoubleEle33_CaloIdL_MW;
    Bool_t		   hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8;
    Bool_t		   hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8;
@@ -524,8 +529,12 @@
    TBranch        *b_hlt_Mu37_TkMu27;   //!
    TBranch        *b_hlt_DoubleEle25_CaloIdL_MW;   //!
    TBranch        *b_hlt_AK8PFJet500;   //!
+   TBranch        *b_hlt_AK8PFJet450;   //!
    TBranch        *b_hlt_PFJet500;   //!
+   TBranch        *b_hlt_PFJet450;   //!
    TBranch        *b_hlt_HT1050;   //!
+   TBranch        *b_hlt_HT900;   //!
+   TBranch        *b_hlt_HT800;   //!
    TBranch        *b_hlt_AK8PFJet400_TrimMass30;   //!
    TBranch        *b_hlt_AK8PFHT800_TrimMass50;   //!
    TBranch        *b_hlt_Photon200;   //!
@@ -539,6 +548,7 @@
    TBranch		  *b_hlt_OldMu100;
    TBranch		  *b_hlt_Ele32_WPTight_Gsf_L1DoubleEG;
    TBranch		  *b_hlt_Ele35_WPTight_Gsf;
+   TBranch		  *b_hlt_Ele27_WPTight_Gsf;
    TBranch		  *b_hlt_DoubleEle33_CaloIdL_MW;
    TBranch		  *b_hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8;
    TBranch		  *b_hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8;
@@ -961,8 +971,8 @@
    // YEAR //
    
    //int year = 2018; 
-   string year = "2017"; 
-   //string year = "2016postVFP"; 
+   //string year = "2017"; 
+   string year = "2016postVFP"; 
    //string year = "2016preVFP"; 
    
    // Files to read for SFs //
