@@ -1037,7 +1037,7 @@ private:
   
   // HL triggers //
   
-  static const int nHLTmx = 44;
+  static const int nHLTmx = 48;
   const char *hlt_name[nHLTmx] = {"HLT_IsoMu24_v","HLT_Mu50_v",  // single-muon triggers
 				  "HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v","HLT_Ele115_CaloIdVT_GsfTrkIdT_v", "HLT_Ele40_WPTight_Gsf_v",  "HLT_Ele32_WPTight_Gsf_v", "HLT_Ele28_eta2p1_WPTight_Gsf_HT150_v", // single-electron triggers
 				  "HLT_Mu37_Ele27_CaloIdL_MW_v", "HLT_Mu27_Ele37_CaloIdL_MW_v", "HLT_Mu37_TkMu27_v", "HLT_DoubleEle25_CaloIdL_MW_v", // double-lepton triggers
@@ -1047,7 +1047,8 @@ private:
                   "HLT_IsoMu27_v","HLT_TkMu100_v","HLT_OldMu100_v","HLT_Ele32_WPTight_Gsf_L1DoubleEG_v","HLT_Ele35_WPTight_Gsf_v","HLT_DoubleEle33_CaloIdL_MW_v","HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v","HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v", // the addition for 2017               
 				  "HLT_IsoTkMu24_v", "HLT_Ele27_WPTight_Gsf_v","HLT_AK8PFJet450_v", "HLT_PFJet450_v", "HLT_PFHT800_v", "HLT_PFHT900_v", // the addition for 2016
 				  "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v","HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v","HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v","HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v","HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v","HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v","HLT_Photon175_v",//more additions for 2016
-				  "HLT_TkMu50_v"   //one more muon trigger for 2016
+				  "HLT_TkMu50_v",   //one more muon trigger for 2016
+				  "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL","HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL","HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ","HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ" //emu triggers for 2016 & 2017
   }; 
 
   bool hlt_IsoMu24;
@@ -1094,7 +1095,10 @@ private:
   bool hlt_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60;
   bool hlt_PFMETNoMu140_PFMHTNoMu140_IDTight;
   bool hlt_PFMETTypeOne140_PFMHT140_IDTight;
- 
+  bool hlt_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL;
+  bool hlt_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL;
+  bool hlt_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ;
+  bool hlt_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ;
   
   int trig_value;
   
@@ -1366,6 +1370,12 @@ Leptop::Leptop(const edm::ParameterSet& pset):
   T1->Branch("hlt_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL", &hlt_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL, "hlt_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL/O");
   T1->Branch("hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ", &hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ, "hlt_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ/O");
   T1->Branch("hlt_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ", &hlt_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ, "hlt_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ/O");
+  
+  T1->Branch("hlt_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL", &hlt_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL, "hlt_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL/O");
+  T1->Branch("hlt_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ", &hlt_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ, "hlt_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ/O");
+  T1->Branch("hlt_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL", &hlt_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL, "hlt_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL/O");
+  T1->Branch("hlt_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", &hlt_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ, "hlt_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ/O");
+  
   T1->Branch("hlt_AK8PFJet500",&hlt_AK8PFJet500,"hlt_AK8PFJet500/O");
   T1->Branch("hlt_AK8PFJet450",&hlt_AK8PFJet450,"hlt_AK8PFJet450/O");
   T1->Branch("hlt_PFJet500",&hlt_PFJet500,"hlt_PFJet500/O");
@@ -2547,6 +2557,11 @@ Leptop::analyze(const edm::Event& iEvent, const edm::EventSetup& pset) {
       else if(jk==42) {  hlt_Photon175 = booltrg[jk]; }
       //
       else if(jk==43) {  hlt_TkMu50 = booltrg[jk]; }
+      //
+      else if(jk==44) {  hlt_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL = booltrg[jk]; }
+      else if(jk==45) {  hlt_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL = booltrg[jk]; }
+      else if(jk==46) {  hlt_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ = booltrg[jk]; }
+      else if(jk==47) {  hlt_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ = booltrg[jk]; }
       
   }
   
